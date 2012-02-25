@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent" android:baselineAligned="true" android:orientation="vertical">
+
+        <Button android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/startStopService" android:text="start / stop"></Button>
+
+        <TextView android:id="@+id/textView1" android:layout_height="wrap_content" android:layout_width="wrap_content" android:lines="2" android:gravity="bottom" android:text="Shared memory path"></TextView>
+        <EditText android:id="@+id/sharedMemoryPathName" android:layout_height="wrap_content" android:text="shared memory path" android:layout_width="fill_parent" android:inputType="text"></EditText>
+
+        <TextView android:id="@+id/textView2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sequence log print setting" android:lines="2" android:gravity="bottom"></TextView>
+        <Button android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="connect / disconnect" android:id="@+id/connDisconnPrint"></Button>
+
+        <TextView android:id="@+id/textView3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="IP address" android:lines="2" android:gravity="bottom"></TextView>
+        <EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/ipAddress" android:text="IP address" android:inputType="text"></EditText>
+
+        <TextView android:id="@+id/textView4" android:text="log output dir" android:layout_width="wrap_content" android:layout_height="wrap_content" android:lines="2" android:gravity="bottom"></TextView>
+        <EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="log output dir" android:inputType="text" android:id="@+id/logOutputDir"></EditText>
+
+        <TextView android:id="@+id/textView5" android:text="max file size" android:layout_width="wrap_content" android:layout_height="wrap_content" android:lines="2" android:gravity="bottom"></TextView>
+
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent" android:baselineAligned="true" android:orientation="horizontal">
+
+		    <EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="max file size" android:inputType="number" android:id="@+id/maxFileSize" android:layout_weight="1"></EditText>
+		    <Spinner android:id="@+id/maxFileSizeUnit" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="2"></Spinner>
+		</LinearLayout>
+
+	    <TextView android:id="@+id/textView6" android:text="max file count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:lines="2" android:gravity="bottom"></TextView>
+	    <EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="max file count" android:inputType="text" android:id="@+id/maxFileCount"></EditText>
+
+        <TextView android:id="@+id/textView7" android:text="" android:layout_width="wrap_content" android:layout_height="wrap_content" android:lines="2" android:gravity="bottom"></TextView>
+        <CheckBox
+	        android:id="@+id/rootAlways"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="ROOT is ALWAYS" />
+
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension name="slog" version="1.0.1">
+  <summary>Sequence Log</summary>
+  <description><?data
+This is Sequence Log Library.
+  ?></description>
+
+  <maintainers>
+    <maintainer>
+      <user>nandai</user>
+      <name>nandai</name>
+      <email>support@log-tools.net</email>
+      <role>lead</role>
+    </maintainer>
+  </maintainers>
+
+  <license>PHP</license>
+
+  <channel>pecl.php.net</channel>
+
+  <release>
+    <version>1.0.1</version>
+    <date>2011-12-08</date>
+    <state>stable</state>
+    <notes><?data
+- Initial release.
+    ?></notes>
+  </release>
+
+<deps language="cpp" platform="all">
+  <with name="slog" testfile="include/slog/slog.h">
+    <header name="slog/SequenceLog.h" />
+    <lib name="slog" />
+  </with>
+</deps>
+
+    <constant type="int" name="KEEP" value="0"></constant>
+    <constant type="int" name="OUTPUT_ALL" value="1"></constant>
+    <constant type="int" name="ALWAYS" value="2"></constant>
+    <constant type="int" name="ROOT" value="3"></constant>
+
+    <function name="slogSetFileName">
+      <proto>void slogSetFileName(string name)</proto>
+      <code>
+        setSequenceLogFileName(name);
+      </code>
+    </function>
+
+    <function name="slogSetRootFlag">
+      <proto>void slogSetRootFlag(int outputFlag)</proto>
+      <code>
+        setRootFlag(outputFlag);
+      </code>
+    </function>
+
+    <function name="slogStepIn">
+      <proto>int slogStepIn(string className, string funcName[, int outputFlag = 0])</proto>
+      <code>
+        slog::SequenceLog* slogObj = new slog::SequenceLog(className, funcName, (slog::SequenceLogOutputFlag)outputFlag);
+        RETURN_LONG((long)slogObj);
+      </code>
+    </function>
+
+    <function name="slogStepOut">
+      <proto>void slogStepOut(int slog)</proto>
+      <code>
+        slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
+        delete slogObj;
+      </code>
+    </function>
+
+    <function name="slogD">
+      <proto>void slogD(int slog, string message)</proto>
+      <code>
+        slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
+        slogObj->message(slog::DEBUG, "%s", message);
+      </code>
+    </function>
+
+    <function name="slogI">
+      <proto>void slogI(int slog, string message)</proto>
+      <code>
+        slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
+        slogObj->message(slog::INFO, "%s", message);
+      </code>
+    </function>
+
+    <function name="slogW">
+      <proto>void slogW(int slog, string message)</proto>
+      <code>
+        slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
+        slogObj->message(slog::WARN, "%s", message);
+      </code>
+    </function>
+
+    <function name="slogE">
+      <proto>void slogE(int slog, string message)</proto>
+      <code>
+        slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
+        slogObj->message(slog::ERROR, "%s", message);
+      </code>
+    </function>
+</extension>
