@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	FileFind.cpp
- *  \brief	ファイル検索クラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   FileFind.cpp
+ *  \brief  ファイル検索クラス
+ *  \author Copyright 2011 log-tools.net
  */
 #include "slog/FileFind.h"
 #include "slog/FileInfo.h"
@@ -27,96 +27,96 @@
 #if defined(_WINDOWS)
 // no implement
 #elif defined(__linux__) && !defined(__ANDROID__)
-	#include <glob.h>
+    #include <glob.h>
 #else
-	#include <dirent.h>
+    #include <dirent.h>
 #endif
 
 namespace slog
 {
 
 /*!
- *  \brief	コンストラクタ
+ *  \brief  コンストラクタ
  */
 FileFind::FileFind()
 {
-	setListener(NULL);
+    setListener(NULL);
 }
 
 /*!
- *  \brief	検索実行
+ *  \brief  検索実行
  */
 void FileFind::exec(
-	const CoreString& fileName) const	//!< 検索パス
+    const CoreString& fileName) const   //!< 検索パス
 {
-	FileInfo info = fileName;
-	const CoreString& canonicalPath = info.getCanonicalPath();
-	const char* p =   canonicalPath.getBuffer();
+    FileInfo info = fileName;
+    const CoreString& canonicalPath = info.getCanonicalPath();
+    const char* p =   canonicalPath.getBuffer();
 
 #if defined(_WINDOWS)
-	WIN32_FIND_DATA fd;
-	HANDLE handle = FindFirstFile(p, &fd);
+    WIN32_FIND_DATA fd;
+    HANDLE handle = FindFirstFile(p, &fd);
 
-	int32_t len = (int32_t)(strrchr(p, '\\') - p);
-	FixedString<MAX_PATH> path;
+    int32_t len = (int32_t)(strrchr(p, '\\') - p);
+    FixedString<MAX_PATH> path;
 
-	if (handle == INVALID_HANDLE_VALUE)
-		return;
+    if (handle == INVALID_HANDLE_VALUE)
+        return;
 
-	while (FindNextFile(handle, &fd))
-	{
-		if (strcmp(fd.cFileName, "..") == 0)
-			continue;
+    while (FindNextFile(handle, &fd))
+    {
+        if (strcmp(fd.cFileName, "..") == 0)
+            continue;
 
-		path.format("%.*s\\%s", len, p, fd.cFileName);
-		TRACE("    FileFind::exec() / path='%s'\n", path.getBuffer());
+        path.format("%.*s\\%s", len, p, fd.cFileName);
+        TRACE("    FileFind::exec() / path='%s'\n", path.getBuffer());
 
-		mListener->onFind(path);
-	}
+        mListener->onFind(path);
+    }
 
-	FindClose(handle);
+    FindClose(handle);
 
 #elif defined(__linux__) && !defined(__ANDROID__)
-	glob_t globbuf;
-	int32_t result = glob(p, GLOB_NOSORT, NULL, &globbuf);
+    glob_t globbuf;
+    int32_t result = glob(p, GLOB_NOSORT, NULL, &globbuf);
 
-	if (result != 0)
-		return;
+    if (result != 0)
+        return;
 
-	for (int32_t index = 0; index < globbuf.gl_pathc; index++)
-	{
-		PointerString path = globbuf.gl_pathv[index];
-		TRACE("    FileFind::exec() / path='%s'\n", path.getBuffer());
+    for (int32_t index = 0; index < globbuf.gl_pathc; index++)
+    {
+        PointerString path = globbuf.gl_pathv[index];
+        TRACE("    FileFind::exec() / path='%s'\n", path.getBuffer());
 
-		mListener->onFind(path);
-	}
+        mListener->onFind(path);
+    }
 
-	globfree(&globbuf);
+    globfree(&globbuf);
 
 #else
-	// Android用手抜きバージョン
-	*(strrchr(p, '/')) = '\0';
+    // Android用手抜きバージョン
+    *(strrchr(p, '/')) = '\0';
 
-	DIR* dir = opendir(p);
-	dirent* ent;
+    DIR* dir = opendir(p);
+    dirent* ent;
 
-	if (dir == NULL)
-		return;
+    if (dir == NULL)
+        return;
 
-	FixedString<MAX_PATH> path;
+    FixedString<MAX_PATH> path;
 
-	while ((ent = readdir(dir)) != NULL)
-	{
-		if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
-			continue;
+    while ((ent = readdir(dir)) != NULL)
+    {
+        if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
+            continue;
 
-		path.format("%s/%s", p, ent->d_name);
-		TRACE("    FileFind::exec() / path='%s'\n", path.getBuffer());
+        path.format("%s/%s", p, ent->d_name);
+        TRACE("    FileFind::exec() / path='%s'\n", path.getBuffer());
 
-		mListener->onFind(path);
-	}
+        mListener->onFind(path);
+    }
 
-	closedir(dir);
+    closedir(dir);
 #endif
 }
 

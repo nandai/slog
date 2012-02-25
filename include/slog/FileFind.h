@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	FileFind.h
- *  \brief	ファイル検索クラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   FileFind.h
+ *  \brief  ファイル検索クラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 
@@ -26,33 +26,33 @@ namespace slog
 class CoreString;
 
 /*!
- *  \brief	ファイル検索リスナークラス
+ *  \brief  ファイル検索リスナークラス
  */
 class FileFindListener
 {
-public:		virtual void onFind(const CoreString& path) {}
+public:     virtual void onFind(const CoreString& path) {}
 };
 
 /*!
- *  \brief	ファイル検索クラス
+ *  \brief  ファイル検索クラス
  */
 class FileFind
 {
-			FileFindListener	mDefaultListener;	//!< デフォルトリスナー
-			FileFindListener*	mListener;			//!< リスナー
+            FileFindListener    mDefaultListener;   //!< デフォルトリスナー
+            FileFindListener*   mListener;          //!< リスナー
 
-public:		FileFind();
+public:     FileFind();
 
-			void exec(const CoreString& fileName) const;
-			void setListener(FileFindListener* listener);
+            void exec(const CoreString& fileName) const;
+            void setListener(FileFindListener* listener);
 };
 
 /*!
- *  \brief	リスナー設定
+ *  \brief  リスナー設定
  */
 inline void FileFind::setListener(FileFindListener* listener)
 {
-	mListener = (listener ? listener : &mDefaultListener);
+    mListener = (listener ? listener : &mDefaultListener);
 }
 
 } // namespace slog

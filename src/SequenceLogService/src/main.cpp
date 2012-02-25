@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	main.cpp
- *  \brief	シーケンスログサービス (JNI)
- *  \author	Copyright 2011 log-tools.net
+ *  \file   main.cpp
+ *  \brief  シーケンスログサービス (JNI)
+ *  \author Copyright 2011 log-tools.net
  */
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
@@ -28,24 +28,24 @@ using namespace slog;
 #if defined(__ANDROID__) && !defined(__EXEC__)
 #include "slog/JavaString.h"
 
-static jfieldID	s_refer;
+static jfieldID s_refer;
 
 /*!
- *  \brief	JNIメソッド登録
+ *  \brief  JNIメソッド登録
  */
 static bool registerNatives(JNIEnv* env, const char* className, const JNINativeMethod* methods, int numMethods)
 {
-	jclass clazz = env->FindClass(className);
-	bool result = false;
+    jclass clazz = env->FindClass(className);
+    bool result = false;
 
-	if (clazz == NULL)
-		return false;
+    if (clazz == NULL)
+        return false;
 
-	if (env->RegisterNatives(clazz, methods, numMethods) == 0)
-		result = true;
+    if (env->RegisterNatives(clazz, methods, numMethods) == 0)
+        result = true;
 
-	env->DeleteLocalRef(clazz);
-	return result;
+    env->DeleteLocalRef(clazz);
+    return result;
 }
 
 /*
@@ -55,11 +55,11 @@ static bool registerNatives(JNIEnv* env, const char* className, const JNINativeM
  */
 static void JNICALL create(JNIEnv* env, jobject thiz)
 {
-	jclass clazz = env->GetObjectClass(thiz);
-	s_refer = env->GetFieldID(clazz, "mRefer", "I");
+    jclass clazz = env->GetObjectClass(thiz);
+    s_refer = env->GetFieldID(clazz, "mRefer", "I");
 
-	SequenceLogServiceMain* serviceMain = new SequenceLogServiceMain;
-	env->SetIntField(thiz, s_refer, (int)serviceMain);
+    SequenceLogServiceMain* serviceMain = new SequenceLogServiceMain;
+    env->SetIntField(thiz, s_refer, (int)serviceMain);
 }
 
 /*
@@ -68,24 +68,24 @@ static void JNICALL create(JNIEnv* env, jobject thiz)
  * Signature: (Ljava/lang/String;Ljava/lang/String;IIZ)V
  */
 static void JNICALL start(JNIEnv* env, jobject thiz,
-	jstring aSharedMemoryPathName,
-	jstring aLogOutputDir,
-	jint maxFileSize,
-	jint maxFileCount,
-	jboolean rootAlways)
+    jstring aSharedMemoryPathName,
+    jstring aLogOutputDir,
+    jint maxFileSize,
+    jint maxFileCount,
+    jboolean rootAlways)
 {
-	JavaString sharedMemoryPathName(env, aSharedMemoryPathName);
-	JavaString logOutputDir(        env, aLogOutputDir);
+    JavaString sharedMemoryPathName(env, aSharedMemoryPathName);
+    JavaString logOutputDir(        env, aLogOutputDir);
 
-	SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
 
-	serviceMain->setSharedMemoryPathName(sharedMemoryPathName);
-//	serviceMain->setServiceListener(this);
-	serviceMain->setLogFolderName(logOutputDir);
-	serviceMain->setMaxFileSize(maxFileSize);
-	serviceMain->setMaxFileCount(maxFileCount);
-	serviceMain->setRootAlways(rootAlways);
-	serviceMain->start();
+    serviceMain->setSharedMemoryPathName(sharedMemoryPathName);
+//  serviceMain->setServiceListener(this);
+    serviceMain->setLogFolderName(logOutputDir);
+    serviceMain->setMaxFileSize(maxFileSize);
+    serviceMain->setMaxFileCount(maxFileCount);
+    serviceMain->setRootAlways(rootAlways);
+    serviceMain->start();
 }
 
 /*
@@ -95,13 +95,13 @@ static void JNICALL start(JNIEnv* env, jobject thiz,
  */
 static void JNICALL stop(JNIEnv* env, jobject thiz)
 {
-	SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
-//	TRACE("    serviceMain=0x%08X\n", serviceMain);
+    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+//  TRACE("    serviceMain=0x%08X\n", serviceMain);
 
-	serviceMain->interrupt();
-	serviceMain->join();
+    serviceMain->interrupt();
+    serviceMain->join();
 
-//	env->SetIntField(thiz, s_refer, 0);
+//  env->SetIntField(thiz, s_refer, 0);
 }
 
 /*
@@ -111,18 +111,18 @@ static void JNICALL stop(JNIEnv* env, jobject thiz)
  */
 static jboolean JNICALL canStop(JNIEnv* env, jobject thiz)
 {
-	SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
-	SequenceLogServiceManager* sum = serviceMain->getSequenceLogServiceManager();
+    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+    SequenceLogServiceManager* sum = serviceMain->getSequenceLogServiceManager();
 
-	for (SequenceLogServiceManager::iterator i = sum->begin(); i != sum->end(); i++)
-	{
-		SequenceLogService* service = *i;
+    for (SequenceLogServiceManager::iterator i = sum->begin(); i != sum->end(); i++)
+    {
+        SequenceLogService* service = *i;
 
-		if (service->isAlive())
-			return JNI_FALSE;
-	}
+        if (service->isAlive())
+            return JNI_FALSE;
+    }
 
-	return JNI_TRUE;
+    return JNI_TRUE;
 }
 
 /*
@@ -132,12 +132,12 @@ static jboolean JNICALL canStop(JNIEnv* env, jobject thiz)
  */
 static jboolean JNICALL connectSequenceLogPrint(JNIEnv* env, jobject thiz, jstring aIpAddress)
 {
-	JavaString ipAddress(env, aIpAddress);
+    JavaString ipAddress(env, aIpAddress);
 
-	SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
-	serviceMain->connectSequenceLogPrint(ipAddress);
+    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+    serviceMain->connectSequenceLogPrint(ipAddress);
 
-	return (serviceMain->isConnectSequenceLogPrint() ? JNI_TRUE : JNI_FALSE);
+    return (serviceMain->isConnectSequenceLogPrint() ? JNI_TRUE : JNI_FALSE);
 }
 
 /*
@@ -147,36 +147,36 @@ static jboolean JNICALL connectSequenceLogPrint(JNIEnv* env, jobject thiz, jstri
  */
 static void JNICALL disconnectSequenceLogPrint(JNIEnv* env, jobject thiz)
 {
-	SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
-	serviceMain->disconnectSequenceLogPrint();
+    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+    serviceMain->disconnectSequenceLogPrint();
 }
 
 // JNIメソッド配列
 static JNINativeMethod sMethods[] =
 {
-	{"create",                     "()V",                                        (void*)create                    },
-	{"start",                      "(Ljava/lang/String;Ljava/lang/String;IIZ)V", (void*)start                     },
-	{"stop",                       "()V",                                        (void*)stop                      },
-	{"canStop",                    "()Z",                                        (void*)canStop                   },
-	{"connectSequenceLogPrint",    "(Ljava/lang/String;)Z",                      (void*)connectSequenceLogPrint   },
-	{"disconnectSequenceLogPrint", "()V",                                        (void*)disconnectSequenceLogPrint},
+    {"create",                     "()V",                                        (void*)create                    },
+    {"start",                      "(Ljava/lang/String;Ljava/lang/String;IIZ)V", (void*)start                     },
+    {"stop",                       "()V",                                        (void*)stop                      },
+    {"canStop",                    "()Z",                                        (void*)canStop                   },
+    {"connectSequenceLogPrint",    "(Ljava/lang/String;)Z",                      (void*)connectSequenceLogPrint   },
+    {"disconnectSequenceLogPrint", "()V",                                        (void*)disconnectSequenceLogPrint},
 };
 
 /*!
- *  \brief	Java Native Interface OnLoad
+ *  \brief  Java Native Interface OnLoad
  */
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
-	JNIEnv* env = NULL;
-	jint version = JNI_VERSION_1_6;
+    JNIEnv* env = NULL;
+    jint version = JNI_VERSION_1_6;
 
-	if (vm->GetEnv((void**)&env, version) != JNI_OK)
-		return -1;
+    if (vm->GetEnv((void**)&env, version) != JNI_OK)
+        return -1;
 
-	if (registerNatives(env, "net/log_tools/slog/service/App", sMethods, sizeof(sMethods) / sizeof(sMethods[0])) == false)
-		return -1;
+    if (registerNatives(env, "net/log_tools/slog/service/App", sMethods, sizeof(sMethods) / sizeof(sMethods[0])) == false)
+        return -1;
 
-	return version;
+    return version;
 }
 
 #else // defined(__ANDROID__) && !defined(__EXEC__)
@@ -187,111 +187,111 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 
 class Application : public SequenceLogServiceThreadListener
 {
-public:		void main(int argc, char** argv);
+public:     void main(int argc, char** argv);
 
-			virtual void onInitialized(   Thread* thread);
-			virtual void onTerminated(    Thread* thread);
-			virtual void onLogFileChanged(Thread* thread);
+            virtual void onInitialized(   Thread* thread);
+            virtual void onTerminated(    Thread* thread);
+            virtual void onLogFileChanged(Thread* thread);
 };
 
 /*!
- *  \brief	アプリケーションメイン
+ *  \brief  アプリケーションメイン
  */
 void Application::main(int argc, char** argv)
 {
-	// コンフィグファイル名取得
-	char defaultConf[] = "/etc/slog.conf";
-	char* conf = defaultConf;
+    // コンフィグファイル名取得
+    char defaultConf[] = "/etc/slog.conf";
+    char* conf = defaultConf;
 
-	if (argc > 1)
-	{
-		if (strcmp(argv[1], "-f") != 0)
-		{
-			printf("invalid option: '%s'\n", argv[1]);
-			return;
-		}
+    if (argc > 1)
+    {
+        if (strcmp(argv[1], "-f") != 0)
+        {
+            printf("invalid option: '%s'\n", argv[1]);
+            return;
+        }
 
-		if (argc == 2)
-		{
-			printf("option requires an argument: '%s'\n", argv[1]);
-			return;
-		}
+        if (argc == 2)
+        {
+            printf("option requires an argument: '%s'\n", argv[1]);
+            return;
+        }
 
-		conf = argv[2];
-	}
+        conf = argv[2];
+    }
 
-	// 初期値
-	String sharedMemoryDir = "/tmp";
+    // 初期値
+    String sharedMemoryDir = "/tmp";
     int32_t sharedMemoryItemCount = 100;
-	String printIp = "127.0.0.1";
-	String logOutputDir = "/var/log/slog";
-	uint32_t size = 0;
-	int32_t count = 0;
-	bool rootAlways = true;
+    String printIp = "127.0.0.1";
+    String logOutputDir = "/var/log/slog";
+    uint32_t size = 0;
+    int32_t count = 0;
+    bool rootAlways = true;
 
-	// コンフィグファイル読み込み
-	File file;
-	file.open(PointerString(conf), File::READ);
+    // コンフィグファイル読み込み
+    File file;
+    file.open(PointerString(conf), File::READ);
 
-	String str;
-	String fmt1 = "[key] [value1] [value2]";
-	Tokenizer tokenizer(fmt1);
+    String str;
+    String fmt1 = "[key] [value1] [value2]";
+    Tokenizer tokenizer(fmt1);
 
-	while (file.read(&str))
-	{
-		tokenizer.exec(str);
+    while (file.read(&str))
+    {
+        tokenizer.exec(str);
 
-		const CoreString& key = tokenizer.getValue("key");
-		const Variant& value1 = tokenizer.getValue("value1");
+        const CoreString& key = tokenizer.getValue("key");
+        const Variant& value1 = tokenizer.getValue("value1");
 
-		if (key == "SHARED_MEMORY_DIR")
-			sharedMemoryDir.copy(value1);
+        if (key == "SHARED_MEMORY_DIR")
+            sharedMemoryDir.copy(value1);
 
         if (key == "SHARED_MEMORY_ITEM_COUNT")
             sharedMemoryItemCount = value1;
 
-		if (key == "LOG_PRINT_IP")
-			printIp.copy(value1);
+        if (key == "LOG_PRINT_IP")
+            printIp.copy(value1);
 
-		if (key == "LOG_OUTPUT_DIR")
-			logOutputDir.copy(value1);
+        if (key == "LOG_OUTPUT_DIR")
+            logOutputDir.copy(value1);
 
-		if (key == "MAX_FILE_SIZE")
-		{
-			const CoreString& value2 = tokenizer.getValue("value2");
-			size = value1;
+        if (key == "MAX_FILE_SIZE")
+        {
+            const CoreString& value2 = tokenizer.getValue("value2");
+            size = value1;
 
-			if (value2 == "KB")
-				size *= 1024;
+            if (value2 == "KB")
+                size *= 1024;
 
-			if (value2 == "MB")
-				size *= (1024 * 1024);
-		}
+            if (value2 == "MB")
+                size *= (1024 * 1024);
+        }
 
-		if (key == "MAX_FILE_COUNT")
-			count = value1;
+        if (key == "MAX_FILE_COUNT")
+            count = value1;
 
-		if (key == "ROOT_ALWAYS")
-			rootAlways = (value1 == "true");
-	}
+        if (key == "ROOT_ALWAYS")
+            rootAlways = (value1 == "true");
+    }
 
-	// サービス起動
-	SequenceLogServiceMain serviceMain;
+    // サービス起動
+    SequenceLogServiceMain serviceMain;
     int32_t retryCount = 0;
     int32_t retryMax = 6;
 
 #if defined(__unix__)
-	serviceMain.setSharedMemoryPathName(sharedMemoryDir);
+    serviceMain.setSharedMemoryPathName(sharedMemoryDir);
 #endif
 
     serviceMain.setSharedMemoryItemCount(sharedMemoryItemCount);
-	serviceMain.setServiceListener(this);
-	serviceMain.setLogFolderName(logOutputDir);
-	serviceMain.setMaxFileSize(size);
-	serviceMain.setMaxFileCount(count);
-	serviceMain.setRootAlways(rootAlways);
-//	serviceMain.connectSequenceLogPrint(printIp);
-	serviceMain.start();
+    serviceMain.setServiceListener(this);
+    serviceMain.setLogFolderName(logOutputDir);
+    serviceMain.setMaxFileSize(size);
+    serviceMain.setMaxFileCount(count);
+    serviceMain.setRootAlways(rootAlways);
+//  serviceMain.connectSequenceLogPrint(printIp);
+    serviceMain.start();
 
     while (true)
     {
@@ -315,12 +315,12 @@ void Application::main(int argc, char** argv)
 #endif
     }
 
-	Thread::sleep(100);
-	serviceMain.join();
+    Thread::sleep(100);
+    serviceMain.join();
 }
 
 /*!
- *  \brief	シーケンスログサービススレッド初期化完了通知
+ *  \brief  シーケンスログサービススレッド初期化完了通知
  */
 void Application::onInitialized(Thread* thread)
 {
@@ -334,14 +334,14 @@ void Application::onInitialized(Thread* thread)
     DateTime dateTime = fileInfo->getCreationTime();
     dateTime.toLocal();
 
-	FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
-	DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
+    FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
+    DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
 
-	noticeLog("start %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
+    noticeLog("start %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
 }
 
 /*!
- *  \brief	シーケンスログサービススレッド終了通知
+ *  \brief  シーケンスログサービススレッド終了通知
  */
 void Application::onTerminated(Thread* thread)
 {
@@ -350,84 +350,84 @@ void Application::onTerminated(Thread* thread)
 #else
     SequenceLogService* service = dynamic_cast<SequenceLogService*>(thread);
 #endif
-	FileInfo* fileInfo = service->getFileInfo();
-	DateTime dateTime = fileInfo->getLastWriteTime();
+    FileInfo* fileInfo = service->getFileInfo();
+    DateTime dateTime = fileInfo->getLastWriteTime();
 
-	if (dateTime.getValue())
-	{
+    if (dateTime.getValue())
+    {
         dateTime.toLocal();
 
-		FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
-		DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
+        FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
+        DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
 
-		noticeLog("end   %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
-	}
-	else
-	{
-		noticeLog("%s %s\n", fileInfo->getMessage().getBuffer(), fileInfo->getCanonicalPath().getBuffer());
-	}
+        noticeLog("end   %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
+    }
+    else
+    {
+        noticeLog("%s %s\n", fileInfo->getMessage().getBuffer(), fileInfo->getCanonicalPath().getBuffer());
+    }
 }
 
 /*!
- *  \brief	シーケンスログファイル変更通知
+ *  \brief  シーケンスログファイル変更通知
  */
 void Application::onLogFileChanged(Thread* thread)
 {
-	onInitialized(thread);
+    onInitialized(thread);
 }
 
 #if defined(__unix__)
 #include <signal.h>
 
 /*!
- *  \brief	シグナル受信
+ *  \brief  シグナル受信
  */
 static void onSignal(int sig)
 {
-	if (sig == SIGINT)
-		puts("");
+    if (sig == SIGINT)
+        puts("");
 
-	SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-	serviceMain->interrupt();
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    serviceMain->interrupt();
 }
 #endif
 
 /*!
- *  \brief	メイン
+ *  \brief  メイン
  */
 int main(int argc, char** argv)
 {
     noticeLog("SequenceLogService is starting");
 
 #if defined(__unix__)
-	signal(SIGINT,  onSignal);
-//	signal(SIGTERM, onSignal);
+    signal(SIGINT,  onSignal);
+//  signal(SIGTERM, onSignal);
 #endif
 
-	Socket::startup();
+    Socket::startup();
 
-	try
-	{
-		Application app;
-		app.main(argc, argv);
-	}
-	catch (Exception e)
-	{
-		printf("%s\n", e.getMessage());
-	}
+    try
+    {
+        Application app;
+        app.main(argc, argv);
+    }
+    catch (Exception e)
+    {
+        printf("%s\n", e.getMessage());
+    }
 
-	Socket::cleanup();
-	return 0;
+    Socket::cleanup();
+    return 0;
 }
 
 /*!
- *  \brief	シーケンスログファイル名取得
+ *  \brief  シーケンスログファイル名取得
  *
- *  \note	libslog.soをリンクしているので、この関数を定義する必要がある。ただし呼ばれることはない。
+ *  \note   libslog.soをリンクしているので、この関数を定義する必要がある。ただし呼ばれることはない。
  */
 extern "C" const char* getSequenceLogFileName()
 {
-	return NULL;
+    return NULL;
 }
 
 #endif // defined(__ANDROID__) && !defined(__EXEC__)

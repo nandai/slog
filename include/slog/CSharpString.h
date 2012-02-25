@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	CSharpString.h
- *  \brief	C#文字列クラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   CSharpString.h
+ *  \brief  C#文字列クラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 #include "slog/PointerString.h"
@@ -29,32 +29,32 @@ namespace slog
 {
 
 /*!
- *  \brief	C#文字列クラス
+ *  \brief  C#文字列クラス
  */
 class CSharpString : public PointerString
 {
-public:		CSharpString(String^ str);
-			virtual ~CSharpString();
+public:     CSharpString(String^ str);
+            virtual ~CSharpString();
 };
 
 /*!
- *  \brief	コンストラクタ
+ *  \brief  コンストラクタ
  */
 inline CSharpString::CSharpString(String^ str)
 {
-	IntPtr p = Marshal::StringToHGlobalAnsi(str);
-	char* _p = (char*)p.ToPointer();
+    IntPtr p = Marshal::StringToHGlobalAnsi(str);
+    char* _p = (char*)p.ToPointer();
 
-	init(_p);
+    init(_p);
 }
 
 /*!
- *  \brief	デストラクタ
+ *  \brief  デストラクタ
  */
 inline CSharpString::~CSharpString()
 {
-	IntPtr p(getBuffer());
-	Marshal::FreeHGlobal(p);
+    IntPtr p(getBuffer());
+    Marshal::FreeHGlobal(p);
 }
 
 } // namespace slog

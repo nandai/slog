@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	Buffer.cpp
- *  \brief	バッファクラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   Buffer.cpp
+ *  \brief  バッファクラス
+ *  \author Copyright 2011 log-tools.net
  */
 #include "slog/Buffer.h"
 
@@ -25,36 +25,36 @@ namespace slog
 {
 
 /*!
- *  \brief	バッファ使用サイズ設定
+ *  \brief  バッファ使用サイズ設定
  */
 void Buffer::setLength(int32_t len) throw(Exception)
 {
-	if (len < 0 || getCapacity() < len)
-	{
-		Exception e;
-		e.setMessage("Buffer::setLength(%d) capacity=%d / illegal length", len, getCapacity());
+    if (len < 0 || getCapacity() < len)
+    {
+        Exception e;
+        e.setMessage("Buffer::setLength(%d) capacity=%d / illegal length", len, getCapacity());
 
-		throw e;
-	}
+        throw e;
+    }
 
-	mLen = len;
+    mLen = len;
 }
 
 /*!
- *  \brief	バッファオーバーフローしないか確認する
+ *  \brief  バッファオーバーフローしないか確認する
  */
 void Buffer::validateOverFlow(int32_t position, int32_t len) const throw(Exception)
 {
-	if (getCapacity() < position + len)
-	{
-		Exception e;
+    if (getCapacity() < position + len)
+    {
+        Exception e;
 
-		e.setMessage(
-			"Buffer::validateOverFlow() capacity=%d, position=%d, len=%d / buffer overflow",
-			getCapacity(), getPosition(), len);
+        e.setMessage(
+            "Buffer::validateOverFlow() capacity=%d, position=%d, len=%d / buffer overflow",
+            getCapacity(), getPosition(), len);
 
-		throw e;
-	}
+        throw e;
+    }
 }
 
 } // namespace slog

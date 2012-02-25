@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	ByteBuffer.h
- *  \brief	バイトバッファクラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   ByteBuffer.h
+ *  \brief  バイトバッファクラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 #include "slog/Buffer.h"
@@ -26,83 +26,83 @@ namespace slog
 {
 
 /*!
- *  \brief	バイトバッファクラス
+ *  \brief  バイトバッファクラス
  */
 class ByteBuffer : public Buffer
 {
-			int32_t		mPosition;		//!< 位置
-			int32_t		mCapacity;		//!< 容量
-			uint8_t*	mBuffer;		//!< バッファ
+            int32_t     mPosition;      //!< 位置
+            int32_t     mCapacity;      //!< 容量
+            uint8_t*    mBuffer;        //!< バッファ
 
-public:		 ByteBuffer(int32_t capacity);
-			~ByteBuffer();
+public:      ByteBuffer(int32_t capacity);
+            ~ByteBuffer();
 
-			virtual char* getBuffer() const;
-			virtual int32_t getCapacity() const;
+            virtual char* getBuffer() const;
+            virtual int32_t getCapacity() const;
 
-			virtual int32_t getPosition() const;
-			void    setPosition(int32_t position) throw(Exception);
-private:	void    addPosition(int32_t len) throw(Exception);
+            virtual int32_t getPosition() const;
+            void    setPosition(int32_t position) throw(Exception);
+private:    void    addPosition(int32_t len) throw(Exception);
 
-public:		virtual void setLength(int32_t len) throw(Exception);
+public:     virtual void setLength(int32_t len) throw(Exception);
 
-			char    get();
-			void    put(char value) throw(Exception);
+            char    get();
+            void    put(char value) throw(Exception);
 
-			short   getShort();
-			void    putShort(short value) throw(Exception);
+            short   getShort();
+            void    putShort(short value) throw(Exception);
 
-			int32_t getInt();
-			void    putInt(int32_t value) throw(Exception);
+            int32_t getInt();
+            void    putInt(int32_t value) throw(Exception);
 
-			int64_t getLong();
-			void    putLong(int64_t value) throw(Exception);
+            int64_t getLong();
+            void    putLong(int64_t value) throw(Exception);
 
-			char*   get(int32_t len);
-			void    put(const Buffer* buffer, int32_t len) throw(Exception);
+            char*   get(int32_t len);
+            void    put(const Buffer* buffer, int32_t len) throw(Exception);
 };
 
 /*!
- *  \brief	バッファアドレス取得
+ *  \brief  バッファアドレス取得
  */
 inline char* ByteBuffer::getBuffer() const
 {
-	return (char*)mBuffer;
+    return (char*)mBuffer;
 }
 
 /*!
- *  \brief	バッファサイズ取得
+ *  \brief  バッファサイズ取得
  */
 inline int32_t ByteBuffer::getCapacity() const
 {
-	return mCapacity;
+    return mCapacity;
 }
 
 /*!
- *  \brief	位置取得
+ *  \brief  位置取得
  */
 inline int32_t ByteBuffer::getPosition() const
 {
-	return mPosition;
+    return mPosition;
 }
 
 /*!
- *  \brief	位置を進める
+ *  \brief  位置を進める
  */
 inline void ByteBuffer::addPosition(int32_t len) throw(Exception)
 {
-	setPosition(getPosition() + len);
+    setPosition(getPosition() + len);
 }
 
 /*!
- *  \brief	バッファ使用サイズ取得
+ *  \brief  バッファ使用サイズ取得
  */
 inline void ByteBuffer::setLength(int32_t len) throw(Exception)
 {
-	Buffer::setLength(len);
+    Buffer::setLength(len);
 
-	if (getPosition() > len)
-		setPosition(len);
+    if (getPosition() > len)
+        setPosition(len);
 }
 
 } // namespace slog

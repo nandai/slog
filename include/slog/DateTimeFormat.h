@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	DateTimeFormat.h
- *  \brief	日付時間フォーマットクラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   DateTimeFormat.h
+ *  \brief  日付時間フォーマットクラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 
@@ -28,41 +28,41 @@ namespace slog
 {
 
 /*!
- *  \brief	日付時間フォーマットクラス
+ *  \brief  日付時間フォーマットクラス
  */
 class DateTimeFormat
 {
-public:		enum Format
-			{
-				DATE_TIME,
-				DATE_TIME_MS,
-			};
+public:     enum Format
+            {
+                DATE_TIME,
+                DATE_TIME_MS,
+            };
 
-			enum Length
-			{
-				DATE_TIME_LEN =    sizeof("YYYY/MM/DD HH:MI:SS")     - 1,
-				DATE_TIME_MS_LEN = sizeof("YYYY/MM/DD HH:MI:SS.999") - 1,
-			};
+            enum Length
+            {
+                DATE_TIME_LEN =    sizeof("YYYY/MM/DD HH:MI:SS")     - 1,
+                DATE_TIME_MS_LEN = sizeof("YYYY/MM/DD HH:MI:SS.999") - 1,
+            };
 
-public:		static void toString(CoreString* str, const DateTime& dateTime, Format format);
+public:     static void toString(CoreString* str, const DateTime& dateTime, Format format);
 };
 
 /*
- *  \brief	日付時間を文字列で取得
+ *  \brief  日付時間を文字列で取得
  */
 inline void DateTimeFormat::toString(
-	CoreString* str,			//!< ここに結果を返す
-	const DateTime& dateTime,	//!< 日付時間
-	Format format)				//!< フォーマット
+    CoreString* str,            //!< ここに結果を返す
+    const DateTime& dateTime,   //!< 日付時間
+    Format format)              //!< フォーマット
 {
-	static const char* szFormat[] =
-	{
-		"%04u/%02u/%02u %02u:%02u:%02u",
-		"%04u/%02u/%02u %02u:%02u:%02u.%03u",
-	};
+    static const char* szFormat[] =
+    {
+        "%04u/%02u/%02u %02u:%02u:%02u",
+        "%04u/%02u/%02u %02u:%02u:%02u.%03u",
+    };
 
     str->format(
-		szFormat[format],
+        szFormat[format],
         dateTime.getYear(), dateTime.getMonth(),  dateTime.getDay(),
         dateTime.getHour(), dateTime.getMinute(), dateTime.getSecond(), dateTime.getMilliSecond());
 }

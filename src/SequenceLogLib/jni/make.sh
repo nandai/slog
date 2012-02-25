@@ -2,10 +2,14 @@
 clean=0
 
 if [ $# -gt 0 ]; then
-	if [ $1 = "clean" ]; then
-		clean=1
-	fi
+    if [ $1 = "clean" ]; then
+        clean=1
+    fi
 fi
+
+# copy stlport
+cp ../../../bin/Android/libstlport.so \
+   $ANDROID_NDK_ROOT/sources/cxx-stl/stlport/libs/armeabi/
 
 #
 # make shared library
@@ -16,12 +20,12 @@ retval=$?
 mv Android.mk Shared.mk
 
 if [ $retval -ne 0 ]; then
-	exit $retval
+    exit $retval
 fi
 
 if [ $clean -eq 0 ]; then
-	cp ../libs/armeabi/libslog.so /tmp/
-	chmod 640 /tmp/libslog.so
+    cp ../libs/armeabi/libslog.so /tmp/
+    chmod 640 /tmp/libslog.so
 fi
 
 echo
@@ -35,16 +39,16 @@ retval=$?
 mv Android.mk Static.mk
 
 if [ $retval -ne 0 ]; then
-	exit $retval
+    exit $retval
 fi
 
 if [ $clean -eq 0 ]; then
-	cp ../obj/local/armeabi/libslog.a /tmp/
-	chmod 640 /tmp/libslog.a
+    cp ../obj/local/armeabi/libslog.a /tmp/
+    chmod 640 /tmp/libslog.a
 fi
 
 if [ $clean -eq 1 ]; then
-	exit 0
+    exit 0
 fi
 
 #
@@ -52,10 +56,10 @@ fi
 #
 for ver in 3 4 5 8 9
 do
-	LIB_DIR=platforms/android-$ver/arch-arm/usr/lib
+    LIB_DIR=platforms/android-$ver/arch-arm/usr/lib
 
-	cp /tmp/libslog.so $ANDROID_NDK_ROOT/$LIB_DIR/
-	cp /tmp/libslog.a  $ANDROID_NDK_ROOT/$LIB_DIR/
+    cp /tmp/libslog.so $ANDROID_NDK_ROOT/$LIB_DIR/
+    cp /tmp/libslog.a  $ANDROID_NDK_ROOT/$LIB_DIR/
 done
 
 cp /tmp/libslog.so ../../../bin/Android/

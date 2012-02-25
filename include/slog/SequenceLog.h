@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	SequenceLog.h
- *  \brief	シーケンスログクラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   SequenceLog.h
+ *  \brief  シーケンスログクラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 
@@ -25,10 +25,10 @@
 #include <stdarg.h>
 
 #if 1
-	#undef DEBUG
-	#undef INFO
-	#undef WARN
-	#undef ERROR
+    #undef DEBUG
+    #undef INFO
+    #undef WARN
+    #undef ERROR
 #endif
 
 /******************************************************************************
@@ -37,30 +37,30 @@
 *
 ******************************************************************************/
 #if defined(__SLOG__) || defined(PHP_SLOG_H)
-	#if defined(__cplusplus)
-		#define SLOG	 slog::SequenceLog _slog
-		#define SMSG	_slog.message
-	#endif
+    #if defined(__cplusplus)
+        #define SLOG     slog::SequenceLog _slog
+        #define SMSG    _slog.message
+    #endif
 
-	#define SLOG_STEPIN( className, funcName, outputFlag)	void* _slog = _slog_stepIn( className, funcName, outputFlag)
-	#define SLOG_STEPIN2(classID,   funcName, outputFlag)	void* _slog = _slog_stepIn2(classID,   funcName, outputFlag)
-	#define SLOG_STEPIN3(classID,   funcID,   outputFlag)	void* _slog = _slog_stepIn3(classID,   funcID,   outputFlag)
-	#define SLOG_STEPOUT				_slog_stepOut(_slog)
-	#define SMSGC( level, format, ...)	_slog_message( _slog, level, format, __VA_ARGS__)
-	#define SMSGC2(level, messageID)	_slog_message2(_slog, level, messageID)
+    #define SLOG_STEPIN( className, funcName, outputFlag)   void* _slog = _slog_stepIn( className, funcName, outputFlag)
+    #define SLOG_STEPIN2(classID,   funcName, outputFlag)   void* _slog = _slog_stepIn2(classID,   funcName, outputFlag)
+    #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = _slog_stepIn3(classID,   funcID,   outputFlag)
+    #define SLOG_STEPOUT                _slog_stepOut(_slog)
+    #define SMSGC( level, format, ...)  _slog_message( _slog, level, format, __VA_ARGS__)
+    #define SMSGC2(level, messageID)    _slog_message2(_slog, level, messageID)
 
 #else  // defined(__SLOG__) || defined(PHP_SLOG_H)
-	#if defined(__cplusplus)
-		#define SLOG
-		#define SMSG
-	#endif
+    #if defined(__cplusplus)
+        #define SLOG
+        #define SMSG
+    #endif
 
-	#define SLOG_STEPIN( className, funcName, outputFlag)	void* _slog = 0
-	#define SLOG_STEPIN2(classID,   funcName, outputFlag)	void* _slog = 0
-	#define SLOG_STEPIN3(classID,   funcID,   outputFlag)	void* _slog = 0
-	#define SLOG_STEPOUT
-	#define SMSGC( level, format, ...)
-	#define SMSGC2(level, messageID)
+    #define SLOG_STEPIN( className, funcName, outputFlag)   void* _slog = 0
+    #define SLOG_STEPIN2(classID,   funcName, outputFlag)   void* _slog = 0
+    #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = 0
+    #define SLOG_STEPOUT
+    #define SMSGC( level, format, ...)
+    #define SMSGC2(level, messageID)
 #endif // defined(__SLOG__) || defined(PHP_SLOG_H)
 
 /******************************************************************************
@@ -75,25 +75,25 @@ namespace slog
 #endif
 
 /*!
- *  \brief	出力フラグ
+ *  \brief  出力フラグ
  */
 enum SequenceLogOutputFlag
 {
-	KEEP =       0,		//!< シーケンスログの出力をキープする
-	OUTPUT_ALL = 1,		//!< キープ中のシーケンスログも含め出力する
-	ALWAYS =     2,		//!< キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
-	ROOT =       3,		//!< シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
+    KEEP =       0,     //!< シーケンスログの出力をキープする
+    OUTPUT_ALL = 1,     //!< キープ中のシーケンスログも含め出力する
+    ALWAYS =     2,     //!< キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
+    ROOT =       3,     //!< シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
 };
 
 /*!
- *  \brief	ログレベル
+ *  \brief  ログレベル
  */
 enum SequenceLogLevel
 {
-	DEBUG = 0,				//!< デバッグ
-	INFO,					//!< 情報
-	WARN,					//!< 警告
-	ERROR,					//!< エラー
+    DEBUG = 0,              //!< デバッグ
+    INFO,                   //!< 情報
+    WARN,                   //!< 警告
+    ERROR,                  //!< エラー
 };
 
 #if defined(__cplusplus)
@@ -118,7 +118,7 @@ void  _slog_stepOut(void* p);
 void  _slog_message( void* p, int32_t          level, const char* format, ...);
 void  _slog_message2(void* p, int32_t          level, uint32_t messageID);
 
-const char* getSequenceLogFileName();	//!< ユーザー定義関数
+const char* getSequenceLogFileName();   //!< ユーザー定義関数
 void        setSequenceLogFileName(const char* fileName);
 
 void setRootFlag(int32_t outputFlag);
@@ -139,29 +139,29 @@ namespace slog
 {
 
 /*!
- *  \brief	シーケンスログクラス
+ *  \brief  シーケンスログクラス
  */
 class SequenceLog
 {
-			uint32_t				mSeqNo;			//!< シーケンス番号
-			SequenceLogOutputFlag	mOutputFlag;	//!< 出力フラグ
+            uint32_t                mSeqNo;         //!< シーケンス番号
+            SequenceLogOutputFlag   mOutputFlag;    //!< 出力フラグ
 
-			//
-			// コンストラクタ / デストラクタ
-			//
-public:		 SequenceLog(const char* className, const char* funcName, SequenceLogOutputFlag outputFlag = KEEP);
-			 SequenceLog(uint32_t    classID,   const char* funcName, SequenceLogOutputFlag outputFlag = KEEP);
-			 SequenceLog(uint32_t    classID,   uint32_t    funcID,   SequenceLogOutputFlag outputFlag = KEEP);
-			~SequenceLog();
+            //
+            // コンストラクタ / デストラクタ
+            //
+public:      SequenceLog(const char* className, const char* funcName, SequenceLogOutputFlag outputFlag = KEEP);
+             SequenceLog(uint32_t    classID,   const char* funcName, SequenceLogOutputFlag outputFlag = KEEP);
+             SequenceLog(uint32_t    classID,   uint32_t    funcID,   SequenceLogOutputFlag outputFlag = KEEP);
+            ~SequenceLog();
 
-private:	void init(SequenceLogOutputFlag outputFlag);
+private:    void init(SequenceLogOutputFlag outputFlag);
 
-			//
-			// メッセージ出力
-			//
-public:		void message( SequenceLogLevel level, const char* format, ...);
-			void messageV(SequenceLogLevel level, const char* format, va_list arg);
-			void message( SequenceLogLevel level, uint32_t messageID);
+            //
+            // メッセージ出力
+            //
+public:     void message( SequenceLogLevel level, const char* format, ...);
+            void messageV(SequenceLogLevel level, const char* format, va_list arg);
+            void message( SequenceLogLevel level, uint32_t messageID);
 };
 
 } // namespace slog

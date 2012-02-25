@@ -17,73 +17,73 @@ package net.log_tools.slog.service;
 
 public class App extends android.app.Application
 {
-	private	int		mRefer = 0;
-	private boolean	mServiceRunning = false;
-	private boolean	mConnecting = false;
+    private int     mRefer = 0;
+    private boolean mServiceRunning = false;
+    private boolean mConnecting = false;
 
-	public String	mSharedMemoryPathName;
-	public String	mLogOutputDir;
-	public int		mMaxFileSize;
-	public String	mMaxFileSizeUnit;
-	public int		mMaxFileCount;
-	public boolean	mRootAlways;
+    public String   mSharedMemoryPathName;
+    public String   mLogOutputDir;
+    public int      mMaxFileSize;
+    public String   mMaxFileSizeUnit;
+    public int      mMaxFileCount;
+    public boolean  mRootAlways;
 
-	static
-	{
-		System.loadLibrary("slogsvc");
-	}
+    static
+    {
+        System.loadLibrary("slogsvc");
+    }
 
-	@Override
-	public void onCreate() 
-	{
-		super.onCreate();
-		create();
-	}
+    @Override
+    public void onCreate() 
+    {
+        super.onCreate();
+        create();
+    }
 
-	public boolean isRunning()
-	{
-		return mServiceRunning;
-	}
+    public boolean isRunning()
+    {
+        return mServiceRunning;
+    }
 
-	public void running(boolean running)
-	{
-		mServiceRunning = running;
-	}
+    public void running(boolean running)
+    {
+        mServiceRunning = running;
+    }
 
-	public boolean isConnecting()
-	{
-		return mConnecting;
-	}
-	
-	public void connecting(boolean connecting)
-	{
-		mConnecting = connecting;
-	}
+    public boolean isConnecting()
+    {
+        return mConnecting;
+    }
+    
+    public void connecting(boolean connecting)
+    {
+        mConnecting = connecting;
+    }
 
-	private native void create();
+    private native void create();
 
-	// シーケンスログサービス関連
-	public  void start()
-	{
-		start(
-			mSharedMemoryPathName,
-			mLogOutputDir,
-			mMaxFileSize * (mMaxFileSizeUnit.equals("KB") ? 1024 : 1024 * 1024),
-			mMaxFileCount,
-			mRootAlways);
-	}
+    // 繧ｷ繝ｼ繧ｱ繝ｳ繧ｹ繝ｭ繧ｰ繧ｵ繝ｼ繝薙せ髢｢騾｣
+    public  void start()
+    {
+        start(
+            mSharedMemoryPathName,
+            mLogOutputDir,
+            mMaxFileSize * (mMaxFileSizeUnit.equals("KB") ? 1024 : 1024 * 1024),
+            mMaxFileCount,
+            mRootAlways);
+    }
 
-	private native void start(
-		String sharedMemoryPathName,
-		String logOutputDir,
-		int maxFileSize,
-		int maxFileCount,
-		boolean rootAlways);
+    private native void start(
+        String sharedMemoryPathName,
+        String logOutputDir,
+        int maxFileSize,
+        int maxFileCount,
+        boolean rootAlways);
 
-	public  native void stop();
-	public  native boolean canStop();
+    public  native void stop();
+    public  native boolean canStop();
 
-	// シーケンスログプリント関連
-	public  native boolean connectSequenceLogPrint(String ipAddress);
-	public  native void disconnectSequenceLogPrint();
+    // 繧ｷ繝ｼ繧ｱ繝ｳ繧ｹ繝ｭ繧ｰ繝励Μ繝ｳ繝磯未騾｣
+    public  native boolean connectSequenceLogPrint(String ipAddress);
+    public  native void disconnectSequenceLogPrint();
 }

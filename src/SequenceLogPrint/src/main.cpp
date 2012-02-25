@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	main.cpp
- *  \brief	ÉVÅ[ÉPÉìÉXÉçÉOÉvÉäÉìÉg
- *  \author	Copyright 2011 log-tools.net
+ *  \file   main.cpp
+ *  \brief  „Ç∑„Éº„Ç±„É≥„Çπ„É≠„Ç∞„Éó„É™„É≥„Éà
+ *  \author Copyright 2011 log-tools.net
  */
 #include "slog/Socket.h"
 //#include <stdio.h>
@@ -25,136 +25,136 @@
 using namespace slog;
 
 #if !defined(_WINDOWS)
-	#define WSAEADDRINUSE	EADDRINUSE
+    #define WSAEADDRINUSE   EADDRINUSE
 #endif
 
 /*!
- *  \brief	ÉÅÉCÉì
+ *  \brief  „É°„Ç§„É≥
  */
 int main()
 {
 #if defined(_WINDOWS)
-	SetConsoleTitleA("Sequence Log Print");
+    SetConsoleTitleA("Sequence Log Print");
 
-	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	WORD wAttributes;
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    WORD wAttributes;
 
-	GetConsoleScreenBufferInfo(hStdout, &csbi);
+    GetConsoleScreenBufferInfo(hStdout, &csbi);
 #endif
 
-	Socket::startup();
+    Socket::startup();
 
-	while (true)
-	{
-		Socket sock;
+    while (true)
+    {
+        Socket sock;
 
-		try
-		{
-			sock.open();
-			sock.setReUseAddress(true);
-			sock.bind(59108);
-			sock.listen(1);
-		}
-		catch (Exception e)
-		{
-			int32_t errorNo = e.getErrorNo();
+        try
+        {
+            sock.open();
+            sock.setReUseAddress(true);
+            sock.bind(59108);
+            sock.listen(1);
+        }
+        catch (Exception e)
+        {
+            int32_t errorNo = e.getErrorNo();
 
-			if (errorNo == WSAEADDRINUSE)
-				printf("port in use.\n");
-			else
-				printf("unknown error (0x%08X).\n", (unsigned int)errorNo);
+            if (errorNo == WSAEADDRINUSE)
+                printf("port in use.\n");
+            else
+                printf("unknown error (0x%08X).\n", (unsigned int)errorNo);
 
-			return 1;
-		}
+            return 1;
+        }
 
-		printf("<<<<< wait for connect... >>>>>\n");
+        printf("<<<<< wait for connect... >>>>>\n");
 
-		Socket sockSrv;
-		sockSrv.accept(&sock);
-		sock.close();
+        Socket sockSrv;
+        sockSrv.accept(&sock);
+        sock.close();
 
-		printf("----- connect from %s\n", sockSrv.getInetAddress().getBuffer());
+        printf("----- connect from %s\n", sockSrv.getInetAddress().getBuffer());
 
-		while (true)
-		{
-			int32_t len;
-			FixedString<1024> buffer;
+        while (true)
+        {
+            int32_t len;
+            FixedString<1024> buffer;
 
-			try
-			{
-			sockSrv.recv(&len);
-			sockSrv.recv(&buffer, len);
+            try
+            {
+            sockSrv.recv(&len);
+            sockSrv.recv(&buffer, len);
 
-			switch (buffer[0])
-			{
-			case 'd':
+            switch (buffer[0])
+            {
+            case 'd':
 #if defined(_WINDOWS)
-				wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+                wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 #else
-				printf("\x1B[32;49;0m");
+                printf("\x1B[32;49;0m");
 #endif
-				break;
+                break;
 
-			case 'i':
+            case 'i':
 #if defined(_WINDOWS)
-				wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+                wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 #else
-				printf("\x1B[37;49;1m");
+                printf("\x1B[37;49;1m");
 #endif
-				break;
+                break;
 
-			case 'w':
+            case 'w':
 #if defined(_WINDOWS)
-				wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+                wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 #else
-				printf("\x1B[33;49;1m");
+                printf("\x1B[33;49;1m");
 #endif
-				break;
+                break;
 
-			case 'e':
+            case 'e':
 #if defined(_WINDOWS)
-				wAttributes = FOREGROUND_RED | FOREGROUND_INTENSITY;
+                wAttributes = FOREGROUND_RED | FOREGROUND_INTENSITY;
 #else
-				printf("\x1B[31;49;1m");
+                printf("\x1B[31;49;1m");
 #endif
-				break;
+                break;
 
-			default:
+            default:
 #if defined(_WINDOWS)
-				wAttributes = FOREGROUND_BLUE;
+                wAttributes = FOREGROUND_BLUE;
 #else
 #endif
-				break;
-			}
-			}
-			catch (Exception /*e*/)
-			{
-				break;
-			}
+                break;
+            }
+            }
+            catch (Exception /*e*/)
+            {
+                break;
+            }
 
 #if defined(_WINDOWS)
-			SetConsoleTextAttribute(hStdout, wAttributes);
+            SetConsoleTextAttribute(hStdout, wAttributes);
 #endif
 
-			buffer.setLength(len);
-			printf("%s", buffer.getBuffer() + 1);
-		}
+            buffer.setLength(len);
+            printf("%s", buffer.getBuffer() + 1);
+        }
 
-		printf("\n");
-	}
+        printf("\n");
+    }
 
 #if defined(_WINDOWS)
-	SetConsoleTextAttribute(hStdout, csbi.wAttributes);
+    SetConsoleTextAttribute(hStdout, csbi.wAttributes);
 #else
-	printf("\x1B[39;49;0m");
+    printf("\x1B[39;49;0m");
 #endif
 
-	Socket::cleanup();
-	return 0;
+    Socket::cleanup();
+    return 0;
 }
 
 extern "C" const char* getSequenceLogFileName()
 {
-	return NULL;
+    return NULL;
 }

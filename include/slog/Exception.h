@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,58 +15,58 @@
  */
 
 /*!
- *  \file	Exception.h
- *  \brief	例外クラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   Exception.h
+ *  \brief  例外クラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 #include "slog/slog.h"
 
 #if defined(__unix__)
-	#include <errno.h>
+    #include <errno.h>
 #endif
 
 namespace slog
 {
 
 /*!
- *  \brief	例外クラス
+ *  \brief  例外クラス
  */
 class Exception
 {
-			int32_t		mErrorNo;			//!< エラー番号
-			char		mMessage[255 + 1];	//!< メッセージ
+            int32_t     mErrorNo;           //!< エラー番号
+            char        mMessage[255 + 1];  //!< メッセージ
 
-public:		Exception();
+public:     Exception();
 
-			int32_t getErrorNo() const;
-			const char* getMessage() const;
+            int32_t getErrorNo() const;
+            const char* getMessage() const;
 
-public:		void setMessage(const char* format, ...);
+public:     void setMessage(const char* format, ...);
 };
 
 /*!
- *  \brief	コンストラクタ
+ *  \brief  コンストラクタ
  */
 inline Exception::Exception()
 {
-	mErrorNo = 0;
+    mErrorNo = 0;
 }
 
 /*!
- *  \brief	エラー番号取得
+ *  \brief  エラー番号取得
  */
 inline int32_t Exception::getErrorNo() const
 {
-	return mErrorNo;
+    return mErrorNo;
 }
 
 /*!
- *  \brief	メッセージ取得
+ *  \brief  メッセージ取得
  */
 inline const char* Exception::getMessage() const
 {
-	return mMessage;
+    return mMessage;
 }
 
 } // namespace slog

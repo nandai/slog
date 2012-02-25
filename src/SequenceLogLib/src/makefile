@@ -4,7 +4,8 @@ CFLAGS = \
 	-D__SLOG__ \
 	-I../../../include \
 	-I../../include \
-	-I/usr/lib/jvm/java-6-openjdk/include \
+	-I$(JAVA_HOME)/include \
+	-I$(JAVA_HOME)/include/linux \
 	-fPIC
 
 #CFLAGS += -D_DEBUG

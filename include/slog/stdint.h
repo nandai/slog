@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,20 @@
  */
 
 /*!
- *  \file	stdint.h
- *  \brief	C99未対応（VS2010以前等）のコンパイラ用定義
- *  \author	Copyright 2011 log-tools.net
+ *  \file   stdint.h
+ *  \brief  C99未対応（VS2010以前等）のコンパイラ用定義
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 
-typedef signed char			  int8_t;
-typedef unsigned char		 uint8_t;
+typedef signed char           int8_t;
+typedef unsigned char        uint8_t;
 
-typedef short				 int16_t;
-typedef unsigned short		uint16_t;
+typedef short                int16_t;
+typedef unsigned short      uint16_t;
 
-typedef int					 int32_t;
-typedef unsigned int		uint32_t;
+typedef int                  int32_t;
+typedef unsigned int        uint32_t;
 
-typedef long long			 int64_t;
-typedef unsigned long long	uint64_t;
+typedef long long            int64_t;
+typedef unsigned long long  uint64_t;

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	Buffer.h
- *  \brief	バッファクラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   Buffer.h
+ *  \brief  バッファクラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 #include "slog/Exception.h"
@@ -26,77 +26,77 @@ namespace slog
 {
 
 /*!
- *  \brief	バッファクラス
+ *  \brief  バッファクラス
  */
 class Buffer
 {
-			int32_t	mLen;								//!< バッファ使用サイズ
+            int32_t mLen;                               //!< バッファ使用サイズ
 
-public:		Buffer();
-			virtual ~Buffer();
+public:     Buffer();
+            virtual ~Buffer();
 
-			virtual char*   getBuffer() const = 0;		//!< バッファアドレス取得
+            virtual char*   getBuffer() const = 0;      //!< バッファアドレス取得
 
-			virtual int32_t getCapacity() const = 0;	//!< バッファサイズ取得
-			virtual void setCapacity(int32_t capacity) throw(Exception);
+            virtual int32_t getCapacity() const = 0;    //!< バッファサイズ取得
+            virtual void setCapacity(int32_t capacity) throw(Exception);
 
-			virtual int32_t getPosition() const;
+            virtual int32_t getPosition() const;
 
-			int32_t getLength() const;
-			virtual void setLength(int32_t len) throw(Exception);
+            int32_t getLength() const;
+            virtual void setLength(int32_t len) throw(Exception);
 
-			void validateOverFlow(int32_t len) const throw(Exception);
-			void validateOverFlow(int32_t position, int32_t len) const throw(Exception);
+            void validateOverFlow(int32_t len) const throw(Exception);
+            void validateOverFlow(int32_t position, int32_t len) const throw(Exception);
 };
 
 /*!
- *  \brief	コンストラクタ
+ *  \brief  コンストラクタ
  */
 inline Buffer::Buffer()
 {
-	mLen = 0;
+    mLen = 0;
 }
 
 /*!
- *  \brief	デストラクタ
+ *  \brief  デストラクタ
  */
 inline Buffer::~Buffer()
 {
 }
 
 /*!
- *  \brief	バッファサイズ設定
+ *  \brief  バッファサイズ設定
  */
 inline void Buffer::setCapacity(int32_t capacity) throw(Exception)
 {
-	Exception e;
-	e.setMessage("Buffer::setCapacity / unsupported");
+    Exception e;
+    e.setMessage("Buffer::setCapacity / unsupported");
 
-	throw e;
+    throw e;
 }
 
 /*!
- *  \brief	位置取得
+ *  \brief  位置取得
  */
 inline int32_t Buffer::getPosition() const
 {
-	return 0;
+    return 0;
 }
 
 /*!
- *  \brief	バッファ使用サイズ取得
+ *  \brief  バッファ使用サイズ取得
  */
 inline int32_t Buffer::getLength() const
 {
-	return mLen;
+    return mLen;
 }
 
 /*!
- *  \brief	バッファオーバーフローしないか確認する
+ *  \brief  バッファオーバーフローしないか確認する
  */
 inline void Buffer::validateOverFlow(int32_t len) const throw(Exception)
 {
-	validateOverFlow(getPosition(), len);
+    validateOverFlow(getPosition(), len);
 }
 
 } // namespace slog

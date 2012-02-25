@@ -35,205 +35,205 @@ import android.widget.Spinner;
 
 public class Main extends Activity
 {
-	private static final String	START_TEXT =      "Start Sequence Log Service";
-	private static final String	STOP_TEXT =       "Stop Sequence Log Service";
+    private static final String START_TEXT =      "Start Sequence Log Service";
+    private static final String STOP_TEXT =       "Stop Sequence Log Service";
 
-	private static final String	CONNECT_TEXT =    "Connect sequence log print";
-	private static final String	DISCONNECT_TEXT	= "Disconnect sequence log print";
+    private static final String CONNECT_TEXT =    "Connect sequence log print";
+    private static final String DISCONNECT_TEXT = "Disconnect sequence log print";
 
-	private Intent		mIntent;
-	
-	private Button		mStartStopService;			// ÉTÅ[ÉrÉXäJénÅ^èIóπÉ{É^Éì
-	private EditText	mSharedMemoryPathName;		// ã§óLÉÅÉÇÉäê›íËÉGÉäÉA
-	private Button		mConnDisconnPrint;			// ÉVÅ[ÉPÉìÉXÉçÉOÉvÉäÉìÉgê⁄ë±Å^êÿífÉ{É^Éì
-	private EditText	mIPAddress;					// ÉVÅ[ÉPÉìÉXÉçÉOÉvÉäÉìÉgIPÉAÉhÉåÉXê›íËÉGÉäÉA
-	private EditText	mLogOutputDir;				// ÉçÉOèoóÕÉfÉBÉåÉNÉgÉä
-	private EditText	mMaxFileSize;				// ç≈ëÂÉçÉOÉtÉ@ÉCÉãÉTÉCÉY
-	private Spinner		mMaxFileSizeUnit;			// ç≈ëÂÉçÉOÉtÉ@ÉCÉãÉTÉCÉYíPà 
-	private EditText	mMaxFileCount;				// ç≈ëÂÉçÉOÉtÉ@ÉCÉãêî
-	private CheckBox	mRootAlways;				// ROOTÇALWAYSÇ∆Ç∑ÇÈÇ©Ç«Ç§Ç©
+    private Intent      mIntent;
+    
+    private Button      mStartStopService;          // „Çµ„Éº„Éì„ÇπÈñãÂßãÔºèÁµÇ‰∫Ü„Éú„Çø„É≥
+    private EditText    mSharedMemoryPathName;      // ÂÖ±Êúâ„É°„É¢„É™Ë®≠ÂÆö„Ç®„É™„Ç¢
+    private Button      mConnDisconnPrint;          // „Ç∑„Éº„Ç±„É≥„Çπ„É≠„Ç∞„Éó„É™„É≥„ÉàÊé•Á∂öÔºèÂàáÊñ≠„Éú„Çø„É≥
+    private EditText    mIPAddress;                 // „Ç∑„Éº„Ç±„É≥„Çπ„É≠„Ç∞„Éó„É™„É≥„ÉàIP„Ç¢„Éâ„É¨„ÇπË®≠ÂÆö„Ç®„É™„Ç¢
+    private EditText    mLogOutputDir;              // „É≠„Ç∞Âá∫Âäõ„Éá„Ç£„É¨„ÇØ„Éà„É™
+    private EditText    mMaxFileSize;               // ÊúÄÂ§ß„É≠„Ç∞„Éï„Ç°„Ç§„É´„Çµ„Ç§„Ç∫
+    private Spinner     mMaxFileSizeUnit;           // ÊúÄÂ§ß„É≠„Ç∞„Éï„Ç°„Ç§„É´„Çµ„Ç§„Ç∫Âçò‰Ωç
+    private EditText    mMaxFileCount;              // ÊúÄÂ§ß„É≠„Ç∞„Éï„Ç°„Ç§„É´Êï∞
+    private CheckBox    mRootAlways;                // ROOT„ÇíALWAYS„Å®„Åô„Çã„Åã„Å©„ÅÜ„Åã
 
-	private void setSetting()
-	{
-		App app = (App)getApplication();
-		SpannableStringBuilder sb;
+    private void setSetting()
+    {
+        App app = (App)getApplication();
+        SpannableStringBuilder sb;
 
-		sb = (SpannableStringBuilder)mSharedMemoryPathName.getText();
-		app.mSharedMemoryPathName = sb.toString();
-		
-		sb = (SpannableStringBuilder)mLogOutputDir.getText();
-		app.mLogOutputDir = sb.toString();
+        sb = (SpannableStringBuilder)mSharedMemoryPathName.getText();
+        app.mSharedMemoryPathName = sb.toString();
+        
+        sb = (SpannableStringBuilder)mLogOutputDir.getText();
+        app.mLogOutputDir = sb.toString();
 
-		sb = (SpannableStringBuilder)mMaxFileSize.getText();
-		app.mMaxFileSize = Integer.parseInt(sb.toString());
+        sb = (SpannableStringBuilder)mMaxFileSize.getText();
+        app.mMaxFileSize = Integer.parseInt(sb.toString());
 
         app.mMaxFileSizeUnit = (String)mMaxFileSizeUnit.getSelectedItem();
 
-		sb = (SpannableStringBuilder)mMaxFileCount.getText();
-		app.mMaxFileCount = Integer.parseInt(sb.toString());
+        sb = (SpannableStringBuilder)mMaxFileCount.getText();
+        app.mMaxFileCount = Integer.parseInt(sb.toString());
 
-		app.mRootAlways = mRootAlways.isChecked();
-	}
+        app.mRootAlways = mRootAlways.isChecked();
+    }
 
-	private void start()
-	{
-		setSetting();
+    private void start()
+    {
+        setSetting();
 
-    	mStartStopService.setText(STOP_TEXT);
-    	startService(mIntent);
+        mStartStopService.setText(STOP_TEXT);
+        startService(mIntent);
 
-    	PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, Main.class), Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, Main.class), Intent.FLAG_ACTIVITY_NEW_TASK);
 
-    	Notification notification = new Notification(R.drawable.icon, START_TEXT, System.currentTimeMillis());
-    	notification.setLatestEventInfo(this, getText(R.string.app_name), "Started.", contentIntent);
+        Notification notification = new Notification(R.drawable.icon, START_TEXT, System.currentTimeMillis());
+        notification.setLatestEventInfo(this, getText(R.string.app_name), "Started.", contentIntent);
 
-    	NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-    	manager.notify(0, notification);
-	}
+        NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        manager.notify(0, notification);
+    }
 
-	private void stop()
-	{
-    	mStartStopService.setText(START_TEXT);
-    	stopService(mIntent);
+    private void stop()
+    {
+        mStartStopService.setText(START_TEXT);
+        stopService(mIntent);
 
-    	NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-    	manager.cancel(0);
-	}
+        NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        manager.cancel(0);
+    }
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-//		Log.d("seqlog", "Main.onCreate()");
+//      Log.d("seqlog", "Main.onCreate()");
 
-		super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-		mIntent = new Intent(this, Service.class);
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        mIntent = new Intent(this, Service.class);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 
-		// ÉTÅ[ÉrÉXäJénÅ^í‚é~É{É^Éì
-		final App app = ((App)getApplication());
+        // „Çµ„Éº„Éì„ÇπÈñãÂßãÔºèÂÅúÊ≠¢„Éú„Çø„É≥
+        final App app = ((App)getApplication());
 
-		mStartStopService = (Button)findViewById(R.id.startStopService);
-		mStartStopService.setText(app.isRunning() == false ? START_TEXT : STOP_TEXT);
+        mStartStopService = (Button)findViewById(R.id.startStopService);
+        mStartStopService.setText(app.isRunning() == false ? START_TEXT : STOP_TEXT);
 
         mStartStopService.setOnClickListener(new OnClickListener()
         {
             public void onClick(View v)
             {
-        		if (app.isRunning() == false)
-        		{
-        			start();
-        		}
-            	else
-            	{
-        			if (app.canStop())
-        				stop();
-            	}
+                if (app.isRunning() == false)
+                {
+                    start();
+                }
+                else
+                {
+                    if (app.canStop())
+                        stop();
+                }
             }
         });
 
-		// ã§óLÉÅÉÇÉäê›íËÉGÉäÉA
-		String pathName = sp.getString("sharedMemoryPathName", "/sdcard/slog");
+        // ÂÖ±Êúâ„É°„É¢„É™Ë®≠ÂÆö„Ç®„É™„Ç¢
+        String pathName = sp.getString("sharedMemoryPathName", "/sdcard/slog");
 
-		mSharedMemoryPathName = (EditText)findViewById(R.id.sharedMemoryPathName);
-		mSharedMemoryPathName.setText(pathName);
+        mSharedMemoryPathName = (EditText)findViewById(R.id.sharedMemoryPathName);
+        mSharedMemoryPathName.setText(pathName);
   
-        // ÉVÅ[ÉPÉìÉXÉçÉOÉvÉäÉìÉgê⁄ë±Å^êÿífÉ{É^Éì
-		mConnDisconnPrint = (Button)findViewById(R.id.connDisconnPrint);
-		mConnDisconnPrint.setText(app.isConnecting() == false ? CONNECT_TEXT : DISCONNECT_TEXT);
+        // „Ç∑„Éº„Ç±„É≥„Çπ„É≠„Ç∞„Éó„É™„É≥„ÉàÊé•Á∂öÔºèÂàáÊñ≠„Éú„Çø„É≥
+        mConnDisconnPrint = (Button)findViewById(R.id.connDisconnPrint);
+        mConnDisconnPrint.setText(app.isConnecting() == false ? CONNECT_TEXT : DISCONNECT_TEXT);
 
-		mConnDisconnPrint.setOnClickListener(new OnClickListener()
-		{
-			public void onClick(View v)
-			{
-        		if (app.isConnecting() == false)
-        		{
-        			SpannableStringBuilder sb = (SpannableStringBuilder)mIPAddress.getText();
-        			String ipAddress = sb.toString();
+        mConnDisconnPrint.setOnClickListener(new OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                if (app.isConnecting() == false)
+                {
+                    SpannableStringBuilder sb = (SpannableStringBuilder)mIPAddress.getText();
+                    String ipAddress = sb.toString();
 
-        			if (app.connectSequenceLogPrint(ipAddress) == true)
-        			{
-        				app.connecting(true);
-        				mConnDisconnPrint.setText(DISCONNECT_TEXT);
-        			}
-        		}
-        		else
-        		{
-        			app.disconnectSequenceLogPrint();
-        			app.connecting(false);
-    				mConnDisconnPrint.setText(CONNECT_TEXT);
-        		}
-			}
-		});
-		
-        // ÉVÅ[ÉPÉìÉXÉçÉOÉvÉäÉìÉgIPÉAÉhÉåÉXê›íË
-		String ipAddress = sp.getString("ipAddress", "127.0.0.1");
+                    if (app.connectSequenceLogPrint(ipAddress) == true)
+                    {
+                        app.connecting(true);
+                        mConnDisconnPrint.setText(DISCONNECT_TEXT);
+                    }
+                }
+                else
+                {
+                    app.disconnectSequenceLogPrint();
+                    app.connecting(false);
+                    mConnDisconnPrint.setText(CONNECT_TEXT);
+                }
+            }
+        });
+        
+        // „Ç∑„Éº„Ç±„É≥„Çπ„É≠„Ç∞„Éó„É™„É≥„ÉàIP„Ç¢„Éâ„É¨„ÇπË®≠ÂÆö
+        String ipAddress = sp.getString("ipAddress", "127.0.0.1");
 
-		mIPAddress = (EditText)findViewById(R.id.ipAddress);
-		mIPAddress.setText(ipAddress);
+        mIPAddress = (EditText)findViewById(R.id.ipAddress);
+        mIPAddress.setText(ipAddress);
 
-		// ÉçÉOèoóÕÉfÉBÉåÉNÉgÉä
-		String logOutputDir = sp.getString("logOutputDir", "/sdcard/slog/log");
+        // „É≠„Ç∞Âá∫Âäõ„Éá„Ç£„É¨„ÇØ„Éà„É™
+        String logOutputDir = sp.getString("logOutputDir", "/sdcard/slog/log");
 
-		mLogOutputDir = (EditText)findViewById(R.id.logOutputDir);
-		mLogOutputDir.setText(logOutputDir);
+        mLogOutputDir = (EditText)findViewById(R.id.logOutputDir);
+        mLogOutputDir.setText(logOutputDir);
 
-		// ç≈ëÂÉçÉOÉtÉ@ÉCÉãÉTÉCÉY 
-		Integer maxFileSize = sp.getInt("maxFileSize", 0);
+        // ÊúÄÂ§ß„É≠„Ç∞„Éï„Ç°„Ç§„É´„Çµ„Ç§„Ç∫ 
+        Integer maxFileSize = sp.getInt("maxFileSize", 0);
 
-		mMaxFileSize = (EditText)findViewById(R.id.maxFileSize);
-		mMaxFileSize.setText(maxFileSize.toString());
+        mMaxFileSize = (EditText)findViewById(R.id.maxFileSize);
+        mMaxFileSize.setText(maxFileSize.toString());
 
-		String maxFileSizeUnit = sp.getString("maxFileSizeUnit", "KB");
-		mMaxFileSizeUnit = (Spinner)findViewById(R.id.maxFileSizeUnit);
+        String maxFileSizeUnit = sp.getString("maxFileSizeUnit", "KB");
+        mMaxFileSizeUnit = (Spinner)findViewById(R.id.maxFileSizeUnit);
 
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		adapter.add("KB");
-		adapter.add("MB");
-		
-		mMaxFileSizeUnit.setAdapter(adapter);
-		mMaxFileSizeUnit.setSelection(maxFileSizeUnit.equals("KB") ? 0 : 1);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.add("KB");
+        adapter.add("MB");
+        
+        mMaxFileSizeUnit.setAdapter(adapter);
+        mMaxFileSizeUnit.setSelection(maxFileSizeUnit.equals("KB") ? 0 : 1);
 
-		// ç≈ëÂÉçÉOÉtÉ@ÉCÉãêî
-		Integer maxFileCount = sp.getInt("maxFileCount", 0);
+        // ÊúÄÂ§ß„É≠„Ç∞„Éï„Ç°„Ç§„É´Êï∞
+        Integer maxFileCount = sp.getInt("maxFileCount", 0);
 
-		mMaxFileCount = (EditText)findViewById(R.id.maxFileCount);
-		mMaxFileCount.setText(maxFileCount.toString());
-		
-		// ROOTÇALWAYSÇ∆Ç∑ÇÈÇ©Ç«Ç§Ç©
-		boolean rootAlways = sp.getBoolean("rootAlways", true);
-		
-		mRootAlways = (CheckBox)findViewById(R.id.rootAlways);
-		mRootAlways.setChecked(rootAlways);
+        mMaxFileCount = (EditText)findViewById(R.id.maxFileCount);
+        mMaxFileCount.setText(maxFileCount.toString());
+        
+        // ROOT„ÇíALWAYS„Å®„Åô„Çã„Åã„Å©„ÅÜ„Åã
+        boolean rootAlways = sp.getBoolean("rootAlways", true);
+        
+        mRootAlways = (CheckBox)findViewById(R.id.rootAlways);
+        mRootAlways.setChecked(rootAlways);
     }
 
-	@Override
-	protected void onDestroy()
-	{
-//		Log.d("seqlog", "Main.onDestroy()");
-		super.onDestroy();
+    @Override
+    protected void onDestroy()
+    {
+//      Log.d("seqlog", "Main.onDestroy()");
+        super.onDestroy();
 
-		App app = (App)getApplication();
-		setSetting();
+        App app = (App)getApplication();
+        setSetting();
 
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-		SharedPreferences.Editor editor = sp.edit();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sp.edit();
 
-		SpannableStringBuilder sb;
-		sb = (SpannableStringBuilder)mIPAddress.getText();
-		String ipAddress = sb.toString();
+        SpannableStringBuilder sb;
+        sb = (SpannableStringBuilder)mIPAddress.getText();
+        String ipAddress = sb.toString();
 
         editor.putString("sharedMemoryPathName", app.mSharedMemoryPathName);
-		editor.putString("ipAddress",            ipAddress);
-		editor.putString("logOutputDir",         app.mLogOutputDir);
-		editor.putInt(   "maxFileSize",          app.mMaxFileSize);
-		editor.putString("maxFileSizeUnit",      app.mMaxFileSizeUnit);
-		editor.putInt(   "maxFileCount",         app.mMaxFileCount);
-		editor.putBoolean("rootAlways",          app.mRootAlways);
+        editor.putString("ipAddress",            ipAddress);
+        editor.putString("logOutputDir",         app.mLogOutputDir);
+        editor.putInt(   "maxFileSize",          app.mMaxFileSize);
+        editor.putString("maxFileSizeUnit",      app.mMaxFileSizeUnit);
+        editor.putInt(   "maxFileCount",         app.mMaxFileCount);
+        editor.putBoolean("rootAlways",          app.mRootAlways);
 
-		editor.commit();
-	}
+        editor.commit();
+    }
 }

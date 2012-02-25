@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	Exception.cpp
- *  \brief	例外クラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   Exception.cpp
+ *  \brief  例外クラス
+ *  \author Copyright 2011 log-tools.net
  */
 #include "slog/Exception.h"
 
@@ -26,67 +26,67 @@
 #include <stdarg.h>
 
 #if defined(_WINDOWS)
-#define snprintf	_snprintf
+#define snprintf    _snprintf
 #endif
 
 namespace slog
 {
 
 /*!
- *  \brief	メッセージ設定
+ *  \brief  メッセージ設定
  */
 void Exception::setMessage(const char* format, ...)
 {
 #if defined(_WINDOWS)
-	mErrorNo = GetLastError();
+    mErrorNo = GetLastError();
 #else
-	mErrorNo = errno;
+    mErrorNo = errno;
 #endif
 
-	// メッセージ生成
-	va_list arg;
-	va_start(arg, format);
+    // メッセージ生成
+    va_list arg;
+    va_start(arg, format);
 
-	int32_t capacity = sizeof(mMessage) - 1;
-	int32_t len = vsnprintf(mMessage, capacity, format, arg);
-	va_end(arg);
+    int32_t capacity = sizeof(mMessage) - 1;
+    int32_t len = vsnprintf(mMessage, capacity, format, arg);
+    va_end(arg);
 
-	// バッファが一杯か？
-	if (len == -1)
-	{
-		mMessage[capacity] = '\0';
-		return;
-	}
+    // バッファが一杯か？
+    if (len == -1)
+    {
+        mMessage[capacity] = '\0';
+        return;
+    }
 
-	// APIエラーによる例外か？
-	if (mErrorNo == 0)
-		return;
+    // APIエラーによる例外か？
+    if (mErrorNo == 0)
+        return;
 
-	// APIエラーのメッセージ取得
-	char* buffer = NULL;
+    // APIエラーのメッセージ取得
+    char* buffer = NULL;
 
 #if defined(_WINDOWS)
-	DWORD flags =
-		FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS;
+    DWORD flags =
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS;
 
-	FormatMessageA(flags, NULL, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
-	buffer[strlen(buffer) - 2] = '\0';		// 改行除去
+    FormatMessageA(flags, NULL, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
+    buffer[strlen(buffer) - 2] = '\0';      // 改行除去
 #else
-	buffer = strerror(mErrorNo);
+    buffer = strerror(mErrorNo);
 #endif
 
-	if (len)
-		len = snprintf(mMessage + len, capacity - len, " / %s(%d)", buffer, mErrorNo);
-	else
-		len = snprintf(mMessage + len, capacity - len, "%s",        buffer);
+    if (len)
+        len = snprintf(mMessage + len, capacity - len, " / %s(%d)", buffer, mErrorNo);
+    else
+        len = snprintf(mMessage + len, capacity - len, "%s",        buffer);
 
-	if (len == -1)
-		mMessage[capacity] = '\0';
+    if (len == -1)
+        mMessage[capacity] = '\0';
 
 #if defined(_WINDOWS)
-	LocalFree(buffer);
+    LocalFree(buffer);
 #endif
 }
 

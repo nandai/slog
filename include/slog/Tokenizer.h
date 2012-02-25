@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	Tokenizer.h
- *  \brief	文字列分割クラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   Tokenizer.h
+ *  \brief  文字列分割クラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 #include "slog/String.h"
@@ -26,72 +26,72 @@
 #include <map>
 
 #if defined(__linux__)
-	#include <stdlib.h>
+    #include <stdlib.h>
 #endif
 
 namespace slog
 {
 
 /*!
- *  \brief	バリアントクラス
+ *  \brief  バリアントクラス
  */
 class Variant
 {
-public:		String	mStr;
+public:     String  mStr;
 
 //blic:     Variant(const Variant& variant)
 //          {
 //              mStr = variant.mStr;
 //          }
 
-public:		operator int32_t() const {return atol(mStr.getBuffer());}
-			operator const CoreString&() const {return mStr;}
+public:     operator int32_t() const {return atol(mStr.getBuffer());}
+            operator const CoreString&() const {return mStr;}
 };
 
 /*!
- *  \brief	文字列分割クラス
+ *  \brief  文字列分割クラス
  */
 class Tokenizer
 {
-			struct Element
-			{
-				Variant	variant;		//!< 要素
-				char	delimiter;		//!< デリミタ
-			};
+            struct Element
+            {
+                Variant variant;        //!< 要素
+                char    delimiter;      //!< デリミタ
+            };
 
-			typedef std::vector<String>			Keys;
-			typedef std::map<String, Element*>	Elements;
+            typedef std::vector<String>         Keys;
+            typedef std::map<String, Element*>  Elements;
 
-			Keys		mKeys;			//!< キー
-			Elements	mElements;		//!< 要素
-			Variant		mEmpty;			//!< 空要素
-			char		mDelimiter;		//!< デリミタ
+            Keys        mKeys;          //!< キー
+            Elements    mElements;      //!< 要素
+            Variant     mEmpty;         //!< 空要素
+            char        mDelimiter;     //!< デリミタ
 
-			// 初期化／後処理
-public:		 Tokenizer(const CoreString& format);
-			 Tokenizer(char delimiter);
-			~Tokenizer();
+            // 初期化／後処理
+public:      Tokenizer(const CoreString& format);
+             Tokenizer(char delimiter);
+            ~Tokenizer();
 
-private:	void cleanUp();
+private:    void cleanUp();
 
-			// 実行
-public:		int32_t exec(       const CoreString& str);
-private:	int32_t execNamed(  const CoreString& str);
-			int32_t execIndexed(const CoreString& str);
+            // 実行
+public:     int32_t exec(       const CoreString& str);
+private:    int32_t execNamed(  const CoreString& str);
+            int32_t execIndexed(const CoreString& str);
 
-			// 取得
-public:		const Variant& getValue(const char* key) const;
-			const Variant& getValue(int32_t index) const;
+            // 取得
+public:     const Variant& getValue(const char* key) const;
+            const Variant& getValue(int32_t index) const;
 
-			int32_t getCount() const;
+            int32_t getCount() const;
 };
 
 /*!
- *  \brief	要素数取得
+ *  \brief  要素数取得
  */
 inline int32_t Tokenizer::getCount() const
 {
-	return (int32_t)mKeys.size();
+    return (int32_t)mKeys.size();
 }
 
 } // namespace slog

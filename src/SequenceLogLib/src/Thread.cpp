@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,76 +15,76 @@
  */
 
 /*!
- *  \file	Thread.cpp
- *  \brief	スレッドクラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   Thread.cpp
+ *  \brief  スレッドクラス
+ *  \author Copyright 2011 log-tools.net
  */
 #include "slog/Thread.h"
 
 #if defined(_WINDOWS)
-	#include <process.h>
+    #include <process.h>
 #endif
 
 namespace slog
 {
 
 /*!
- *  \brief	コントラクタ
+ *  \brief  コントラクタ
  */
 Thread::Thread()
 {
-	mHandle = 0/*NULL*/;
-	mInterrupted = false;
-	mAlive = false;
+    mHandle = 0/*NULL*/;
+    mInterrupted = false;
+    mAlive = false;
 
-	setListener(NULL);
+    setListener(NULL);
 }
 
 /*!
- *  \brief	デストラクタ
+ *  \brief  デストラクタ
  */
 Thread::~Thread()
 {
-	TRACE("Thread::~Thread()\n", 0);
+    TRACE("Thread::~Thread()\n", 0);
 }
 
 /*!
- *  \brief	スレッド開始
+ *  \brief  スレッド開始
  */
 void Thread::start()
 {
 #if defined(_WINDOWS)
-	mHandle = (HANDLE)_beginthreadex(NULL, 0, main, this, 0, NULL);
+    mHandle = (HANDLE)_beginthreadex(NULL, 0, main, this, 0, NULL);
 #else
-	pthread_create(&mHandle, 0/*NULL*/, main, this);
+    pthread_create(&mHandle, 0/*NULL*/, main, this);
 #endif
 }
 
 /*!
- *  \brief	スレッド終了待ち
+ *  \brief  スレッド終了待ち
  */
 void Thread::join()
 {
 #if defined(_WINDOWS)
-	WaitForSingleObject(mHandle, INFINITE);
-	CloseHandle(mHandle);
+    WaitForSingleObject(mHandle, INFINITE);
+    CloseHandle(mHandle);
 #else
-	pthread_join(mHandle, 0/*NULL*/);
+    pthread_join(mHandle, 0/*NULL*/);
 #endif
 
-	mHandle = 0/*NULL*/;
+    mHandle = 0/*NULL*/;
 }
 
 /*!
- *  \brief	割り込み
+ *  \brief  割り込み
  */
 void Thread::interrupt()
 {
-	mInterrupted = true;
+    mInterrupted = true;
 }
 
 /*!
- *  \brief	スレッドエントリーポイント
+ *  \brief  スレッドエントリーポイント
  */
 #if defined(_WINDOWS)
 unsigned int __stdcall Thread::main(void* param)
@@ -92,27 +92,27 @@ unsigned int __stdcall Thread::main(void* param)
 void* Thread::main(void* param)
 #endif
 {
-	Thread* thread = (Thread*)param;
+    Thread* thread = (Thread*)param;
 
-	thread->mInterrupted = false;
-	thread->mAlive = true;
+    thread->mInterrupted = false;
+    thread->mAlive = true;
 
-	if (thread->init())
-	{
-		thread->mListener->onInitialized(thread);
-		thread->run();
-	}
+    if (thread->init())
+    {
+        thread->mListener->onInitialized(thread);
+        thread->run();
+    }
 
-	thread->mAlive = false;
-	thread->mListener->onTerminated(thread);
+    thread->mAlive = false;
+    thread->mListener->onTerminated(thread);
 
 #if defined(_WINDOWS)
-	_endthreadex(0);
+    _endthreadex(0);
 #else
-	pthread_exit(0);
+    pthread_exit(0);
 #endif
 
-	return 0;
+    return 0;
 }
 
 } // namespace slog

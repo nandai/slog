@@ -24,6 +24,7 @@ if [ $retval -ne 0 ]; then
 fi
 
 if [ $clean -eq 0 ]; then
+	mkdir -p ../Android/libs/armeabi
 	cp ../libs/armeabi/libslogsvc.so ../Android/libs/armeabi/
 	cp ../libs/armeabi/libslogsvc.so ../../../bin/Android/
 fi

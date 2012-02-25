@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,60 +15,60 @@
  */
 
 /*!
- *  \file	Log.h
- *  \brief	シーケンスログ（C#）
- *  \author	Copyright 2011 log-tools.net
+ *  \file   Log.h
+ *  \brief  シーケンスログ（C#）
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 using namespace System;
 
 /*!
- *  \brief	Sequence Log (C#)
+ *  \brief  Sequence Log (C#)
  */
 namespace Slog
 {
 
 /*!
- *  \brief	シーケンスログクラス
+ *  \brief  シーケンスログクラス
  */
 public ref class Log
 {
-			// 出力フラグ
-public:		static const int32_t KEEP =	      0;	// シーケンスログの出力をキープする
-			static const int32_t OUTPUT_ALL = 1;	// キープ中のシーケンスログも含め出力する
-			static const int32_t ALWAYS =     2;	// キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
-			static const int32_t ROOT =       3;	// シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
+            // 出力フラグ
+public:     static const int32_t KEEP =       0;    // シーケンスログの出力をキープする
+            static const int32_t OUTPUT_ALL = 1;    // キープ中のシーケンスログも含め出力する
+            static const int32_t ALWAYS =     2;    // キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
+            static const int32_t ROOT =       3;    // シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
 
-private:	Log() {}
+private:    Log() {}
 
-public:		static void SetFileName(String^ aName);
-			static void SetRootFlag(int32_t outputFlag);
+public:     static void SetFileName(String^ aName);
+            static void SetRootFlag(int32_t outputFlag);
 
-			static int64_t StepIn(String^ aClassName, String^ aFuncName) {return StepIn(aClassName, aFuncName, KEEP);}
-			static int64_t StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag);
+            static int64_t StepIn(String^ aClassName, String^ aFuncName) {return StepIn(aClassName, aFuncName, KEEP);}
+            static int64_t StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag);
 
-			static int64_t StepIn(int32_t classID,    String^ aFuncName) {return StepIn(classID,    aFuncName, KEEP);}
-			static int64_t StepIn(int32_t classID,    String^ aFuncName, int32_t outputFlag);
+            static int64_t StepIn(int32_t classID,    String^ aFuncName) {return StepIn(classID,    aFuncName, KEEP);}
+            static int64_t StepIn(int32_t classID,    String^ aFuncName, int32_t outputFlag);
 
-			static int64_t StepIn(int32_t classID,    int32_t funcID)    {return StepIn(classID,    funcID,    KEEP);}
-			static int64_t StepIn(int32_t classID,    int32_t funcID,    int32_t outputFlag);
+            static int64_t StepIn(int32_t classID,    int32_t funcID)    {return StepIn(classID,    funcID,    KEEP);}
+            static int64_t StepIn(int32_t classID,    int32_t funcID,    int32_t outputFlag);
 
-			static void StepOut(int64_t slog);
+            static void StepOut(int64_t slog);
 
-private:	static void Message(int32_t level, String^ aMessage,  int64_t slog);
-			static void Message(int32_t level, int32_t messageID, int64_t slog);
+private:    static void Message(int32_t level, String^ aMessage,  int64_t slog);
+            static void Message(int32_t level, int32_t messageID, int64_t slog);
 
-public:		static void V(int64_t slog, String^ message)   {Message(slog::DEBUG, message,   slog);}
-			static void D(int64_t slog, String^ message)   {Message(slog::DEBUG, message,   slog);}
-			static void I(int64_t slog, String^ message)   {Message(slog::INFO,  message,   slog);}
-			static void W(int64_t slog, String^ message)   {Message(slog::WARN,  message,   slog);}
-			static void E(int64_t slog, String^ message)   {Message(slog::ERROR, message,   slog);}
+public:     static void V(int64_t slog, String^ message)   {Message(slog::DEBUG, message,   slog);}
+            static void D(int64_t slog, String^ message)   {Message(slog::DEBUG, message,   slog);}
+            static void I(int64_t slog, String^ message)   {Message(slog::INFO,  message,   slog);}
+            static void W(int64_t slog, String^ message)   {Message(slog::WARN,  message,   slog);}
+            static void E(int64_t slog, String^ message)   {Message(slog::ERROR, message,   slog);}
 
-			static void V(int64_t slog, int32_t messageID) {Message(slog::DEBUG, messageID, slog);}
-			static void D(int64_t slog, int32_t messageID) {Message(slog::DEBUG, messageID, slog);}
-			static void I(int64_t slog, int32_t messageID) {Message(slog::INFO,  messageID, slog);}
-			static void W(int64_t slog, int32_t messageID) {Message(slog::WARN,  messageID, slog);}
-			static void E(int64_t slog, int32_t messageID) {Message(slog::ERROR, messageID, slog);}
+            static void V(int64_t slog, int32_t messageID) {Message(slog::DEBUG, messageID, slog);}
+            static void D(int64_t slog, int32_t messageID) {Message(slog::DEBUG, messageID, slog);}
+            static void I(int64_t slog, int32_t messageID) {Message(slog::INFO,  messageID, slog);}
+            static void W(int64_t slog, int32_t messageID) {Message(slog::WARN,  messageID, slog);}
+            static void E(int64_t slog, int32_t messageID) {Message(slog::ERROR, messageID, slog);}
 };
 
 } // namespace Slog

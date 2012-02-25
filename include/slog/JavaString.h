@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	JavaString.h
- *  \brief	Java文字列クラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   JavaString.h
+ *  \brief  Java文字列クラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 
@@ -28,35 +28,35 @@ namespace slog
 {
 
 /*!
- *  \brief	Java文字列クラス
+ *  \brief  Java文字列クラス
  */
 class JavaString : public PointerString
 {
-			JNIEnv*	mEnv;
-			jstring	mStr;
+            JNIEnv* mEnv;
+            jstring mStr;
 
-public:		JavaString(JNIEnv* env, jstring str);
-			virtual ~JavaString();
+public:     JavaString(JNIEnv* env, jstring str);
+            virtual ~JavaString();
 };
 
 /*!
- *  \brief	コンストラクタ
+ *  \brief  コンストラクタ
  */
 inline JavaString::JavaString(JNIEnv* env, jstring str)
 {
-	mEnv = env;
-	mStr = str;
+    mEnv = env;
+    mStr = str;
 
-	char* p = (char*)mEnv->GetStringUTFChars(mStr, NULL);
-	init(p);
+    char* p = (char*)mEnv->GetStringUTFChars(mStr, NULL);
+    init(p);
 }
 
 /*!
- *  \brief	デストラクタ
+ *  \brief  デストラクタ
  */
 inline JavaString::~JavaString()
 {
-	mEnv->ReleaseStringUTFChars(mStr, getBuffer());
+    mEnv->ReleaseStringUTFChars(mStr, getBuffer());
 }
 
 } // namespace slog

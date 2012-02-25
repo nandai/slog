@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	FixedString.h
- *  \brief	固定長文字列クラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   FixedString.h
+ *  \brief  固定長文字列クラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 #include "slog/CoreString.h"
@@ -26,58 +26,58 @@ namespace slog
 {
 
 /*!
- *  \brief	固定長文字列クラス
+ *  \brief  固定長文字列クラス
  */
 template <int i>
 class FixedString : public CoreString
 {
-			static const int CAPACITY = i;		//!< バッファサイズ
-			char	mBuffer[ CAPACITY + 1];		//!< バッファ
+            static const int CAPACITY = i;      //!< バッファサイズ
+            char    mBuffer[ CAPACITY + 1];     //!< バッファ
 
-private:	const FixedString& operator=(const char*);
-			const FixedString& operator=(const FixedString&);
+private:    const FixedString& operator=(const char*);
+            const FixedString& operator=(const FixedString&);
 
-public:		FixedString();
-			FixedString(const char* text);
+public:     FixedString();
+            FixedString(const char* text);
 
-			virtual char*   getBuffer() const;
-			virtual int32_t getCapacity() const;
+            virtual char*   getBuffer() const;
+            virtual int32_t getCapacity() const;
 };
 
 /*!
- *  \brief	コンストラクタ
+ *  \brief  コンストラクタ
  */
 template <int i>
 inline FixedString<i>::FixedString()
 {
-	mBuffer[0] = '\0';
+    mBuffer[0] = '\0';
 }
 
 /*!
- *  \brief	コンストラクタ
+ *  \brief  コンストラクタ
  */
 template <int i>
 inline FixedString<i>::FixedString(const char* text)
 {
-	copy(text);
+    copy(text);
 }
 
 /*!
- *  \brief	バッファアドレス取得
+ *  \brief  バッファアドレス取得
  */
 template <int i>
 char* FixedString<i>::getBuffer() const
 {
-	return (char*)mBuffer;
+    return (char*)mBuffer;
 }
 
 /*!
- *  \brief	バッファサイズ取得
+ *  \brief  バッファサイズ取得
  */
 template <int i>
 int32_t FixedString<i>::getCapacity() const
 {
-	return CAPACITY;
+    return CAPACITY;
 }
 
 } // namespace slog

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	net_log_tools_slog_Log.cpp
- *  \brief	シーケンスログ (JNI)
- *  \author	Copyright 2011 log-tools.net
+ *  \file   net_log_tools_slog_Log.cpp
+ *  \brief  シーケンスログ (JNI)
+ *  \author Copyright 2011 log-tools.net
  */
 #include "slog/SequenceLog.h"
 #include "slog/JavaString.h"
@@ -28,27 +28,27 @@ using namespace slog;
 // const char*版JNINativeMethodを定義する
 struct JNINativeMethodEx
 {
-	const char*	name;
-	const char*	signature;
-	void*		fnPtr;
+    const char* name;
+    const char* signature;
+    void*       fnPtr;
 };
 
 /*!
- *  \brief	JNIメソッド登録
+ *  \brief  JNIメソッド登録
  */
 static bool registerNatives(JNIEnv* env, const char* className, const JNINativeMethod* methods, int numMethods)
 {
-	jclass clazz = env->FindClass(className);
-	bool result = false;
+    jclass clazz = env->FindClass(className);
+    bool result = false;
 
-	if (clazz == NULL)
-		return false;
+    if (clazz == NULL)
+        return false;
 
-	if (env->RegisterNatives(clazz, methods, numMethods) == 0)
-		result = true;
+    if (env->RegisterNatives(clazz, methods, numMethods) == 0)
+        result = true;
 
-	env->DeleteLocalRef(clazz);
-	return result;
+    env->DeleteLocalRef(clazz);
+    return result;
 }
 
 /*
@@ -58,8 +58,8 @@ static bool registerNatives(JNIEnv* env, const char* className, const JNINativeM
  */
 static void JNICALL setFileName(JNIEnv* env, jclass, jstring aFileName)
 {
-	JavaString fileName(env, aFileName);
-	setSequenceLogFileName(fileName.getBuffer());
+    JavaString fileName(env, aFileName);
+    setSequenceLogFileName(fileName.getBuffer());
 }
 
 /*
@@ -69,7 +69,7 @@ static void JNICALL setFileName(JNIEnv* env, jclass, jstring aFileName)
  */
 static void JNICALL setRootFlagJNI(JNIEnv* env, jclass, jint outputFlag)
 {
-	setRootFlag(outputFlag);
+    setRootFlag(outputFlag);
 }
 
 /*
@@ -79,11 +79,11 @@ static void JNICALL setRootFlagJNI(JNIEnv* env, jclass, jint outputFlag)
  */
 static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aFuncName, jint outputFlag)
 {
-	JavaString className(env, aClassName);
-	JavaString funcName( env, aFuncName);
+    JavaString className(env, aClassName);
+    JavaString funcName( env, aFuncName);
 
-	SequenceLog* slogObj = new SequenceLog(className.getBuffer(), funcName.getBuffer(), (SequenceLogOutputFlag)outputFlag);
-	return (jlong)slogObj;
+    SequenceLog* slogObj = new SequenceLog(className.getBuffer(), funcName.getBuffer(), (SequenceLogOutputFlag)outputFlag);
+    return (jlong)slogObj;
 }
 
 /*
@@ -93,10 +93,10 @@ static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aF
  */
 static jlong JNICALL stepIn2(JNIEnv* env, jclass, jint classID, jstring aFuncName, jint outputFlag)
 {
-	JavaString funcName( env, aFuncName);
+    JavaString funcName( env, aFuncName);
 
-	SequenceLog* slogObj = new SequenceLog(classID, funcName.getBuffer(), (SequenceLogOutputFlag)outputFlag);
-	return (jlong)slogObj;
+    SequenceLog* slogObj = new SequenceLog(classID, funcName.getBuffer(), (SequenceLogOutputFlag)outputFlag);
+    return (jlong)slogObj;
 }
 
 /*
@@ -106,8 +106,8 @@ static jlong JNICALL stepIn2(JNIEnv* env, jclass, jint classID, jstring aFuncNam
  */
 static jlong JNICALL stepIn3(JNIEnv* env, jclass, jint classID, jint funcID, jint outputFlag)
 {
-	SequenceLog* slogObj = new SequenceLog(classID, funcID, (SequenceLogOutputFlag)outputFlag);
-	return (jlong)slogObj;
+    SequenceLog* slogObj = new SequenceLog(classID, funcID, (SequenceLogOutputFlag)outputFlag);
+    return (jlong)slogObj;
 }
 
 /*
@@ -117,8 +117,8 @@ static jlong JNICALL stepIn3(JNIEnv* env, jclass, jint classID, jint funcID, jin
  */
 static void JNICALL stepOut(JNIEnv* env, jclass, jlong slog)
 {
-	SequenceLog* slogObj = (SequenceLog*)slog;
-	delete slogObj;
+    SequenceLog* slogObj = (SequenceLog*)slog;
+    delete slogObj;
 }
 
 /*
@@ -128,10 +128,10 @@ static void JNICALL stepOut(JNIEnv* env, jclass, jlong slog)
  */
 static void JNICALL message1(JNIEnv* env, jclass, jint level, jstring aMessage, jlong slog)
 {
-	SequenceLog* slogObj = (SequenceLog*)slog;
-	JavaString message(env, aMessage);
+    SequenceLog* slogObj = (SequenceLog*)slog;
+    JavaString message(env, aMessage);
 
-	slogObj->message((SequenceLogLevel)level, "%s", message.getBuffer());
+    slogObj->message((SequenceLogLevel)level, "%s", message.getBuffer());
 }
 
 /*
@@ -141,38 +141,38 @@ static void JNICALL message1(JNIEnv* env, jclass, jint level, jstring aMessage, 
  */
 static void JNICALL message2(JNIEnv* env, jclass, jint level, jint messageID, jlong slog)
 {
-	SequenceLog* slogObj = (SequenceLog*)slog;
-	slogObj->message((SequenceLogLevel)level, messageID);
+    SequenceLog* slogObj = (SequenceLog*)slog;
+    slogObj->message((SequenceLogLevel)level, messageID);
 }
 
 // JNIメソッド配列
 static JNINativeMethodEx sMethods[] =
 {
-	{"setFileName", "(Ljava/lang/String;)V",                    (void*)setFileName   },
-	{"setRootFlag", "(I)V",                                     (void*)setRootFlagJNI},
-	{"stepIn",      "(Ljava/lang/String;Ljava/lang/String;I)J", (void*)stepIn1       },
-	{"stepIn",      "(ILjava/lang/String;I)J",                  (void*)stepIn2       },
-	{"stepIn",      "(III)J",                                   (void*)stepIn3       },
-	{"stepOut",     "(J)V",                                     (void*)stepOut       },
-	{"message",     "(ILjava/lang/String;J)V",                  (void*)message1      },
-	{"message",     "(IIJ)V",                                   (void*)message2      },
+    {"setFileName", "(Ljava/lang/String;)V",                    (void*)setFileName   },
+    {"setRootFlag", "(I)V",                                     (void*)setRootFlagJNI},
+    {"stepIn",      "(Ljava/lang/String;Ljava/lang/String;I)J", (void*)stepIn1       },
+    {"stepIn",      "(ILjava/lang/String;I)J",                  (void*)stepIn2       },
+    {"stepIn",      "(III)J",                                   (void*)stepIn3       },
+    {"stepOut",     "(J)V",                                     (void*)stepOut       },
+    {"message",     "(ILjava/lang/String;J)V",                  (void*)message1      },
+    {"message",     "(IIJ)V",                                   (void*)message2      },
 };
 
 /*!
- *  \brief	Java Native Interface OnLoad
+ *  \brief  Java Native Interface OnLoad
  */
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
-	JNIEnv* env = NULL;
-	jint version = JNI_VERSION_1_6;
+    JNIEnv* env = NULL;
+    jint version = JNI_VERSION_1_6;
 
-	if (vm->GetEnv((void**)&env, version) != JNI_OK)
-		return -1;
+    if (vm->GetEnv((void**)&env, version) != JNI_OK)
+        return -1;
 
-	if (registerNatives(env, "net/log_tools/slog/Log", (JNINativeMethod*)sMethods, sizeof(sMethods) / sizeof(sMethods[0])) == false)
-		return -1;
+    if (registerNatives(env, "net/log_tools/slog/Log", (JNINativeMethod*)sMethods, sizeof(sMethods) / sizeof(sMethods[0])) == false)
+        return -1;
 
-	return version;
+    return version;
 }
 
 #if defined(_WINDLL) || defined(__SHARED_LIBRARY__)
@@ -182,7 +182,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 const char* getSequenceLogFileName()
 {
     TRACE("getSequenceLogFileName() in net_log_tools_slog_Log.cpp\n", 0);
-	return NULL;
+    return NULL;
 }
 
 #if defined(_WINDOWS)
@@ -193,15 +193,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     switch (fdwReason)
     {
         case DLL_PROCESS_ATTACH:
-			Socket::startup();
+            Socket::startup();
             break;
 
         case DLL_PROCESS_DETACH:
-			Socket::cleanup();
+            Socket::cleanup();
             break;
     }
 
-	return  TRUE;
+    return  TRUE;
 }
 #endif // defined(_WINDOWS)
 #endif // defined(_WINDLL) || defined(__SHARED_LIBRARY__)

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +15,17 @@
  */
 
 /*!
- *  \file	Thread.h
- *  \brief	スレッドクラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   Thread.h
+ *  \brief  スレッドクラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 #include "slog/slog.h"
 
 #if defined(__unix__)
-	#include <pthread.h>
-	#include <unistd.h>
-	#include <sys/syscall.h>
+    #include <pthread.h>
+    #include <unistd.h>
+    #include <sys/syscall.h>
 #endif
 
 namespace slog
@@ -33,118 +33,118 @@ namespace slog
 class Thread;
 
 /*!
- *  \brief	スレッドリスナークラス
+ *  \brief  スレッドリスナークラス
  */
 class ThreadListener
 {
-public:		virtual void onInitialized(Thread* thread) {}	//!< スレッド初期化完了通知
-			virtual void onTerminated( Thread* thread) {}	//!< スレッド終了通知
+public:     virtual void onInitialized(Thread* thread) {}   //!< スレッド初期化完了通知
+            virtual void onTerminated( Thread* thread) {}   //!< スレッド終了通知
 };
 
 /*!
- *  \brief	スレッドクラス
+ *  \brief  スレッドクラス
  */
 class Thread
 {
 #if defined(_WINDOWS)
-			HANDLE			mHandle;			//!< スレッドハンドル
+            HANDLE          mHandle;            //!< スレッドハンドル
 #else
-			pthread_t		mHandle;			//!< スレッドハンドル
+            pthread_t       mHandle;            //!< スレッドハンドル
 #endif
 
-			bool			mInterrupted;		//!< 割り込みフラグ
-			bool			mAlive;				//!< 生存フラグ
+            bool            mInterrupted;       //!< 割り込みフラグ
+            bool            mAlive;             //!< 生存フラグ
 
-			ThreadListener	mDefaultListener;	//!< デフォルトリスナー
-			ThreadListener*	mListener;			//!< リスナー
+            ThreadListener  mDefaultListener;   //!< デフォルトリスナー
+            ThreadListener* mListener;          //!< リスナー
 
-public:		Thread();
-			virtual ~Thread();
+public:     Thread();
+            virtual ~Thread();
 
-			void start();
-			void join();
+            void start();
+            void join();
 
-private:	virtual bool init() {return true;}	//!< 初期化
-			virtual void run() = 0;				//!< スレッド実行
+private:    virtual bool init() {return true;}  //!< 初期化
+            virtual void run() = 0;             //!< スレッド実行
 
-public:		virtual void interrupt();
-			bool isInterrupted() const;
-			bool isAlive() const;
+public:     virtual void interrupt();
+            bool isInterrupted() const;
+            bool isAlive() const;
 
-			ThreadListener* getListener() const;
-			void setListener(ThreadListener* listener);
+            ThreadListener* getListener() const;
+            void setListener(ThreadListener* listener);
 
 private:
 #if defined(_WINDOWS)
-			static unsigned int __stdcall main(void* param);
+            static unsigned int __stdcall main(void* param);
 #else
-			static void* main(void* param);
+            static void* main(void* param);
 #endif
 
-public:		static uint32_t getCurrentId();
-			static void sleep(uint32_t ms);
+public:     static uint32_t getCurrentId();
+            static void sleep(uint32_t ms);
 };
 
 /*!
- *  \brief	割り込まれているか調べる
+ *  \brief  割り込まれているか調べる
  */
 inline bool Thread::isInterrupted() const
 {
-	return mInterrupted;
+    return mInterrupted;
 }
 
 /*!
- *  \brief	生存確認
+ *  \brief  生存確認
  */
 inline bool Thread::isAlive() const
 {
-	return mAlive;
+    return mAlive;
 }
 
 /*!
- *  \brief	リスナー取得
+ *  \brief  リスナー取得
  */
 inline ThreadListener* Thread::getListener() const
 {
-	return mListener;
+    return mListener;
 }
 
 /*!
- *  \brief	リスナー設定
+ *  \brief  リスナー設定
  */
 inline void Thread::setListener(ThreadListener* listener)
 {
-	mListener = (listener ? listener : &mDefaultListener);
+    mListener = (listener ? listener : &mDefaultListener);
 }
 
 /*!
- *  \brief	カレントスレッドID取得
+ *  \brief  カレントスレッドID取得
  */
 inline uint32_t Thread::getCurrentId()
 {
 #if defined(_WINDOWS)
-	return (uint32_t)GetCurrentThreadId();
+    return (uint32_t)GetCurrentThreadId();
 #elif defined(__ANDROID__)
-	return (uint32_t)gettid();
+    return (uint32_t)gettid();
 #else
-//	return (uint32_t)syscall(224);
-	return (uint32_t)syscall(SYS_gettid);
+//  return (uint32_t)syscall(224);
+    return (uint32_t)syscall(SYS_gettid);
 #endif
 }
 
 /*!
- *  \brief	スリープ
+ *  \brief  スリープ
  */
 inline void Thread::sleep(uint32_t ms)
 {
 #if defined(_WINDOWS)
-	Sleep(ms);
+    Sleep(ms);
 #else
-	timespec req;
-	req.tv_sec =   ms / 1000;
-	req.tv_nsec = (ms % 1000) * 1000 * 1000;
+    timespec req;
+    req.tv_sec =   ms / 1000;
+    req.tv_nsec = (ms % 1000) * 1000 * 1000;
 
-	nanosleep(&req, NULL);
+    nanosleep(&req, NULL);
 #endif
 }
 

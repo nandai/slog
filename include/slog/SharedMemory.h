@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,256 +15,256 @@
  */
 
 /*!
- *  \file	SharedMemory.h
- *  \brief	共有メモリクラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   SharedMemory.h
+ *  \brief  共有メモリクラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 #include "slog/Exception.h"
 
 #if defined(__unix__)
-	#include <fcntl.h>
-	#include <sys/stat.h>
-	#include <sys/mman.h>
+    #include <fcntl.h>
+    #include <sys/stat.h>
+    #include <sys/mman.h>
 #endif
 
 namespace slog
 {
 
 /*!
- *  \brief	共有メモリクラス
+ *  \brief  共有メモリクラス
  */
 template <class T>
 class SharedMemory
 {
 #if defined(_WINDOWS)
-			HANDLE		mHandle;			//!< 共有メモリハンドル
+            HANDLE      mHandle;            //!< 共有メモリハンドル
 #else
-			int			mHandle;			//!< 共有メモリハンドル
+            int         mHandle;            //!< 共有メモリハンドル
 
-			bool		mCreate;			//!< 作成フラグ
-			char		mName[MAX_PATH];	//!< 共有メモリ名
+            bool        mCreate;            //!< 作成フラグ
+            char        mName[MAX_PATH];    //!< 共有メモリ名
 #endif
 
-			T			mPointer;			//!< 共有メモリポインタ
-			uint32_t	mSize;				//!< 共有メモリサイズ
+            T           mPointer;           //!< 共有メモリポインタ
+            uint32_t    mSize;              //!< 共有メモリサイズ
 
-public:		 SharedMemory();
-			~SharedMemory();
+public:      SharedMemory();
+            ~SharedMemory();
 
-			T operator->() const;
-			T getBuffer() const;
+            T operator->() const;
+            T getBuffer() const;
 
-			void create(const CoreString& name, uint32_t size) throw(Exception);
-			void open(  const CoreString& name) throw(Exception);
-			void close();
+            void create(const CoreString& name, uint32_t size) throw(Exception);
+            void open(  const CoreString& name) throw(Exception);
+            void close();
 
-			bool isOpen() const;
-			uint32_t getSize() const;
+            bool isOpen() const;
+            uint32_t getSize() const;
 
-private:	void init();
+private:    void init();
 };
 
 /*!
- *  \brief	コンストラクタ
+ *  \brief  コンストラクタ
  */
 template <class T>
 inline SharedMemory<T>::SharedMemory()
 {
-	init();
+    init();
 }
 
 /*!
- *  \brief	デストラクタ
+ *  \brief  デストラクタ
  */
 template <class T>
 inline SharedMemory<T>::~SharedMemory()
 {
-	close();
+    close();
 }
 
 /*!
- *  \brief	実体を取得する
+ *  \brief  実体を取得する
  */
 template <class T>
 inline T SharedMemory<T>::operator->() const
 {
-	return mPointer;
+    return mPointer;
 }
 
 /*!
- *  \brief	実体を取得する
+ *  \brief  実体を取得する
  */
 template <class T>
 inline T SharedMemory<T>::getBuffer() const
 {
-	return mPointer;
+    return mPointer;
 }
 
 /*!
- *  \brief	作成
+ *  \brief  作成
  */
 template <class T>
 inline void SharedMemory<T>::create(const CoreString& name, uint32_t size) throw(Exception)
 {
-	Exception e;
-	const char* p = name.getBuffer();
+    Exception e;
+    const char* p = name.getBuffer();
 
 #if defined(_WINDOWS)
-	HANDLE handle = CreateFileMappingA((HANDLE)-1, NULL, PAGE_READWRITE, 0, size, p);
+    HANDLE handle = CreateFileMappingA((HANDLE)-1, NULL, PAGE_READWRITE, 0, size, p);
 
-	if (handle == NULL)
-	{
-		e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
-		throw e;
-	}
+    if (handle == NULL)
+    {
+        e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
+        throw e;
+    }
 
-	T pointer = (T)MapViewOfFile(handle, FILE_MAP_WRITE, 0, 0, 0);
+    T pointer = (T)MapViewOfFile(handle, FILE_MAP_WRITE, 0, 0, 0);
 
-	if (pointer == NULL)
-	{
-		e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
-		CloseHandle(handle);
+    if (pointer == NULL)
+    {
+        e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
+        CloseHandle(handle);
 
-		throw e;
-	}
+        throw e;
+    }
 #else
-	umask(0);
-	int handle = ::open(p, O_RDWR | O_CREAT, 0666);
+    umask(0);
+    int handle = ::open(p, O_RDWR | O_CREAT, 0666);
 
-	if (handle == -1)
-	{
-		e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
-		throw e;
-	}
+    if (handle == -1)
+    {
+        e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
+        throw e;
+    }
 
-//	int32_t pageSize = sysconf(_SC_PAGE_SIZE);
-//	size = (size / pageSize + 1) * pageSize;
+//  int32_t pageSize = sysconf(_SC_PAGE_SIZE);
+//  size = (size / pageSize + 1) * pageSize;
 
-	if (ftruncate(handle, size) == -1)
-	{
-		e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
-		::close(handle);
+    if (ftruncate(handle, size) == -1)
+    {
+        e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
+        ::close(handle);
 
-		throw e;
-	}
+        throw e;
+    }
 
-	T pointer = (T)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, handle, 0);
+    T pointer = (T)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, handle, 0);
 
-	if (pointer == MAP_FAILED)
-	{
-		e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
-		::close(handle);
+    if (pointer == MAP_FAILED)
+    {
+        e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
+        ::close(handle);
 
-		throw e;
-	}
+        throw e;
+    }
 
-	mCreate = true;
-	strcpy(mName, p);
+    mCreate = true;
+    strcpy(mName, p);
 #endif
 
-	mHandle = handle;
-	mPointer = pointer;
-	mSize = size;
+    mHandle = handle;
+    mPointer = pointer;
+    mSize = size;
 }
 
 /*!
- *  \brief	オープン
+ *  \brief  オープン
  */
 template <class T>
 inline void SharedMemory<T>::open(const CoreString& name) throw(Exception)
 {
-	Exception e;
-	const char* p = name.getBuffer();
+    Exception e;
+    const char* p = name.getBuffer();
 
 #if defined(_WINDOWS)
-	mHandle = OpenFileMappingA(FILE_MAP_WRITE, FALSE, p);
+    mHandle = OpenFileMappingA(FILE_MAP_WRITE, FALSE, p);
 
-	if (mHandle == NULL)
-	{
-		e.setMessage("SharedMemory<T>::open(\"%s\")", p);
-		throw e;
-	}
+    if (mHandle == NULL)
+    {
+        e.setMessage("SharedMemory<T>::open(\"%s\")", p);
+        throw e;
+    }
 
-	mPointer = (T)MapViewOfFile(mHandle, FILE_MAP_WRITE, 0, 0, 0);
+    mPointer = (T)MapViewOfFile(mHandle, FILE_MAP_WRITE, 0, 0, 0);
 
-	MEMORY_BASIC_INFORMATION mbi;
-	VirtualQuery(mPointer, &mbi, sizeof(mbi));
+    MEMORY_BASIC_INFORMATION mbi;
+    VirtualQuery(mPointer, &mbi, sizeof(mbi));
 
-	mSize = (uint32_t)mbi.RegionSize;
+    mSize = (uint32_t)mbi.RegionSize;
 #else
-	int handle = ::open(p, O_RDWR);
+    int handle = ::open(p, O_RDWR);
 
-	if (handle == -1)
-	{
-		e.setMessage("SharedMemory<T>::open(\"%s\")", p);
-		throw e;
-	}
+    if (handle == -1)
+    {
+        e.setMessage("SharedMemory<T>::open(\"%s\")", p);
+        throw e;
+    }
 
-	struct stat statbuf;
-	fstat(handle, &statbuf);
+    struct stat statbuf;
+    fstat(handle, &statbuf);
 
-	mHandle = handle;
-	mPointer = (T)mmap(NULL, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, mHandle, 0);
+    mHandle = handle;
+    mPointer = (T)mmap(NULL, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, mHandle, 0);
 
-	mCreate = false;
-	mSize = statbuf.st_size;
+    mCreate = false;
+    mSize = statbuf.st_size;
 #endif
 }
 
 /*!
- *  \brief	クローズ
+ *  \brief  クローズ
  */
 template <class T>
 inline void SharedMemory<T>::close()
 {
-	if (isOpen() == false)
-		return;
+    if (isOpen() == false)
+        return;
 
 #if defined(_WINDOWS)
-	UnmapViewOfFile(mPointer);
-	CloseHandle(mHandle);
+    UnmapViewOfFile(mPointer);
+    CloseHandle(mHandle);
 #else
-	struct stat buf;
-	fstat(mHandle, &buf);
+    struct stat buf;
+    fstat(mHandle, &buf);
 
-	munmap(mPointer, buf.st_size);
-	::close(mHandle);
+    munmap(mPointer, buf.st_size);
+    ::close(mHandle);
 
-	if (mCreate)
-		unlink(mName);
+    if (mCreate)
+        unlink(mName);
 #endif
 
-	init();
+    init();
 }
 
 /*!
- *  \brief	オープンしているかどうか調べる
+ *  \brief  オープンしているかどうか調べる
  */
 template <class T>
 inline bool SharedMemory<T>::isOpen() const
 {
-	return (mHandle != 0/*NULL*/);
+    return (mHandle != 0/*NULL*/);
 }
 
 /*!
- *  \brief	共有メモリサイズ取得
+ *  \brief  共有メモリサイズ取得
  */
 template <class T>
 inline uint32_t SharedMemory<T>::getSize() const
 {
-	return mSize;
+    return mSize;
 }
 
 /*!
- *  \brief	初期化
+ *  \brief  初期化
  */
 template <class T>
 inline void SharedMemory<T>::init()
 {
-	mHandle = 0/*NULL*/;
-	mPointer = NULL;
-	mSize = 0;
+    mHandle = 0/*NULL*/;
+    mPointer = NULL;
+    mSize = 0;
 }
 
 } // namespace slog

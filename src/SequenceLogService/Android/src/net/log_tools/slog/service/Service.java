@@ -21,38 +21,38 @@ import android.os.IBinder;
 
 public class Service extends android.app.Service
 {
-	@Override
-	public IBinder onBind(Intent intent)
-	{
-		return null;
-	}
+    @Override
+    public IBinder onBind(Intent intent)
+    {
+        return null;
+    }
 
-	@Override
-	public void onCreate()
-	{
-//		Log.d("seqlog", "Service.onCreate()");
-		super.onCreate();
+    @Override
+    public void onCreate()
+    {
+//      Log.d("seqlog", "Service.onCreate()");
+        super.onCreate();
 
-		App app = (App)getApplication();
-		app.start();
-		app.running(true);
-	}
+        App app = (App)getApplication();
+        app.start();
+        app.running(true);
+    }
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId)
-	{
-//		Log.d("seqlog", "Service.onStartCommand()");
-		return super.onStartCommand(intent, flags, startId);
-	}
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+//      Log.d("seqlog", "Service.onStartCommand()");
+        return super.onStartCommand(intent, flags, startId);
+    }
 
-	@Override
-	public void onDestroy()
-	{
-//		Log.d("seqlog", "Service.onDestroy()");
-		super.onDestroy();
+    @Override
+    public void onDestroy()
+    {
+//      Log.d("seqlog", "Service.onDestroy()");
+        super.onDestroy();
 
-		App app = (App)getApplication();
-		app.stop();
-		app.running(false);
-	}
+        App app = (App)getApplication();
+        app.stop();
+        app.running(false);
+    }
 }

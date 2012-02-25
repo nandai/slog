@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	TimeSpan.h
- *  \brief	経過時間クラス
- *  \author	Copyright 2011 log-tools.net
+ *  \file   TimeSpan.h
+ *  \brief  経過時間クラス
+ *  \author Copyright 2011 log-tools.net
  */
 #pragma once
 #include "slog/slog.h"
@@ -26,43 +26,43 @@ namespace slog
 {
 
 /*!
- *  \brief	経過時間クラス
+ *  \brief  経過時間クラス
  */
 class TimeSpan
 {
 #if defined(__x86_64)
-	uint64_t	mMS;	//!< ミリ秒
+    uint64_t    mMS;    //!< ミリ秒
 #else
-	uint32_t	mMS;	//!< ミリ秒
+    uint32_t    mMS;    //!< ミリ秒
 #endif
 
-public:		TimeSpan();
-			uint32_t operator-(const TimeSpan& timeSpan) const;
+public:     TimeSpan();
+            uint32_t operator-(const TimeSpan& timeSpan) const;
 };
 
 /*!
- *  \brief	コンストラクタ
+ *  \brief  コンストラクタ
  */
 TimeSpan::TimeSpan()
 {
 #if defined(_WINDOWS)
-	mMS = (uint32_t)timeGetTime();
+    mMS = (uint32_t)timeGetTime();
 #else
-	mMS = clock() / (CLOCKS_PER_SEC / 1000);
+    mMS = clock() / (CLOCKS_PER_SEC / 1000);
 #endif
 }
 
 /*!
- *  \brief	差を取得する
+ *  \brief  差を取得する
  */
 uint32_t TimeSpan::operator-(const TimeSpan& timeSpan) const
 {
 #if !defined(__x86_64)
-	if (mMS < timeSpan.mMS)
-		return ((0xFFFFFFFF - timeSpan.mMS + 1) + mMS);
+    if (mMS < timeSpan.mMS)
+        return ((0xFFFFFFFF - timeSpan.mMS + 1) + mMS);
 #endif
 
-	return (mMS - timeSpan.mMS);
+    return (mMS - timeSpan.mMS);
 }
 
 } // namespace slog

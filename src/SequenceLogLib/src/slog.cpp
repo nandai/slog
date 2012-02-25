@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file	slog.cpp
- *  \brief	シーケンスログネームスペース
- *  \author	Copyright 2011 log-tools.net
+ *  \file   slog.cpp
+ *  \brief  シーケンスログネームスペース
+ *  \author Copyright 2011 log-tools.net
  */
 #include "slog/slog.h"
 #include "slog/FixedString.h"
@@ -33,59 +33,59 @@
 using namespace slog;
 
 /*!
- *  \brief	デバッグ出力
+ *  \brief  デバッグ出力
  */
 extern "C" void _printDebug(const char* format, ...)
 {
-	va_list arg;
-	va_start(arg, format);
+    va_list arg;
+    va_start(arg, format);
 
-	FixedString<255> str;
+    FixedString<255> str;
 
-	try
-	{
-		str.formatV(format, arg);
-	}
-	catch (Exception /*e*/)
-	{
-	}
+    try
+    {
+        str.formatV(format, arg);
+    }
+    catch (Exception /*e*/)
+    {
+    }
 
-	const char* p = str.getBuffer();
+    const char* p = str.getBuffer();
 
 #if defined(_WINDOWS)
-	OutputDebugString(p);
+    OutputDebugString(p);
 #elif defined(__ANDROID__)
-	__android_log_write(ANDROID_LOG_DEBUG, "slog", p);
+    __android_log_write(ANDROID_LOG_DEBUG, "slog", p);
 #else
-	printf("%s", p);
+    printf("%s", p);
 #endif
 }
 
 /*!
- *  \brief	通知
+ *  \brief  通知
  */
 extern "C" void noticeLog(const char* format, ...)
 {
-	va_list arg;
-	va_start(arg, format);
+    va_list arg;
+    va_start(arg, format);
 
-	FixedString<255> str;
+    FixedString<255> str;
 
-	try
-	{
-		str.formatV(format, arg);
-	}
-	catch (Exception /*e*/)
-	{
-	}
+    try
+    {
+        str.formatV(format, arg);
+    }
+    catch (Exception /*e*/)
+    {
+    }
 
-	const char* p = str.getBuffer();
+    const char* p = str.getBuffer();
 
 #if defined(_WINDOWS)
-	OutputDebugString(p);
+    OutputDebugString(p);
 #elif defined(__ANDROID__)
-	__android_log_write(ANDROID_LOG_INFO, "slog", p);
+    __android_log_write(ANDROID_LOG_INFO, "slog", p);
 #else
-	syslog(LOG_NOTICE, "%s", p);
+    syslog(LOG_NOTICE, "%s", p);
 #endif
 }
