@@ -28,6 +28,7 @@
     #pragma comment(lib, "ws2_32.lib")
 #else
     #include <arpa/inet.h>
+    #include <sys/socket.h>
 #endif
 
 namespace slog
@@ -47,6 +48,7 @@ class Socket
 #endif
 
             bool            mInet;          //!< true:AF_INET、false:AF_UNIX
+            bool            mStream;        //!< true:SOCK_STREAM, false:SOCK_DGRAM
             sockaddr_in     mAddr;          //!< ソケット情報
             FixedString<16> mInetAddress;   //!< IPv4
             ByteBuffer*     mBuffer;        //!< 数値用送受信バッファ
@@ -55,7 +57,7 @@ class Socket
 public:      Socket();
             ~Socket();
 
-            void open(bool inet = true) throw(Exception);
+            void open(bool inet = true, int type = SOCK_STREAM) throw(Exception);
             int close();
 
             void bind(unsigned short port) throw(Exception);

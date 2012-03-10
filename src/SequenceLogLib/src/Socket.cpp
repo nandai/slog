@@ -23,7 +23,6 @@
 #include "slog/ByteBuffer.h"
 
 #if defined(__unix__)
-    #include <sys/socket.h>
     #include <sys/un.h>
     #include <unistd.h>
 #endif
@@ -38,6 +37,7 @@ Socket::Socket()
 {
     mSocket = -1;
     mInet = true;
+    mStream = true;
     mBuffer = new ByteBuffer(sizeof(int64_t));
     mConnect = false;
 }
@@ -54,7 +54,7 @@ Socket::~Socket()
 /*!
  *  \brief  オープン
  */
-void Socket::open(bool inet) throw(Exception)
+void Socket::open(bool inet, int type) throw(Exception)
 {
     int af = AF_INET;
 
@@ -66,7 +66,8 @@ void Socket::open(bool inet) throw(Exception)
     }
 #endif
 
-    mSocket = socket(af, SOCK_STREAM, 0);
+    mStream = (type == SOCK_STREAM);
+    mSocket = socket(af, type, 0);
 
     if (mSocket == -1)
     {
@@ -216,16 +217,18 @@ void Socket::connect(
 //  mAddr.sin_addr.S_un.S_addr = inet_addr(ipAddress);
     mAddr.sin_addr.s_addr =      inet_addr(ipAddress.getBuffer());
 
-    int result = ::connect(mSocket, (sockaddr*)&mAddr, sizeof(mAddr));
-
-    if (result != 0)
+    if (mStream)
     {
-        Exception e;
-        e.setMessage("Socket::connect(\"%s\", %u)", ipAddress.getBuffer(), port);
+        int result = ::connect(mSocket, (sockaddr*)&mAddr, sizeof(mAddr));
 
-        throw e;
+        if (result != 0)
+        {
+            Exception e;
+            e.setMessage("Socket::connect(\"%s\", %u)", ipAddress.getBuffer(), port);
+
+            throw e;
+        }
     }
-
     mConnect = true;
 }
 
@@ -353,10 +356,15 @@ void Socket::send(
     while (remains)
     {
 #if defined(_WINDOWS)
-        int result = ::send(mSocket, p, remains, 0);
+        int flag = 0;
 #else
-        int result = ::send(mSocket, p, remains, MSG_NOSIGNAL);
+        int flag = MSG_NOSIGNAL;
 #endif
+
+        int result = (mStream
+            ? ::send(  mSocket, p, remains, flag)
+            : ::sendto(mSocket, p, remains, flag, (sockaddr*)&mAddr, sizeof(mAddr))
+        );
 
         if (result == -1)
         {

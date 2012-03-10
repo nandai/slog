@@ -44,47 +44,40 @@ int main()
 #endif
 
     Socket::startup();
+    Socket sock;
 
-    while (true)
+    try
     {
-        Socket sock;
+        sock.open(true, SOCK_DGRAM);
+        sock.setReUseAddress(true);
+        sock.bind(59108);
+    }
+    catch (Exception e)
+    {
+        int32_t errorNo = e.getErrorNo();
 
-        try
-        {
-            sock.open();
-            sock.setReUseAddress(true);
-            sock.bind(59108);
-            sock.listen(1);
-        }
-        catch (Exception e)
-        {
-            int32_t errorNo = e.getErrorNo();
+        if (errorNo == WSAEADDRINUSE)
+            printf("port in use.\n");
+        else
+            printf("unknown error (0x%08X).\n", (unsigned int)errorNo);
 
-            if (errorNo == WSAEADDRINUSE)
-                printf("port in use.\n");
-            else
-                printf("unknown error (0x%08X).\n", (unsigned int)errorNo);
+        return 1;
+    }
 
-            return 1;
-        }
+    printf("--- Sequence Log Print started. ---\n");
 
-        printf("<<<<< wait for connect... >>>>>\n");
-
-        Socket sockSrv;
-        sockSrv.accept(&sock);
-        sock.close();
-
-        printf("----- connect from %s\n", sockSrv.getInetAddress().getBuffer());
-
+//  while (true)
+    {
         while (true)
         {
-            int32_t len;
-            FixedString<1024> buffer;
+            static const int32_t len = 768;
+//          FixedString<1024> buffer;
+            FixedString<len>  buffer;
 
             try
             {
-            sockSrv.recv(&len);
-            sockSrv.recv(&buffer, len);
+//          sock.recv(&len);
+            sock.recv(&buffer, len);
 
             switch (buffer[0])
             {
@@ -128,9 +121,10 @@ int main()
                 break;
             }
             }
-            catch (Exception /*e*/)
+            catch (Exception e)
             {
-                break;
+                printf("%s\n", e.getMessage());
+//              break;
             }
 
 #if defined(_WINDOWS)

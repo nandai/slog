@@ -185,6 +185,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 #include "slog/DateTimeFormat.h"
 #include "slog/FileInfo.h"
 
+#define VERSION "ver.1.1.1"
+
 class Application : public SequenceLogServiceThreadListener
 {
 public:     void main(int argc, char** argv);
@@ -397,7 +399,7 @@ static void onSignal(int sig)
  */
 int main(int argc, char** argv)
 {
-    noticeLog("SequenceLogService is starting");
+    noticeLog("SequenceLogService " VERSION " is starting");
 
 #if defined(__unix__)
     signal(SIGINT,  onSignal);

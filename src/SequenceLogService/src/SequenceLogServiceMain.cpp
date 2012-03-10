@@ -323,7 +323,7 @@ void ConnectThread::run()
 
     try
     {
-        mSocket->open();
+        mSocket->open(true, SOCK_DGRAM);
         mSocket->connect(mIp, 59108);
     }
     catch (Exception e)
@@ -406,13 +406,13 @@ void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 
     try
     {
-        mSocketPrint.send(&len);
+//      mSocketPrint.send(&len);
         mSocketPrint.send(text, len);
     }
     catch (Exception e)
     {
         TRACE("    %s\n", e.getMessage());
-        mSocketPrint.close();
+//      mSocketPrint.close();
     }
 }
 

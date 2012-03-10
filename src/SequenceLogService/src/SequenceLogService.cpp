@@ -593,7 +593,8 @@ void SequenceLogService::writeSeqLogFileText(File& file, SequenceLogItem* item)
         file.write(&str, 1, len - 1);
 
     ScopedLock lock(serviceMain->getMutex());
-    serviceMain->printLog(&str, len);
+//  serviceMain->printLog(&str, len);
+    serviceMain->printLog(&str, str.getCapacity());
 }
 
 /*!
@@ -617,8 +618,8 @@ void SequenceLogService::divideItems()
             header->max = header->index;
         }
 
-        if (header->index == mSHM->count)
-            noticeLog("inside information: ** LIMIT ** entry item (%d)\n", bufferIndex);
+//      if (header->index == mSHM->count)
+//          noticeLog("inside information: ** LIMIT ** entry item (%d)\n", bufferIndex);
 
 #if 1
         // 振り分け処理
