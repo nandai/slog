@@ -474,7 +474,11 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
         ext);
 
     if (mFileInfo)
+    {
         mFileInfo->update();
+        // 下記でnewしているが、オブジェクトはSequenceLogServiceMainで
+        // 管理しているのでメモリリークの心配はない（delete不要）
+    }
 
     mFileInfo = new FileInfo(str);
     mFileInfo->setCreationTime(dateTime);
