@@ -445,6 +445,8 @@ void Socket::recv(
 
         loopCount++;
     }
+
+    buffer->setLength(len);
 }
 
 /*!
