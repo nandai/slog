@@ -285,14 +285,15 @@ inline SequenceLogClient::~SequenceLogClient()
 void SequenceLogClient::init()
 {
     TRACE("[S] SequenceLogClient::init()\n", 0);
+    noticeLog("client initialize.\n");
 
     // シーケンスログファイル名取得
     const char* p = sSequenceLogFileName;
-    TRACE("    sSequenceLogFileName='%s'", p);
+    TRACE("    sSequenceLogFileName='%s'\n", p);
 
     if (p[0] == '\0')
     {
-        TRACE("    getSequenceLogFileName() calling...", 0);
+        TRACE("    getSequenceLogFileName() calling...\n", 0);
         p = getSequenceLogFileName();
     }
 
@@ -364,7 +365,7 @@ void SequenceLogClient::init()
     }
     catch (Exception e)
     {
-        TRACE("    %s\n", e.getMessage());
+        noticeLog("%s\n", e.getMessage());
         mSocket.close();
     }
 
@@ -416,7 +417,7 @@ SLOG_ITEM_INFO* SequenceLogClient::lock(uint32_t* seq)
     TimeSpan timeSpan2;
 
     if (timeSpan2 - timeSpan1 > TIMEOUT)
-        noticeLog("Log output elapsed time: %d ms", timeSpan2 - timeSpan1);
+        noticeLog("Log output elapsed time: %d ms\n", timeSpan2 - timeSpan1);
 #endif
 
     return info;
