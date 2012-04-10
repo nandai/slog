@@ -185,7 +185,12 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 #include "slog/DateTimeFormat.h"
 #include "slog/FileInfo.h"
 
-#define VERSION "ver.1.1.1"
+#if defined(__unix__)
+#include <pwd.h>
+#include <grp.h>
+#endif
+
+#define VERSION "ver.1.2.0"
 
 class Application : public SequenceLogServiceThreadListener
 {
@@ -230,6 +235,8 @@ void Application::main(int argc, char** argv)
     uint32_t size = 0;
     int32_t count = 0;
     bool rootAlways = true;
+    String user;
+    String group;
 
     // コンフィグファイル読み込み
     File file;
@@ -275,6 +282,12 @@ void Application::main(int argc, char** argv)
 
         if (key == "ROOT_ALWAYS")
             rootAlways = (value1 == "true");
+
+        if (key == "USER")
+            user.copy(value1);
+
+        if (key == "GROUP")
+            group.copy(value1);
     }
 
     // サービス起動
@@ -316,6 +329,17 @@ void Application::main(int argc, char** argv)
         break;
 #endif
     }
+
+#if defined(__unix__)
+    struct group* gr =  (group.getLength() ? getgrnam(group.getBuffer()) : NULL);
+    struct passwd* pw = (user. getLength() ? getpwnam(user. getBuffer()) : NULL);
+
+    if (gr)
+        setgid(gr->gr_gid);
+
+    if (pw)
+        setuid(pw->pw_uid);
+#endif
 
     Thread::sleep(100);
     serviceMain.join();
