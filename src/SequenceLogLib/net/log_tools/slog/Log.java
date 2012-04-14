@@ -69,4 +69,7 @@ public final class Log
 	public static void i(long slog/*tag*/, int messageID)  {message(INFO,  messageID, slog);}
 	public static void w(long slog/*tag*/, int messageID)  {message(WARN,  messageID, slog);}
 	public static void e(long slog/*tag*/, int messageID)  {message(ERROR, messageID, slog);}
+
+	public static void w(long slog/*tag*/, String message, Throwable e) {message(WARN,  message, slog);}
+	public static void e(long slog/*tag*/, String message, Throwable e) {message(ERROR, message, slog);}
 }
