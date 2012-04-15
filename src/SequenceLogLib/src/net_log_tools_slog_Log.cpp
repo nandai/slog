@@ -22,6 +22,10 @@
 #include "slog/SequenceLog.h"
 #include "slog/JavaString.h"
 
+#if defined(__ANDROID__)
+    #include <android/log.h>
+#endif
+
 using namespace slog;
 
 // gccの警告「warning: deprecated conversion from string constant to 'char*'」に対処するため、
@@ -145,6 +149,42 @@ static void JNICALL message2(JNIEnv* env, jclass, jint level, jint messageID, jl
     slogObj->message((SequenceLogLevel)level, messageID);
 }
 
+/*
+ * Class:     net_log_tools_slog_Log
+ * Method:    message
+ * Signature: (ILjava/lang/String;Ljava/lang/String)V
+ */
+static void JNICALL message3(JNIEnv* env, jclass, jint level, jstring aMessage, jstring aTag)
+{
+#if defined(__ANDROID__)
+    JavaString message(env, aMessage);
+    JavaString tag(    env, aTag);
+
+    int prio = ANDROID_LOG_DEBUG;
+
+    switch (level)
+    {
+    case DEBUG:
+        prio = ANDROID_LOG_DEBUG;
+        break;
+
+    case INFO:
+        prio = ANDROID_LOG_INFO;
+        break;
+
+    case WARN:
+        prio = ANDROID_LOG_WARN;
+        break;
+
+    case ERROR:
+        prio = ANDROID_LOG_ERROR;
+        break;
+    }
+
+    __android_log_write(prio, tag.getBuffer(),  message.getBuffer());
+#endif
+}
+
 // JNIメソッド配列
 static JNINativeMethodEx sMethods[] =
 {
@@ -156,6 +196,8 @@ static JNINativeMethodEx sMethods[] =
     {"stepOut",     "(J)V",                                     (void*)stepOut       },
     {"message",     "(ILjava/lang/String;J)V",                  (void*)message1      },
     {"message",     "(IIJ)V",                                   (void*)message2      },
+
+    {"message",     "(ILjava/lang/String;Ljava/lang/String;)V", (void*)message3      },
 };
 
 /*!

@@ -58,6 +58,8 @@ public final class Log
 	private native static void message(int level, String message,   long slog/*tag*/);
 	private native static void message(int level, int    messageID, long slog/*tag*/);
 
+    private native static void message(int level, String message,   String tag);
+
 	public static void v(long slog/*tag*/, String message) {message(DEBUG, message,   slog);}
 	public static void d(long slog/*tag*/, String message) {message(DEBUG, message,   slog);}
 	public static void i(long slog/*tag*/, String message) {message(INFO,  message,   slog);}
@@ -70,6 +72,17 @@ public final class Log
 	public static void w(long slog/*tag*/, int messageID)  {message(WARN,  messageID, slog);}
 	public static void e(long slog/*tag*/, int messageID)  {message(ERROR, messageID, slog);}
 
+    // Androidに適用する時にandroid.util.Log()として修正しなくても良いようにするためのメソッド。
+    // Throwableは無視する。
 	public static void w(long slog/*tag*/, String message, Throwable e) {message(WARN,  message, slog);}
 	public static void e(long slog/*tag*/, String message, Throwable e) {message(ERROR, message, slog);}
+
+    public static void v(String tag,       String message)              {message(DEBUG, message,   tag);}
+    public static void d(String tag,       String message)              {message(DEBUG, message,   tag);}
+    public static void i(String tag,       String message)              {message(INFO,  message,   tag);}
+    public static void w(String tag,       String message)              {message(WARN,  message,   tag);}
+    public static void e(String tag,       String message)              {message(ERROR, message,   tag);}
+
+    public static void w(String tag,       String message, Throwable e) {message(WARN,  message,   tag);}
+    public static void e(String tag,       String message, Throwable e) {message(ERROR, message,   tag);}
 }

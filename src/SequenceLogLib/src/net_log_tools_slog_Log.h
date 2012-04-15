@@ -87,6 +87,14 @@ JNIEXPORT void JNICALL Java_net_log_1tools_slog_Log_message__ILjava_lang_String_
 JNIEXPORT void JNICALL Java_net_log_1tools_slog_Log_message__IIJ
   (JNIEnv *, jclass, jint, jint, jlong);
 
+/*
+ * Class:     net_log_tools_slog_Log
+ * Method:    message
+ * Signature: (ILjava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_net_log_1tools_slog_Log_message__ILjava_lang_String_2Ljava_lang_String_2
+  (JNIEnv *, jclass, jint, jstring, jstring);
+
 #ifdef __cplusplus
 }
 #endif
