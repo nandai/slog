@@ -58,6 +58,7 @@ private:    Socket*                 mSocket;                    //!< シーケ�
             bool                    mBinaryLog;                 //!< シーケンスログファイルタイプ
 
             ItemQueueManager*       mItemQueueManager;          //!< シーケンスログアイテムキューマネージャー
+            SequenceLogItem*        mStockItems;                //!< 未使用シーケンスログアイテムのストック
 
             File                    mFile;                      //!< シーケンスログファイル
             FixedString<MAX_PATH>   mBaseFileName;              //!< シーケンスログベースファイル名
@@ -85,10 +86,35 @@ private:    void divideItems();
             ItemQueue* getItemQueue(const SequenceLogItem& item) const;
             SequenceLogItem* createSequenceLogItem(ItemQueue* queue, const SequenceLogItem& src);
 
+            void pushStockItem(SequenceLogItem* item);
+            SequenceLogItem* popStockItem();
+
             // シーケンスログファイル関連
 private:    void  openSeqLogFile(    File& file) throw(Exception);
             void writeSeqLogFile(    File& file, SequenceLogItem*);
             void writeSeqLogFileText(File& file, SequenceLogItem*);
 };
+
+/*!
+ *  \brief  シーケンスログアイテムをストックに積む
+ */
+inline void SequenceLogService::pushStockItem(SequenceLogItem* item)
+{
+    item->mNext = (uint64_t)mStockItems;
+    mStockItems = item;
+}
+
+/*!
+ *  \brief  シーケンスログアイテムをストックから取り出す
+ */
+inline SequenceLogItem* SequenceLogService::popStockItem()
+{
+    if (mStockItems == NULL)
+        mStockItems = new SequenceLogItem;
+
+    SequenceLogItem* result = mStockItems;
+    mStockItems = (SequenceLogItem*)mStockItems->mNext;
+    return result;
+}
 
 } // namespace slog

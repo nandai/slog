@@ -190,6 +190,7 @@ SequenceLogService::SequenceLogService(slog::Socket* socket) :
 
     mOutputList =       NULL;
     mItemQueueManager = NULL;
+    mStockItems =       NULL;
 
     uint32_t id;
     mSocket->recv(&id);
@@ -374,7 +375,7 @@ void SequenceLogService::run()
             // 次のシーケンスログアイテムを取得
             SequenceLogItem* next = (SequenceLogItem*)item->mNext;
 
-            delete item;
+            pushStockItem(item);
             item = next;
         }
 
@@ -400,6 +401,7 @@ void SequenceLogService::cleanUp()
         mMutex[index] = NULL;
     }
 
+    // シーケンスログアイテムキューマネージャー削除
     if (mItemQueueManager)
     {
         for (ItemQueueManager::iterator i = mItemQueueManager->begin(); i != mItemQueueManager->end(); i++)
@@ -415,9 +417,22 @@ void SequenceLogService::cleanUp()
         mItemQueueManager = NULL;
     }
 
+    // シーケンスログ出力リスト削除
     delete mOutputList;
     mOutputList = NULL;
 
+    // シーケンスログアイテムのストックを削除
+    SequenceLogItem* item = mStockItems;
+    mStockItems = NULL;
+
+    while (item)
+    {
+        SequenceLogItem* next = (SequenceLogItem*)item->mNext;
+        delete item;
+        item = next;
+    }
+
+    // ソケット、共有メモリ、ファイルをクローズ
     if (mSocket->isOpen())
         mSocket->close();
 
@@ -618,14 +633,13 @@ void SequenceLogService::divideItems()
 
         if (header->max < header->index)
         {
-            noticeLog("inside information: update entry item max (%d: %d -> %d)\n", bufferIndex, header->max, header->index);
+//          noticeLog("inside information: update entry item max (%d: %d -> %d)\n", bufferIndex, header->max, header->index);
             header->max = header->index;
         }
 
 //      if (header->index == mSHM->count)
 //          noticeLog("inside information: ** LIMIT ** entry item (%d)\n", bufferIndex);
 
-#if 1
         // 振り分け処理
         for (int32_t index = 0; index < (int32_t)header->index; index++)
         {
@@ -641,7 +655,6 @@ void SequenceLogService::divideItems()
                 continue;
             }
 
-#if 1
             const SequenceLogItem& src = info->item;
             info->ready = false;
 
@@ -669,7 +682,7 @@ void SequenceLogService::divideItems()
                 isKeep = true;
 
                 // あらかじめSTEP_OUTのアイテムを作成しておく
-                SequenceLogItem* stepOutItem = new SequenceLogItem;
+                SequenceLogItem* stepOutItem = popStockItem();
                 stepOutItem->init(item->mSeqNo, item->mOutputFlag);
                 stepOutItem->mThreadId = item->mThreadId;
 
@@ -683,9 +696,7 @@ void SequenceLogService::divideItems()
                 keep(   queue, item);
             else
                 forward(queue, item);
-#endif
         }
-#endif
         header->index = putOff;
     }
 
@@ -798,14 +809,14 @@ void SequenceLogService::forward(ItemQueue* queue, SequenceLogItem* item)
 #endif
 
             queue->mList.pop_back();
-            delete delItem;
+            pushStockItem(delItem);
 
             delItem = queue->mList.back();
         }
 
         if (type == SequenceLogItem::STEP_IN)
         {
-            delete item;
+            pushStockItem(item);
             return;
         }
     }
@@ -842,7 +853,8 @@ SequenceLogItem* SequenceLogService::createSequenceLogItem(
 
     if (src.mType == SequenceLogItem::STEP_IN)
     {
-        item = new SequenceLogItem(src);
+         item = popStockItem();
+        *item = src;
         return item;
     }
 
@@ -874,7 +886,8 @@ SequenceLogItem* SequenceLogService::createSequenceLogItem(
     }
     else
     {
-        item = new SequenceLogItem(src);
+         item = popStockItem();
+        *item = src;
     }
 
     return item;

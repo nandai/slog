@@ -130,6 +130,9 @@ inline SequenceLogItem::SequenceLogItem() : SequenceLogItemCore()
     mClassName[0] = '\0';
     mFuncName[0] = '\0';
     mMessage[0] = '\0';
+
+    mPrev = 0;
+    mNext = 0;
 }
 
 /*!
