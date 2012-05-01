@@ -36,6 +36,12 @@ void File::open(
     Exception e;
     const char* p = fileName.getBuffer();
 
+    if (mHandle != NULL)
+    {
+        e.setMessage("File::open(\"%s\") : already opened.", p);
+        throw e;
+    }
+
 #if defined(_WINDOWS)
     HANDLE handle;
 
@@ -74,6 +80,7 @@ void File::open(
 bool File::read(
     CoreString* str)    //!< 結果を受け取るバッファ
 
+    const
     throw(Exception)
 {
     char buffer[256];

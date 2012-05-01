@@ -58,11 +58,13 @@ public:      File();
             void write(const Buffer* buffer, int32_t count) const throw(Exception);
             void write(const Buffer* buffer, int32_t position, int32_t count) const throw(Exception);
 
-            bool read(CoreString* str) throw(Exception);
+            bool read(CoreString* str) const throw(Exception);
+            int32_t read(Buffer* buffer, int32_t count) const throw(Exception);
 
 //          void flush();
 
             uint32_t getSize() const;
+            uint32_t getPosition() const;
 
             static void unlink(const CoreString& fileName) throw(Exception);
 };
@@ -127,6 +129,29 @@ inline void File::write(const Buffer* buffer, int32_t position, int32_t count) c
     }
 }
 
+/*!
+ *  \brief  読み込み
+ */
+inline int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
+{
+	int32_t result = 0;
+    int32_t position = 0;
+
+    buffer->validateOverFlow(position, count);
+    char* p = buffer->getBuffer() + position;
+
+    if (mHandle != NULL)
+    {
+#if defined(_WINDOWS)
+        ::ReadFile(mHandle, p, count, (DWORD*)&result, NULL);
+#else
+        result = fread(p, 1, count, mHandle);
+#endif
+    }
+
+    return result;
+}
+
 //inline void File::flush()
 //{
 //  if (mHandle != NULL)
@@ -148,8 +173,27 @@ inline uint32_t File::getSize() const
     DWORD size = ::GetFileSize(mHandle, NULL);
     return size;
 #else
+    uint32_t pos = ftell(mHandle);
+    fseek(mHandle, 0, SEEK_END);
+
     uint32_t size = ftell(mHandle);
+    fseek(mHandle, pos, SEEK_SET);
+
     return size;
+#endif
+}
+
+/*!
+ *  \brief  ファイルポインタの現在位置取得
+ */
+inline uint32_t File::getPosition() const
+{
+#if defined(_WINDOWS)
+    DWORD pos = ::SetFilePointer(mHandle, 0, NULL, FILE_CURRENT);
+    return pos;
+#else
+    uint32_t pos = ftell(mHandle);
+    return pos;
 #endif
 }
 
