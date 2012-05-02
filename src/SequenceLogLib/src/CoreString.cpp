@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2012 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   CoreString.cpp
- *  \brief  ƒRƒA•¶Žš—ñƒNƒ‰ƒX
+ *  \brief  ã‚³ã‚¢æ–‡å­—åˆ—ã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2012 log-tools.net
  */
 #include "slog/CoreString.h"
@@ -25,7 +25,7 @@ using namespace slog;
 bool CoreString::sSJIS = true;
 
 /*!
- *  \brief  •¶Žš—ñ‚ðƒRƒs[‚·‚é
+ *  \brief  æ–‡å­—åˆ—ã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹
  */
 void CoreString::copy(const char* text, int32_t len) throw(Exception)
 {
@@ -43,7 +43,7 @@ void CoreString::copy(const char* text, int32_t len) throw(Exception)
 }
 
 /*!
- *  \brief  •¶Žš—ñ‚ð’Ç‰Á‚·‚é
+ *  \brief  æ–‡å­—åˆ—ã‚’è¿½åŠ ã™ã‚‹
  */
 void CoreString::append(const char* text, int32_t len) throw(Exception)
 {
@@ -60,7 +60,7 @@ void CoreString::append(const char* text, int32_t len) throw(Exception)
 }
 
 /*!
- *  \brief  ƒtƒH[ƒ}ƒbƒg
+ *  \brief  ãƒ•ã‚©ãƒ¼ãƒžãƒƒãƒˆ
  */
 void CoreString::formatV(const char* format, va_list arg) throw(Exception)
 {
@@ -79,7 +79,7 @@ void CoreString::formatV(const char* format, va_list arg) throw(Exception)
 #if defined(_WINDOWS)
         len = vsnprintf(p, capacity,     format, arg);
 #else
-        len = vsnprintf(p, capacity + 1, format, arg);  // ƒoƒbƒtƒ@ƒTƒCƒY‚É‚ÍI’[‚Ì'\0'‚àŠÜ‚Ü‚ê‚é
+        len = vsnprintf(p, capacity + 1, format, arg);  // ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºã«ã¯çµ‚ç«¯ã®'\0'ã‚‚å«ã¾ã‚Œã‚‹
 #endif
 
 //      if (len != -1)
@@ -102,25 +102,44 @@ void CoreString::formatV(const char* format, va_list arg) throw(Exception)
 
 #if defined(_WINDOWS)
 /*!
- *  \brief  SJISA‚Ü‚½‚ÍUTF-8‚ðUTF-16LE‚É•ÏŠ·‚·‚é
- *
- *  \note   –ß‚è’l‚Ìƒoƒbƒtƒ@‚ÍŒÄ‚Ño‚µŒ³‚Ådelete‚·‚é‚±‚Æ
+ *  \brief  UTF-16LEã‚’SJISã€ã¾ãŸã¯UTF-8ã«å¤‰æ›ã™ã‚‹
  */
-void CoreString::toUTF16LE(UTF16LE* utf16le) const
+void CoreString::conv(const wchar_t* text)
 {
-    bool sjis = isSJIS();
-    UINT codePage = (sjis ? CP_ACP : CP_UTF8);
+    UINT codePage = (isSJIS() ? CP_ACP : CP_UTF8);
+    int32_t len = (int32_t)wcslen(text);
 
-	int chars = 
-    MultiByteToWideChar(codePage, 0, getBuffer(), -1, NULL, 0) - 1;
+	long size =
+	WideCharToMultiByte(codePage, 0, text, len + 1, NULL, NULL, NULL, NULL);
 
-    if (utf16le->chars < chars)
-    {
-        delete [] utf16le->buffer;
-        utf16le->buffer = new wchar_t[chars + 1];
-        utf16le->chars = chars;
-    }
+    setCapacity(size - 1/*sizeof('\0')*/);
+	WideCharToMultiByte(codePage, 0, text, len + 1, getBuffer(), size, NULL, NULL);
 
-    MultiByteToWideChar(codePage, 0, getBuffer(), -1, utf16le->buffer, chars + 1);
+    setLength(size - 1);
+}
+
+/*!
+ *  \brief  SJISã€ã¾ãŸã¯UTF-8ã‚’UTF-16LEã«å¤‰æ›ã™ã‚‹
+ */
+void UTF16LE::conv(const char* text, int32_t sjis)
+{
+    bool isSJIS = (sjis == -1 ? CoreString::isCommonSJIS() : (sjis == 1));
+    UINT codePage = (isSJIS ? CP_ACP : CP_UTF8);
+
+    int32_t chars = 
+    MultiByteToWideChar(codePage, 0, text, -1, NULL, 0) - 1;
+
+    realloc(chars);
+    MultiByteToWideChar(codePage, 0, text, -1, mBuffer, chars + 1);
+}
+
+void UTF16LE::realloc(int32_t chars)
+{
+    if (mChars >= chars)
+        return;
+
+    delete [] mBuffer;
+    mBuffer = new wchar_t[chars + 1];
+    mChars = chars;
 }
 #endif

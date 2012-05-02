@@ -30,14 +30,6 @@
 namespace slog
 {
 
-#if defined(_WINDOWS)
-struct UTF16LE
-{
-    wchar_t*    buffer;
-    int         chars;
-};
-#endif
-
 /*!
  *  \brief  コア文字列クラス
  */
@@ -83,7 +75,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             void setSJIS(int32_t sjis) {mSJIS = sjis;}
 
 #if defined(_WINDOWS)
-            void toUTF16LE(UTF16LE* utf16le) const;
+            void conv(const wchar_t* text);
 #endif
 };
 
@@ -126,5 +118,33 @@ inline bool operator==(const CoreString& str1, const char* str2)
 {
     return (strcmp(str1.getBuffer(), str2) == 0);
 }
+
+
+#if defined(_WINDOWS)
+class UTF16LE
+{
+            wchar_t*    mBuffer;
+            int32_t     mChars;
+
+public:     UTF16LE()
+            {
+                mBuffer = NULL;
+                mChars = 0;
+            }
+
+            ~UTF16LE()
+            {
+                delete [] mBuffer;
+            }
+
+            wchar_t* getBuffer() const {return mBuffer;}
+            int32_t getChars() const {return mChars;}
+
+            void conv(const char* text, int32_t sjis = -1);
+            void conv(const CoreString& str) {conv(str.getBuffer(), str.isSJIS());}
+
+private:    void realloc(int32_t chars);
+};
+#endif
 
 } // namespace slog
