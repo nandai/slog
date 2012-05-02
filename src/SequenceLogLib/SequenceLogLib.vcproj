@@ -859,6 +859,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\src\CoreString.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\slog\CoreString.h"
 			>
 		</File>

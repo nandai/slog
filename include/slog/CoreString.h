@@ -30,16 +30,39 @@
 namespace slog
 {
 
+#if defined(_WINDOWS)
+struct UTF16LE
+{
+    wchar_t*    buffer;
+    int         chars;
+};
+#endif
+
 /*!
  *  \brief  コア文字列クラス
  */
 class CoreString : public Buffer
 {
+            static bool sSJIS;  // 共通設定                 false: UTF-8, true: SJIS
+            int32_t     mSJIS;  // 個別設定 -1: sJISに依存,     0: UTF-8,    1: SJIS
+
+public:     CoreString() {mSJIS = -1;}
+
 private:    const CoreString& operator=(const char*);
-            const CoreString& operator=(const CoreString&);
+protected:  const CoreString& operator=(const CoreString& str)
+            {
+                if (this != &str)
+                    copy(str);
+
+                return *this;
+            }
 
 public:     void copy(const char* text, int32_t len = -1) throw(Exception);
-            void copy(const CoreString& str) throw(Exception) {copy(str.getBuffer(), str.getLength());}
+            void copy(const CoreString& str) throw(Exception)
+            {
+                mSJIS = str.mSJIS;
+                copy(str.getBuffer(), str.getLength());
+            }
 
             void append(const char* text, int32_t len = -1) throw(Exception);
             void append(const CoreString& str) throw(Exception) {append(str.getBuffer(), str.getLength());}
@@ -50,42 +73,19 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
 
             void format( const char* format, ...) throw(Exception);
             void formatV(const char* format, va_list arg) throw(Exception);
+
+            bool equals(const CoreString& str) const {return (strcmp(getBuffer(), str.getBuffer()) == 0);}
+
+    		static bool  isCommonSJIS()   {return sSJIS;}
+			static void setCommonSJIS(bool sjis) {sSJIS = sjis;}
+
+            bool  isSJIS() const {return (mSJIS == -1 ? isCommonSJIS() : (mSJIS == 1));}
+            void setSJIS(int32_t sjis) {mSJIS = sjis;}
+
+#if defined(_WINDOWS)
+            void toUTF16LE(UTF16LE* utf16le) const;
+#endif
 };
-
-/*!
- *  \brief  文字列をコピーする
- */
-inline void CoreString::copy(const char* text, int32_t len) throw(Exception)
-{
-    if (getBuffer() == text)
-        return;
-
-    if (len == -1)
-        len = (int32_t)strlen(text);
-
-    if (getCapacity() < len)
-        setCapacity(len);
-
-    strncpy(getBuffer(), text, len);
-    setLength(len);
-}
-
-/*!
- *  \brief  文字列を追加する
- */
-inline void CoreString::append(const char* text, int32_t len) throw(Exception)
-{
-    if (len == -1)
-        len = (int32_t)strlen(text);
-
-    int32_t capacity = getCapacity();
-
-    if (capacity <  getLength() + len)
-        setCapacity(getLength() + len);
-
-    strncpy(getBuffer() + getLength(), text, len);
-    setLength(getLength() + len);
-}
 
 /*!
  *  \brief  指定位置の文字取得
@@ -117,47 +117,6 @@ inline void CoreString::format(const char* format, ...) throw(Exception)
 
     formatV(format, arg);
     va_end(arg);
-}
-
-/*!
- *  \brief  フォーマット
- */
-inline void CoreString::formatV(const char* format, va_list arg) throw(Exception)
-{
-    int32_t len;
-
-#if defined(__unix__)
-    va_list argCopy;
-    va_copy(argCopy, arg);
-#endif
-
-    do
-    {
-        char* p = getBuffer();
-        int32_t capacity = getCapacity();
-
-#if defined(_WINDOWS)
-        len = vsnprintf(p, capacity,     format, arg);
-#else
-        len = vsnprintf(p, capacity + 1, format, arg);  // バッファサイズには終端の'\0'も含まれる
-#endif
-
-//      if (len != -1)
-        if (len != -1 && len <= capacity)
-            break;
-
-        p[capacity] = '\0';
-
-#if defined(_WINDOWS)
-        setCapacity(capacity + 256);
-#else
-        setCapacity(len + 1);
-        va_copy(arg, argCopy);
-#endif
-    }
-    while (true);
-
-    setLength(len);
 }
 
 /*!

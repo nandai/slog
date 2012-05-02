@@ -18,6 +18,7 @@ objs = \
 	slog.o \
 	Buffer.o \
 	ByteBuffer.o \
+	CoreString.o \
 	Exception.o \
 	File.o \
 	FileFind.o \

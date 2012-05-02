@@ -61,6 +61,8 @@ inline const String& String::operator=(const String& str)
 {
     if (this != &str)
     {
+        CoreString::operator=(str);
+
         delete [] mBuffer;
 //      init(str.getBuffer(), str.getCapacity());
         init(str.getBuffer(), str.getLength());
@@ -80,7 +82,7 @@ inline String::String()
 /*!
  *  \brief  コンストラクタ
  */
-inline String::String(const String& str)
+inline String::String(const String& str) : CoreString(str)
 {
 //  init(str.getBuffer(), str.getCapacity());
     init(str.getBuffer(), str.getLength());
