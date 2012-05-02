@@ -1,0 +1,15 @@
+GPATH
+GRTAGS
+GTAGS
+*.o
+*.ncb
+*.suo
+*.user
+obj/
+src/SequenceLogLib/src/libslog.so
+src/SequenceLogService/src/slogsvc
+src/SequenceLogService/libs/
+src/SequenceLogService/Android/bin/
+src/SequenceLogService/Android/gen/
+src/SequenceLogService/Android/libs/
+src/SequenceLogPrint/src/slogprint

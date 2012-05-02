@@ -40,6 +40,7 @@ class CoreString : public Buffer
 
 public:     CoreString() {mSJIS = -1;}
 
+            // 代入
 private:    const CoreString& operator=(const char*);
 protected:  const CoreString& operator=(const CoreString& str)
             {
@@ -49,6 +50,7 @@ protected:  const CoreString& operator=(const CoreString& str)
                 return *this;
             }
 
+            // コピー
 public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             void copy(const CoreString& str) throw(Exception)
             {
@@ -56,18 +58,27 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
                 copy(str.getBuffer(), str.getLength());
             }
 
+            // 連結
             void append(const char* text, int32_t len = -1) throw(Exception);
             void append(const CoreString& str) throw(Exception) {append(str.getBuffer(), str.getLength());}
 
+            // １文字取得
             char operator[](int32_t index) const;
 
+            // 文字列長（バイト数）設定
             virtual void setLength(int32_t len) throw(Exception);
 
+            // フォーマット
             void format( const char* format, ...) throw(Exception);
             void formatV(const char* format, va_list arg) throw(Exception);
 
+            // 比較
             bool equals(const CoreString& str) const {return (strcmp(getBuffer(), str.getBuffer()) == 0);}
 
+            // 検索
+            int32_t find(char c) const;
+
+            // 文字コード関連（SJIS / UTF-8）
     		static bool  isCommonSJIS()   {return sSJIS;}
 			static void setCommonSJIS(bool sjis) {sSJIS = sjis;}
 
@@ -118,7 +129,6 @@ inline bool operator==(const CoreString& str1, const char* str2)
 {
     return (strcmp(str1.getBuffer(), str2) == 0);
 }
-
 
 #if defined(_WINDOWS)
 class UTF16LE

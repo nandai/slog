@@ -100,6 +100,20 @@ void CoreString::formatV(const char* format, va_list arg) throw(Exception)
     setLength(len);
 }
 
+/*!
+ *  \brief  検索
+ */
+int32_t CoreString::find(char c) const
+{
+    const char* buffer = getBuffer();
+    const char* p = strchr(buffer, c);
+
+    if (p == NULL)
+        return -1;
+
+    return (int32_t)(p - buffer);
+}
+
 #if defined(_WINDOWS)
 /*!
  *  \brief  UTF-16LEをSJIS、またはUTF-8に変換する
