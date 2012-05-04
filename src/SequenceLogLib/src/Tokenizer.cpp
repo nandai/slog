@@ -21,6 +21,9 @@
  */
 #include "slog/Tokenizer.h"
 
+#include <vector>
+#include <map>
+
 namespace slog
 {
 
@@ -73,6 +76,21 @@ static const char* tokenize(
     return p1;
 }
 
+struct Element
+{
+    Variant     variant;        //!< 要素
+    char        delimiter;      //!< デリミタ
+};
+
+typedef std::vector<String>         Keys;
+typedef std::map<String, Element*>  Elements;
+
+struct Tokenizer::Data
+{
+    Keys        mKeys;          //!< キー
+    Elements    mElements;      //!< 要素
+};
+
 /*!
  *  \brief  コンストラクタ
  *
@@ -82,6 +100,7 @@ static const char* tokenize(
 Tokenizer::Tokenizer(
     const CoreString& format)   //!< フォーマット
 {
+    mData = new Data;
     mDelimiter = 0;
     const char* p1 = format.getBuffer();
 
@@ -96,15 +115,15 @@ Tokenizer::Tokenizer(
         String name(p2 + 1, (short)(p3 - p2 - 1));
         char delimiter = p3[1];
 
-        if (mElements[name])
+        if (mData->mElements[name])
             break;
 
-        mKeys.push_back(name);
+        mData->mKeys.push_back(name);
 
         Element* element = new Element;
         element->delimiter = delimiter;
 
-        mElements[name] = element;
+        mData->mElements[name] = element;
 
         if (delimiter == '\0')
             break;
@@ -119,6 +138,7 @@ Tokenizer::Tokenizer(
 Tokenizer::Tokenizer(
     char delimiter)     //!< デリミタ
 {
+    mData = new Data;
     mDelimiter = delimiter;
 }
 
@@ -128,6 +148,7 @@ Tokenizer::Tokenizer(
 Tokenizer::~Tokenizer()
 {
     cleanUp();
+    delete mData;
 }
 
 /*!
@@ -135,14 +156,14 @@ Tokenizer::~Tokenizer()
  */
 void Tokenizer::cleanUp()
 {
-    for (Elements::iterator i = mElements.begin(); i != mElements.end(); i++)
+    for (Elements::iterator i = mData->mElements.begin(); i != mData->mElements.end(); i++)
     {
         Elements::value_type p = *i;
         delete p.second;
     }
 
-    mElements.clear();
-    mKeys.    clear();
+    mData->mElements.clear();
+    mData->mKeys.    clear();
 }
 
 /*!
@@ -169,18 +190,18 @@ int32_t Tokenizer::execNamed(
 {
     const char* p1 = str.getBuffer();
 
-    for (Elements::iterator i = mElements.begin(); i != mElements.end(); i++)
+    for (Elements::iterator i = mData->mElements.begin(); i != mData->mElements.end(); i++)
     {
         Elements::value_type p = *i;
         p.second->variant.mStr.setLength(0);
     }
 
-    for (Keys::iterator i = mKeys.begin(); i != mKeys.end(); i++)
+    for (Keys::iterator i = mData->mKeys.begin(); i != mData->mKeys.end(); i++)
     {
         if (p1 == NULL)
             return -1;
 
-        Element* element = mElements[*i];
+        Element* element = mData->mElements[*i];
         p1 = tokenize(&element->variant.mStr, p1, element->delimiter);
     }
 
@@ -210,10 +231,10 @@ int32_t Tokenizer::execIndexed(
         name.format("%d", num);
         num++;
 
-        mKeys.push_back(name);
+        mData->mKeys.push_back(name);
 
         Element* element = new Element;
-        mElements[name] = element;
+        mData->mElements[name] = element;
 
         p1 = tokenize(&element->variant.mStr, p1, mDelimiter);
     }
@@ -226,9 +247,9 @@ int32_t Tokenizer::execIndexed(
  */
 const Variant& Tokenizer::getValue(const char* key) const
 {
-    Elements::const_iterator i = mElements.find(key);
+    Elements::const_iterator i = mData->mElements.find(key);
 
-    if (i == mElements.end())
+    if (i == mData->mElements.end())
         return mEmpty;
 
     return (*i).second->variant;
@@ -243,6 +264,14 @@ const Variant& Tokenizer::getValue(int32_t index) const
     str.format("%d", index + 1);
 
     return getValue(str.getBuffer());
+}
+
+/*!
+ *  \brief  要素数取得
+ */
+int32_t Tokenizer::getCount() const
+{
+    return (int32_t)mData->mKeys.size();
 }
 
 } // namespace slog

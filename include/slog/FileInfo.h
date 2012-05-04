@@ -25,25 +25,25 @@
 #include "slog/FixedString.h"
 #include "slog/DateTime.h"
 
-#include <list>
-
 namespace slog
 {
 
 /*!
  *  \brief  ファイル情報クラス
  */
-class FileInfo
+class SLOG_API FileInfo
 {
-            std::list<String>       mNames;             //!< ファイルパスの構成要素
-            FixedString<MAX_PATH>   mCanonicalPath;     //!< 正規のパス
+            struct Data;
+
+            Data*                   mData;
             DateTime                mCreationTime;      //!< 作成日時
             DateTime                mLastWriteTime;     //!< 最終書込日時
             uint32_t                mMode;              //!< ファイルモード
             bool                    mUsing;             //!< 使用中かどうか
-            FixedString<255>        mMessage;           //!< メッセージ
 
-public:     FileInfo(const CoreString& path) throw(Exception);
+public:      FileInfo(const CoreString& path) throw(Exception);
+            ~FileInfo();
+
             void update(bool aUsing = false);
 
             const CoreString& getCanonicalPath() const;
@@ -62,14 +62,6 @@ public:     FileInfo(const CoreString& path) throw(Exception);
 
             void mkdir() const throw(Exception);
 };
-
-/*!
- *  \brief  正規のパス取得
- */
-inline const CoreString& FileInfo::getCanonicalPath() const
-{
-    return mCanonicalPath;
-}
 
 /*!
  *  \brief  作成日時取得
@@ -101,14 +93,6 @@ inline const DateTime& FileInfo::getLastWriteTime() const
 inline void FileInfo::setLastWriteTime(const DateTime& dateTime)
 {
     mLastWriteTime = dateTime;
-}
-
-/*!
- *  \brief  メッセージ取得
- */
-inline const CoreString& FileInfo::getMessage() const
-{
-    return mMessage;
 }
 
 } // namespace slog

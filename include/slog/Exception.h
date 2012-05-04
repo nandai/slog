@@ -32,7 +32,7 @@ namespace slog
 /*!
  *  \brief  例外クラス
  */
-class Exception
+class SLOG_API Exception
 {
             int32_t     mErrorNo;           //!< エラー番号
             char        mMessage[255 + 1];  //!< メッセージ

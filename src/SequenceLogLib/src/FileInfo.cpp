@@ -22,6 +22,7 @@
 #include "slog/FileInfo.h"
 #include "slog/Tokenizer.h"
 
+#include <list>
 #include <sys/stat.h>
 
 #if defined(_WINDOWS)
@@ -33,6 +34,13 @@
 
 namespace slog
 {
+
+struct FileInfo::Data
+{
+    std::list<String>       mNames;         //!< ファイルパスの構成要素
+    FixedString<MAX_PATH>   mCanonicalPath; //!< 正規のパス
+    FixedString<255>        mMessage;       //!< メッセージ
+};
 
 /*!
  *  \brief  パスの末尾に追加する
@@ -61,6 +69,8 @@ FileInfo::FileInfo(
 
     throw(Exception)
 {
+    mData = new Data;
+
     String absolutePath;
     char work[MAX_PATH];
     const char* pszPath = path.getBuffer();
@@ -107,7 +117,7 @@ FileInfo::FileInfo(
 
     Tokenizer tokenizer(PATH_DELIMITER);
     tokenizer.exec(absolutePath);
-    mNames.clear();
+    mData->mNames.clear();
 
     // 正規のパス生成
     for (int32_t index = 0; index < tokenizer.getCount(); index++)
@@ -123,7 +133,7 @@ FileInfo::FileInfo(
 
         if (str == "..")
         {
-            if (mNames.size() == 0)
+            if (mData->mNames.size() == 0)
             {
                 // 戻るべき親ディレクトリがない
                 Exception e;
@@ -132,19 +142,27 @@ FileInfo::FileInfo(
                 throw e;
             }
 
-            mNames.pop_back();
+            mData->mNames.pop_back();
         }
         else
         {
-            mNames.push_back(str);
+            mData->mNames.push_back(str);
         }
     }
 
-    for (std::list<String>::iterator i = mNames.begin(); i != mNames.end(); i++)
-        appendPath(&mCanonicalPath, *i);
+    for (std::list<String>::iterator i = mData->mNames.begin(); i != mData->mNames.end(); i++)
+        appendPath(&mData->mCanonicalPath, *i);
 
     // ファイル情報更新
     update();
+}
+
+/*!
+ *  \brief  デストラクタ
+ */
+FileInfo::~FileInfo()
+{
+    delete mData;
 }
 
 /*!
@@ -153,14 +171,14 @@ FileInfo::FileInfo(
 void FileInfo::update(bool aUsing)
 {
     struct stat buf;
-    int32_t result = stat(mCanonicalPath.getBuffer(), &buf);
+    int32_t result = stat(mData->mCanonicalPath.getBuffer(), &buf);
 
     if (result == 0)
     {
         mCreationTime. setTime_t(buf.st_ctime);
         mLastWriteTime.setTime_t(buf.st_mtime);
         mMode = buf.st_mode;
-        mMessage.copy("");
+        mData->mMessage.copy("");
     }
     else
     {
@@ -170,10 +188,18 @@ void FileInfo::update(bool aUsing)
         mCreationTime. setValue(0);
         mLastWriteTime.setValue(0);
         mMode = 0;
-        mMessage.copy(e.getMessage());
+        mData->mMessage.copy(e.getMessage());
     }
 
     mUsing = aUsing;
+}
+
+/*!
+ *  \brief  正規のパス取得
+ */
+const CoreString& FileInfo::getCanonicalPath() const
+{
+    return mData->mCanonicalPath;
 }
 
 /*!
@@ -188,9 +214,9 @@ void FileInfo::mkdir() const
     int32_t index = 0;
     FixedString<MAX_PATH> path;
 
-    for (std::list<String>::const_iterator i = mNames.begin(); i != mNames.end(); i++)
+    for (std::list<String>::const_iterator i = mData->mNames.begin(); i != mData->mNames.end(); i++)
     {
-        if (index == mNames.size() - 1)
+        if (index == mData->mNames.size() - 1)
             break;
 
         appendPath(&path, *i);
@@ -231,6 +257,14 @@ bool FileInfo::isFile() const
 bool FileInfo::isUsing() const
 {
     return mUsing;
+}
+
+/*!
+ *  \brief  メッセージ取得
+ */
+const CoreString& FileInfo::getMessage() const
+{
+    return mData->mMessage;
 }
 
 } // namespace slog

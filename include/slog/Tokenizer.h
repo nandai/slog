@@ -22,9 +22,6 @@
 #pragma once
 #include "slog/String.h"
 
-#include <vector>
-#include <map>
-
 #if defined(__linux__)
     #include <stdlib.h>
 #endif
@@ -51,19 +48,11 @@ public:     operator int32_t() const {return atol(mStr.getBuffer());}
 /*!
  *  \brief  文字列分割クラス
  */
-class Tokenizer
+class SLOG_API Tokenizer
 {
-            struct Element
-            {
-                Variant variant;        //!< 要素
-                char    delimiter;      //!< デリミタ
-            };
+            struct Data;
 
-            typedef std::vector<String>         Keys;
-            typedef std::map<String, Element*>  Elements;
-
-            Keys        mKeys;          //!< キー
-            Elements    mElements;      //!< 要素
+            Data*       mData;
             Variant     mEmpty;         //!< 空要素
             char        mDelimiter;     //!< デリミタ
 
@@ -85,13 +74,5 @@ public:     const Variant& getValue(const char* key) const;
 
             int32_t getCount() const;
 };
-
-/*!
- *  \brief  要素数取得
- */
-inline int32_t Tokenizer::getCount() const
-{
-    return (int32_t)mKeys.size();
-}
 
 } // namespace slog

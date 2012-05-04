@@ -27,6 +27,7 @@
 #include "slog/SharedMemory.h"
 #include "slog/TimeSpan.h"
 #include "slog/Process.h"
+#include "slog/FixedString.h"
 
 /******************************************************************************
 *
@@ -291,11 +292,11 @@ void SequenceLogClient::init()
     const char* p = sSequenceLogFileName;
     TRACE("    sSequenceLogFileName='%s'\n", p);
 
-    if (p[0] == '\0')
-    {
-        TRACE("    getSequenceLogFileName() calling...\n", 0);
-        p = getSequenceLogFileName();
-    }
+//  if (p[0] == '\0')
+//  {
+//      TRACE("    getSequenceLogFileName() calling...\n", 0);
+//      p = getSequenceLogFileName();
+//  }
 
     if (p == NULL || p[0] == '\0')
     {
@@ -459,6 +460,12 @@ SequenceLog::SequenceLog(
         info->item.init(mSeqNo, mOutputFlag, className, funcName);
         info->ready = true;
     }
+#if defined(_DEBUG)
+    else
+    {
+        TRACE("(flag:%d) %s::%s\n", mOutputFlag, className, funcName);
+    }
+#endif
 }
 
 /*!
@@ -474,6 +481,12 @@ SequenceLog::SequenceLog(uint32_t classID, const char* funcName, SequenceLogOutp
         info->item.init(mSeqNo, mOutputFlag, classID, funcName);
         info->ready = true;
     }
+#if defined(_DEBUG)
+    else
+    {
+        TRACE("(flag:%d) %d::%s\n", mOutputFlag, classID, funcName);
+    }
+#endif
 }
 
 /*!
@@ -489,6 +502,12 @@ SequenceLog::SequenceLog(uint32_t classID, uint32_t funcID, SequenceLogOutputFla
         info->item.init(mSeqNo, mOutputFlag, classID, funcID);
         info->ready = true;
     }
+#if defined(_DEBUG)
+    else
+    {
+        TRACE("(flag:%d) %d::%d\n", mOutputFlag, classID, funcID);
+    }
+#endif
 }
 
 /*!

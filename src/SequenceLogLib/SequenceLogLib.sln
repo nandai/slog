@@ -5,32 +5,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SequenceLogLib", "SequenceL
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
-		Debug|x64 = Debug|x64
-		Debug-MD|Win32 = Debug-MD|Win32
-		Debug-MD|x64 = Debug-MD|x64
-		Release|Win32 = Release|Win32
-		Release|x64 = Release|x64
+		Debug-dll|Win32 = Debug-dll|Win32
+		Debug-dll|x64 = Debug-dll|x64
 		Release-cs|Win32 = Release-cs|Win32
 		Release-cs|x64 = Release-cs|x64
 		Release-dll|Win32 = Release-dll|Win32
 		Release-dll|x64 = Release-dll|x64
-		Release-MD|Win32 = Release-MD|Win32
-		Release-MD|x64 = Release-MD|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug|Win32.Build.0 = Debug|Win32
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug|x64.ActiveCfg = Debug|x64
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug|x64.Build.0 = Debug|x64
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug-MD|Win32.ActiveCfg = Debug-MD|Win32
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug-MD|Win32.Build.0 = Debug-MD|Win32
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug-MD|x64.ActiveCfg = Debug-MD|x64
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug-MD|x64.Build.0 = Debug-MD|x64
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release|Win32.ActiveCfg = Release|Win32
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release|Win32.Build.0 = Release|Win32
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release|x64.ActiveCfg = Release|x64
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release|x64.Build.0 = Release|x64
+		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug-dll|Win32.ActiveCfg = Debug-dll|Win32
+		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug-dll|Win32.Build.0 = Debug-dll|Win32
+		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug-dll|x64.ActiveCfg = Debug-dll|x64
+		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Debug-dll|x64.Build.0 = Debug-dll|x64
 		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-cs|Win32.ActiveCfg = Release-cs|Win32
 		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-cs|Win32.Build.0 = Release-cs|Win32
 		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-cs|x64.ActiveCfg = Release-cs|x64
@@ -39,10 +25,6 @@ Global
 		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-dll|Win32.Build.0 = Release-dll|Win32
 		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-dll|x64.ActiveCfg = Release-dll|x64
 		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-dll|x64.Build.0 = Release-dll|x64
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-MD|Win32.ActiveCfg = Release-MD|Win32
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-MD|Win32.Build.0 = Release-MD|Win32
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-MD|x64.ActiveCfg = Release-MD|x64
-		{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}.Release-MD|x64.Build.0 = Release-MD|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

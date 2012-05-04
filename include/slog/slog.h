@@ -33,23 +33,33 @@
 
     #include <windows.h>
 
+    #if defined(SLOG_EXPORTS)
+        #define SLOG_API __declspec(dllexport)
+    #else
+        #define SLOG_API __declspec(dllimport)
+    #endif
+
     #if !defined(_WINDLL)
         #if defined(_DEBUG)
-            #if defined(_DLL)
-                #pragma comment(lib, "SequenceLogMDd.lib")
-            #else
-                #pragma comment(lib, "SequenceLogd.lib")
-            #endif
+//          #if defined(_DLL)
+//              #pragma comment(lib, "SequenceLogMDd.lib")
+//          #else
+//              #pragma comment(lib, "SequenceLogd.lib")
+                #pragma comment(lib, "slogd.lib")
+//          #endif
         #else
-            #if defined(_DLL)
-                #pragma comment(lib, "SequenceLogMD.lib")
-            #else
-                #pragma comment(lib, "SequenceLog.lib")
-            #endif
+//          #if defined(_DLL)
+//              #pragma comment(lib, "SequenceLogMD.lib")
+//          #else
+//              #pragma comment(lib, "SequenceLog.lib")
+                #pragma comment(lib, "slog.lib")
+//          #endif
         #endif
     #endif
 
     #pragma comment(lib, "winmm.lib")
+#else
+    #define SLOG_API
 #endif
 
 #if defined(_WINDOWS)
@@ -77,8 +87,8 @@
 extern "C" {
 #endif
 
-void _printDebug(const char* format, ...);
-void noticeLog(  const char* format, ...);
+SLOG_API void _printDebug(const char* format, ...);
+SLOG_API void noticeLog(  const char* format, ...);
 
 #if defined(__cplusplus)
 }

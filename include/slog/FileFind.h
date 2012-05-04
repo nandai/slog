@@ -20,15 +20,15 @@
  *  \author Copyright 2011 log-tools.net
  */
 #pragma once
+#include "slog/CoreString.h"
 
 namespace slog
 {
-class CoreString;
 
 /*!
  *  \brief  ファイル検索リスナークラス
  */
-class FileFindListener
+class SLOG_API FileFindListener
 {
 public:     virtual void onFind(const CoreString& path) {}
 };
@@ -36,7 +36,7 @@ public:     virtual void onFind(const CoreString& path) {}
 /*!
  *  \brief  ファイル検索クラス
  */
-class FileFind
+class SLOG_API FileFind
 {
             FileFindListener    mDefaultListener;   //!< デフォルトリスナー
             FileFindListener*   mListener;          //!< リスナー

@@ -35,7 +35,7 @@ class Thread;
 /*!
  *  \brief  スレッドリスナークラス
  */
-class ThreadListener
+class SLOG_API ThreadListener
 {
 public:     virtual void onInitialized(Thread* thread) {}   //!< スレッド初期化完了通知
             virtual void onTerminated( Thread* thread) {}   //!< スレッド終了通知
@@ -44,7 +44,7 @@ public:     virtual void onInitialized(Thread* thread) {}   //!< スレッド初
 /*!
  *  \brief  スレッドクラス
  */
-class Thread
+class SLOG_API Thread
 {
 #if defined(_WINDOWS)
             HANDLE          mHandle;            //!< スレッドハンドル

@@ -20,7 +20,9 @@
  *  \author Copyright 2011 log-tools.net
  */
 #include "slog/Socket.h"
-//#include <stdio.h>
+#include "slog/FixedString.h"
+
+#include <stdio.h>
 
 using namespace slog;
 
@@ -148,7 +150,7 @@ int main()
     return 0;
 }
 
-extern "C" const char* getSequenceLogFileName()
-{
-    return NULL;
-}
+//extern "C" const char* getSequenceLogFileName()
+//{
+//    return NULL;
+//}

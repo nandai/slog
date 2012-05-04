@@ -28,7 +28,7 @@ namespace slog
 /*!
  *  \brief  バイトバッファクラス
  */
-class ByteBuffer : public Buffer
+class SLOG_API ByteBuffer : public Buffer
 {
             int32_t     mPosition;      //!< 位置
             int32_t     mCapacity;      //!< 容量

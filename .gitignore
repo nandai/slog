@@ -5,6 +5,8 @@ GTAGS
 *.ncb
 *.suo
 *.user
+slogd.*
+depend.inc
 obj/
 src/SequenceLogLib/src/libslog.so
 src/SequenceLogService/src/slogsvc
@@ -13,3 +15,5 @@ src/SequenceLogService/Android/bin/
 src/SequenceLogService/Android/gen/
 src/SequenceLogService/Android/libs/
 src/SequenceLogPrint/src/slogprint
+src/SequenceLogPrint/libs/
+src/SequenceLogId/bin/

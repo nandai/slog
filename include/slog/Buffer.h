@@ -28,7 +28,7 @@ namespace slog
 /*!
  *  \brief  バッファクラス
  */
-class Buffer
+class SLOG_API Buffer
 {
             int32_t mLen;                               //!< バッファ使用サイズ
 

@@ -109,19 +109,19 @@ enum SequenceLogLevel
 extern "C" {
 #endif
 
-//id* _slog_stepIn( const char* className, const char* funcName, SequenceLogOutputFlag outputFlag);
-void* _slog_stepIn( const char* className, const char* funcName, int32_t               outputFlag);
-void* _slog_stepIn2(uint32_t    classID,   const char* funcName, int32_t               outputFlag);
-void* _slog_stepIn3(uint32_t    classID,   uint32_t    funcID,   int32_t               outputFlag);
-void  _slog_stepOut(void* p);
-//id  _slog_message( void* p, SequenceLogLevel level, const char* format, ...);
-void  _slog_message( void* p, int32_t          level, const char* format, ...);
-void  _slog_message2(void* p, int32_t          level, uint32_t messageID);
+//OG_API void* _slog_stepIn( const char* className, const char* funcName, SequenceLogOutputFlag outputFlag);
+SLOG_API void* _slog_stepIn( const char* className, const char* funcName, int32_t               outputFlag);
+SLOG_API void* _slog_stepIn2(uint32_t    classID,   const char* funcName, int32_t               outputFlag);
+SLOG_API void* _slog_stepIn3(uint32_t    classID,   uint32_t    funcID,   int32_t               outputFlag);
+SLOG_API void  _slog_stepOut(void* p);
+//OG_API void  _slog_message( void* p, SequenceLogLevel level, const char* format, ...);
+SLOG_API void  _slog_message( void* p, int32_t          level, const char* format, ...);
+SLOG_API void  _slog_message2(void* p, int32_t          level, uint32_t messageID);
 
-const char* getSequenceLogFileName();   //!< ユーザー定義関数
-void        setSequenceLogFileName(const char* fileName);
+//       const char* getSequenceLogFileName();   //!< ユーザー定義関数
+SLOG_API void        setSequenceLogFileName(const char* fileName);
 
-void setRootFlag(int32_t outputFlag);
+SLOG_API void  setRootFlag(int32_t outputFlag);
 
 #if defined(__cplusplus)
 }
@@ -141,7 +141,7 @@ namespace slog
 /*!
  *  \brief  シーケンスログクラス
  */
-class SequenceLog
+class SLOG_API SequenceLog
 {
             uint32_t                mSeqNo;         //!< シーケンス番号
             SequenceLogOutputFlag   mOutputFlag;    //!< 出力フラグ

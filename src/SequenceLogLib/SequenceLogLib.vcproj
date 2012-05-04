@@ -307,8 +307,8 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\include;..\include"
-				PreprocessorDefinitions="_LIB;__SLOG__;_CRT_SECURE_NO_WARNINGS"
-				RuntimeLibrary="0"
+				PreprocessorDefinitions="_LIB;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -348,7 +348,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="del ..\..\bin\Windows\x86\$(TargetName).lib&#x0D;&#x0A;del ..\..\bin\Windows\x86\$(TargetName).exp&#x0D;&#x0A;"
+				CommandLine="del ..\..\bin\Windows\x86\$(TargetName).exp&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -381,9 +381,9 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\include;..\include"
-				PreprocessorDefinitions="_LIB;__SLOG__;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="_LIB;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -423,7 +423,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="del ..\..\bin\Windows\x64\$(TargetName).lib&#x0D;&#x0A;del ..\..\bin\Windows\x64\$(TargetName).exp&#x0D;&#x0A;"
+				CommandLine="del ..\..\bin\Windows\x64\$(TargetName).exp&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -717,7 +717,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\include;..\include"
-				PreprocessorDefinitions="_LIB;__SLOG__;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="_LIB;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -759,7 +759,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
+				CommandLine="del ..\..\bin\Windows\x86\$(TargetName).exp&#x0D;&#x0A;del ..\..\bin\Windows\x86\$(TargetName).lib&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -792,7 +792,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\include;..\include"
-				PreprocessorDefinitions="_LIB;__SLOG__;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="_LIB;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -835,7 +835,163 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
+				CommandLine="del ..\..\bin\Windows\x64\$(TargetName).exp&#x0D;&#x0A;del ..\..\bin\Windows\x64\$(TargetName).lib&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug-dll|Win32"
+			OutputDirectory="..\..\bin\Windows\x86"
+			IntermediateDirectory="..\obj\$(ProjectName)\x86-$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="2"
+			WholeProgramOptimization="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\..\include;..\include"
+				PreprocessorDefinitions="_LIB;_DEBUG;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\vc90.pdb"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="winmm.lib"
+				OutputFile="$(OutDir)\slogd.dll"
+				LinkIncremental="1"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="del ..\..\bin\Windows\x86\$(TargetName).exp&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug-dll|x64"
+			OutputDirectory="..\..\bin\Windows\x64"
+			IntermediateDirectory="..\obj\$(ProjectName)\x64-$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="2"
+			ManagedExtensions="0"
+			WholeProgramOptimization="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\..\include;..\include"
+				PreprocessorDefinitions="_LIB;_DEBUG;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				ExceptionHandling="1"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\vc90.pdb"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="winmm.lib"
+				OutputFile="$(OutDir)\slogd.dll"
+				LinkIncremental="1"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="del ..\..\bin\Windows\x64\$(TargetName).exp&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -1002,6 +1158,23 @@
 					Name="VCCLCompilerTool"
 				/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug-dll|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug-dll|x64"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					StringPooling="false"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\src\Log.h"
@@ -1088,6 +1261,22 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release-cs|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug-dll|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug-dll|x64"
+				ExcludedFromBuild="true"
 				>
 				<Tool
 					Name="VCCustomBuildTool"

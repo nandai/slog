@@ -34,7 +34,7 @@ namespace slog
 /*!
  *  \brief  ファイルクラス
  */
-class File
+class SLOG_API File
 {
 public:     enum Mode
             {

@@ -24,6 +24,7 @@
 #include "slog/Thread.h"
 #include "slog/FileFind.h"
 #include "slog/Socket.h"
+#include "slog/FixedString.h"
 
 #include <list>
 

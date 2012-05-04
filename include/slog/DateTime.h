@@ -34,7 +34,7 @@ namespace slog
 /*!
  *  \brief  日付時間クラス
  */
-class DateTime
+class SLOG_API DateTime
 {
             uint64_t    mValue;     //!< 日付時間
 

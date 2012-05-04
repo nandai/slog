@@ -221,11 +221,11 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 /*
  * シーケンスログファイル名取得
  */
-const char* getSequenceLogFileName()
-{
-    TRACE("getSequenceLogFileName() in net_log_tools_slog_Log.cpp\n", 0);
-    return NULL;
-}
+//const char* getSequenceLogFileName()
+//{
+//    TRACE("getSequenceLogFileName() in net_log_tools_slog_Log.cpp\n", 0);
+//    return NULL;
+//}
 
 #if defined(_WINDOWS)
 #include "slog/Socket.h"

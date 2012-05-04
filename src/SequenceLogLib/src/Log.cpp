@@ -112,7 +112,7 @@ void Log::Message(int32_t level, int32_t messageID, int64_t slog)
 /*!
  *  \brief  シーケンスログファイル名取得
  */
-const char* getSequenceLogFileName()
-{
-    return NULL;
-}
+//const char* getSequenceLogFileName()
+//{
+//    return NULL;
+//}

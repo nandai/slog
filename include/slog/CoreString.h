@@ -33,7 +33,7 @@ namespace slog
 /*!
  *  \brief  コア文字列クラス
  */
-class CoreString : public Buffer
+class SLOG_API CoreString : public Buffer
 {
             static bool sSJIS;  // 共通設定                 false: UTF-8, true: SJIS
             int32_t     mSJIS;  // 個別設定 -1: sJISに依存,     0: UTF-8,    1: SJIS
@@ -131,7 +131,7 @@ inline bool operator==(const CoreString& str1, const char* str2)
 }
 
 #if defined(_WINDOWS)
-class UTF16LE
+class SLOG_API UTF16LE
 {
             wchar_t*    mBuffer;
             int32_t     mChars;

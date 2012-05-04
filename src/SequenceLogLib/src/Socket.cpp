@@ -21,6 +21,7 @@
  */
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
+#include "slog/FixedString.h"
 
 #if defined(__unix__)
     #include <sys/un.h>
@@ -30,11 +31,17 @@
 namespace slog
 {
 
+struct Socket::Data
+{
+    FixedString<16> mInetAddress;   //!< IPv4
+};
+
 /*!
  *  \brief  コンストラクタ
  */
 Socket::Socket()
 {
+    mData = new Data;
     mSocket = -1;
     mInet = true;
     mStream = true;
@@ -47,8 +54,10 @@ Socket::Socket()
  */
 Socket::~Socket()
 {
-    delete mBuffer;
     close();
+
+    delete mBuffer;
+    delete mData;
 }
 
 /*!
@@ -308,7 +317,7 @@ int Socket::setRecvTimeOut(int32_t msec) const
  */
 const CoreString& Socket::getInetAddress() const
 {
-    CoreString& inetAddress = (CoreString&)mInetAddress;
+    CoreString& inetAddress = (CoreString&)mData->mInetAddress;
 
     if (isOpen() == false)
         inetAddress.setLength(0);

@@ -22,7 +22,6 @@
 #pragma once
 
 #include "slog/Exception.h"
-#include "slog/FixedString.h"
 
 #if defined(_WINDOWS)
     #pragma comment(lib, "ws2_32.lib")
@@ -35,22 +34,25 @@ namespace slog
 {
 class Buffer;
 class ByteBuffer;
+class CoreString;
 
 /*!
  *  \brief  ソケットクラス
  */
-class Socket
+class SLOG_API Socket
 {
+            struct Data;
+
 #if defined(_WINDOWS)
             SOCKET          mSocket;        //!< ソケット
 #else
             int             mSocket;        //!< ソケット
 #endif
 
+            Data*           mData;
             bool            mInet;          //!< true:AF_INET、false:AF_UNIX
             bool            mStream;        //!< true:SOCK_STREAM, false:SOCK_DGRAM
             sockaddr_in     mAddr;          //!< ソケット情報
-            FixedString<16> mInetAddress;   //!< IPv4
             ByteBuffer*     mBuffer;        //!< 数値用送受信バッファ
             bool            mConnect;       //!< 接続しているかどうか
 
