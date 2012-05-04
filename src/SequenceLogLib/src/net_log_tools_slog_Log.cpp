@@ -227,7 +227,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 //    return NULL;
 //}
 
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) && 0
 #include "slog/Socket.h"
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
