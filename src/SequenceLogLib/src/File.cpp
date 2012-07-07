@@ -47,7 +47,9 @@ void File::open(
 
     if (mode == READ)
     {
-        handle = ::CreateFileA(p, GENERIC_READ,  FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+        // 書込み中のファイルを読めるようにFILE_SHARE_WRITEを付ける
+//      handle = ::CreateFileA(p, GENERIC_READ,  FILE_SHARE_READ,                    NULL, OPEN_EXISTING, 0, NULL);
+        handle = ::CreateFileA(p, GENERIC_READ,  FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     }
     else
     {
