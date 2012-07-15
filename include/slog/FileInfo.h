@@ -39,6 +39,7 @@ class SLOG_API FileInfo
             DateTime                mCreationTime;      //!< 作成日時
             DateTime                mLastWriteTime;     //!< 最終書込日時
             uint32_t                mMode;              //!< ファイルモード
+            uint64_t                mSize;              //!< ファイルサイズ
             bool                    mUsing;             //!< 使用中かどうか
 
 public:      FileInfo(const CoreString& path) throw(Exception);
@@ -55,6 +56,8 @@ public:      FileInfo(const CoreString& path) throw(Exception);
             const DateTime& getLastWriteTime() const;
 
             bool isFile() const;
+
+            uint64_t getSize() const;
 
             bool isUsing() const;
 
@@ -93,6 +96,14 @@ inline const DateTime& FileInfo::getLastWriteTime() const
 inline void FileInfo::setLastWriteTime(const DateTime& dateTime)
 {
     mLastWriteTime = dateTime;
+}
+
+/*!
+ *  \brief  ファイルサイズ取得
+ */
+inline uint64_t FileInfo::getSize() const
+{
+    return mSize;
 }
 
 } // namespace slog

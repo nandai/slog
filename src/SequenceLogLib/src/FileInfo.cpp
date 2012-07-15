@@ -178,6 +178,7 @@ void FileInfo::update(bool aUsing)
         mCreationTime. setTime_t(buf.st_ctime);
         mLastWriteTime.setTime_t(buf.st_mtime);
         mMode = buf.st_mode;
+        mSize = buf.st_size;
         mData->mMessage.copy("");
     }
     else
@@ -188,6 +189,7 @@ void FileInfo::update(bool aUsing)
         mCreationTime. setValue(0);
         mLastWriteTime.setValue(0);
         mMode = 0;
+        mSize = 0;
         mData->mMessage.copy(e.getMessage());
     }
 
