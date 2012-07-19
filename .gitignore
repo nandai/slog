@@ -7,7 +7,6 @@ GTAGS
 *.user
 *.ilk
 *.pdb
-slogd.*
 SequenceLog.exe
 SequenceLogd.exe
 depend.inc
