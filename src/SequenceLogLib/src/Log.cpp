@@ -20,12 +20,19 @@
  *  \author Copyright 2011 log-tools.net
  */
 #include "slog/SequenceLog.h"
+
+#if !defined(MODERN_UI)
 #include "slog/CSharpString.h"
+#else
+#include "slog/String.h"
+#endif
 
 #include "Log.h"
 
+#if !defined(MODERN_UI)
 using namespace slog;
-using namespace System::Runtime::InteropServices;
+//ing namespace System::Runtime::InteropServices;
+#endif
 
 namespace Slog
 {
@@ -35,7 +42,12 @@ namespace Slog
  */
 void Log::SetFileName(String^ aName)
 {
+#if !defined(MODERN_UI)
     CSharpString name = aName;
+#else
+    slog::String name;
+    name.conv(aName->Data());
+#endif
     setSequenceLogFileName(name.getBuffer());
 }
 
@@ -52,10 +64,18 @@ void Log::SetRootFlag(int32_t outputFlag)
  */
 int64_t Log::StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag)
 {
+#if !defined(MODERN_UI)
     CSharpString className = aClassName;
     CSharpString funcName = aFuncName;
+#else
+    slog::String className;
+    slog::String funcName;
 
-    SequenceLog* slogObj = new SequenceLog(className.getBuffer(), funcName.getBuffer(), (SequenceLogOutputFlag)outputFlag);
+    className.conv(aClassName->Data());
+    funcName. conv(aFuncName-> Data());
+#endif
+
+    slog::SequenceLog* slogObj = new slog::SequenceLog(className.getBuffer(), funcName.getBuffer(), (slog::SequenceLogOutputFlag)outputFlag);
     return (int64_t)slogObj;
 }
 
@@ -64,9 +84,14 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag)
  */
 int64_t Log::StepIn(int32_t classID, String^ aFuncName, int32_t outputFlag)
 {
+#if !defined(MODERN_UI)
     CSharpString funcName = aFuncName;
+#else
+    slog::String funcName;
+    funcName.conv(aFuncName->Data());
+#endif
 
-    SequenceLog* slogObj = new SequenceLog(classID, funcName.getBuffer(), (SequenceLogOutputFlag)outputFlag);
+    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcName.getBuffer(), (slog::SequenceLogOutputFlag)outputFlag);
     return (int64_t)slogObj;
 }
 
@@ -75,7 +100,7 @@ int64_t Log::StepIn(int32_t classID, String^ aFuncName, int32_t outputFlag)
  */
 int64_t Log::StepIn(int32_t classID, int32_t funcID, int32_t outputFlag)
 {
-    SequenceLog* slogObj = new SequenceLog(classID, funcID, (SequenceLogOutputFlag)outputFlag);
+    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcID, (slog::SequenceLogOutputFlag)outputFlag);
     return (int64_t)slogObj;
 }
 
@@ -84,7 +109,7 @@ int64_t Log::StepIn(int32_t classID, int32_t funcID, int32_t outputFlag)
  */
 void Log::StepOut(int64_t slog)
 {
-    SequenceLog* slogObj = (SequenceLog*)slog;
+    slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
     delete slogObj;
 }
 
@@ -93,9 +118,16 @@ void Log::StepOut(int64_t slog)
  */
 void Log::Message(int32_t level, String^ aMessage, int64_t slog)
 {
-    SequenceLog* slogObj = (SequenceLog*)slog;
+    slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
+
+#if !defined(MODERN_UI)
     CSharpString message = aMessage;
-    slogObj->message((SequenceLogLevel)level, "%s", message.getBuffer());
+#else
+    slog::String message;
+    message.conv(aMessage->Data());
+#endif
+
+    slogObj->message((slog::SequenceLogLevel)level, "%s", message.getBuffer());
 }
 
 /*!
@@ -103,16 +135,8 @@ void Log::Message(int32_t level, String^ aMessage, int64_t slog)
  */
 void Log::Message(int32_t level, int32_t messageID, int64_t slog)
 {
-    SequenceLog* slogObj = (SequenceLog*)slog;
-    slogObj->message((SequenceLogLevel)level, messageID);
+    slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
+    slogObj->message((slog::SequenceLogLevel)level, messageID);
 }
 
-}
-
-/*!
- *  \brief  シーケンスログファイル名取得
- */
-//const char* getSequenceLogFileName()
-//{
-//    return NULL;
-//}
+} // namespace Slog

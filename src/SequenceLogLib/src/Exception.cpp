@@ -63,18 +63,20 @@ void Exception::setMessage(const char* format, ...)
         return;
 
     // APIエラーのメッセージ取得
-    char* buffer = NULL;
-
 #if defined(_WINDOWS)
+//  char* buffer;
+    char  buffer[512];
+
     DWORD flags =
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+//      FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS;
 
-    FormatMessageA(flags, NULL, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
+//  FormatMessageA(flags, NULL, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0,              NULL);
+    FormatMessageA(flags, NULL, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),         buffer, sizeof(buffer), NULL);
     buffer[strlen(buffer) - 2] = '\0';      // 改行除去
 #else
-    buffer = strerror(mErrorNo);
+    char* buffer = strerror(mErrorNo);
 #endif
 
     if (len)
@@ -86,7 +88,7 @@ void Exception::setMessage(const char* format, ...)
         mMessage[capacity] = '\0';
 
 #if defined(_WINDOWS)
-    LocalFree(buffer);
+//  LocalFree(buffer);
 #endif
 }
 

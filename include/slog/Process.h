@@ -47,9 +47,11 @@ public:      Process();
             ~Process();
 
             uint32_t getId() const;
-            void     setId(uint32_t id);
 
+#if !defined(MODERN_UI)
+            void setId(uint32_t id);
             bool isAlive() const;
+#endif
 };
 
 /*!
@@ -85,6 +87,7 @@ inline uint32_t Process::getId() const
     return mId;
 }
 
+#if !defined(MODERN_UI)
 /*!
  *  \brief  プロセスID設定
  */
@@ -114,5 +117,6 @@ inline bool Process::isAlive() const
     return (stat(mHandle, &buf) == 0);
 #endif
 }
+#endif // !defined(MODERN_UI)
 
 } // namespace slog

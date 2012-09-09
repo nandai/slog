@@ -24,7 +24,9 @@
 #include "slog/Exception.h"
 
 #if defined(_WINDOWS)
-    #pragma comment(lib, "ws2_32.lib")
+    #if !defined(MODERN_UI)
+        #pragma comment(lib, "ws2_32.lib")
+    #endif
 #else
     #include <arpa/inet.h>
     #include <sys/socket.h>
@@ -44,7 +46,14 @@ class SLOG_API Socket
             struct Data;
 
 #if defined(_WINDOWS)
+    #if defined(MODERN_UI)
+            #define SOCK_STREAM 1
+            Windows::Networking::Sockets::StreamSocket^     mSocket;
+            Windows::Storage::Streams::DataWriter^          mWriter;
+            Windows::Storage::Streams::DataReader^          mReader;
+    #else
             SOCKET          mSocket;        //!< ソケット
+    #endif
 #else
             int             mSocket;        //!< ソケット
 #endif
@@ -52,7 +61,10 @@ class SLOG_API Socket
             Data*           mData;
             bool            mInet;          //!< true:AF_INET、false:AF_UNIX
             bool            mStream;        //!< true:SOCK_STREAM, false:SOCK_DGRAM
+#if defined(MODERN_UI)
+#else
             sockaddr_in     mAddr;          //!< ソケット情報
+#endif
             ByteBuffer*     mBuffer;        //!< 数値用送受信バッファ
             bool            mConnect;       //!< 接続しているかどうか
 
@@ -82,6 +94,7 @@ public:      Socket();
             void send(const  int32_t* value) const throw(Exception);
             void send(const uint32_t* value) const throw(Exception);
             void send(const Buffer* buffer, int32_t len) const throw(Exception);
+            void send(const char*   buffer, int32_t len) const throw(Exception);
 
             void recv( int32_t* value) const throw(Exception);
             void recv(uint32_t* value) const throw(Exception);

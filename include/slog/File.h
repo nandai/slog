@@ -63,8 +63,8 @@ public:      File();
 
 //          void flush();
 
-            uint32_t getSize() const;
-            uint32_t getPosition() const;
+            int64_t getSize() const;
+            int64_t getPosition() const;
 
             static void unlink(const CoreString& fileName) throw(Exception);
 };
@@ -167,16 +167,23 @@ inline int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
 /*!
  *  \brief  ファイルサイズ取得
  */
-inline uint32_t File::getSize() const
+inline int64_t File::getSize() const
 {
 #if defined(_WINDOWS)
-    DWORD size = ::GetFileSize(mHandle, NULL);
-    return size;
+    LARGE_INTEGER move = {0, 0};
+    LARGE_INTEGER pos;
+    LARGE_INTEGER size;
+
+    ::SetFilePointerEx(mHandle, move, &pos,  FILE_CURRENT);
+    ::SetFilePointerEx(mHandle, move, &size, FILE_END);
+    ::SetFilePointerEx(mHandle, pos,  NULL,  FILE_BEGIN);
+
+    return size.QuadPart;
 #else
-    uint32_t pos = ftell(mHandle);
+    int64_t pos = ftell(mHandle);
     fseek(mHandle, 0, SEEK_END);
 
-    uint32_t size = ftell(mHandle);
+    int64_t size = ftell(mHandle);
     fseek(mHandle, pos, SEEK_SET);
 
     return size;
@@ -186,13 +193,16 @@ inline uint32_t File::getSize() const
 /*!
  *  \brief  ファイルポインタの現在位置取得
  */
-inline uint32_t File::getPosition() const
+inline int64_t File::getPosition() const
 {
 #if defined(_WINDOWS)
-    DWORD pos = ::SetFilePointer(mHandle, 0, NULL, FILE_CURRENT);
-    return pos;
+    LARGE_INTEGER move = {0, 0};
+    LARGE_INTEGER pos;
+
+    ::SetFilePointerEx(mHandle, move, &pos, FILE_CURRENT);
+    return pos.QuadPart;
 #else
-    uint32_t pos = ftell(mHandle);
+    int64_t pos = ftell(mHandle);
     return pos;
 #endif
 }

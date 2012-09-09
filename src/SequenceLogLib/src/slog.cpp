@@ -53,7 +53,7 @@ extern "C" void _printDebug(const char* format, ...)
     const char* p = str.getBuffer();
 
 #if defined(_WINDOWS)
-    OutputDebugString(p);
+    OutputDebugStringA(p);
 #elif defined(__ANDROID__)
     __android_log_write(ANDROID_LOG_DEBUG, "slog", p);
 #else
@@ -82,7 +82,7 @@ extern "C" void noticeLog(const char* format, ...)
     const char* p = str.getBuffer();
 
 #if defined(_WINDOWS)
-    OutputDebugString(p);
+    OutputDebugStringA(p);
 #elif defined(__ANDROID__)
     __android_log_write(ANDROID_LOG_INFO, "slog", p);
 #else

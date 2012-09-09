@@ -33,6 +33,10 @@
 
     #include <windows.h>
 
+    #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY & 0x00000002/*WINAPI_PARTITION_APP*/)
+        #define MODERN_UI
+    #endif
+
     #if defined(SLOG_EXPORTS)
         #define SLOG_API __declspec(dllexport)
     #else
@@ -40,24 +44,16 @@
     #endif
 
     #if !defined(_WINDLL)
-        #if defined(_DEBUG)
-//          #if defined(_DLL)
-//              #pragma comment(lib, "SequenceLogMDd.lib")
-//          #else
-//              #pragma comment(lib, "SequenceLogd.lib")
-                #pragma comment(lib, "slogd.lib")
-//          #endif
+        #if defined(MODERN_UI)
+            #pragma comment(lib, "Slog.lib")
+        #elif defined(_DEBUG)
+            #pragma comment(lib, "slogd.lib")
         #else
-//          #if defined(_DLL)
-//              #pragma comment(lib, "SequenceLogMD.lib")
-//          #else
-//              #pragma comment(lib, "SequenceLog.lib")
-                #pragma comment(lib, "slog.lib")
-//          #endif
+            #pragma comment(lib, "slog.lib")
         #endif
     #endif
 
-    #pragma comment(lib, "winmm.lib")
+//  #pragma comment(lib, "winmm.lib")
 #else
     #define SLOG_API
 #endif

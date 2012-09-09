@@ -178,6 +178,18 @@ public:     long        mAlwaysCount;       //!< 常出力カウンタ（1以上
 };
 
 /*!
+ *  \brief  シーケンスログ受信クラス
+ */
+class SequenceLogReceiver : public Thread
+{
+            SequenceLogService* mService;
+
+public:     SequenceLogReceiver(SequenceLogService* service) {mService = service;}
+
+private:    virtual void run() {mService->receiveMain();}
+};
+
+/*!
  *  \brief  コンストラクタ
  */
 SequenceLogService::SequenceLogService(slog::Socket* socket) :
@@ -331,14 +343,21 @@ void SequenceLogService::run()
                                                     // 以降同じ。
 
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    SequenceLogReceiver receiver(this);
+
+    receiver.start();
+    Sleep(100);
 
     //
     // 書き込みループ
     //
     while (isInterrupted() == false)
     {
-        if (mProcess.isAlive() == false)
+//      if (mProcess.isAlive() == false)
+        if (receiver.isAlive() == false)
+        {
             interrupt();
+        }
 
         divideItems();
 
@@ -356,7 +375,7 @@ void SequenceLogService::run()
 
             // ローテーション
             uint32_t maxSize = serviceMain->getMaxFileSize();
-            uint32_t size = mFile.getSize();
+            uint64_t size = mFile.getSize();
 
             if (maxSize != 0 && maxSize < size)
             {
@@ -385,6 +404,8 @@ void SequenceLogService::run()
     }
 
     cleanUp();
+    receiver.join();
+
     TRACE("[E] SequenceLogService::run()\n", 0);
 }
 
@@ -891,6 +912,61 @@ SequenceLogItem* SequenceLogService::createSequenceLogItem(
     }
 
     return item;
+}
+
+/*!
+ *  \brief  シーケンスログ受信スレッド
+ */
+void SequenceLogService::receiveMain()
+{
+    SequenceLogItem* item;
+    ByteBuffer buffer(sizeof(*item));
+
+    item = (SequenceLogItem*)buffer.getBuffer();
+
+    try
+    {
+        while (true)
+        {
+            SLOG_ITEM_INFO* info;
+            mSocket->recv(&buffer, buffer.getCapacity());
+
+            while (true)
+            {
+                uint32_t threadId = item->mThreadId;
+                uint32_t bufferIndex = (threadId % SLOG_SHM::BUFFER_COUNT);
+
+                ScopedLock lock(mMutex[bufferIndex]);
+                SLOG_SHM_HEADER* header = &mSHM->header[bufferIndex];
+
+                if (header->index >= mSHM->count)
+                    continue;
+
+                SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[bufferIndex * mSHM->count];
+                uint32_t index = header->index;
+                index = infoArray[index].no;
+
+                info = &infoArray[index];
+                header->index++;
+
+                if (item->mType == SequenceLogItem::STEP_IN)
+                {
+                    item->mSeqNo = header->seq;
+                    header->seq++;
+
+                    mSocket->send(&item->mSeqNo);
+                }
+
+                info->item = *item;
+                info->ready = true;
+                break;
+            }
+        }
+    }
+    catch (Exception e)
+    {
+        TRACE("    %s\n", e.getMessage());
+    }
 }
 
 } // namespace slog

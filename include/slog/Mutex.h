@@ -30,6 +30,21 @@ namespace slog
 {
 class ScopedLock;
 
+#if defined(MODERN_UI)
+inline HANDLE CreateMutexA(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCSTR lpName)
+{
+    return CreateMutexExA(lpMutexAttributes, lpName, (bInitialOwner ? CREATE_MUTEX_INITIAL_OWNER : 0), 0);
+}
+
+inline HANDLE OpenMutexA(DWORD dwDesiredAccess, BOOL bInheritHandle, LPCSTR lpName)
+{
+    UTF16LE utf16le;
+    utf16le.conv(lpName);
+
+    return OpenMutexW(dwDesiredAccess, bInheritHandle, utf16le.getBuffer());
+}
+#endif
+
 /*!
  *  \brief  ミューテックスクラス
  */
@@ -146,7 +161,7 @@ inline Mutex::~Mutex()
 inline void Mutex::lock()
 {
 #if defined(_WINDOWS)
-    WaitForSingleObject(mHandle, INFINITE);
+    WaitForSingleObjectEx(mHandle, INFINITE, FALSE);
 #else
     pthread_mutex_lock(mHandle);
 #endif

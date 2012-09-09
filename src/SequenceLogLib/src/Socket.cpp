@@ -28,6 +28,31 @@
     #include <unistd.h>
 #endif
 
+#if defined(MODERN_UI)
+    #include <ppltasks.h>
+    using namespace Concurrency;
+    using namespace Windows::Foundation;
+    using namespace Windows::Storage::Streams;
+    using namespace Windows::Networking;
+    using namespace Windows::Networking::Sockets;
+
+    inline int waitForSocket(IAsyncInfo^ asyncInfo)
+    {
+        int result = 0;
+
+        while (
+            asyncInfo->Status != AsyncStatus::Completed &&
+            asyncInfo->Status != AsyncStatus::Error)
+        {
+        }
+
+        if (asyncInfo->Status != AsyncStatus::Completed)
+            result = -1;
+
+        return result;
+    }
+#endif
+
 namespace slog
 {
 
@@ -42,7 +67,11 @@ struct Socket::Data
 Socket::Socket()
 {
     mData = new Data;
+#if defined(MODERN_UI)
+    mSocket = nullptr;
+#else
     mSocket = -1;
+#endif
     mInet = true;
     mStream = true;
     mBuffer = new ByteBuffer(sizeof(int64_t));
@@ -65,6 +94,10 @@ Socket::~Socket()
  */
 void Socket::open(bool inet, int type) throw(Exception)
 {
+#if defined(MODERN_UI)
+    mStream = (type == SOCK_STREAM);
+    mSocket = ref new Windows::Networking::Sockets::StreamSocket();
+#else
     int af = AF_INET;
 
 #if defined(__ANDROID__)
@@ -85,6 +118,7 @@ void Socket::open(bool inet, int type) throw(Exception)
 
         throw e;
     }
+#endif
 }
 
 /*!
@@ -97,6 +131,15 @@ void Socket::open(bool inet, int type) throw(Exception)
  */
 int Socket::close()
 {
+#if defined(MODERN_UI)
+    if (mSocket == nullptr)
+        return 0;
+
+    int result = 0;
+
+    delete mSocket;
+    mSocket = nullptr;
+#else
     if (mSocket == -1)
         return 0;
 
@@ -107,8 +150,9 @@ int Socket::close()
 #endif
 
     mSocket = -1;
-    mConnect = false;
+#endif
 
+    mConnect = false;
     return result;
 }
 
@@ -120,6 +164,8 @@ void Socket::bind(
 
     throw(Exception)
 {
+#if defined(MODERN_UI)
+#else
     mAddr.sin_family = AF_INET;
     mAddr.sin_port = htons(port);
 //  mAddr.sin_addr.S_un.S_addr = INADDR_ANY;
@@ -134,6 +180,7 @@ void Socket::bind(
 
         throw e;
     }
+#endif
 }
 
 #if defined(__ANDROID__)
@@ -170,6 +217,8 @@ void Socket::listen(
     const
     throw(Exception)
 {
+#if defined(MODERN_UI)
+#else
     int result = ::listen(mSocket, backlog);
 
     if (result != 0)
@@ -179,6 +228,7 @@ void Socket::listen(
 
         throw e;
     }
+#endif
 }
 
 /*!
@@ -189,6 +239,8 @@ void Socket::accept(
 
     throw(Exception)
 {
+#if defined(MODERN_UI)
+#else
     if (mInet)
     {
 #if defined(_WINDOWS)
@@ -210,6 +262,7 @@ void Socket::accept(
 
     if (mSocket == -1)
         throw Exception();
+#endif
 }
 
 /*!
@@ -221,23 +274,37 @@ void Socket::connect(
 
     throw(Exception)
 {
+    int result = 0;
+
+#if defined(MODERN_UI)
+    UTF16LE utf16le;
+    utf16le.conv(ipAddress);
+
+    Platform::String^ strIp = ref new Platform::String(utf16le.getBuffer());
+    HostName^ hostName = ref new HostName(strIp);
+
+    IAsyncAction^ action =
+        mSocket->ConnectAsync(hostName, port.ToString(), Windows::Networking::Sockets::SocketProtectionLevel::PlainSocket);
+
+    result = waitForSocket(action);
+#else
     mAddr.sin_family = AF_INET;
     mAddr.sin_port = htons(port);
 //  mAddr.sin_addr.S_un.S_addr = inet_addr(ipAddress);
     mAddr.sin_addr.s_addr =      inet_addr(ipAddress.getBuffer());
 
     if (mStream)
+        result = ::connect(mSocket, (sockaddr*)&mAddr, sizeof(mAddr));
+#endif
+
+    if (result != 0)
     {
-        int result = ::connect(mSocket, (sockaddr*)&mAddr, sizeof(mAddr));
+        Exception e;
+        e.setMessage("Socket::connect(\"%s\", %u)", ipAddress.getBuffer(), port);
 
-        if (result != 0)
-        {
-            Exception e;
-            e.setMessage("Socket::connect(\"%s\", %u)", ipAddress.getBuffer(), port);
-
-            throw e;
-        }
+        throw e;
     }
+
     mConnect = true;
 }
 
@@ -274,7 +341,11 @@ void Socket::connect(
  */
 bool Socket::isOpen() const
 {
+#if defined(MODERN_UI)
+    return (mSocket != nullptr);
+#else
     return (mSocket != -1);
+#endif
 }
 
 /*!
@@ -290,10 +361,14 @@ bool Socket::isConnect() const
  */
 int Socket::setReUseAddress(bool reUse) const
 {
+#if defined(MODERN_UI)
+    return 0;
+#else
     int on = (reUse ? 1 : 0);   // アドレス再利用有効化（bind()のtime waitによるEADDRINUSE回避のため）
 
     int result = setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
     return result;
+#endif
 }
 
 /*!
@@ -301,12 +376,16 @@ int Socket::setReUseAddress(bool reUse) const
  */
 int Socket::setRecvTimeOut(int32_t msec) const
 {
+#if defined(MODERN_UI)
+    return 0;
+#else
     timeval tm;
     tm.tv_sec = msec;
     tm.tv_usec = 0;
 
     int result = setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tm, sizeof(timeval));
     return result;
+#endif
 }
 
 /*!
@@ -319,10 +398,13 @@ const CoreString& Socket::getInetAddress() const
 {
     CoreString& inetAddress = (CoreString&)mData->mInetAddress;
 
+#if defined(MODERN_UI)
+#else
     if (isOpen() == false)
         inetAddress.setLength(0);
     else
         inetAddress.copy(inet_ntoa(mAddr.sin_addr));
+#endif
 
     return inetAddress;
 }
@@ -357,11 +439,37 @@ void Socket::send(
     throw(Exception)
 {
     buffer->validateOverFlow(0, len);
+    send(buffer->getBuffer(), len);
+}
 
-    const char* p = buffer->getBuffer();
+/*!
+ *  \brief  送信
+ */
+void Socket::send(
+    const char* buffer,     //!< 送信バッファ
+    int32_t len)            //!< 送信サイズ
+
+    const
+    throw(Exception)
+{
+    const char* p = buffer;
     int32_t remains = len;
     int32_t loopCount = 0;  // デバッグ用（条件付きブレークポイントで使用）
+    int32_t result = 0;
 
+#if defined(MODERN_UI)
+    if (mWriter == nullptr)
+    {
+        ((Windows::Storage::Streams::DataWriter^)mWriter) =
+            ref new Windows::Storage::Streams::DataWriter(mSocket->OutputStream);
+    }
+
+    Platform::Array<unsigned char>^ arr = ref new Platform::Array<unsigned char>((unsigned char*)p, remains);
+    mWriter->WriteBytes(arr);
+
+    DataWriterStoreOperation^ ope = mWriter->StoreAsync();
+    result = waitForSocket(ope);
+#else
     while (remains)
     {
 #if defined(_WINDOWS)
@@ -370,23 +478,27 @@ void Socket::send(
         int flag = MSG_NOSIGNAL;
 #endif
 
-        int result = (mStream
+        result = (mStream
             ? ::send(  mSocket, p, remains, flag)
             : ::sendto(mSocket, p, remains, flag, (sockaddr*)&mAddr, sizeof(mAddr))
         );
 
         if (result == -1)
-        {
-            Exception e;
-            e.setMessage("Socket::send(%d)", len);
-
-            throw e;
-        }
+            break;
 
         p += result;
         remains -= result;
 
         loopCount++;
+    }
+#endif // MODERN_UI
+
+    if (result == -1)
+    {
+        Exception e;
+        e.setMessage("Socket::send(%d)", len);
+
+        throw e;
     }
 }
 
@@ -432,27 +544,52 @@ void Socket::recv(
     char* p = buffer->getBuffer();
     int32_t remains = len;
     int32_t loopCount = 0;  // デバッグ用（条件付きブレークポイントで使用）
+    int32_t result = 0;
 
+#if defined(MODERN_UI)
+    if (mReader == nullptr)
+    {
+        ((Windows::Storage::Streams::DataReader^)mReader) =
+            ref new Windows::Storage::Streams::DataReader(mSocket->InputStream);
+    }
+
+    Platform::Array<unsigned char>^ arr = ref new Platform::Array<unsigned char>(remains);
+    DataReaderLoadOperation^ ope = mReader->LoadAsync(len);
+
+    if (waitForSocket(ope) == 0)
+    {
+        mReader->ReadBytes(arr);
+        result = len;
+
+        char* src = (char*)arr->begin();
+        for (int i = 0; i < len; i++)
+            p[i] = src[i];
+    }
+#else
     while (remains > 0)
     {
-        int result = ::recv(mSocket, p, remains, 0);
+        result = ::recv(mSocket, p, remains, 0);
 
         if (result <= 0)
-        {
-            Exception e;
-
-            e.setMessage(result == -1
-                ? "Socket::recv(%d)"                // エラー発生
-                : "Socket::recv(%d) retval 0",      // 接続先から切断された
-                len);
-
-            throw e;
-        }
+            break;
 
         p += result;
         remains -= result;
 
         loopCount++;
+    }
+#endif
+
+    if (result <= 0)
+    {
+        Exception e;
+
+        e.setMessage(result == -1
+            ? "Socket::recv(%d)"                // エラー発生
+            : "Socket::recv(%d) retval 0",      // 接続先から切断された
+            len);
+
+        throw e;
     }
 
     buffer->setLength(len);
@@ -463,7 +600,7 @@ void Socket::recv(
  */
 void Socket::startup()
 {
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) && !defined(MODERN_UI)
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2,0), &wsaData);
 #endif
@@ -474,7 +611,7 @@ void Socket::startup()
  */
 void Socket::cleanup()
 {
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) && !defined(MODERN_UI)
     WSACleanup();
 #endif
 }

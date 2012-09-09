@@ -93,6 +93,9 @@ private:    void divideItems();
 private:    void  openSeqLogFile(    File& file) throw(Exception);
             void writeSeqLogFile(    File& file, SequenceLogItem*);
             void writeSeqLogFileText(File& file, SequenceLogItem*);
+
+            // 受信メイン
+public:     void receiveMain();
 };
 
 /*!

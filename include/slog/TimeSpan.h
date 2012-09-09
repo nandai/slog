@@ -30,11 +30,15 @@ namespace slog
  */
 class TimeSpan
 {
-#if defined(__x86_64)
-    uint64_t    mMS;    //!< ミリ秒
+#if defined(_WINDOWS)
+            uint64_t    mMS;
 #else
-    uint32_t    mMS;    //!< ミリ秒
+#if defined(__x86_64)
+            uint64_t    mMS;    //!< ミリ秒
+#else
+            uint32_t    mMS;    //!< ミリ秒
 #endif
+#endif // _WINDOWS
 
 public:     TimeSpan();
             uint32_t operator-(const TimeSpan& timeSpan) const;
@@ -46,7 +50,13 @@ public:     TimeSpan();
 TimeSpan::TimeSpan()
 {
 #if defined(_WINDOWS)
-    mMS = (uint32_t)timeGetTime();
+    LARGE_INTEGER freq;
+    QueryPerformanceFrequency(&freq);
+
+    LARGE_INTEGER now;
+    QueryPerformanceCounter(&now);
+
+    mMS = now.QuadPart * 1000 / freq.QuadPart;
 #else
     mMS = clock() / (CLOCKS_PER_SEC / 1000);
 #endif
@@ -57,12 +67,12 @@ TimeSpan::TimeSpan()
  */
 uint32_t TimeSpan::operator-(const TimeSpan& timeSpan) const
 {
-#if !defined(__x86_64)
+#if !defined(_WINDOWS) && !defined(__x86_64)
     if (mMS < timeSpan.mMS)
         return ((0xFFFFFFFF - timeSpan.mMS + 1) + mMS);
 #endif
 
-    return (mMS - timeSpan.mMS);
+    return (uint32_t)(mMS - timeSpan.mMS);
 }
 
 } // namespace slog

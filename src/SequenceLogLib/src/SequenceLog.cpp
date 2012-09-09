@@ -24,10 +24,13 @@
 
 #include "slog/Mutex.h"
 #include "slog/Socket.h"
-#include "slog/SharedMemory.h"
 #include "slog/TimeSpan.h"
 #include "slog/Process.h"
 #include "slog/FixedString.h"
+
+#if !defined(MODERN_UI)
+#include "slog/SharedMemory.h"
+#endif
 
 /******************************************************************************
 *
@@ -178,6 +181,7 @@ const CoreString& SequenceLogSocket::recvSharedMemoryName() throw(Exception)
     return mShmName;
 }
 
+#if !defined(MODERN_UI)
 /*!
  *  \brief  シーケンスログ共有メモリクラス
  */
@@ -231,6 +235,7 @@ SLOG_ITEM_INFO* SequenceLogSharedMemory::getSequenceLogItem(uint32_t threadId, u
 
     return info;
 }
+#endif
 
 /*!
  *  \brief  シーケンスログクライアントクラス
@@ -238,8 +243,13 @@ SLOG_ITEM_INFO* SequenceLogSharedMemory::getSequenceLogItem(uint32_t threadId, u
 class SequenceLogClient
 {
             SequenceLogSocket       mSocket;                        //!< ソケット
+
+#if !defined(MODERN_UI)
             SequenceLogSharedMemory mSHM;                           //!< 共有メモリ
             Mutex*                  mMutex[SLOG_SHM::BUFFER_COUNT]; //!< ミューテックス
+#else
+            Mutex*                  mMutex;
+#endif
 
 public:      SequenceLogClient();
             ~SequenceLogClient();
@@ -247,6 +257,7 @@ public:      SequenceLogClient();
             void init();
 
 public:     SLOG_ITEM_INFO* lock(uint32_t* seq);
+            void sendItem(SLOG_ITEM_INFO* info, uint32_t* seq);
 };
 
 /*!
@@ -258,8 +269,12 @@ inline SequenceLogClient::SequenceLogClient()
 
     Socket::startup();
 
+#if !defined(MODERN_UI)
     for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
         mMutex[index] = NULL;
+#else
+    mMutex = NULL;
+#endif
 
 //  TRACE("[E] SequenceLogClient::SequenceLogClient()\n", 0);
 }
@@ -271,8 +286,12 @@ inline SequenceLogClient::~SequenceLogClient()
 {
 //  TRACE("[S] SequenceLogClient::~SequenceLogClient()\n", 0);
 
+#if !defined(MODERN_UI)
     for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
         delete mMutex[index];
+#else
+    delete mMutex;
+#endif
 
     mSocket.close();
 
@@ -329,6 +348,7 @@ void SequenceLogClient::init()
             mSocket.open();
             mSocket.setRecvTimeOut(3000);
             mSocket.connect(FixedString<16>("127.0.0.1"), SERVICE_PORT);
+//          mSocket.connect(FixedString<16>("192.168.0.2"), SERVICE_PORT);
 #if defined(__ANDROID__)
         }
 #endif
@@ -349,11 +369,14 @@ void SequenceLogClient::init()
         const CoreString& shmName = mSocket.recvSharedMemoryName();
         TRACE("    shmName='%s'\n", shmName.getBuffer());
 
+#if !defined(MODERN_UI)
         // 共有メモリ取得
         mSHM.open(shmName);
         mSHM.validate();
+#endif
 
         // ミューテックス取得
+#if !defined(MODERN_UI)
         for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
         {
 #if defined(_WINDOWS)
@@ -363,6 +386,10 @@ void SequenceLogClient::init()
             mMutex[index] = new Mutex(false, &mSHM->header[index].mutex);
 #endif
         }
+#else
+        name.format("slogMutexModern%d", pid);
+        mMutex = new Mutex(true, name);
+#endif // !defined(MODERN_UI)
     }
     catch (Exception e)
     {
@@ -384,7 +411,8 @@ SLOG_ITEM_INFO* SequenceLogClient::lock(uint32_t* seq)
     if (mSocket.isOpen() == false)
         return NULL;
 
-    static const uint32_t TIMEOUT = 1000;
+#if !defined(MODERN_UI)
+    static const uint32_t TIMEOUT = 3000;
     TimeSpan timeSpan1;
     SLOG_ITEM_INFO* info;
 
@@ -399,12 +427,13 @@ SLOG_ITEM_INFO* SequenceLogClient::lock(uint32_t* seq)
         if (info)
             break;
 
-#if 0
+#if 1   // SequenceLogServiceが落ちた、あるいは停止させた場合にこの処理がないと
+        // 無限ループになる
         TimeSpan timeSpan2;
 
         if (timeSpan2 - timeSpan1 > TIMEOUT)
         {
-            // 1000ミリ秒以上ログ出力出来なかったので以降のログ出力をキャンセルする
+            // TIMEOUTミリ秒以上ログ出力出来なかったので以降のログ出力をキャンセルする
             TRACE("    SequenceLogClient::lock() %d > %d ms\n", timeSpan2 - timeSpan1, TIMEOUT);
             noticeLog("Could not log output more than %d ms, the logging stopped.\n",  TIMEOUT);
 
@@ -420,8 +449,39 @@ SLOG_ITEM_INFO* SequenceLogClient::lock(uint32_t* seq)
     if (timeSpan2 - timeSpan1 > TIMEOUT)
         noticeLog("Log output elapsed time: %d ms\n", timeSpan2 - timeSpan1);
 #endif
+#else
+    uint32_t threadId = Thread::getCurrentId();
+    SLOG_ITEM_INFO* info = new SLOG_ITEM_INFO;
+    info->item.setCurrentDateTime();
+    info->item.mThreadId = threadId;
+#endif // !defined(MODERN_UI)
 
     return info;
+}
+
+/*!
+ *  \brief  シーケンスログアイテム送信
+ */
+void SequenceLogClient::sendItem(SLOG_ITEM_INFO* info, uint32_t* seq)
+{
+#if defined(MODERN_UI)
+    try
+    {
+        ScopedLock lock(mMutex);
+
+        mSocket.send((char*)&info->item, sizeof(info->item));
+
+        if (info->item.mType == SequenceLogItemCore::STEP_IN)
+            mSocket.recv(seq);
+    }
+    catch (Exception e)
+    {
+        noticeLog("%s\n", e.getMessage());
+        mSocket.close();
+    }
+
+    delete info;
+#endif
 }
 
 /*!
@@ -459,6 +519,7 @@ SequenceLog::SequenceLog(
     {
         info->item.init(mSeqNo, mOutputFlag, className, funcName);
         info->ready = true;
+        sClient->sendItem(info, &mSeqNo);
     }
 #if defined(_DEBUG)
     else
@@ -480,6 +541,7 @@ SequenceLog::SequenceLog(uint32_t classID, const char* funcName, SequenceLogOutp
     {
         info->item.init(mSeqNo, mOutputFlag, classID, funcName);
         info->ready = true;
+        sClient->sendItem(info, &mSeqNo);
     }
 #if defined(_DEBUG)
     else
@@ -501,6 +563,7 @@ SequenceLog::SequenceLog(uint32_t classID, uint32_t funcID, SequenceLogOutputFla
     {
         info->item.init(mSeqNo, mOutputFlag, classID, funcID);
         info->ready = true;
+        sClient->sendItem(info, &mSeqNo);
     }
 #if defined(_DEBUG)
     else
@@ -521,6 +584,7 @@ SequenceLog::~SequenceLog()
     {
         info->item.init(mSeqNo, mOutputFlag);
         info->ready = true;
+        sClient->sendItem(info, NULL);
     }
 }
 
@@ -575,6 +639,7 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
         }
 
         info->ready = true;
+        sClient->sendItem(info, NULL);
     }
 }
 
@@ -590,6 +655,7 @@ void SequenceLog::message(SequenceLogLevel level, uint32_t messageID)
         info->item.init(mSeqNo, mOutputFlag, level);
         info->item.mMessageId = messageID;
         info->ready = true;
+        sClient->sendItem(info, NULL);
     }
 }
 

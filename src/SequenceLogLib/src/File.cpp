@@ -24,6 +24,23 @@
 namespace slog
 {
 
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY & 0x00000002/*WINAPI_PARTITION_APP*/)
+inline HANDLE CreateFileA(
+    const char* fileName,
+    DWORD desiredAccess,
+    DWORD shareMode,
+    LPSECURITY_ATTRIBUTES securityAttributes,
+    DWORD creationDisposition,
+    DWORD flagsAndAttributes,
+    HANDLE templateFile)
+{
+    UTF16LE utf16le;
+    utf16le.conv(fileName);
+
+    return CreateFile2(utf16le.getBuffer(), desiredAccess, shareMode, creationDisposition, nullptr);
+}
+#endif
+
 /*!
  *  \brief  オープン
  */
@@ -48,13 +65,13 @@ void File::open(
     if (mode == READ)
     {
         // 書込み中のファイルを読めるようにFILE_SHARE_WRITEを付ける
-//      handle = ::CreateFileA(p, GENERIC_READ,  FILE_SHARE_READ,                    NULL, OPEN_EXISTING, 0, NULL);
-        handle = ::CreateFileA(p, GENERIC_READ,  FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+//      handle = CreateFileA(p, GENERIC_READ,  FILE_SHARE_READ,                    NULL, OPEN_EXISTING, 0, NULL);
+        handle = CreateFileA(p, GENERIC_READ,  FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     }
     else
     {
-//      handle = ::CreateFileA(p, GENERIC_WRITE, 0,               NULL, CREATE_ALWAYS, 0, NULL);
-        handle = ::CreateFileA(p, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
+//      handle = CreateFileA(p, GENERIC_WRITE, 0,               NULL, CREATE_ALWAYS, 0, NULL);
+        handle = CreateFileA(p, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
     }
 
     if (handle == INVALID_HANDLE_VALUE)
@@ -127,7 +144,10 @@ bool File::read(
 
     // 読み込みすぎた部分を戻す
 #if defined(_WINDOWS)
-    ::SetFilePointer(mHandle, index - result + 1, NULL, FILE_CURRENT);
+    LARGE_INTEGER move;
+    move.QuadPart = index - result + 1;
+
+    ::SetFilePointerEx(mHandle, move, NULL, FILE_CURRENT);
 
     if (p[index] == '\n')
         return true;
@@ -135,7 +155,10 @@ bool File::read(
     ::ReadFile(mHandle, p, 1, (DWORD*)&result, NULL);
 
     if (p[0] != '\n')
-        ::SetFilePointer(mHandle, -1, NULL, FILE_CURRENT);
+    {
+        move.QuadPart = -1;
+        ::SetFilePointerEx(mHandle, move, NULL, FILE_CURRENT);
+    }
 #else
     fseek(mHandle, index - result + 1, SEEK_CUR);
 

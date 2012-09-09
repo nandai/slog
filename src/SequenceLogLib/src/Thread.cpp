@@ -54,7 +54,9 @@ Thread::~Thread()
 void Thread::start()
 {
 #if defined(_WINDOWS)
+    #if !defined(MODERN_UI)
     mHandle = (HANDLE)_beginthreadex(NULL, 0, main, this, 0, NULL);
+    #endif
 #else
     pthread_create(&mHandle, 0/*NULL*/, main, this);
 #endif
@@ -66,8 +68,10 @@ void Thread::start()
 void Thread::join()
 {
 #if defined(_WINDOWS)
+    #if !defined(MODERN_UI)
     WaitForSingleObject(mHandle, INFINITE);
     CloseHandle(mHandle);
+    #endif
 #else
     pthread_join(mHandle, 0/*NULL*/);
 #endif
@@ -107,7 +111,9 @@ void* Thread::main(void* param)
     thread->mListener->onTerminated(thread);
 
 #if defined(_WINDOWS)
+    #if !defined(MODERN_UI)
     _endthreadex(0);
+    #endif
 #else
     pthread_exit(0);
 #endif

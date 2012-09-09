@@ -118,10 +118,9 @@ SLOG_API void  _slog_stepOut(void* p);
 SLOG_API void  _slog_message( void* p, int32_t          level, const char* format, ...);
 SLOG_API void  _slog_message2(void* p, int32_t          level, uint32_t messageID);
 
-//       const char* getSequenceLogFileName();   //!< ユーザー定義関数
-SLOG_API void        setSequenceLogFileName(const char* fileName);
+SLOG_API void setSequenceLogFileName(const char* fileName);
 
-SLOG_API void  setRootFlag(int32_t outputFlag);
+SLOG_API void setRootFlag(int32_t outputFlag);
 
 #if defined(__cplusplus)
 }

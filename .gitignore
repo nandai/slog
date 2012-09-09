@@ -7,6 +7,8 @@ GTAGS
 *.user
 *.ilk
 *.pdb
+*.pri
+*.exp
 SequenceLog.exe
 SequenceLogd.exe
 depend.inc
@@ -20,3 +22,9 @@ src/SequenceLogService/Android/libs/
 src/SequenceLogPrint/src/slogprint
 src/SequenceLogPrint/libs/
 src/SequenceLogId/bin/
+src/SequenceLogLib/ModernUI/ModernUI.opensdf
+src/SequenceLogLib/ModernUI/ModernUI.sdf
+src/SequenceLogLib/ModernUI/Debug/
+src/SequenceLogLib/ModernUI/Release/
+src/SequenceLogLib/ModernUI/x64/
+src/SequenceLogLib/ModernUI/ARM/

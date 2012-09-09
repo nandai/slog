@@ -138,7 +138,7 @@ inline uint32_t Thread::getCurrentId()
 inline void Thread::sleep(uint32_t ms)
 {
 #if defined(_WINDOWS)
-    Sleep(ms);
+    WaitForSingleObjectEx(GetCurrentThread(), ms, FALSE);
 #else
     timespec req;
     req.tv_sec =   ms / 1000;

@@ -54,8 +54,8 @@ void FileFind::exec(
     const char* p =   canonicalPath.getBuffer();
 
 #if defined(_WINDOWS)
-    WIN32_FIND_DATA fd;
-    HANDLE handle = FindFirstFile(p, &fd);
+    WIN32_FIND_DATAA fd;
+    HANDLE handle = FindFirstFileExA(p, FindExInfoStandard, &fd, FindExSearchNameMatch, NULL, 0);
 
     int32_t len = (int32_t)(strrchr(p, '\\') - p);
     FixedString<MAX_PATH> path;
@@ -63,7 +63,7 @@ void FileFind::exec(
     if (handle == INVALID_HANDLE_VALUE)
         return;
 
-    while (FindNextFile(handle, &fd))
+    while (FindNextFileA(handle, &fd))
     {
         if (strcmp(fd.cFileName, "..") == 0)
             continue;

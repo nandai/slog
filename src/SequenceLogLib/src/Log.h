@@ -20,7 +20,13 @@
  *  \author Copyright 2011 log-tools.net
  */
 #pragma once
+
+#if !defined(MODERN_UI)
 using namespace System;
+#define sealed
+#else
+using namespace Platform;
+#endif
 
 /*!
  *  \brief  Sequence Log (C#)
@@ -31,13 +37,21 @@ namespace Slog
 /*!
  *  \brief  シーケンスログクラス
  */
-public ref class Log
+public ref class Log sealed
 {
             // 出力フラグ
-public:     static const int32_t KEEP =       0;    // シーケンスログの出力をキープする
+#if !defined(MODERN_UI)
+public:
+#endif
+            static const int32_t KEEP =       0;    // シーケンスログの出力をキープする
             static const int32_t OUTPUT_ALL = 1;    // キープ中のシーケンスログも含め出力する
             static const int32_t ALWAYS =     2;    // キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
             static const int32_t ROOT =       3;    // シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
+
+public:     static int32_t Keep()      {return KEEP;}
+            static int32_t OutputAll() {return OUTPUT_ALL;}
+            static int32_t Always()    {return ALWAYS;}
+            static int32_t Root()      {return ROOT;}
 
 private:    Log() {}
 
