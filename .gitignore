@@ -28,3 +28,5 @@ src/SequenceLogLib/ModernUI/Debug/
 src/SequenceLogLib/ModernUI/Release/
 src/SequenceLogLib/ModernUI/x64/
 src/SequenceLogLib/ModernUI/ARM/
+src/SequenceLogLib/slog/
+bin/ModernUI/

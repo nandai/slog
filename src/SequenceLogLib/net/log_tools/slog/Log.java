@@ -74,8 +74,8 @@ public final class Log
 
     // Androidに適用する時にandroid.util.Log()として修正しなくても良いようにするためのメソッド。
     // Throwableは無視する。
-    public static void w(long slog/*tag*/, String message, Throwable e) {message(WARN,  message, slog);}
-    public static void e(long slog/*tag*/, String message, Throwable e) {message(ERROR, message, slog);}
+    public static void w(long slog/*tag*/, String message, Throwable e) {message(WARN,  message,   slog);}
+    public static void e(long slog/*tag*/, String message, Throwable e) {message(ERROR, message,   slog);}
 
     public static void v(String tag,       String message)              {message(DEBUG, message,   tag);}
     public static void d(String tag,       String message)              {message(DEBUG, message,   tag);}

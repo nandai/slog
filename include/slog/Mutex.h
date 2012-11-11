@@ -80,7 +80,8 @@ private:    void lock();
 inline Mutex::Mutex() throw(Exception)
 {
 #if defined(_WINDOWS)
-    mHandle = CreateMutexA(NULL, TRUE, NULL);
+//  mHandle = CreateMutexA(NULL, TRUE,  NULL);
+    mHandle = CreateMutexA(NULL, FALSE, NULL);
 
     if (mHandle == NULL)
     {
@@ -139,7 +140,6 @@ inline Mutex::Mutex(
         pthread_mutex_init(mHandle, &attr);
     }
 }
-
 #endif
 
 /*!

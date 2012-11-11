@@ -119,7 +119,7 @@ SLOG_API void  _slog_message( void* p, int32_t          level, const char* forma
 SLOG_API void  _slog_message2(void* p, int32_t          level, uint32_t messageID);
 
 SLOG_API void setSequenceLogFileName(const char* fileName);
-
+SLOG_API void setSequenceLogServiceAddress(const char* address);
 SLOG_API void setRootFlag(int32_t outputFlag);
 
 #if defined(__cplusplus)

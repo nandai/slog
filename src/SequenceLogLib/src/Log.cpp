@@ -29,26 +29,35 @@
 
 #include "Log.h"
 
-#if !defined(MODERN_UI)
-using namespace slog;
-//ing namespace System::Runtime::InteropServices;
-#endif
-
 namespace Slog
 {
 
 /*!
- *  \brief  シーケンスログファイル名設定
+ *  \brief  シーケンスログファイル名を設定する
  */
 void Log::SetFileName(String^ aName)
 {
 #if !defined(MODERN_UI)
-    CSharpString name = aName;
+    slog::CSharpString name = aName;
 #else
     slog::String name;
     name.conv(aName->Data());
 #endif
     setSequenceLogFileName(name.getBuffer());
+}
+
+/*!
+ *  \brief  シーケンスログサービスのアドレスを設定する
+ */
+void Log::SetServiceAddress(String^ aAddress)
+{
+#if !defined(MODERN_UI)
+    slog::CSharpString address = aAddress;
+#else
+    slog::String address;
+    address.conv(aAddress->Data());
+#endif
+    setSequenceLogServiceAddress(address.getBuffer());
 }
 
 /*!
@@ -65,8 +74,8 @@ void Log::SetRootFlag(int32_t outputFlag)
 int64_t Log::StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag)
 {
 #if !defined(MODERN_UI)
-    CSharpString className = aClassName;
-    CSharpString funcName = aFuncName;
+    slog::CSharpString className = aClassName;
+    slog::CSharpString funcName = aFuncName;
 #else
     slog::String className;
     slog::String funcName;
@@ -85,7 +94,7 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag)
 int64_t Log::StepIn(int32_t classID, String^ aFuncName, int32_t outputFlag)
 {
 #if !defined(MODERN_UI)
-    CSharpString funcName = aFuncName;
+    slog::CSharpString funcName = aFuncName;
 #else
     slog::String funcName;
     funcName.conv(aFuncName->Data());
@@ -121,7 +130,7 @@ void Log::Message(int32_t level, String^ aMessage, int64_t slog)
     slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
 
 #if !defined(MODERN_UI)
-    CSharpString message = aMessage;
+    slog::CSharpString message = aMessage;
 #else
     slog::String message;
     message.conv(aMessage->Data());

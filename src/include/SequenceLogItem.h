@@ -39,6 +39,7 @@ namespace slog
 
 static const unsigned short SERVICE_PORT = 59106;
 
+#pragma pack(push, 4)
 /*!
  *  \brief  シーケンスログアイテムクラス
  */
@@ -56,7 +57,8 @@ public:     enum Type
             //
 public:     uint32_t                    mSeqNo;             //!< シーケンス番号
             DateTime                    mDateTime;          //!< ログ出力日時
-            Type                        mType;              //!< タイプ
+//          Type                        mType;
+            uint32_t                    mType;              //!< タイプ
             uint32_t                    mThreadId;          //!< スレッドID
 
             //
@@ -69,12 +71,14 @@ public:     uint32_t                    mFuncId;            //!< メソッドID
             //
             // STEP_IN, STEP_OUT, MESSAGE
             //
-public:     SequenceLogOutputFlag       mOutputFlag;        //!< 出力フラグ
+//blic:     SequenceLogOutputFlag       mOutputFlag;
+public:     uint32_t                    mOutputFlag;        //!< 出力フラグ
 
             //
             // MESSAGE
             //
-public:     SequenceLogLevel            mLevel;             //!< ログレベル
+//blic:     SequenceLogLevel            mLevel;
+public:     uint32_t                    mLevel;             //!< ログレベル
             uint32_t                    mMessageId;         //!< メッセージID
 
             //
@@ -89,8 +93,8 @@ public:     void setCurrentDateTime();
 class SequenceLogItem : public SequenceLogItemCore
 {
             char                        mClassName[256];    //!< クラス名
-            char                        mFuncName[256];     //!< メソッド名
-            char                        mMessage[256];      //!< メッセージ
+            char                        mFuncName [256];    //!< メソッド名
+            char                        mMessage  [256];    //!< メッセージ
 
 //          SequenceLogItem*            mPrev;
 //          SequenceLogItem*            mNext;
@@ -99,16 +103,17 @@ public:     uint64_t                    mPrev;              //!< 前のシーケ
 
 public:     SequenceLogItem();
 
-            void init(uint32_t seq, SequenceLogOutputFlag outputFlag, const char* className, const char* funcName);
-            void init(uint32_t seq, SequenceLogOutputFlag outputFlag, uint32_t    classID,   const char* funcName);
-            void init(uint32_t seq, SequenceLogOutputFlag outputFlag, uint32_t    classID,   uint32_t    funcID);
-            void init(uint32_t seq, SequenceLogOutputFlag outputFlag);
-            void init(uint32_t seq, SequenceLogOutputFlag outputFlag, SequenceLogLevel level);
+            void init(uint32_t seq, uint32_t outputFlag, const char* className, const char* funcName);
+            void init(uint32_t seq, uint32_t outputFlag, uint32_t    classID,   const char* funcName);
+            void init(uint32_t seq, uint32_t outputFlag, uint32_t    classID,   uint32_t    funcID);
+            void init(uint32_t seq, uint32_t outputFlag);
+            void init(uint32_t seq, uint32_t outputFlag, SequenceLogLevel level);
 
             PointerString getClassName() const;
             PointerString getFuncName() const;
             PointerString getMessage() const;
 };
+#pragma pack(pop)
 
 /*!
  *  \brief  コンストラクタ
@@ -140,7 +145,8 @@ inline SequenceLogItem::SequenceLogItem() : SequenceLogItemCore()
  */
 inline void SequenceLogItem::init(
     uint32_t seq,                       //!< シーケンス番号
-    SequenceLogOutputFlag outputFlag,   //!< 出力フラグ
+//  SequenceLogOutputFlag outputFlag,
+    uint32_t              outputFlag,   //!< 出力フラグ
     const char* className,              //!< クラス名
     const char* funcName)               //!< メソッド名
 {
@@ -165,7 +171,8 @@ inline void SequenceLogItem::init(
  */
 inline void SequenceLogItem::init(
     uint32_t seq,                       //!< シーケンス番号
-    SequenceLogOutputFlag outputFlag,   //!< 出力フラグ
+//  SequenceLogOutputFlag outputFlag,
+    uint32_t              outputFlag,   //!< 出力フラグ
     uint32_t classID,                   //!< クラスID
     const char* funcName)               //!< メソッド名
 {
@@ -188,7 +195,8 @@ inline void SequenceLogItem::init(
  */
 inline void SequenceLogItem::init(
     uint32_t seq,                       //!< シーケンス番号
-    SequenceLogOutputFlag outputFlag,   //!< 出力フラグ
+//  SequenceLogOutputFlag outputFlag,
+    uint32_t              outputFlag,   //!< 出力フラグ
     uint32_t classID,                   //!< クラスID
     uint32_t funcID)                    //!< メソッドID
 {
@@ -208,7 +216,8 @@ inline void SequenceLogItem::init(
  */
 inline void SequenceLogItem::init(
     uint32_t seq,                       //!< シーケンス番号
-    SequenceLogOutputFlag outputFlag)   //!< 出力フラグ
+//  SequenceLogOutputFlag outputFlag)
+    uint32_t              outputFlag)   //!< 出力フラグ
 {
     if (this == NULL)
         return;
@@ -224,7 +233,8 @@ inline void SequenceLogItem::init(
  */
 inline void SequenceLogItem::init(
     uint32_t seq,                       //!< シーケンス番号
-    SequenceLogOutputFlag outputFlag,   //!< 出力フラグ
+//  SequenceLogOutputFlag outputFlag,
+    uint32_t              outputFlag,   //!< 出力フラグ
     SequenceLogLevel level)             //!< ログレベル
 {
     if (this == NULL)

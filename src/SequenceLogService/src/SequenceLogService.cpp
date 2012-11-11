@@ -232,16 +232,22 @@ bool SequenceLogService::init()
         Exception e;
         int32_t len;
 
+        int32_t useLogSocket;
+        mSocket->recv(&useLogSocket);
+
 #if defined(__unix__)
-        mSocket->recv(&len);
-
-        int32_t perm = (sizeof(pthread_mutex_t) == len);
-        mSocket->send(&perm);
-
-        if (perm == 0)
+        if (useLogSocket == 0)
         {
-            e.setMessage("SequenceLogService::init() / pthread_mutex_t size is different");
-            throw e;
+            mSocket->recv(&len);
+
+            int32_t perm = (sizeof(pthread_mutex_t) == len);
+            mSocket->send(&perm);
+
+            if (perm == 0)
+            {
+                e.setMessage("SequenceLogService::init() / pthread_mutex_t size is different");
+                throw e;
+            }
         }
 #endif
 
@@ -268,10 +274,20 @@ bool SequenceLogService::init()
         int32_t count = serviceMain->getSharedMemoryItemCount();
         len = sizeof(SLOG_SHM) + size * (count * SLOG_SHM::BUFFER_COUNT - 1);
 
+#if defined(_WINDOWS)
         shmName.format(
-            "%sslogshm%d",
-            serviceMain->getSharedMemoryPathName().getBuffer(),
+            "slogshm%d",
             mProcess.getId());
+#else
+        FileInfo fileInfo(serviceMain->getSharedMemoryPathName());
+        const CoreString&  canonicalPath = fileInfo.getCanonicalPath();
+
+        shmName.format(
+            "%s%cslogshm%d",
+            canonicalPath.getBuffer(),
+            PATH_DELIMITER,
+            mProcess.getId());
+#endif
 
         mSHM.create(shmName, len);
 
@@ -346,7 +362,7 @@ void SequenceLogService::run()
     SequenceLogReceiver receiver(this);
 
     receiver.start();
-    Sleep(100);
+    Thread::sleep(100);
 
     //
     // 書き込みループ
@@ -811,7 +827,7 @@ void SequenceLogService::forward(ItemQueue* queue, SequenceLogItem* item)
         // シーケンスログアイテムキューから、シーケンス番号が一致するアイテムを全て削除する
         //
         SequenceLogItem* delItem = queue->mList.back();
-        SequenceLogItem::Type type = SequenceLogItem::MESSAGE;
+        uint32_t type = SequenceLogItem::MESSAGE;
 
         while (delItem && delItem->mSeqNo == item->mSeqNo)
         {
