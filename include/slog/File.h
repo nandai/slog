@@ -52,6 +52,7 @@ private:
 public:      File();
             ~File();
 
+            bool isOpen() const;
             void open(const CoreString& fileName, Mode mode) throw(Exception);
             void close();
 
@@ -83,6 +84,14 @@ inline File::File()
 inline File::~File()
 {
     close();
+}
+
+/*!
+ *  \brief  オープンしているか調べる
+ */
+inline bool File::isOpen() const
+{
+    return (mHandle != NULL);
 }
 
 /*!

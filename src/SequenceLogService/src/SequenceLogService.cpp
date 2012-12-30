@@ -251,6 +251,7 @@ bool SequenceLogService::init()
         }
 #endif
 
+        // ログファイル名受信
         mSocket->recv(&len);
         mSocket->recv(&mBaseFileName, len);
 
@@ -260,8 +261,7 @@ bool SequenceLogService::init()
             throw e;
         }
 
-        // 
-        openSeqLogFile(mFile);
+//      openSeqLogFile(mFile);
 
         FixedString<MAX_PATH> shmName;
 
@@ -383,6 +383,16 @@ void SequenceLogService::run()
         while (item && mOutputList->isEnd(item) == false)
         {
 #if 1
+            if (mFile.isOpen() == false)
+            {
+                openSeqLogFile(mFile);
+
+#if !defined(__ANDROID__)
+                SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(getListener());
+                listener->onLogFileChanged(this);
+#endif
+            }
+
             // 書き込み
             if (mBinaryLog)
                 writeSeqLogFile(    mFile, item);
@@ -401,8 +411,6 @@ void SequenceLogService::run()
 #if !defined(__ANDROID__)
                 SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(getListener());
                 listener->onLogFileChanged(this);
-#else
-//              SequenceLogServiceThreadListener* listener = (SequenceLogServiceThreadListener*)getListener();
 #endif
             }
 #endif
