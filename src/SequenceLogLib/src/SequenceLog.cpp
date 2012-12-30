@@ -43,27 +43,27 @@ extern "C"
      *  \brief  ステップイン時のログ出力
      */
 //  void* _slog_stepIn(const char* className, const char* funcName, SequenceLogOutputFlag outputFlag)
-    void* _slog_stepIn(const char* className, const char* funcName, int32_t               outputFlag)
+    void* _slog_stepIn(const char* className, const char* funcName)//, int32_t            outputFlag)
     {
-        slog::SequenceLog* slog = new slog::SequenceLog(className, funcName, (slog::SequenceLogOutputFlag)outputFlag);
+        slog::SequenceLog* slog = new slog::SequenceLog(className, funcName);//, (slog::SequenceLogOutputFlag)outputFlag);
         return slog;
     }
 
     /*!
      *  \brief  ステップイン時のログ出力
      */
-    void* _slog_stepIn2(uint32_t classID, const char* funcName, int32_t outputFlag)
+    void* _slog_stepIn2(uint32_t classID, const char* funcName)//, int32_t outputFlag)
     {
-        slog::SequenceLog* slog = new slog::SequenceLog(classID, funcName, (slog::SequenceLogOutputFlag)outputFlag);
+        slog::SequenceLog* slog = new slog::SequenceLog(classID, funcName);//, (slog::SequenceLogOutputFlag)outputFlag);
         return slog;
     }
 
     /*!
      *  \brief  ステップイン時のログ出力
      */
-    void* _slog_stepIn3(uint32_t classID, uint32_t funcID, int32_t outputFlag)
+    void* _slog_stepIn3(uint32_t classID, uint32_t funcID)//, int32_t outputFlag)
     {
-        slog::SequenceLog* slog = new slog::SequenceLog(classID, funcID, (slog::SequenceLogOutputFlag)outputFlag);
+        slog::SequenceLog* slog = new slog::SequenceLog(classID, funcID);//, (slog::SequenceLogOutputFlag)outputFlag);
         return slog;
     }
 
@@ -531,13 +531,12 @@ static SequenceLogClientDeleter s_deleter;
  */
 SequenceLog::SequenceLog(
     const char* className,              //!< クラス名
-    const char* funcName,               //!< メソッド名
-    SequenceLogOutputFlag outputFlag)   //!< 出力フラグ
+    const char* funcName)               //!< メソッド名
+//  SequenceLogOutputFlag outputFlag)   //!< 出力フラグ
 {
-//  TRACE("SequenceLog::SequenceLog className='%s' lock before\n", className);
+    SequenceLogOutputFlag outputFlag = ROOT;
     init(outputFlag);
     SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
-//  TRACE("SequenceLog::SequenceLog className='%s' lock after\n",  className);
 
     if (info)
     {
@@ -556,8 +555,9 @@ SequenceLog::SequenceLog(
 /*!
  *  \brief  コンストラクタ
  */
-SequenceLog::SequenceLog(uint32_t classID, const char* funcName, SequenceLogOutputFlag outputFlag)
+SequenceLog::SequenceLog(uint32_t classID, const char* funcName)//, SequenceLogOutputFlag outputFlag)
 {
+    SequenceLogOutputFlag outputFlag = ROOT;
     init(outputFlag);
     SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
 
@@ -578,8 +578,9 @@ SequenceLog::SequenceLog(uint32_t classID, const char* funcName, SequenceLogOutp
 /*!
  *  \brief  コンストラクタ
  */
-SequenceLog::SequenceLog(uint32_t classID, uint32_t funcID, SequenceLogOutputFlag outputFlag)
+SequenceLog::SequenceLog(uint32_t classID, uint32_t funcID)//, SequenceLogOutputFlag outputFlag)
 {
+    SequenceLogOutputFlag outputFlag = ROOT;
     init(outputFlag);
     SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
 
@@ -709,7 +710,12 @@ extern "C" void setSequenceLogServiceAddress(const char* address)
 /*!
  *  \brief  ROOTの既定値を設定する
  */
-extern "C" void setRootFlag(int32_t outputFlag)
+//extern "C" void setRootFlag(int32_t outputFlag)
+//{
+//    slog::sRootFlag = (slog::SequenceLogOutputFlag)outputFlag;
+//}
+
+extern "C" void enableOutput(bool enable)
 {
-    slog::sRootFlag = (slog::SequenceLogOutputFlag)outputFlag;
+    slog::sRootFlag = (enable ? slog::ROOT : slog::KEEP);
 }

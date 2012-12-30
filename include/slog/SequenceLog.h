@@ -42,9 +42,12 @@
         #define SMSG    _slog.message
     #endif
 
-    #define SLOG_STEPIN( className, funcName, outputFlag)   void* _slog = _slog_stepIn( className, funcName, outputFlag)
-    #define SLOG_STEPIN2(classID,   funcName, outputFlag)   void* _slog = _slog_stepIn2(classID,   funcName, outputFlag)
-    #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = _slog_stepIn3(classID,   funcID,   outputFlag)
+//  #define SLOG_STEPIN( className, funcName, outputFlag)   void* _slog = _slog_stepIn( className, funcName, outputFlag)
+    #define SLOG_STEPIN( className, funcName)               void* _slog = _slog_stepIn( className, funcName)
+//  #define SLOG_STEPIN2(classID,   funcName, outputFlag)   void* _slog = _slog_stepIn2(classID,   funcName, outputFlag)
+    #define SLOG_STEPIN2(classID,   funcName)               void* _slog = _slog_stepIn2(classID,   funcName)
+//  #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = _slog_stepIn3(classID,   funcID,   outputFlag)
+    #define SLOG_STEPIN3(classID,   funcID)                 void* _slog = _slog_stepIn3(classID,   funcID)
     #define SLOG_STEPOUT                _slog_stepOut(_slog)
     #define SMSGC( level, format, ...)  _slog_message( _slog, level, format, __VA_ARGS__)
     #define SMSGC2(level, messageID)    _slog_message2(_slog, level, messageID)
@@ -55,9 +58,12 @@
         #define SMSG
     #endif
 
-    #define SLOG_STEPIN( className, funcName, outputFlag)   void* _slog = 0
-    #define SLOG_STEPIN2(classID,   funcName, outputFlag)   void* _slog = 0
-    #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = 0
+//  #define SLOG_STEPIN( className, funcName, outputFlag)   void* _slog = 0
+    #define SLOG_STEPIN( className, funcName)               void* _slog = 0
+//  #define SLOG_STEPIN2(classID,   funcName, outputFlag)   void* _slog = 0
+    #define SLOG_STEPIN2(classID,   funcName)               void* _slog = 0
+//  #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = 0
+    #define SLOG_STEPIN3(classID,   funcID)                 void* _slog = 0
     #define SLOG_STEPOUT
     #define SMSGC( level, format, ...)
     #define SMSGC2(level, messageID)
@@ -110,9 +116,9 @@ extern "C" {
 #endif
 
 //OG_API void* _slog_stepIn( const char* className, const char* funcName, SequenceLogOutputFlag outputFlag);
-SLOG_API void* _slog_stepIn( const char* className, const char* funcName, int32_t               outputFlag);
-SLOG_API void* _slog_stepIn2(uint32_t    classID,   const char* funcName, int32_t               outputFlag);
-SLOG_API void* _slog_stepIn3(uint32_t    classID,   uint32_t    funcID,   int32_t               outputFlag);
+SLOG_API void* _slog_stepIn( const char* className, const char* funcName);//, int32_t           outputFlag);
+SLOG_API void* _slog_stepIn2(uint32_t    classID,   const char* funcName);//, int32_t           outputFlag);
+SLOG_API void* _slog_stepIn3(uint32_t    classID,   uint32_t    funcID);//,   int32_t           outputFlag);
 SLOG_API void  _slog_stepOut(void* p);
 //OG_API void  _slog_message( void* p, SequenceLogLevel level, const char* format, ...);
 SLOG_API void  _slog_message( void* p, int32_t          level, const char* format, ...);
@@ -120,7 +126,8 @@ SLOG_API void  _slog_message2(void* p, int32_t          level, uint32_t messageI
 
 SLOG_API void setSequenceLogFileName(const char* fileName);
 SLOG_API void setSequenceLogServiceAddress(const char* address);
-SLOG_API void setRootFlag(int32_t outputFlag);
+//OG_API void setRootFlag(int32_t outputFlag);
+SLOG_API void enableOutput(bool enable);
 
 #if defined(__cplusplus)
 }
@@ -148,9 +155,9 @@ class SLOG_API SequenceLog
             //
             // コンストラクタ / デストラクタ
             //
-public:      SequenceLog(const char* className, const char* funcName, SequenceLogOutputFlag outputFlag = KEEP);
-             SequenceLog(uint32_t    classID,   const char* funcName, SequenceLogOutputFlag outputFlag = KEEP);
-             SequenceLog(uint32_t    classID,   uint32_t    funcID,   SequenceLogOutputFlag outputFlag = KEEP);
+public:      SequenceLog(const char* className, const char* funcName);//, SequenceLogOutputFlag outputFlag = KEEP);
+             SequenceLog(uint32_t    classID,   const char* funcName);//, SequenceLogOutputFlag outputFlag = KEEP);
+             SequenceLog(uint32_t    classID,   uint32_t    funcID);//,   SequenceLogOutputFlag outputFlag = KEEP);
             ~SequenceLog();
 
 private:    void init(SequenceLogOutputFlag outputFlag);

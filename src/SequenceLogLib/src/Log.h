@@ -43,30 +43,31 @@ public ref class Log sealed
 #if !defined(MODERN_UI)
 public:
 #endif
-            static const int32_t KEEP =       0;    // シーケンスログの出力をキープする
-            static const int32_t OUTPUT_ALL = 1;    // キープ中のシーケンスログも含め出力する
-            static const int32_t ALWAYS =     2;    // キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
-            static const int32_t ROOT =       3;    // シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
+//          static const int32_t KEEP =       0;    // シーケンスログの出力をキープする
+//          static const int32_t OUTPUT_ALL = 1;    // キープ中のシーケンスログも含め出力する
+//          static const int32_t ALWAYS =     2;    // キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
+//          static const int32_t ROOT =       3;    // シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
 
-public:     static int32_t Keep()      {return KEEP;}
-            static int32_t OutputAll() {return OUTPUT_ALL;}
-            static int32_t Always()    {return ALWAYS;}
-            static int32_t Root()      {return ROOT;}
+//blic:     static int32_t Keep()      {return KEEP;}
+//          static int32_t OutputAll() {return OUTPUT_ALL;}
+//          static int32_t Always()    {return ALWAYS;}
+//          static int32_t Root()      {return ROOT;}
 
 private:    Log() {}
 
 public:     static void SetFileName(String^ aName);
             static void SetServiceAddress(String^ address);
-            static void SetRootFlag(int32_t outputFlag);
+//          static void SetRootFlag(int32_t outputFlag);
+            static void EnableOutput(bool enable);
 
-            static int64_t StepIn(String^ aClassName, String^ aFuncName) {return StepIn(aClassName, aFuncName, KEEP);}
-            static int64_t StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag);
+            static int64_t StepIn(String^ aClassName, String^ aFuncName);// {return StepIn(aClassName, aFuncName, KEEP);}
+//          static int64_t StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag);
 
-            static int64_t StepIn(int32_t classID,    String^ aFuncName) {return StepIn(classID,    aFuncName, KEEP);}
-            static int64_t StepIn(int32_t classID,    String^ aFuncName, int32_t outputFlag);
+            static int64_t StepIn(int32_t classID,    String^ aFuncName);// {return StepIn(classID,    aFuncName, KEEP);}
+//          static int64_t StepIn(int32_t classID,    String^ aFuncName, int32_t outputFlag);
 
-            static int64_t StepIn(int32_t classID,    int32_t funcID)    {return StepIn(classID,    funcID,    KEEP);}
-            static int64_t StepIn(int32_t classID,    int32_t funcID,    int32_t outputFlag);
+            static int64_t StepIn(int32_t classID,    int32_t funcID);//    {return StepIn(classID,    funcID,    KEEP);}
+//          static int64_t StepIn(int32_t classID,    int32_t funcID,    int32_t outputFlag);
 
             static void StepOut(int64_t slog);
 

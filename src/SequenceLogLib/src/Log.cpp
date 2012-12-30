@@ -63,15 +63,20 @@ void Log::SetServiceAddress(String^ aAddress)
 /*!
  *  \brief  ROOTの既定値を設定する
  */
-void Log::SetRootFlag(int32_t outputFlag)
+//void Log::SetRootFlag(int32_t outputFlag)
+//{
+//    setRootFlag(outputFlag);
+//}
+
+void Log::EnableOutput(bool enable)
 {
-    setRootFlag(outputFlag);
+    enableOutput(enable);
 }
 
 /*!
  *  \brief  ステップイン
  */
-int64_t Log::StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag)
+int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag)
 {
 #if !defined(MODERN_UI)
     slog::CSharpString className = aClassName;
@@ -84,14 +89,14 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag)
     funcName. conv(aFuncName-> Data());
 #endif
 
-    slog::SequenceLog* slogObj = new slog::SequenceLog(className.getBuffer(), funcName.getBuffer(), (slog::SequenceLogOutputFlag)outputFlag);
+    slog::SequenceLog* slogObj = new slog::SequenceLog(className.getBuffer(), funcName.getBuffer());//, (slog::SequenceLogOutputFlag)outputFlag);
     return (int64_t)slogObj;
 }
 
 /*!
  *  \brief  ステップイン
  */
-int64_t Log::StepIn(int32_t classID, String^ aFuncName, int32_t outputFlag)
+int64_t Log::StepIn(int32_t classID, String^ aFuncName)//, int32_t outputFlag)
 {
 #if !defined(MODERN_UI)
     slog::CSharpString funcName = aFuncName;
@@ -100,16 +105,16 @@ int64_t Log::StepIn(int32_t classID, String^ aFuncName, int32_t outputFlag)
     funcName.conv(aFuncName->Data());
 #endif
 
-    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcName.getBuffer(), (slog::SequenceLogOutputFlag)outputFlag);
+    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcName.getBuffer());//, (slog::SequenceLogOutputFlag)outputFlag);
     return (int64_t)slogObj;
 }
 
 /*!
  *  \brief  ステップイン
  */
-int64_t Log::StepIn(int32_t classID, int32_t funcID, int32_t outputFlag)
+int64_t Log::StepIn(int32_t classID, int32_t funcID)//, int32_t outputFlag)
 {
-    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcID, (slog::SequenceLogOutputFlag)outputFlag);
+    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcID);//, (slog::SequenceLogOutputFlag)outputFlag);
     return (int64_t)slogObj;
 }
 

@@ -82,9 +82,19 @@ static void JNICALL setServiceAddress(JNIEnv* env, jclass, jstring aAddress)
  * Method:    setRootFlag
  * Signature: (I)V
  */
-static void JNICALL setRootFlagJNI(JNIEnv* env, jclass, jint outputFlag)
+//static void JNICALL setRootFlagJNI(JNIEnv* env, jclass, jint outputFlag)
+//{
+//    setRootFlag(outputFlag);
+//}
+
+/*
+ * Class:     net_log_tools_slog_Log
+ * Method:    enableOutput
+ * Signature: (Z)V
+ */
+static void JNICALL enableOutputJNI(JNIEnv* env, jclass, jboolean enable)
 {
-    setRootFlag(outputFlag);
+    enableOutput(enable == 1);
 }
 
 /*
@@ -92,12 +102,12 @@ static void JNICALL setRootFlagJNI(JNIEnv* env, jclass, jint outputFlag)
  * Method:    stepIn
  * Signature: (Ljava/lang/String;Ljava/lang/String;I)J
  */
-static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aFuncName, jint outputFlag)
+static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aFuncName)//, jint outputFlag)
 {
     JavaString className(env, aClassName);
     JavaString funcName( env, aFuncName);
 
-    SequenceLog* slogObj = new SequenceLog(className.getBuffer(), funcName.getBuffer(), (SequenceLogOutputFlag)outputFlag);
+    SequenceLog* slogObj = new SequenceLog(className.getBuffer(), funcName.getBuffer());//, (SequenceLogOutputFlag)outputFlag);
     return (jlong)slogObj;
 }
 
@@ -106,11 +116,11 @@ static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aF
  * Method:    stepIn
  * Signature: (ILjava/lang/String;I)J
  */
-static jlong JNICALL stepIn2(JNIEnv* env, jclass, jint classID, jstring aFuncName, jint outputFlag)
+static jlong JNICALL stepIn2(JNIEnv* env, jclass, jint classID, jstring aFuncName)//, jint outputFlag)
 {
     JavaString funcName( env, aFuncName);
 
-    SequenceLog* slogObj = new SequenceLog(classID, funcName.getBuffer(), (SequenceLogOutputFlag)outputFlag);
+    SequenceLog* slogObj = new SequenceLog(classID, funcName.getBuffer());//, (SequenceLogOutputFlag)outputFlag);
     return (jlong)slogObj;
 }
 
@@ -119,9 +129,9 @@ static jlong JNICALL stepIn2(JNIEnv* env, jclass, jint classID, jstring aFuncNam
  * Method:    stepIn
  * Signature: (III)J
  */
-static jlong JNICALL stepIn3(JNIEnv* env, jclass, jint classID, jint funcID, jint outputFlag)
+static jlong JNICALL stepIn3(JNIEnv* env, jclass, jint classID, jint funcID)//, jint outputFlag)
 {
-    SequenceLog* slogObj = new SequenceLog(classID, funcID, (SequenceLogOutputFlag)outputFlag);
+    SequenceLog* slogObj = new SequenceLog(classID, funcID);//, (SequenceLogOutputFlag)outputFlag);
     return (jlong)slogObj;
 }
 
@@ -201,10 +211,11 @@ static JNINativeMethodEx sMethods[] =
 {
     {"setFileName",       "(Ljava/lang/String;)V",                    (void*)setFileName      },
     {"setServiceAddress", "(Ljava/lang/String;)V",                    (void*)setServiceAddress},
-    {"setRootFlag",       "(I)V",                                     (void*)setRootFlagJNI   },
-    {"stepIn",            "(Ljava/lang/String;Ljava/lang/String;I)J", (void*)stepIn1          },
-    {"stepIn",            "(ILjava/lang/String;I)J",                  (void*)stepIn2          },
-    {"stepIn",            "(III)J",                                   (void*)stepIn3          },
+//  {"setRootFlag",       "(I)V",                                     (void*)setRootFlagJNI   },
+    {"enableOutput",      "(Z)V",                                     (void*)enableOutputJNI  },
+    {"stepIn",            "(Ljava/lang/String;Ljava/lang/String;)J",  (void*)stepIn1          },
+    {"stepIn",            "(ILjava/lang/String;)J",                   (void*)stepIn2          },
+    {"stepIn",            "(II)J",                                    (void*)stepIn3          },
     {"stepOut",           "(J)V",                                     (void*)stepOut          },
     {"message",           "(ILjava/lang/String;J)V",                  (void*)message1         },
     {"message",           "(IIJ)V",                                   (void*)message2         },

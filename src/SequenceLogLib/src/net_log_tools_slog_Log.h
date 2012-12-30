@@ -7,14 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef net_log_tools_slog_Log_KEEP
-#define net_log_tools_slog_Log_KEEP 0L
-#undef net_log_tools_slog_Log_OUTPUT_ALL
-#define net_log_tools_slog_Log_OUTPUT_ALL 1L
-#undef net_log_tools_slog_Log_ALWAYS
-#define net_log_tools_slog_Log_ALWAYS 2L
-#undef net_log_tools_slog_Log_ROOT
-#define net_log_tools_slog_Log_ROOT 3L
 #undef net_log_tools_slog_Log_DEBUG
 #define net_log_tools_slog_Log_DEBUG 0L
 #undef net_log_tools_slog_Log_INFO
@@ -33,35 +25,35 @@ JNIEXPORT void JNICALL Java_net_log_1tools_slog_Log_setFileName
 
 /*
  * Class:     net_log_tools_slog_Log
- * Method:    setRootFlag
- * Signature: (I)V
+ * Method:    enableOutput
+ * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_net_log_1tools_slog_Log_setRootFlag
-  (JNIEnv *, jclass, jint);
+JNIEXPORT void JNICALL Java_net_log_1tools_slog_Log_enableOutput
+  (JNIEnv *, jclass, jboolean);
 
 /*
  * Class:     net_log_tools_slog_Log
  * Method:    stepIn
- * Signature: (Ljava/lang/String;Ljava/lang/String;I)J
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_net_log_1tools_slog_Log_stepIn__Ljava_lang_String_2Ljava_lang_String_2I
-  (JNIEnv *, jclass, jstring, jstring, jint);
+JNIEXPORT jlong JNICALL Java_net_log_1tools_slog_Log_stepIn__Ljava_lang_String_2Ljava_lang_String_2
+  (JNIEnv *, jclass, jstring, jstring);
 
 /*
  * Class:     net_log_tools_slog_Log
  * Method:    stepIn
- * Signature: (ILjava/lang/String;I)J
+ * Signature: (ILjava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_net_log_1tools_slog_Log_stepIn__ILjava_lang_String_2I
-  (JNIEnv *, jclass, jint, jstring, jint);
+JNIEXPORT jlong JNICALL Java_net_log_1tools_slog_Log_stepIn__ILjava_lang_String_2
+  (JNIEnv *, jclass, jint, jstring);
 
 /*
  * Class:     net_log_tools_slog_Log
  * Method:    stepIn
- * Signature: (III)J
+ * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_net_log_1tools_slog_Log_stepIn__III
-  (JNIEnv *, jclass, jint, jint, jint);
+JNIEXPORT jlong JNICALL Java_net_log_1tools_slog_Log_stepIn__II
+  (JNIEnv *, jclass, jint, jint);
 
 /*
  * Class:     net_log_tools_slog_Log

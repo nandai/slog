@@ -18,10 +18,10 @@ package net.log_tools.slog;
 public final class Log
 {
     // 出力フラグ
-    public  static final int KEEP =         0;      // シーケンスログの出力をキープする
-    public  static final int OUTPUT_ALL =   1;      // キープ中のシーケンスログも含め出力する
-    public  static final int ALWAYS =       2;      // キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
-    public  static final int ROOT =         3;      // シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
+//  public  static final int KEEP =         0;      // シーケンスログの出力をキープする
+//  public  static final int OUTPUT_ALL =   1;      // キープ中のシーケンスログも含め出力する
+//  public  static final int ALWAYS =       2;      // キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
+//  public  static final int ROOT =         3;      // シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
 
     // ログレベル
     private static final int DEBUG =        0;      // デバッグ
@@ -33,19 +33,23 @@ public final class Log
      * シーケンスログファイル名設定
      */
     public native static void setFileName(String name);
-    public native static void setRootFlag(int outputFlag);
+//  public native static void setRootFlag(int outputFlag);
+    public native static void enableOutput(boolean enable);
 
     /**
      * ステップイン
      */
-    public         static long stepIn(String className, String funcName) {return stepIn(className, funcName, KEEP);}
-    public  native static long stepIn(String className, String funcName, int outputFlag);
+//  public         static long stepIn(String className, String funcName) {return stepIn(className, funcName, KEEP);}
+    public  native static long stepIn(String className, String funcName);
+//  public  native static long stepIn(String className, String funcName, int outputFlag);
 
-    public         static long stepIn(int classID,      String funcName) {return stepIn(classID,   funcName, KEEP);}
-    public  native static long stepIn(int classID,      String funcName, int outputFlag);
+//  public         static long stepIn(int classID,      String funcName) {return stepIn(classID,   funcName, KEEP);}
+    public  native static long stepIn(int classID,      String funcName);
+//  public  native static long stepIn(int classID,      String funcName, int outputFlag);
 
-    public         static long stepIn(int classID,      int    funcID)   {return stepIn(classID,   funcID,   KEEP);}
-    public  native static long stepIn(int classID,      int    funcID,   int outputFlag);
+//  public         static long stepIn(int classID,      int    funcID)   {return stepIn(classID,   funcID,   KEEP);}
+    public  native static long stepIn(int classID,      int    funcID);
+//  public  native static long stepIn(int classID,      int    funcID,   int outputFlag);
 
     /**
      * ステップアウト
