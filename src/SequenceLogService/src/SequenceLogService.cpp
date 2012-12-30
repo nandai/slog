@@ -484,7 +484,9 @@ void SequenceLogService::cleanUp()
     mSHM. close();
     mFile.close();
 
-    mFileInfo->update();
+    if (mFileInfo)
+        mFileInfo->update();
+
     TRACE("[E] SequenceLogService::CleanUp()\n", 0);
 }
 
@@ -734,8 +736,11 @@ void SequenceLogService::divideItems()
                 queue->mStepOutList.push_back(stepOutItem);
             }
 
-            if (item->mType == SequenceLogItem::MESSAGE && item->mLevel == slog::DEBUG)
-                isKeep = true;
+            if (item->mType == SequenceLogItem::MESSAGE)
+            {
+                if (item->mLevel == slog::DEBUG || serviceMain->isRootAlways() == false)
+                    isKeep = true;
+            }
 
             if (isKeep)
                 keep(   queue, item);
