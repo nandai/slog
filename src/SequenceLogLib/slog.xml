@@ -53,17 +53,17 @@ This is Sequence Log Library.
       </code>
     </function>
 
-    <function name="slogSetRootFlag">
-      <proto>void slogSetRootFlag(int outputFlag)</proto>
+    <function name="slogEnableOutput">
+      <proto>void slogEnableOutput(bool enable)</proto>
       <code>
-        setRootFlag(outputFlag);
+        enableOutput(enable);
       </code>
     </function>
 
     <function name="slogStepIn">
-      <proto>int slogStepIn(string className, string funcName[, int outputFlag = 0])</proto>
+      <proto>int slogStepIn(string className, string funcName)</proto>
       <code>
-        slog::SequenceLog* slogObj = new slog::SequenceLog(className, funcName, (slog::SequenceLogOutputFlag)outputFlag);
+        slog::SequenceLog* slogObj = new slog::SequenceLog(className, funcName);
         RETURN_LONG((long)slogObj);
       </code>
     </function>

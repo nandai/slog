@@ -130,26 +130,26 @@ static jboolean JNICALL canStop(JNIEnv* env, jobject thiz)
  * Method:    connectSequenceLogPrint
  * Signature: (Ljava/lang/String;)Z
  */
-static jboolean JNICALL connectSequenceLogPrint(JNIEnv* env, jobject thiz, jstring aIpAddress)
-{
-    JavaString ipAddress(env, aIpAddress);
-
-    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
-    serviceMain->connectSequenceLogPrint(ipAddress);
-
-    return (serviceMain->isConnectSequenceLogPrint() ? JNI_TRUE : JNI_FALSE);
-}
+//static jboolean JNICALL connectSequenceLogPrint(JNIEnv* env, jobject thiz, jstring aIpAddress)
+//{
+//    JavaString ipAddress(env, aIpAddress);
+//
+//    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+//    serviceMain->connectSequenceLogPrint(ipAddress);
+//
+//    return (serviceMain->isConnectSequenceLogPrint() ? JNI_TRUE : JNI_FALSE);
+//}
 
 /*
  * Class:     net_log_tools_slog_service_App
  * Method:    disconnectSequenceLogPrint
  * Signature: ()V
  */
-static void JNICALL disconnectSequenceLogPrint(JNIEnv* env, jobject thiz)
-{
-    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
-    serviceMain->disconnectSequenceLogPrint();
-}
+//static void JNICALL disconnectSequenceLogPrint(JNIEnv* env, jobject thiz)
+//{
+//    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+//    serviceMain->disconnectSequenceLogPrint();
+//}
 
 // JNIメソッド配列
 static JNINativeMethod sMethods[] =
@@ -158,8 +158,8 @@ static JNINativeMethod sMethods[] =
     {"start",                      "(Ljava/lang/String;Ljava/lang/String;IIZ)V", (void*)start                     },
     {"stop",                       "()V",                                        (void*)stop                      },
     {"canStop",                    "()Z",                                        (void*)canStop                   },
-    {"connectSequenceLogPrint",    "(Ljava/lang/String;)Z",                      (void*)connectSequenceLogPrint   },
-    {"disconnectSequenceLogPrint", "()V",                                        (void*)disconnectSequenceLogPrint},
+//  {"connectSequenceLogPrint",    "(Ljava/lang/String;)Z",                      (void*)connectSequenceLogPrint   },
+//  {"disconnectSequenceLogPrint", "()V",                                        (void*)disconnectSequenceLogPrint},
 };
 
 /*!
@@ -190,7 +190,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 #include <grp.h>
 #endif
 
-#define VERSION "ver.1.2.0"
+#define VERSION "ver.1.2.3"
 
 class Application : public SequenceLogServiceThreadListener
 {
@@ -199,6 +199,7 @@ public:     void main(int argc, char** argv);
             virtual void onInitialized(   Thread* thread);
             virtual void onTerminated(    Thread* thread);
             virtual void onLogFileChanged(Thread* thread);
+            virtual void onUpdateLog(const Buffer* text);
 };
 
 /*!
@@ -230,7 +231,7 @@ void Application::main(int argc, char** argv)
     // 初期値
     String sharedMemoryDir = "/tmp";
     int32_t sharedMemoryItemCount = 100;
-    String printIp = "127.0.0.1";
+//  String printIp = "127.0.0.1";
     String logOutputDir = "/var/log/slog";
     uint32_t size = 0;
     int32_t count = 0;
@@ -259,8 +260,8 @@ void Application::main(int argc, char** argv)
         if (key == "SHARED_MEMORY_ITEM_COUNT")
             sharedMemoryItemCount = value1;
 
-        if (key == "LOG_PRINT_IP")
-            printIp.copy(value1);
+//      if (key == "LOG_PRINT_IP")
+//          printIp.copy(value1);
 
         if (key == "LOG_OUTPUT_DIR")
             logOutputDir.copy(value1);
@@ -280,8 +281,8 @@ void Application::main(int argc, char** argv)
         if (key == "MAX_FILE_COUNT")
             count = value1;
 
-        if (key == "ROOT_ALWAYS")
-            rootAlways = (value1 == "true");
+//      if (key == "ROOT_ALWAYS")
+//          rootAlways = (value1 == "true");
 
         if (key == "USER")
             user.copy(value1);
@@ -305,7 +306,7 @@ void Application::main(int argc, char** argv)
     serviceMain.setMaxFileSize(size);
     serviceMain.setMaxFileCount(count);
     serviceMain.setRootAlways(rootAlways);
-//  serviceMain.connectSequenceLogPrint(printIp);
+////serviceMain.connectSequenceLogPrint(printIp);
     serviceMain.start();
 
     while (true)
@@ -314,7 +315,7 @@ void Application::main(int argc, char** argv)
         Thread::sleep(5 * 1000);
 #endif
 
-        serviceMain.connectSequenceLogPrint(printIp);
+//      serviceMain.connectSequenceLogPrint(printIp);
         retryCount++;
 
 #if defined(__ANDROID__) && 0
@@ -350,20 +351,29 @@ void Application::main(int argc, char** argv)
  */
 void Application::onInitialized(Thread* thread)
 {
+    TRACE("[S] Application::onInitialized()\n", 0);
+
 #if defined(__ANDROID__)
     SequenceLogService* service = (SequenceLogService*)thread;
 #else
     SequenceLogService* service = dynamic_cast<SequenceLogService*>(thread);
 #endif
+
     FileInfo* fileInfo = service->getFileInfo();
+    TRACE("fileInfo: 0x%08X\n", fileInfo);
 
-    DateTime dateTime = fileInfo->getCreationTime();
-    dateTime.toLocal();
+    if (fileInfo)
+    {
+        DateTime dateTime = fileInfo->getCreationTime();
+        dateTime.toLocal();
 
-    FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
-    DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
+        FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
+        DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
 
-    noticeLog("start %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
+        noticeLog("start %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
+    }
+
+    TRACE("[E] Application::onInitialized()\n", 0);
 }
 
 /*!
@@ -400,6 +410,35 @@ void Application::onTerminated(Thread* thread)
 void Application::onLogFileChanged(Thread* thread)
 {
     onInitialized(thread);
+}
+
+/*!
+ *  \brief	シーケンスログ更新通知
+ */
+void Application::onUpdateLog(const Buffer* text)
+{
+    const char* p = text->getBuffer();
+
+    switch (*p)
+    {
+    case 'd':
+        printf("\x1B[32;49;0m");
+        break;
+
+    case 'i':
+        printf("\x1B[37;49;1m");
+        break;
+
+    case 'w':
+        printf("\x1B[33;49;1m");
+        break;
+
+    case 'e':
+        printf("\x1B[31;49;1m");
+        break;
+    }
+
+    printf("%s", p + 1);
 }
 
 #if defined(__unix__)
