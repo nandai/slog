@@ -346,74 +346,75 @@ void ConnectThread::onTerminated( Thread* thread)
 /*!
  *  \brief  シーケンスログプリントに接続
  */
-void SequenceLogServiceMain::connectSequenceLogPrint(const CoreString& ip)
-{
-    TRACE("[S] SequenceLogServiceMain::connectSequenceLogPrint()\n", 0);
-
-    if (mSocketPrint.isOpen())
-        return;
-
-    ConnectThread* timeOut = new ConnectThread(&mSocketPrint, ip);
-    timeOut->start();
-    sleep(100);
-
-    TimeSpan begin;
-
-    while (true)
-    {
-        TimeSpan now;
-
-        if (mSocketPrint.isOpen() == false)
-            break;
-
-        if (mSocketPrint.isConnect())
-            break;
-
-        if (now - begin > 3000)
-        {
-//          disconnectSequenceLogPrint();
-            break;
-        }
-
-        sleep(1);
-    }
-
-    TRACE("[E] SequenceLogServiceMain::connectSequenceLogPrint()\n", 0);
-}
+//void SequenceLogServiceMain::connectSequenceLogPrint(const CoreString& ip)
+//{
+//    TRACE("[S] SequenceLogServiceMain::connectSequenceLogPrint()\n", 0);
+//
+//    if (mSocketPrint.isOpen())
+//        return;
+//
+//    ConnectThread* timeOut = new ConnectThread(&mSocketPrint, ip);
+//    timeOut->start();
+//    sleep(100);
+//
+//    TimeSpan begin;
+//
+//    while (true)
+//    {
+//        TimeSpan now;
+//
+//        if (mSocketPrint.isOpen() == false)
+//            break;
+//
+//        if (mSocketPrint.isConnect())
+//            break;
+//
+//        if (now - begin > 3000)
+//        {
+//            disconnectSequenceLogPrint();
+//            break;
+//        }
+//
+//        sleep(1);
+//    }
+//
+//    TRACE("[E] SequenceLogServiceMain::connectSequenceLogPrint()\n", 0);
+//}
 
 /*!
  *  \brief  シーケンスログプリントから切断
  */
-void SequenceLogServiceMain::disconnectSequenceLogPrint()
-{
-    TRACE("[S] SequenceLogServiceMain::disconnectSequenceLogPrint()\n", 0);
-
-    mSocketPrint.close();
-
-    TRACE("[E] SequenceLogServiceMain::disconnectSequenceLogPrint()\n", 0);
-}
+//void SequenceLogServiceMain::disconnectSequenceLogPrint()
+//{
+//    TRACE("[S] SequenceLogServiceMain::disconnectSequenceLogPrint()\n", 0);
+//
+//    mSocketPrint.close();
+//
+//    TRACE("[E] SequenceLogServiceMain::disconnectSequenceLogPrint()\n", 0);
+//}
 
 /*!
  *  \brief  シーケンスログプリントに出力（送信）
  */
 void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 {
-//  if (mSocketPrint.isOpen()    == false)
-    if (mSocketPrint.isConnect() == false)
-    {
-        return;
-    }
-
-    try
-    {
-//      mSocketPrint.send(&len);
-        mSocketPrint.send(text, len);
-    }
-    catch (Exception e)
-    {
-        TRACE("    %s\n", e.getMessage());
-//      mSocketPrint.close();
-    }
+////if (mSocketPrint.isOpen()    == false)
+//  if (mSocketPrint.isConnect() == false)
+//  {
+//      return;
+//  }
+//
+//  try
+//  {
+////    mSocketPrint.send(&len);
+//      mSocketPrint.send(text, len);
+        mServiceListener->onUpdateLog(text);
+//  }
+//  catch (Exception e)
+//  {
+//      TRACE("    %s\n", e.getMessage());
+////    mSocketPrint.close();
+//  }
 }
 
 /*!
