@@ -46,8 +46,8 @@
     #if !defined(_WINDLL)
         #if defined(MODERN_UI)
             #pragma comment(lib, "Slog.lib")
-        #elif defined(_DEBUG)
-            #pragma comment(lib, "slogd.lib")
+//      #elif defined(_DEBUG)
+//          #pragma comment(lib, "slogd.lib")
         #else
             #pragma comment(lib, "slog.lib")
         #endif
