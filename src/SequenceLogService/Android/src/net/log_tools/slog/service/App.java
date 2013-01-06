@@ -19,14 +19,14 @@ public class App extends android.app.Application
 {
     private int     mRefer = 0;
     private boolean mServiceRunning = false;
-    private boolean mConnecting = false;
+//  private boolean mConnecting = false;
 
     public String   mSharedMemoryPathName;
     public String   mLogOutputDir;
     public int      mMaxFileSize;
     public String   mMaxFileSizeUnit;
     public int      mMaxFileCount;
-    public boolean  mRootAlways;
+//  public boolean  mRootAlways;
 
     static
     {
@@ -50,15 +50,15 @@ public class App extends android.app.Application
         mServiceRunning = running;
     }
 
-    public boolean isConnecting()
-    {
-        return mConnecting;
-    }
+//  public boolean isConnecting()
+//  {
+//      return mConnecting;
+//  }
     
-    public void connecting(boolean connecting)
-    {
-        mConnecting = connecting;
-    }
+//  public void connecting(boolean connecting)
+//  {
+//      mConnecting = connecting;
+//  }
 
     private native void create();
 
@@ -70,7 +70,7 @@ public class App extends android.app.Application
             mLogOutputDir,
             mMaxFileSize * (mMaxFileSizeUnit.equals("KB") ? 1024 : 1024 * 1024),
             mMaxFileCount,
-            mRootAlways);
+            false/*mRootAlways*/);
     }
 
     private native void start(
@@ -84,6 +84,6 @@ public class App extends android.app.Application
     public  native boolean canStop();
 
     // シーケンスログプリント関連
-    public  native boolean connectSequenceLogPrint(String ipAddress);
-    public  native void disconnectSequenceLogPrint();
+//  public  native boolean connectSequenceLogPrint(String ipAddress);
+//  public  native void disconnectSequenceLogPrint();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 log-tools.net
+ * Copyright (C) 2011-2013 log-tools.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,20 +38,20 @@ public class Main extends Activity
     private static final String START_TEXT =      "Start Sequence Log Service";
     private static final String STOP_TEXT =       "Stop Sequence Log Service";
 
-    private static final String CONNECT_TEXT =    "Connect sequence log print";
-    private static final String DISCONNECT_TEXT = "Disconnect sequence log print";
+//  private static final String CONNECT_TEXT =    "Connect sequence log print";
+//  private static final String DISCONNECT_TEXT = "Disconnect sequence log print";
 
     private Intent      mIntent;
     
     private Button      mStartStopService;          // サービス開始／終了ボタン
     private EditText    mSharedMemoryPathName;      // 共有メモリ設定エリア
-    private Button      mConnDisconnPrint;          // シーケンスログプリント接続／切断ボタン
-    private EditText    mIPAddress;                 // シーケンスログプリントIPアドレス設定エリア
+//  private Button      mConnDisconnPrint;          // シーケンスログプリント接続／切断ボタン
+//  private EditText    mIPAddress;                 // シーケンスログプリントIPアドレス設定エリア
     private EditText    mLogOutputDir;              // ログ出力ディレクトリ
     private EditText    mMaxFileSize;               // 最大ログファイルサイズ
     private Spinner     mMaxFileSizeUnit;           // 最大ログファイルサイズ単位
     private EditText    mMaxFileCount;              // 最大ログファイル数
-    private CheckBox    mRootAlways;                // ROOTをALWAYSとするかどうか
+//  private CheckBox    mRootAlways;                // ROOTをALWAYSとするかどうか
 
     private void setSetting()
     {
@@ -72,7 +72,7 @@ public class Main extends Activity
         sb = (SpannableStringBuilder)mMaxFileCount.getText();
         app.mMaxFileCount = Integer.parseInt(sb.toString());
 
-        app.mRootAlways = mRootAlways.isChecked();
+//      app.mRootAlways = mRootAlways.isChecked();
     }
 
     private void start()
@@ -135,47 +135,47 @@ public class Main extends Activity
         });
 
         // 共有メモリ設定エリア
-        String pathName = sp.getString("sharedMemoryPathName", "/sdcard/slog");
+        String pathName = sp.getString("sharedMemoryPathName", "/sdcard/slog/shm");
 
         mSharedMemoryPathName = (EditText)findViewById(R.id.sharedMemoryPathName);
         mSharedMemoryPathName.setText(pathName);
   
         // シーケンスログプリント接続／切断ボタン
-        mConnDisconnPrint = (Button)findViewById(R.id.connDisconnPrint);
-        mConnDisconnPrint.setText(app.isConnecting() == false ? CONNECT_TEXT : DISCONNECT_TEXT);
-
-        mConnDisconnPrint.setOnClickListener(new OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                if (app.isConnecting() == false)
-                {
-                    SpannableStringBuilder sb = (SpannableStringBuilder)mIPAddress.getText();
-                    String ipAddress = sb.toString();
-
-                    if (app.connectSequenceLogPrint(ipAddress) == true)
-                    {
-                        app.connecting(true);
-                        mConnDisconnPrint.setText(DISCONNECT_TEXT);
-                    }
-                }
-                else
-                {
-                    app.disconnectSequenceLogPrint();
-                    app.connecting(false);
-                    mConnDisconnPrint.setText(CONNECT_TEXT);
-                }
-            }
-        });
+//      mConnDisconnPrint = (Button)findViewById(R.id.connDisconnPrint);
+//      mConnDisconnPrint.setText(app.isConnecting() == false ? CONNECT_TEXT : DISCONNECT_TEXT);
+//
+//      mConnDisconnPrint.setOnClickListener(new OnClickListener()
+//      {
+//          public void onClick(View v)
+//          {
+//              if (app.isConnecting() == false)
+//              {
+//                  SpannableStringBuilder sb = (SpannableStringBuilder)mIPAddress.getText();
+//                  String ipAddress = sb.toString();
+//
+//                  if (app.connectSequenceLogPrint(ipAddress) == true)
+//                  {
+//                      app.connecting(true);
+//                      mConnDisconnPrint.setText(DISCONNECT_TEXT);
+//                  }
+//              }
+//              else
+//              {
+//                  app.disconnectSequenceLogPrint();
+//                  app.connecting(false);
+//                  mConnDisconnPrint.setText(CONNECT_TEXT);
+//              }
+//          }
+//      });
         
         // シーケンスログプリントIPアドレス設定
-        String ipAddress = sp.getString("ipAddress", "127.0.0.1");
-
-        mIPAddress = (EditText)findViewById(R.id.ipAddress);
-        mIPAddress.setText(ipAddress);
+//      String ipAddress = sp.getString("ipAddress", "127.0.0.1");
+//
+//      mIPAddress = (EditText)findViewById(R.id.ipAddress);
+//      mIPAddress.setText(ipAddress);
 
         // ログ出力ディレクトリ
-        String logOutputDir = sp.getString("logOutputDir", "/sdcard/slog/log");
+        String logOutputDir = sp.getString("logOutputDir", "/sdcard/slog");
 
         mLogOutputDir = (EditText)findViewById(R.id.logOutputDir);
         mLogOutputDir.setText(logOutputDir);
@@ -204,10 +204,10 @@ public class Main extends Activity
         mMaxFileCount.setText(maxFileCount.toString());
         
         // ROOTをALWAYSとするかどうか
-        boolean rootAlways = sp.getBoolean("rootAlways", true);
-        
-        mRootAlways = (CheckBox)findViewById(R.id.rootAlways);
-        mRootAlways.setChecked(rootAlways);
+//      boolean rootAlways = sp.getBoolean("rootAlways", true);
+//      
+//      mRootAlways = (CheckBox)findViewById(R.id.rootAlways);
+//      mRootAlways.setChecked(rootAlways);
     }
 
     @Override
@@ -222,17 +222,17 @@ public class Main extends Activity
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sp.edit();
 
-        SpannableStringBuilder sb;
-        sb = (SpannableStringBuilder)mIPAddress.getText();
-        String ipAddress = sb.toString();
+//      SpannableStringBuilder sb;
+//      sb = (SpannableStringBuilder)mIPAddress.getText();
+//      String ipAddress = sb.toString();
 
         editor.putString("sharedMemoryPathName", app.mSharedMemoryPathName);
-        editor.putString("ipAddress",            ipAddress);
+//      editor.putString("ipAddress",            ipAddress);
         editor.putString("logOutputDir",         app.mLogOutputDir);
         editor.putInt(   "maxFileSize",          app.mMaxFileSize);
         editor.putString("maxFileSizeUnit",      app.mMaxFileSizeUnit);
         editor.putInt(   "maxFileCount",         app.mMaxFileCount);
-        editor.putBoolean("rootAlways",          app.mRootAlways);
+//      editor.putBoolean("rootAlways",          app.mRootAlways);
 
         editor.commit();
     }
