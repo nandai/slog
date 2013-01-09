@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_net_log_1tools_slog_Log_setFileName
 
 /*
  * Class:     net_log_tools_slog_Log
+ * Method:    setServiceAddress
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_net_log_1tools_slog_Log_setServiceAddress
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     net_log_tools_slog_Log
  * Method:    enableOutput
  * Signature: (Z)V
  */
