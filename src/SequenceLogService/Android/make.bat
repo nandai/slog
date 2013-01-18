@@ -1,7 +1,7 @@
 @echo off
 cd %~dp0
 
-call :exec javah -verbose -classpath bin/classes net.log_tools.slog.service.App
+call :exec javah -verbose -classpath bin/classes jp.printf.slog.service.App
 
 echo.
 exit /b 0

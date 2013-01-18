@@ -17,7 +17,7 @@ LOCAL_SRC_FILES := \
     ../src/Thread.cpp \
     ../src/Tokenizer.cpp \
     ../src/SequenceLog.cpp \
-    ../src/net_log_tools_slog_Log.cpp
+    ../src/jp_printf_slog_Log.cpp
 
 LOCAL_C_INCLUDES += \
     $(ANDROID_NDK_ROOT)/sources/cxx-stl/stlport/stlport \

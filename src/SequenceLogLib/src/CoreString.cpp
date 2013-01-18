@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2012 log-tools.net
+ * Copyright (C) 2011-2012 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   CoreString.cpp
  *  \brief  コア文字列クラス
- *  \author Copyright 2011-2012 log-tools.net
+ *  \author Copyright 2011-2012 printf.jp
  */
 #include "slog/CoreString.h"
 using namespace slog;

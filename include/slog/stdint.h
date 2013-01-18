@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011 log-tools.net
+ * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   stdint.h
  *  \brief  C99未対応（VS2010以前等）のコンパイラ用定義
- *  \author Copyright 2011 log-tools.net
+ *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
 

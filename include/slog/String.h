@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011 log-tools.net
+ * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   String.h
  *  \brief  可変長文字列クラス
- *  \author Copyright 2011 log-tools.net
+ *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
 #include "slog/CoreString.h"

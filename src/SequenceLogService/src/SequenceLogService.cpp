@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011 log-tools.net
+ * Copyright (C) 2011 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   SequenceLogService.cpp
  *  \brief  シーケンスログサービスクラス
- *  \author Copyright 2011 log-tools.net
+ *  \author Copyright 2011 printf.jp
  */
 #include "SequenceLogService.h"
 #include "SequenceLogServiceMain.h"

@@ -465,7 +465,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\src\net_log_tools_slog_Log.cpp"
+			RelativePath=".\src\jp_printf_slog_Log.cpp"
 			>
 		</File>
 		<File

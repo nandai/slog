@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 log-tools.net
+ * Copyright (C) 2011 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.log_tools.slog.service;
+package jp.printf.slog.service;
 
 import android.content.Intent;
 import android.os.IBinder;

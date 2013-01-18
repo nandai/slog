@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011 log-tools.net
+ * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   main.cpp
  *  \brief  シーケンスログサービス (JNI)
- *  \author Copyright 2011 log-tools.net
+ *  \author Copyright 2011-2013 printf.jp
  */
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
@@ -49,7 +49,7 @@ static bool registerNatives(JNIEnv* env, const char* className, const JNINativeM
 }
 
 /*
- * Class:     net_log_tools_slog_service_App
+ * Class:     jp_printf_slog_service_App
  * Method:    create
  * Signature: ()V
  */
@@ -63,7 +63,7 @@ static void JNICALL create(JNIEnv* env, jobject thiz)
 }
 
 /*
- * Class:     net_log_tools_slog_service_App
+ * Class:     jp_printf_slog_service_App
  * Method:    start
  * Signature: (Ljava/lang/String;Ljava/lang/String;IIZ)V
  */
@@ -89,7 +89,7 @@ static void JNICALL start(JNIEnv* env, jobject thiz,
 }
 
 /*
- * Class:     net_log_tools_slog_service_App
+ * Class:     jp_printf_slog_service_App
  * Method:    stop
  * Signature: ()V
  */
@@ -105,7 +105,7 @@ static void JNICALL stop(JNIEnv* env, jobject thiz)
 }
 
 /*
- * Class:     net_log_tools_slog_service_App
+ * Class:     jp_printf_slog_service_App
  * Method:    canStop
  * Signature: ()Z
  */
@@ -126,7 +126,7 @@ static jboolean JNICALL canStop(JNIEnv* env, jobject thiz)
 }
 
 /*
- * Class:     net_log_tools_slog_service_App
+ * Class:     jp_printf_slog_service_App
  * Method:    connectSequenceLogPrint
  * Signature: (Ljava/lang/String;)Z
  */
@@ -141,7 +141,7 @@ static jboolean JNICALL canStop(JNIEnv* env, jobject thiz)
 //}
 
 /*
- * Class:     net_log_tools_slog_service_App
+ * Class:     jp_printf_slog_service_App
  * Method:    disconnectSequenceLogPrint
  * Signature: ()V
  */

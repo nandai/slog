@@ -27,7 +27,7 @@ objs = \
 	Thread.o \
 	Tokenizer.o \
 	SequenceLog.o \
-	net_log_tools_slog_Log.o
+	jp_printf_slog_Log.o
 
 #all: depend libslog.so
 
