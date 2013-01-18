@@ -52,20 +52,20 @@ extern "C"
     /*!
      *  \brief  ステップイン時のログ出力
      */
-    void* _slog_stepIn2(uint32_t classID, const char* funcName)//, int32_t outputFlag)
-    {
-        slog::SequenceLog* slog = new slog::SequenceLog(classID, funcName);//, (slog::SequenceLogOutputFlag)outputFlag);
-        return slog;
-    }
+//  void* _slog_stepIn2(uint32_t classID, const char* funcName)//, int32_t outputFlag)
+//  {
+//      slog::SequenceLog* slog = new slog::SequenceLog(classID, funcName);//, (slog::SequenceLogOutputFlag)outputFlag);
+//      return slog;
+//  }
 
     /*!
      *  \brief  ステップイン時のログ出力
      */
-    void* _slog_stepIn3(uint32_t classID, uint32_t funcID)//, int32_t outputFlag)
-    {
-        slog::SequenceLog* slog = new slog::SequenceLog(classID, funcID);//, (slog::SequenceLogOutputFlag)outputFlag);
-        return slog;
-    }
+//  void* _slog_stepIn3(uint32_t classID, uint32_t funcID)//, int32_t outputFlag)
+//  {
+//      slog::SequenceLog* slog = new slog::SequenceLog(classID, funcID);//, (slog::SequenceLogOutputFlag)outputFlag);
+//      return slog;
+//  }
 
     /*!
      *  \brief  ステップアウト時のログ出力
@@ -93,11 +93,11 @@ extern "C"
     /*!
      *  \brief  メッセージ出力
      */
-    void  _slog_message2(void* p, int32_t level, uint32_t messageID)
-    {
-        slog::SequenceLog* slog = (slog::SequenceLog*)p;
-        slog->message((slog::SequenceLogLevel)level, messageID);
-    }
+//  void  _slog_message2(void* p, int32_t level, uint32_t messageID)
+//  {
+//      slog::SequenceLog* slog = (slog::SequenceLog*)p;
+//      slog->message((slog::SequenceLogLevel)level, messageID);
+//  }
 }
 
 /*-----------------------------------------------------------------------------
@@ -555,48 +555,48 @@ SequenceLog::SequenceLog(
 /*!
  *  \brief  コンストラクタ
  */
-SequenceLog::SequenceLog(uint32_t classID, const char* funcName)//, SequenceLogOutputFlag outputFlag)
-{
-    SequenceLogOutputFlag outputFlag = ROOT;
-    init(outputFlag);
-    SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
-
-    if (info)
-    {
-        info->item.init(mSeqNo, mOutputFlag, classID, funcName);
-        info->ready = true;
-        sClient->sendItem(info, &mSeqNo);
-    }
-#if defined(_DEBUG)
-    else
-    {
-        TRACE("(flag:%d) %d::%s\n", mOutputFlag, classID, funcName);
-    }
-#endif
-}
+//SequenceLog::SequenceLog(uint32_t classID, const char* funcName)//, SequenceLogOutputFlag outputFlag)
+//{
+//    SequenceLogOutputFlag outputFlag = ROOT;
+//    init(outputFlag);
+//    SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
+//
+//    if (info)
+//    {
+//        info->item.init(mSeqNo, mOutputFlag, classID, funcName);
+//        info->ready = true;
+//        sClient->sendItem(info, &mSeqNo);
+//    }
+//#if defined(_DEBUG)
+//    else
+//    {
+//        TRACE("(flag:%d) %d::%s\n", mOutputFlag, classID, funcName);
+//    }
+//#endif
+//}
 
 /*!
  *  \brief  コンストラクタ
  */
-SequenceLog::SequenceLog(uint32_t classID, uint32_t funcID)//, SequenceLogOutputFlag outputFlag)
-{
-    SequenceLogOutputFlag outputFlag = ROOT;
-    init(outputFlag);
-    SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
-
-    if (info)
-    {
-        info->item.init(mSeqNo, mOutputFlag, classID, funcID);
-        info->ready = true;
-        sClient->sendItem(info, &mSeqNo);
-    }
-#if defined(_DEBUG)
-    else
-    {
-        TRACE("(flag:%d) %d::%d\n", mOutputFlag, classID, funcID);
-    }
-#endif
-}
+//SequenceLog::SequenceLog(uint32_t classID, uint32_t funcID)//, SequenceLogOutputFlag outputFlag)
+//{
+//    SequenceLogOutputFlag outputFlag = ROOT;
+//    init(outputFlag);
+//    SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
+//
+//    if (info)
+//    {
+//        info->item.init(mSeqNo, mOutputFlag, classID, funcID);
+//        info->ready = true;
+//        sClient->sendItem(info, &mSeqNo);
+//    }
+//#if defined(_DEBUG)
+//    else
+//    {
+//        TRACE("(flag:%d) %d::%d\n", mOutputFlag, classID, funcID);
+//    }
+//#endif
+//}
 
 /*!
  *  \brief  デストラクタ
@@ -671,18 +671,18 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
 /*!
  *  \brief  メッセージ出力
  */
-void SequenceLog::message(SequenceLogLevel level, uint32_t messageID)
-{
-    SLOG_ITEM_INFO* info = sClient->lock(NULL);
-
-    if (info)
-    {
-        info->item.init(mSeqNo, mOutputFlag, level);
-        info->item.mMessageId = messageID;
-        info->ready = true;
-        sClient->sendItem(info, NULL);
-    }
-}
+//void SequenceLog::message(SequenceLogLevel level, uint32_t messageID)
+//{
+//    SLOG_ITEM_INFO* info = sClient->lock(NULL);
+//
+//    if (info)
+//    {
+//        info->item.init(mSeqNo, mOutputFlag, level);
+//        info->item.mMessageId = messageID;
+//        info->ready = true;
+//        sClient->sendItem(info, NULL);
+//    }
+//}
 
 } // namespace slog
 

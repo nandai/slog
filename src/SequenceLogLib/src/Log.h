@@ -63,16 +63,16 @@ public:     static void SetFileName(String^ aName);
             static int64_t StepIn(String^ aClassName, String^ aFuncName);// {return StepIn(aClassName, aFuncName, KEEP);}
 //          static int64_t StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag);
 
-            static int64_t StepIn(int32_t classID,    String^ aFuncName);// {return StepIn(classID,    aFuncName, KEEP);}
+//          static int64_t StepIn(int32_t classID,    String^ aFuncName);// {return StepIn(classID,    aFuncName, KEEP);}
 //          static int64_t StepIn(int32_t classID,    String^ aFuncName, int32_t outputFlag);
 
-            static int64_t StepIn(int32_t classID,    int32_t funcID);//    {return StepIn(classID,    funcID,    KEEP);}
+//          static int64_t StepIn(int32_t classID,    int32_t funcID);//    {return StepIn(classID,    funcID,    KEEP);}
 //          static int64_t StepIn(int32_t classID,    int32_t funcID,    int32_t outputFlag);
 
             static void StepOut(int64_t slog);
 
 private:    static void Message(int32_t level, String^ aMessage,  int64_t slog);
-            static void Message(int32_t level, int32_t messageID, int64_t slog);
+//          static void Message(int32_t level, int32_t messageID, int64_t slog);
 
 public:     static void V(int64_t slog, String^ message)   {Message(slog::DEBUG, message,   slog);}
             static void D(int64_t slog, String^ message)   {Message(slog::DEBUG, message,   slog);}
@@ -80,11 +80,11 @@ public:     static void V(int64_t slog, String^ message)   {Message(slog::DEBUG,
             static void W(int64_t slog, String^ message)   {Message(slog::WARN,  message,   slog);}
             static void E(int64_t slog, String^ message)   {Message(slog::ERROR, message,   slog);}
 
-            static void V(int64_t slog, int32_t messageID) {Message(slog::DEBUG, messageID, slog);}
-            static void D(int64_t slog, int32_t messageID) {Message(slog::DEBUG, messageID, slog);}
-            static void I(int64_t slog, int32_t messageID) {Message(slog::INFO,  messageID, slog);}
-            static void W(int64_t slog, int32_t messageID) {Message(slog::WARN,  messageID, slog);}
-            static void E(int64_t slog, int32_t messageID) {Message(slog::ERROR, messageID, slog);}
+//          static void V(int64_t slog, int32_t messageID) {Message(slog::DEBUG, messageID, slog);}
+//          static void D(int64_t slog, int32_t messageID) {Message(slog::DEBUG, messageID, slog);}
+//          static void I(int64_t slog, int32_t messageID) {Message(slog::INFO,  messageID, slog);}
+//          static void W(int64_t slog, int32_t messageID) {Message(slog::WARN,  messageID, slog);}
+//          static void E(int64_t slog, int32_t messageID) {Message(slog::ERROR, messageID, slog);}
 };
 
 } // namespace Slog

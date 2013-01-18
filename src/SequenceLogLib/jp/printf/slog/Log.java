@@ -45,11 +45,11 @@ public final class Log
 //  public  native static long stepIn(String className, String funcName, int outputFlag);
 
 //  public         static long stepIn(int classID,      String funcName) {return stepIn(classID,   funcName, KEEP);}
-    public  native static long stepIn(int classID,      String funcName);
+//  public  native static long stepIn(int classID,      String funcName);
 //  public  native static long stepIn(int classID,      String funcName, int outputFlag);
 
 //  public         static long stepIn(int classID,      int    funcID)   {return stepIn(classID,   funcID,   KEEP);}
-    public  native static long stepIn(int classID,      int    funcID);
+//  public  native static long stepIn(int classID,      int    funcID);
 //  public  native static long stepIn(int classID,      int    funcID,   int outputFlag);
 
     /**
@@ -61,7 +61,7 @@ public final class Log
      * メッセージ出力
      */
     private native static void message(int level, String message,   long slog/*tag*/);
-    private native static void message(int level, int    messageID, long slog/*tag*/);
+//  private native static void message(int level, int    messageID, long slog/*tag*/);
 
     private native static void message(int level, String message,   String tag);
 
@@ -71,11 +71,11 @@ public final class Log
     public static void w(long slog/*tag*/, String message)              {message(WARN,  message,   slog);}
     public static void e(long slog/*tag*/, String message)              {message(ERROR, message,   slog);}
 
-    public static void v(long slog/*tag*/, int messageID)               {message(DEBUG, messageID, slog);}
-    public static void d(long slog/*tag*/, int messageID)               {message(DEBUG, messageID, slog);}
-    public static void i(long slog/*tag*/, int messageID)               {message(INFO,  messageID, slog);}
-    public static void w(long slog/*tag*/, int messageID)               {message(WARN,  messageID, slog);}
-    public static void e(long slog/*tag*/, int messageID)               {message(ERROR, messageID, slog);}
+//  public static void v(long slog/*tag*/, int messageID)               {message(DEBUG, messageID, slog);}
+//  public static void d(long slog/*tag*/, int messageID)               {message(DEBUG, messageID, slog);}
+//  public static void i(long slog/*tag*/, int messageID)               {message(INFO,  messageID, slog);}
+//  public static void w(long slog/*tag*/, int messageID)               {message(WARN,  messageID, slog);}
+//  public static void e(long slog/*tag*/, int messageID)               {message(ERROR, messageID, slog);}
 
     // Androidに適用する時にandroid.util.Log()として修正しなくても良いようにするためのメソッド。
     // Throwableは無視する。

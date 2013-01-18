@@ -96,27 +96,27 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag
 /*!
  *  \brief  ステップイン
  */
-int64_t Log::StepIn(int32_t classID, String^ aFuncName)//, int32_t outputFlag)
-{
-#if !defined(MODERN_UI)
-    slog::CSharpString funcName = aFuncName;
-#else
-    slog::String funcName;
-    funcName.conv(aFuncName->Data());
-#endif
-
-    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcName.getBuffer());//, (slog::SequenceLogOutputFlag)outputFlag);
-    return (int64_t)slogObj;
-}
+//int64_t Log::StepIn(int32_t classID, String^ aFuncName)//, int32_t outputFlag)
+//{
+//#if !defined(MODERN_UI)
+//    slog::CSharpString funcName = aFuncName;
+//#else
+//    slog::String funcName;
+//    funcName.conv(aFuncName->Data());
+//#endif
+//
+//    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcName.getBuffer());//, (slog::SequenceLogOutputFlag)outputFlag);
+//    return (int64_t)slogObj;
+//}
 
 /*!
  *  \brief  ステップイン
  */
-int64_t Log::StepIn(int32_t classID, int32_t funcID)//, int32_t outputFlag)
-{
-    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcID);//, (slog::SequenceLogOutputFlag)outputFlag);
-    return (int64_t)slogObj;
-}
+//int64_t Log::StepIn(int32_t classID, int32_t funcID)//, int32_t outputFlag)
+//{
+//    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcID);//, (slog::SequenceLogOutputFlag)outputFlag);
+//    return (int64_t)slogObj;
+//}
 
 /*!
  *  \brief  ステップアウト
@@ -147,10 +147,10 @@ void Log::Message(int32_t level, String^ aMessage, int64_t slog)
 /*!
  *  \brief  メッセージ
  */
-void Log::Message(int32_t level, int32_t messageID, int64_t slog)
-{
-    slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
-    slogObj->message((slog::SequenceLogLevel)level, messageID);
-}
+//void Log::Message(int32_t level, int32_t messageID, int64_t slog)
+//{
+//    slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
+//    slogObj->message((slog::SequenceLogLevel)level, messageID);
+//}
 
 } // namespace Slog

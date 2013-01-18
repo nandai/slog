@@ -116,24 +116,24 @@ static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aF
  * Method:    stepIn
  * Signature: (ILjava/lang/String;I)J
  */
-static jlong JNICALL stepIn2(JNIEnv* env, jclass, jint classID, jstring aFuncName)//, jint outputFlag)
-{
-    JavaString funcName( env, aFuncName);
-
-    SequenceLog* slogObj = new SequenceLog(classID, funcName.getBuffer());//, (SequenceLogOutputFlag)outputFlag);
-    return (jlong)slogObj;
-}
+//static jlong JNICALL stepIn2(JNIEnv* env, jclass, jint classID, jstring aFuncName)//, jint outputFlag)
+//{
+//    JavaString funcName( env, aFuncName);
+//
+//    SequenceLog* slogObj = new SequenceLog(classID, funcName.getBuffer());//, (SequenceLogOutputFlag)outputFlag);
+//    return (jlong)slogObj;
+//}
 
 /*
  * Class:     net_log_tools_slog_Log
  * Method:    stepIn
  * Signature: (III)J
  */
-static jlong JNICALL stepIn3(JNIEnv* env, jclass, jint classID, jint funcID)//, jint outputFlag)
-{
-    SequenceLog* slogObj = new SequenceLog(classID, funcID);//, (SequenceLogOutputFlag)outputFlag);
-    return (jlong)slogObj;
-}
+//static jlong JNICALL stepIn3(JNIEnv* env, jclass, jint classID, jint funcID)//, jint outputFlag)
+//{
+//    SequenceLog* slogObj = new SequenceLog(classID, funcID);//, (SequenceLogOutputFlag)outputFlag);
+//    return (jlong)slogObj;
+//}
 
 /*
  * Class:     net_log_tools_slog_Log
@@ -164,11 +164,11 @@ static void JNICALL message1(JNIEnv* env, jclass, jint level, jstring aMessage, 
  * Method:    message
  * Signature: (IIJ)V
  */
-static void JNICALL message2(JNIEnv* env, jclass, jint level, jint messageID, jlong slog)
-{
-    SequenceLog* slogObj = (SequenceLog*)slog;
-    slogObj->message((SequenceLogLevel)level, messageID);
-}
+//static void JNICALL message2(JNIEnv* env, jclass, jint level, jint messageID, jlong slog)
+//{
+//    SequenceLog* slogObj = (SequenceLog*)slog;
+//    slogObj->message((SequenceLogLevel)level, messageID);
+//}
 
 /*
  * Class:     net_log_tools_slog_Log
@@ -214,11 +214,11 @@ static JNINativeMethodEx sMethods[] =
 //  {"setRootFlag",       "(I)V",                                     (void*)setRootFlagJNI   },
     {"enableOutput",      "(Z)V",                                     (void*)enableOutputJNI  },
     {"stepIn",            "(Ljava/lang/String;Ljava/lang/String;)J",  (void*)stepIn1          },
-    {"stepIn",            "(ILjava/lang/String;)J",                   (void*)stepIn2          },
-    {"stepIn",            "(II)J",                                    (void*)stepIn3          },
+//  {"stepIn",            "(ILjava/lang/String;)J",                   (void*)stepIn2          },
+//  {"stepIn",            "(II)J",                                    (void*)stepIn3          },
     {"stepOut",           "(J)V",                                     (void*)stepOut          },
     {"message",           "(ILjava/lang/String;J)V",                  (void*)message1         },
-    {"message",           "(IIJ)V",                                   (void*)message2         },
+//  {"message",           "(IIJ)V",                                   (void*)message2         },
 
     {"message",           "(ILjava/lang/String;Ljava/lang/String;)V", (void*)message3         },
 };
