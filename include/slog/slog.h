@@ -33,9 +33,9 @@
 
     #include <windows.h>
 
-//  #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY & 0x00000002/*WINAPI_PARTITION_APP*/)
-//      #define MODERN_UI
-//  #endif
+    #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == 0x00000002/*WINAPI_PARTITION_APP*/)
+        #define MODERN_UI
+    #endif
 
     #if defined(SLOG_EXPORTS)
         #define SLOG_API __declspec(dllexport)
