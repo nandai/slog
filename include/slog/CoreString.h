@@ -62,6 +62,9 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             void append(const char* text, int32_t len = -1) throw(Exception);
             void append(const CoreString& str) throw(Exception) {append(str.getBuffer(), str.getLength());}
 
+            // 挿入
+			void insert(int32_t pos, const char* aText, int32_t aLen = -1) throw(Exception);
+
             // １文字取得
             char operator[](int32_t index) const;
 
@@ -85,7 +88,11 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             bool  isSJIS() const {return (mSJIS == -1 ? isCommonSJIS() : (mSJIS == 1));}
             void setSJIS(int32_t sjis) {mSJIS = sjis;}
 
+            // 文字数取得
+            int32_t getCharacters() const;
+
 #if defined(_WINDOWS)
+            // UTF-16LEをSJIS、またはUTF-8に変換する
             void conv(const wchar_t* text);
 #endif
 };

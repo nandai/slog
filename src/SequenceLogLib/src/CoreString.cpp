@@ -25,6 +25,43 @@ using namespace slog;
 bool CoreString::sSJIS = true;
 
 /*!
+ *  \brief  次の文字へのバイト数を取得する
+ *  \note   参考：http://ja.wikipedia.org/wiki/UTF-8
+ */
+static int32_t getNextCharBytes(const char* text)
+{
+    uint8_t c = *text;
+	int32_t bytes;
+
+	     if (c < 0xC0) bytes = 1;
+	else if (c < 0xE0) bytes = 2;
+	else if (c < 0xF0) bytes = 3;
+	else if (c < 0xF8) bytes = 4;
+	else if (c < 0xFC) bytes = 5;
+	else               bytes = 6;
+
+	return bytes;
+}
+
+/*!
+ *  \brief  前の文字へのバイト数を取得する
+ */
+static int32_t getPrevCharBytes(const char* text)
+{
+	const uint8_t* p = (uint8_t*)text;
+	uint8_t c;
+
+	do
+	{
+		p--;
+		c = *p;
+	}
+	while (0x80 <= c && c < 0xC0);
+
+	return (int32_t)((uint8_t*)text - p);
+}
+
+/*!
  *  \brief  文字列をコピーする
  */
 void CoreString::copy(const char* text, int32_t len) throw(Exception)
@@ -35,9 +72,15 @@ void CoreString::copy(const char* text, int32_t len) throw(Exception)
     if (len == -1)
         len = (int32_t)strlen(text);
 
-    if (getCapacity() < len)
-        setCapacity(len);
+    // バッファ容量が足りなければ拡張する
+    int32_t capacity = getCapacity();
 
+    if (capacity < len)
+    {
+        setCapacity(len);
+    }
+
+    // 文字列コピー
     strncpy(getBuffer(), text, len);
     setLength(len);
 }
@@ -50,13 +93,25 @@ void CoreString::append(const char* text, int32_t len) throw(Exception)
     if (len == -1)
         len = (int32_t)strlen(text);
 
+    // バッファ容量が足りなければ拡張する
     int32_t capacity = getCapacity();
+    int32_t newLen = getLength() + len;
 
-    if (capacity <  getLength() + len)
-        setCapacity(getLength() + len);
+    if (capacity < newLen)
+    {
+        setCapacity(newLen);
+    }
 
+    // 文字列追加
     strncpy(getBuffer() + getLength(), text, len);
-    setLength(getLength() + len);
+    setLength(newLen);
+}
+
+/*!
+ *  \brief  文字列を挿入する
+ */
+void CoreString::insert(int32_t pos, const char* aText, int32_t aLen) throw(Exception)
+{
 }
 
 /*!
@@ -114,6 +169,23 @@ int32_t CoreString::find(char c) const
     return (int32_t)(p - buffer);
 }
 
+/*!
+ *  \brief  文字数を取得する
+ */
+int32_t CoreString::getCharacters() const
+{
+    const char* text = getBuffer();
+	int32_t num = 0;
+
+	while (*text)
+	{
+		text += getNextCharBytes(text);
+		num++;
+	}
+
+	return num;
+}
+
 #if defined(_WINDOWS)
 /*!
  *  \brief  UTF-16LEをSJIS、またはUTF-8に変換する
@@ -147,6 +219,9 @@ void UTF16LE::conv(const char* text, int32_t sjis)
     MultiByteToWideChar(codePage, 0, text, -1, mBuffer, chars + 1);
 }
 
+/*!
+ *  \brief  SJIS、またはUTF-8をUTF-16LEに変換する
+ */
 void UTF16LE::realloc(int32_t chars)
 {
     if (mChars >= chars)

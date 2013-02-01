@@ -43,7 +43,8 @@
         #define SLOG_API __declspec(dllimport)
     #endif
 
-    #if !defined(_WINDLL)
+//  #if !defined(_WINDLL)
+    #if !defined(SLOG_EXPORTS)
         #if defined(MODERN_UI)
             #pragma comment(lib, "Slog.lib")
 //      #elif defined(_DEBUG)

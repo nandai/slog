@@ -95,7 +95,7 @@ inline void ByteBuffer::addPosition(int32_t len) throw(Exception)
 }
 
 /*!
- *  \brief  バッファ使用サイズ取得
+ *  \brief  バッファ使用サイズ設定
  */
 inline void ByteBuffer::setLength(int32_t len) throw(Exception)
 {
