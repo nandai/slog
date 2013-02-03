@@ -29,6 +29,8 @@
 
 namespace slog
 {
+int32_t SLOG_API getNextCharBytes(const char* text);
+int32_t SLOG_API getPrevCharBytes(const char* text);
 
 /*!
  *  \brief  コア文字列クラス
@@ -63,7 +65,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             void append(const CoreString& str) throw(Exception) {append(str.getBuffer(), str.getLength());}
 
             // 挿入
-			void insert(int32_t pos, const char* aText, int32_t aLen = -1) throw(Exception);
+			void insert(int32_t pos, const char* text, int32_t len = -1) throw(Exception);
 
             // １文字取得
             char operator[](int32_t index) const;

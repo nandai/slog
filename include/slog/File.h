@@ -68,6 +68,8 @@ public:      File();
             int64_t getPosition() const;
 
             static void unlink(const CoreString& fileName) throw(Exception);
+
+            bool isEOF() const;
 };
 
 /*!

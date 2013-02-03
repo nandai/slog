@@ -20,7 +20,9 @@
  *  \author Copyright 2011-2012 printf.jp
  */
 #include "slog/CoreString.h"
-using namespace slog;
+
+namespace slog
+{
 
 bool CoreString::sSJIS = true;
 
@@ -28,7 +30,7 @@ bool CoreString::sSJIS = true;
  *  \brief  次の文字へのバイト数を取得する
  *  \note   参考：http://ja.wikipedia.org/wiki/UTF-8
  */
-static int32_t getNextCharBytes(const char* text)
+int32_t getNextCharBytes(const char* text)
 {
     uint8_t c = *text;
 	int32_t bytes;
@@ -46,7 +48,7 @@ static int32_t getNextCharBytes(const char* text)
 /*!
  *  \brief  前の文字へのバイト数を取得する
  */
-static int32_t getPrevCharBytes(const char* text)
+int32_t getPrevCharBytes(const char* text)
 {
 	const uint8_t* p = (uint8_t*)text;
 	uint8_t c;
@@ -90,6 +92,9 @@ void CoreString::copy(const char* text, int32_t len) throw(Exception)
  */
 void CoreString::append(const char* text, int32_t len) throw(Exception)
 {
+    if (getBuffer() == text)
+        return;
+
     if (len == -1)
         len = (int32_t)strlen(text);
 
@@ -110,8 +115,37 @@ void CoreString::append(const char* text, int32_t len) throw(Exception)
 /*!
  *  \brief  文字列を挿入する
  */
-void CoreString::insert(int32_t pos, const char* aText, int32_t aLen) throw(Exception)
+void CoreString::insert(int32_t pos, const char* text, int32_t len) throw(Exception)
 {
+    if (getBuffer() == text)
+        return;
+
+    if (len == -1)
+        len = (int32_t)strlen(text);
+
+    // バッファ容量が足りなければ拡張する
+    int32_t capacity = getCapacity();
+    int32_t newLen = getLength() + len;
+
+    if (capacity < newLen)
+    {
+        setCapacity(newLen);
+    }
+
+    // 文字列挿入
+    char* p = getBuffer();
+
+    memmove(
+        p + pos + len,
+        p + pos,
+        getLength() - pos);
+
+    memcpy(
+        p + pos,
+        text,
+        len);
+
+    setLength(newLen);
 }
 
 /*!
@@ -232,3 +266,5 @@ void UTF16LE::realloc(int32_t chars)
     mChars = chars;
 }
 #endif
+
+} // namespace slog

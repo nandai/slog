@@ -174,4 +174,16 @@ bool File::read(
     return true;
 }
 
+bool File::isEOF() const
+{
+#if defined(_WINDOWS)
+	unsigned long cur = ::SetFilePointer(mHandle, 0,   NULL, FILE_CURRENT);
+	unsigned long len = ::SetFilePointer(mHandle, 0,   NULL, FILE_END);
+						::SetFilePointer(mHandle, cur, NULL, FILE_BEGIN);
+
+	return (cur >= len);
+#else
+#endif
+}
+
 } // namespace slog
