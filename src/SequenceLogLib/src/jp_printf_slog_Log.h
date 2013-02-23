@@ -44,24 +44,8 @@ JNIEXPORT void JNICALL Java_jp_printf_slog_Log_enableOutput
  * Method:    stepIn
  * Signature: (Ljava/lang/String;Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_jp_printf_slog_Log_stepIn__Ljava_lang_String_2Ljava_lang_String_2
+JNIEXPORT jlong JNICALL Java_jp_printf_slog_Log_stepIn
   (JNIEnv *, jclass, jstring, jstring);
-
-/*
- * Class:     jp_printf_slog_Log
- * Method:    stepIn
- * Signature: (ILjava/lang/String;)J
- */
-JNIEXPORT jlong JNICALL Java_jp_printf_slog_Log_stepIn__ILjava_lang_String_2
-  (JNIEnv *, jclass, jint, jstring);
-
-/*
- * Class:     jp_printf_slog_Log
- * Method:    stepIn
- * Signature: (II)J
- */
-JNIEXPORT jlong JNICALL Java_jp_printf_slog_Log_stepIn__II
-  (JNIEnv *, jclass, jint, jint);
 
 /*
  * Class:     jp_printf_slog_Log
@@ -78,14 +62,6 @@ JNIEXPORT void JNICALL Java_jp_printf_slog_Log_stepOut
  */
 JNIEXPORT void JNICALL Java_jp_printf_slog_Log_message__ILjava_lang_String_2J
   (JNIEnv *, jclass, jint, jstring, jlong);
-
-/*
- * Class:     jp_printf_slog_Log
- * Method:    message
- * Signature: (IIJ)V
- */
-JNIEXPORT void JNICALL Java_jp_printf_slog_Log_message__IIJ
-  (JNIEnv *, jclass, jint, jint, jlong);
 
 /*
  * Class:     jp_printf_slog_Log

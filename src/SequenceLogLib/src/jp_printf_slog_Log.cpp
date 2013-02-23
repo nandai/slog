@@ -15,7 +15,7 @@
  */
 
 /*!
- *  \file   net_log_tools_slog_Log.cpp
+ *  \file   jp_printf_slog_Log.cpp
  *  \brief  シーケンスログ (JNI)
  *  \author Copyright 2011-2013 printf.jp
  */
@@ -46,7 +46,10 @@ static bool registerNatives(JNIEnv* env, const char* className, const JNINativeM
     bool result = false;
 
     if (clazz == NULL)
+    {
+        noticeLog("env->FindClass() failed.");
         return false;
+    }
 
     if (env->RegisterNatives(clazz, methods, numMethods) == 0)
         result = true;
@@ -56,7 +59,7 @@ static bool registerNatives(JNIEnv* env, const char* className, const JNINativeM
 }
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    setFileName
  * Signature: (Ljava/lang/String;)V
  */
@@ -67,7 +70,7 @@ static void JNICALL setFileName(JNIEnv* env, jclass, jstring aFileName)
 }
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    setServiceAddress
  * Signature: (Ljava/lang/String;)V
  */
@@ -78,7 +81,7 @@ static void JNICALL setServiceAddress(JNIEnv* env, jclass, jstring aAddress)
 }
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    setRootFlag
  * Signature: (I)V
  */
@@ -88,7 +91,7 @@ static void JNICALL setServiceAddress(JNIEnv* env, jclass, jstring aAddress)
 //}
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    enableOutput
  * Signature: (Z)V
  */
@@ -98,7 +101,7 @@ static void JNICALL enableOutputJNI(JNIEnv* env, jclass, jboolean enable)
 }
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    stepIn
  * Signature: (Ljava/lang/String;Ljava/lang/String;I)J
  */
@@ -112,7 +115,7 @@ static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aF
 }
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    stepIn
  * Signature: (ILjava/lang/String;I)J
  */
@@ -125,7 +128,7 @@ static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aF
 //}
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    stepIn
  * Signature: (III)J
  */
@@ -136,7 +139,7 @@ static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aF
 //}
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    stepOut
  * Signature: (J)V
  */
@@ -147,7 +150,7 @@ static void JNICALL stepOut(JNIEnv* env, jclass, jlong slog)
 }
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    message
  * Signature: (ILjava/lang/String;J)V
  */
@@ -160,7 +163,7 @@ static void JNICALL message1(JNIEnv* env, jclass, jint level, jstring aMessage, 
 }
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    message
  * Signature: (IIJ)V
  */
@@ -171,7 +174,7 @@ static void JNICALL message1(JNIEnv* env, jclass, jint level, jstring aMessage, 
 //}
 
 /*
- * Class:     net_log_tools_slog_Log
+ * Class:     jp_printf_slog_Log
  * Method:    message
  * Signature: (ILjava/lang/String;Ljava/lang/String)V
  */
@@ -232,10 +235,16 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
     jint version = JNI_VERSION_1_6;
 
     if (vm->GetEnv((void**)&env, version) != JNI_OK)
+    {
+        noticeLog("vm->GetEnv() failed.");
         return -1;
+    }
 
-    if (registerNatives(env, "net/log_tools/slog/Log", (JNINativeMethod*)sMethods, sizeof(sMethods) / sizeof(sMethods[0])) == false)
+    if (registerNatives(env, "jp/printf/slog/Log", (JNINativeMethod*)sMethods, sizeof(sMethods) / sizeof(sMethods[0])) == false)
+    {
+        noticeLog("registerNatives() failed.");
         return -1;
+    }
 
     return version;
 }
@@ -246,7 +255,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
  */
 //const char* getSequenceLogFileName()
 //{
-//    TRACE("getSequenceLogFileName() in net_log_tools_slog_Log.cpp\n", 0);
 //    return NULL;
 //}
 
