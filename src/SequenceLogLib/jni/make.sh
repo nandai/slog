@@ -33,6 +33,8 @@ echo
 #
 # make static library
 #
+touch ../src/jp_printf_slog_Log.cpp
+
 mv Static.mk Android.mk
 ndk-build $*
 retval=$?

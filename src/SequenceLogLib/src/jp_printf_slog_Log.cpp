@@ -229,7 +229,7 @@ static JNINativeMethodEx sMethods[] =
 /*!
  *  \brief  Java Native Interface OnLoad
  */
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
+extern "C" jint slog_JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     JNIEnv* env = NULL;
     jint version = JNI_VERSION_1_6;
@@ -249,18 +249,22 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
     return version;
 }
 
-#if defined(_WINDLL) || defined(__SHARED_LIBRARY__)
-/*
- * シーケンスログファイル名取得
+//#if defined(_WINDLL) || defined(__SHARED_LIBRARY__)
+#if !defined(__STATIC_LIBRARY__)
+/*!
+ *  \brief  Java Native Interface OnLoad
  */
-//const char* getSequenceLogFileName()
-//{
-//    return NULL;
-//}
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
+{
+    return slog_JNI_OnLoad(vm, reserved);
+}
 
 #if defined(_WINDOWS) && 0
 #include "slog/Socket.h"
 
+/*!
+ *  \brief  DllMain
+ */
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     switch (fdwReason)

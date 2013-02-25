@@ -24,7 +24,7 @@ LOCAL_C_INCLUDES += \
     ../../include \
     ../../../include
 
-LOCAL_CPPFLAGS   := -D__SLOG__ -D__SHARED_LIBRARY__ -fexceptions
+LOCAL_CPPFLAGS   := -D__SLOG__ -D__STATIC_LIBRARY__ -fexceptions
 #OCAL_CPPFLAGS   += -D_DEBUG
 
 LOCAL_LDLIBS := \
