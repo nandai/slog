@@ -715,7 +715,7 @@ extern "C" void setSequenceLogServiceAddress(const char* address)
 //    slog::sRootFlag = (slog::SequenceLogOutputFlag)outputFlag;
 //}
 
-extern "C" void enableOutput(bool enable)
+extern "C" void enableOutput(int32_t enable)
 {
-    slog::sRootFlag = (enable ? slog::ROOT : slog::KEEP);
+    slog::sRootFlag = (enable != 0 ? slog::ROOT : slog::KEEP);
 }

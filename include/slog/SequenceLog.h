@@ -127,7 +127,11 @@ SLOG_API void  _slog_message( void* p, int32_t          level, const char* forma
 SLOG_API void setSequenceLogFileName(const char* fileName);
 SLOG_API void setSequenceLogServiceAddress(const char* address);
 //OG_API void setRootFlag(int32_t outputFlag);
-SLOG_API void enableOutput(bool enable);
+SLOG_API void enableOutput(int32_t enable);
+
+#if defined(JNI_TRUE)
+jint slog_JNI_OnLoad(JavaVM* vm, void* reserved);
+#endif
 
 #if defined(__cplusplus)
 }
