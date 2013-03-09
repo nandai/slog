@@ -112,7 +112,7 @@ bool WebServerResponseThread::analizeRequest()
                 return false;
 
             p1++;
-            mUrl.copy(p1, p2 - p1);
+            mUrl.copy(p1, (int32_t)(p2 - p1));
         }
 
         i = 0;
