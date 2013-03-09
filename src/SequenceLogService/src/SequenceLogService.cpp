@@ -571,7 +571,6 @@ void SequenceLogService::writeSeqLogFile(File& file, SequenceLogItem* item)
     // シーケンスログプリントにログを送信
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-//  if (serviceMain->isConnectSequenceLogPrint())
     if (serviceMain->isRootAlways())
     {
         writeSeqLogFileText(file, item);

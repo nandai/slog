@@ -59,7 +59,6 @@ class SequenceLogServiceMain : public Thread, public FileFindListener
             int32_t                             mMaxFileCount;          //!< 最大ファイル数
             uint16_t                            mWebServerPort;         //!< シーケンスログWEBサーバーポート
 
-//          Socket                              mSocketPrint;           //!< シーケンスログプリントとの接続用ソケット
             Socket                              mSocket;                //!< シーケンスログクライアントの接続待ち受けソケット
             SequenceLogServiceManager           mServiceManager;        //!< シーケンスログサービスマネージャー
             SequenceLogServiceThreadListener*   mServiceListener;       //!< シーケンスログサービスリスナー
@@ -82,9 +81,6 @@ private:    virtual void run();
 public:     void cleanup();
 
             // シーケンスログプリント関連
-//          bool  isConnectSequenceLogPrint() const;
-//          void    connectSequenceLogPrint(const CoreString& ip);
-//          void disconnectSequenceLogPrint();
             void printLog(const Buffer* text, int32_t len);
 
             // 共有メモリパス
@@ -125,14 +121,6 @@ public:     void cleanup();
 
 private:    virtual void onFind(const CoreString& path);
 };
-
-/*!
- *  \brief  シーケンスログプリントと接続しているか調べる
- */
-//inline bool SequenceLogServiceMain::isConnectSequenceLogPrint() const
-//{
-//    return mSocketPrint.isOpen();
-//}
 
 /*!
  *  \brief  共有メモリに格納できるシーケンスログアイテムの最大数を取得
