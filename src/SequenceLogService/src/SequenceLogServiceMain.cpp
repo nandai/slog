@@ -79,7 +79,7 @@ SequenceLogServiceMain::SequenceLogServiceMain()
 
     mMaxFileSize = 1024 * 4;
     mMaxFileCount = 10;
-    mWebServerPort = 8080;
+    mWebServerPort = 0;
 
     mMutex = new Mutex;
     ScopedLock lock(mMutex, false);
