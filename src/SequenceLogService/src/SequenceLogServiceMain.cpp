@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011 printf.jp
+ * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 /*!
  *  \file   SequenceLogServiceMain.cpp
  *  \brief  シーケンスログサービスメインクラス
- *  \author Copyright 2011 printf.jp
+ *  \author Copyright 2011-2013 printf.jp
  */
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
+#include "SequenceLogServiceWebServer.h"
 
 #include "slog/Mutex.h"
 #include "slog/TimeSpan.h"
@@ -78,12 +79,16 @@ SequenceLogServiceMain::SequenceLogServiceMain()
 
     mMaxFileSize = 1024 * 4;
     mMaxFileCount = 10;
+    mWebServerPort = 8080;
 
     mMutex = new Mutex;
     ScopedLock lock(mMutex, false);
 
     mRootAlways = true;
     mStartRunTime = false;
+
+    mWebServer = new SequenceLogServiceWebServerThread;
+    mWebServer->start();
 }
 
 /*!
@@ -92,7 +97,9 @@ SequenceLogServiceMain::SequenceLogServiceMain()
 SequenceLogServiceMain::~SequenceLogServiceMain()
 {
     deleteFileInfoArray();
+
     delete mMutex;
+    delete mWebServer;
 }
 
 /*!
@@ -485,6 +492,22 @@ int32_t SequenceLogServiceMain::getMaxFileCount() const
 void SequenceLogServiceMain::setMaxFileCount(int32_t count)
 {
     mMaxFileCount = count;
+}
+
+/*!
+ *  \brief  シーケンスログWEBサーバーポート取得
+ */
+uint16_t SequenceLogServiceMain::getWebServerPort() const
+{
+    return mWebServerPort;
+}
+
+/*!
+ *  \brief  シーケンスログWEBサーバーポート設定
+ */
+void SequenceLogServiceMain::setWebServerPort(uint16_t port)
+{
+    mWebServerPort = port;
 }
 
 /*!

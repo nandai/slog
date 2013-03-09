@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011 printf.jp
+ * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   SequenceLogServiceMain.h
  *  \brief  シーケンスログサービスメインクラス
- *  \author Copyright 2011 printf.jp
+ *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
 
@@ -33,6 +33,7 @@ namespace slog
 class FileInfo;
 class Mutex;
 class SequenceLogService;
+class SequenceLogServiceWebServerThread;
 
 typedef std::list<SequenceLogService*>  SequenceLogServiceManager;
 typedef std::list<FileInfo*>            FileInfoArray;
@@ -56,6 +57,7 @@ class SequenceLogServiceMain : public Thread, public FileFindListener
             FixedString<MAX_PATH>               mLogFolderName;         //!< シーケンスログフォルダ名
             uint32_t                            mMaxFileSize;           //!< 最大ファイルサイズ
             int32_t                             mMaxFileCount;          //!< 最大ファイル数
+            uint16_t                            mWebServerPort;         //!< シーケンスログWEBサーバーポート
 
 //          Socket                              mSocketPrint;           //!< シーケンスログプリントとの接続用ソケット
             Socket                              mSocket;                //!< シーケンスログクライアントの接続待ち受けソケット
@@ -66,6 +68,8 @@ class SequenceLogServiceMain : public Thread, public FileFindListener
             Mutex*                              mMutex;
             bool                                mRootAlways;
             bool                                mStartRunTime;
+
+            SequenceLogServiceWebServerThread*  mWebServer;             //!< シーケンスログWEBサーバースレッド
 
 public:     SequenceLogServiceMain();
             virtual ~SequenceLogServiceMain();
@@ -115,6 +119,9 @@ public:     void cleanup();
 
             int32_t  getMaxFileCount() const;
             void     setMaxFileCount(int32_t count);
+
+            uint16_t getWebServerPort() const;
+            void     setWebServerPort(uint16_t port);
 
 private:    virtual void onFind(const CoreString& path);
 };
