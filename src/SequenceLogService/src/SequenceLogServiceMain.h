@@ -25,6 +25,7 @@
 #include "slog/FileFind.h"
 #include "slog/Socket.h"
 #include "slog/FixedString.h"
+#include "slog/String.h"
 
 #include <list>
 
@@ -69,6 +70,9 @@ class SequenceLogServiceMain : public Thread, public FileFindListener
             bool                                mStartRunTime;
 
             SequenceLogServiceWebServerThread*  mWebServer;             //!< シーケンスログWEBサーバースレッド
+
+            String                              mSequenceLogServerIp;   //!< シーケンスログサーバーIP
+            uint16_t                            mSequenceLogServerPort; //!< シーケンスログサーバーポート
 
 public:     SequenceLogServiceMain();
             virtual ~SequenceLogServiceMain();
@@ -118,6 +122,10 @@ public:     void cleanup();
 
             uint16_t getWebServerPort() const;
             void     setWebServerPort(uint16_t port);
+
+            const CoreString& getSequenceLogServerIP() const;
+            uint16_t          getSequenceLogServerPort() const;
+            void              setSequenceLogServer(const CoreString& ip, uint16_t port);
 
 private:    virtual void onFind(const CoreString& path);
 };

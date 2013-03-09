@@ -124,7 +124,7 @@ bool WebServerResponseThread::analizeRequest()
 /*!
  *  \brief  URL取得
  */
-const String& WebServerResponseThread::getUrl() const
+const CoreString& WebServerResponseThread::getUrl() const
 {
     return mUrl;
 }
@@ -153,7 +153,7 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 /*!
  *  \brief  シーケンスログ送信
  */
-static bool sendSequenceLog(const String& ip, uint16_t port, const String& name)
+static bool sendSequenceLog(const CoreString& ip, uint16_t port, const CoreString& name)
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     int32_t len = name.getLength();
@@ -438,12 +438,20 @@ void SequenceLogServiceWebServerThread::run()
             client = new Socket;
             client->accept(&server);
 
+            if (isInterrupted())
+            {
+                client->close();
+                delete client;
+                break;
+            }
+
             SequenceLogServiceWebServerResponseThread* response = new SequenceLogServiceWebServerResponseThread(client);
             response->start();
         }
         catch (Exception& e)
         {
             noticeLog(e.getMessage());
+            client->close();
             delete client;
             break;
         }
@@ -470,13 +478,17 @@ void SequenceLogServiceWebServerResponseThread::run()
         if (requestOK)
         {
             // URL取得
-            const String& url = getUrl();
+            const CoreString& url = getUrl();
 
             if (0 < url.getLength())
             {
                 // シーケンスログ送信
-                String ip = "192.168.0.2";
-                requestOK = sendSequenceLog(ip, 8081, url);
+                SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+
+                requestOK = sendSequenceLog(
+                    serviceMain->getSequenceLogServerIP(),
+                    serviceMain->getSequenceLogServerPort(),
+                    url);
             }
         }
 

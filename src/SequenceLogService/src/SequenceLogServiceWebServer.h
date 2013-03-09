@@ -42,7 +42,7 @@ public:     WebServerResponseThread(Socket* socket);
 private:    virtual void onTerminated(Thread* thread);
 
 public:     bool analizeRequest();
-            const String& getUrl() const;
+            const CoreString& getUrl() const;
             void sendHttpHeader(int32_t contentLen) const;
 };
 

@@ -88,7 +88,6 @@ SequenceLogServiceMain::SequenceLogServiceMain()
     mStartRunTime = false;
 
     mWebServer = new SequenceLogServiceWebServerThread;
-    mWebServer->start();
 }
 
 /*!
@@ -441,7 +440,59 @@ uint16_t SequenceLogServiceMain::getWebServerPort() const
  */
 void SequenceLogServiceMain::setWebServerPort(uint16_t port)
 {
+    if (mWebServerPort == port)
+        return;
+
+    if (mWebServer->isAlive())
+    {
+        mWebServer->interrupt();
+        Socket sock;
+
+        try
+        {
+            sock.open();
+            sock.connect(FixedString<16>("127.0.0.1"), getWebServerPort());
+
+            // accept()のために少し待つ
+            sleep(1000);
+        }
+        catch (Exception /*e*/)
+        {
+        }
+
+        // 仮接続を切る
+        sock.close();
+
+        mWebServer->join();
+    }
+
     mWebServerPort = port;
+    mWebServer->start();
+}
+
+/*!
+ *  \brief  シーケンスログサーバーIP取得
+ */
+const CoreString& SequenceLogServiceMain::getSequenceLogServerIP() const
+{
+    return mSequenceLogServerIp;
+}
+
+/*!
+ *  \brief  シーケンスログサーバーポート取得
+ */
+uint16_t SequenceLogServiceMain::getSequenceLogServerPort() const
+{
+    return mSequenceLogServerPort;
+}
+
+/*!
+ *  \brief  シーケンスログサーバーのIPとポートを設定する
+ */
+void SequenceLogServiceMain::setSequenceLogServer(const CoreString& ip, uint16_t port)
+{
+    mSequenceLogServerIp.copy(ip);
+    mSequenceLogServerPort = port;
 }
 
 /*!
