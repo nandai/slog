@@ -26,6 +26,7 @@
 #include "slog/Mutex.h"
 #include "slog/TimeSpan.h"
 #include "slog/FileInfo.h"
+#include "slog/Util.h"
 
 namespace slog
 {
@@ -257,38 +258,6 @@ void SequenceLogServiceMain::cleanup()
 }
 
 /*!
- *  \brief  割り込み
- */
-void SequenceLogServiceMain::interrupt()
-{
-    Thread::interrupt();
-
-#if 1   // Windowsの場合はclose()によって、WSAEINTR（WSACancelBlockingCall）でaccept()から抜けるが、
-        // 他の環境（Android等）では抜けない場合があるので、仮接続を行って抜けるようにする
-
-    // accept()から抜けるための仮接続
-    Socket sock;
-
-    try
-    {
-        sock.open();
-        sock.connect(FixedString<16>("127.0.0.1"), SERVICE_PORT);
-
-        // accept()のために少し待つ
-        sleep(1000);
-    }
-    catch (Exception /*e*/)
-    {
-    }
-
-    // 仮接続を切る
-    sock.close();
-#else
-    mSocket.close();
-#endif
-}
-
-/*!
  *  \brief  インスタンス取得
  */
 SequenceLogServiceMain* SequenceLogServiceMain::getInstance()
@@ -445,25 +414,7 @@ void SequenceLogServiceMain::setWebServerPort(uint16_t port)
 
     if (mWebServer->isAlive())
     {
-        mWebServer->interrupt();
-        Socket sock;
-
-        try
-        {
-            sock.open();
-            sock.connect(FixedString<16>("127.0.0.1"), getWebServerPort());
-
-            // accept()のために少し待つ
-            sleep(1000);
-        }
-        catch (Exception /*e*/)
-        {
-        }
-
-        // 仮接続を切る
-        sock.close();
-
-        mWebServer->join();
+        Util::stopThread(mWebServer, mWebServerPort);
     }
 
     mWebServerPort = port;

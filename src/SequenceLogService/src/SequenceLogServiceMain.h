@@ -77,8 +77,6 @@ class SequenceLogServiceMain : public Thread, public FileFindListener
 public:     SequenceLogServiceMain();
             virtual ~SequenceLogServiceMain();
 
-            virtual void interrupt();
-
             static SequenceLogServiceMain* getInstance();
 
 private:    virtual void run();

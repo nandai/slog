@@ -408,6 +408,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\src\jp_printf_slog_Log.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\src\Log.cpp"
 			>
 			<FileConfiguration
@@ -462,10 +466,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\slog\Mutex.h"
-			>
-		</File>
-		<File
-			RelativePath=".\src\jp_printf_slog_Log.cpp"
 			>
 		</File>
 		<File
@@ -534,6 +534,14 @@
 		</File>
 		<File
 			RelativePath="..\..\include\slog\Tokenizer.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\Util.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\slog\Util.h"
 			>
 		</File>
 	</Files>
