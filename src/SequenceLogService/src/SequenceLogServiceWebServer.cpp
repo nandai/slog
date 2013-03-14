@@ -331,7 +331,7 @@ static bool sendSequenceLog(const CoreString& ip, uint16_t port, const CoreStrin
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     bool result = false;
 
-    String name = strrchr(path.getBuffer(), PATH_DELIMITER);
+    String name = strrchr(path.getBuffer(), PATH_DELIMITER) + 1;
     int32_t len = name.getLength();
 
     try
