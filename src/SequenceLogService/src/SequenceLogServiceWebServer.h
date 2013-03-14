@@ -24,24 +24,39 @@
 #include "slog/Thread.h"
 #include "slog/String.h"
 
+#include <map>
+
 namespace slog
 {
 class Socket;
+class ByteBuffer;
 
 /*!
  *  \brief  WEBサーバー応答スレッドクラス
  */
 class WebServerResponseThread : public Thread, public ThreadListener
 {
-protected:  Socket* mSocket;
-            String  mUrl;
+public:     enum METHOD
+            {
+                UNKNOWN,
+                GET,
+                POST,
+            };
+
+protected:  Socket*                     mSocket;
+            METHOD                      mMethod;        // 要求メソッド
+            String                      mUrl;           // 要求URL
+            std::map<String, String>    mPostParams;    // POSTパラメータ
 
 public:     WebServerResponseThread(Socket* socket);
             virtual ~WebServerResponseThread();
 
 private:    virtual void onTerminated(Thread* thread);
 
-public:     bool analizeRequest();
+public:     bool    analizeRequest();
+            int32_t analizeUrl(const char* request, int32_t len, METHOD method);
+            void    analizePostParams(ByteBuffer* params);
+
             const CoreString& getUrl() const;
             void sendHttpHeader(int32_t contentLen) const;
 };
