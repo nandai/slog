@@ -43,7 +43,7 @@ public:     enum METHOD
                 POST,
             };
 
-protected:  Socket*                     mSocket;
+private:    Socket*                     mSocket;
             METHOD                      mMethod;        // 要求メソッド
             String                      mUrl;           // 要求URL
             std::map<String, String>    mPostParams;    // POSTパラメータ
@@ -57,8 +57,12 @@ public:     bool    analizeRequest();
             int32_t analizeUrl(const char* request, int32_t len, METHOD method);
             void    analizePostParams(ByteBuffer* params);
 
+            METHOD getMethod() const;
             const CoreString& getUrl() const;
+            void getParam(const char* name, CoreString* param);
+
             void sendHttpHeader(int32_t contentLen) const;
+            void sendContent(String* content) const;
 };
 
 /*!

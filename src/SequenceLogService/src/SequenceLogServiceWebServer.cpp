@@ -295,11 +295,27 @@ void WebServerResponseThread::analizePostParams(ByteBuffer* params)
 }
 
 /*!
+ *  \brief  HTTPメソッド取得
+ */
+WebServerResponseThread::METHOD WebServerResponseThread::getMethod() const
+{
+    return mMethod;
+}
+
+/*!
  *  \brief  URL取得
  */
 const CoreString& WebServerResponseThread::getUrl() const
 {
     return mUrl;
+}
+
+/*!
+ *  \brief  POSTパラメータ取得
+ */
+void WebServerResponseThread::getParam(const char* name, CoreString* param)
+{
+    param->copy(mPostParams[name]);
 }
 
 /*!
@@ -321,6 +337,15 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
         contentLen);
 
     mSocket->send(str.getBuffer(), str.getLength());
+}
+
+/*!
+ *  \brief  応答内容送信＆切断
+ */
+void WebServerResponseThread::sendContent(String* content) const
+{
+    mSocket->send(content, content->getLength());
+    mSocket->close();
 }
 
 /*!
@@ -413,7 +438,6 @@ void SendSequenceLogThread::onTerminated(Thread* thread)
 static void appendSequenceLogList(String* buffer, FileInfo* info)
 {
     DateTime dateTime;
-    FixedString<DateTimeFormat::DATE_TIME_MS_LEN> strDt;
 
     // 開始日時
     String strCreationTime;
@@ -422,12 +446,7 @@ static void appendSequenceLogList(String* buffer, FileInfo* info)
 
     if (dateTime.getValue())
     {
-        DateTimeFormat::toString(&strDt, dateTime, DateTimeFormat::DATE_TIME);
-        strCreationTime.format("%s", strDt.getBuffer());
-    }
-    else
-    {
-        strCreationTime.copy("");
+        DateTimeFormat::toString(&strCreationTime, dateTime, DateTimeFormat::DATE_TIME);
     }
 
     // 終了日時
@@ -437,19 +456,11 @@ static void appendSequenceLogList(String* buffer, FileInfo* info)
 
     if (dateTime.getValue())
     {
-        DateTimeFormat::toString(&strDt, dateTime, DateTimeFormat::DATE_TIME);
-        strLastWriteTime.format("%s", strDt.getBuffer());
-    }
-    else
-    {
-        strLastWriteTime.copy("");
+        DateTimeFormat::toString(&strLastWriteTime, dateTime, DateTimeFormat::DATE_TIME);
     }
 
     // ログファイル名
-    const char* canonicalPath = info->getCanonicalPath().getBuffer();
-
-    String strFileName;
-    strFileName.format("%s", canonicalPath);
+    const CoreString& strFileName= info->getCanonicalPath();
 
     // サイズ
     String strSize;
@@ -474,10 +485,6 @@ static void appendSequenceLogList(String* buffer, FileInfo* info)
         {
             strSize.format("%s %.1f MB", message.getBuffer(), size / (1024 * 1024));
         }
-    }
-    else
-    {
-        strSize.copy("");
     }
 
     // 
@@ -707,35 +714,32 @@ void SequenceLogServiceWebServerResponseThread::run()
 
             if (0 == url.getLength())
             {
-                if (mMethod == GET)
+                if (getMethod() == GET)
                 {
                     appendRequestContents(&content);
                 }
                 else
                 {
-                    String fileNameKey = "fileName";
+                    String fileName;
+                    getParam("fileName", &fileName);
 
-                    for (map<String, String>::iterator i = mPostParams.begin(); i != mPostParams.end(); i++)
+                    if (fileName.getLength())
                     {
-                        if (i->first.equals(fileNameKey))
-                        {
-                            SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+                        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-//                          requestOK = sendSequenceLog(
-                            SendSequenceLogThread* thread = new SendSequenceLogThread(
-                                serviceMain->getSequenceLogServerIP(),
-                                serviceMain->getSequenceLogServerPort(),
-                                i->second);
+//                      requestOK = sendSequenceLog(
+                        SendSequenceLogThread* thread = new SendSequenceLogThread(
+                            serviceMain->getSequenceLogServerIP(),
+                            serviceMain->getSequenceLogServerPort(),
+                            fileName);
 
-                            thread->start();
-                            break;
-                        }
+                        thread->start();
                     }
                 }
             }
             else
             {
-                if (mMethod == GET)
+                if (getMethod() == GET)
                 {
                     requestOK = false;
                 }
@@ -767,7 +771,7 @@ void SequenceLogServiceWebServerResponseThread::run()
         }
 
         // 応答内容生成
-        if (requestOK == false && mMethod == GET)
+        if (requestOK == false && getMethod() == GET)
         {
             appendNotFoundContents(&content);
         }
@@ -777,8 +781,7 @@ void SequenceLogServiceWebServerResponseThread::run()
         sendHttpHeader(contentLen);
 
         // 応答内容送信
-        mSocket->send(&content, contentLen);
-        mSocket->close();
+        sendContent(&content);
     }
     catch (Exception& e)
     {
