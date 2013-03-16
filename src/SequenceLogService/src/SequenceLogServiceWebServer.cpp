@@ -105,7 +105,7 @@ bool WebServerResponseThread::analizeRequest()
         if (i == 0)
         {
             // 空行だったらループを抜ける
-            if (mMethod == POST)
+            if (mMethod == POST && 0 < contentLen)
             {
                 ByteBuffer params(contentLen);
 
@@ -324,28 +324,53 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 }
 
 /*!
- *  \brief  シーケンスログ送信
+ *  \brief  シーケンスログ送信スレッド
  */
-static bool sendSequenceLog(const CoreString& ip, uint16_t port, const CoreString& path)
+class SendSequenceLogThread : public Thread, public ThreadListener
+{
+            String      mIP;
+            uint16_t    mPort;
+            String      mLogFilePath;
+
+public:     SendSequenceLogThread(const CoreString& ip, uint16_t port, const CoreString& path);
+
+private:    virtual void run();
+            virtual void onTerminated(Thread* thread);
+};
+
+/*!
+ *  \brief  コンストラクタ
+ */
+SendSequenceLogThread::SendSequenceLogThread(const CoreString& ip, uint16_t port, const CoreString& path)
+{
+    mIP.copy(ip);
+    mPort = port;
+    mLogFilePath.copy(path);
+}
+
+/*!
+ *  \brief  実行
+ */
+void SendSequenceLogThread::run()
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     bool result = false;
 
-    String name = strrchr(path.getBuffer(), PATH_DELIMITER) + 1;
+    String name = strrchr(mLogFilePath.getBuffer(), PATH_DELIMITER) + 1;
     int32_t len = name.getLength();
 
     try
     {
         // ファイルオープン
         File file;
-        file.open(path, File::READ);
+        file.open(mLogFilePath, File::READ);
 
         result = true;
 
         // ソケット準備
         Socket viewerSocket;
         viewerSocket.open();
-        viewerSocket.connect(ip, port);
+        viewerSocket.connect(mIP, mPort);
 
         // ファイル名送信
         viewerSocket.send(&len);
@@ -372,8 +397,14 @@ static bool sendSequenceLog(const CoreString& ip, uint16_t port, const CoreStrin
     catch (Exception&)
     {
     }
+}
 
-    return result;
+/*!
+ *  \brief  スレッド終了通知
+ */
+void SendSequenceLogThread::onTerminated(Thread* thread)
+{
+    delete this;
 }
 
 /*!
@@ -392,11 +423,11 @@ static void appendSequenceLogList(String* buffer, FileInfo* info)
     if (dateTime.getValue())
     {
         DateTimeFormat::toString(&strDt, dateTime, DateTimeFormat::DATE_TIME);
-        strCreationTime.format("<td>%s</td>", strDt.getBuffer());
+        strCreationTime.format("%s", strDt.getBuffer());
     }
     else
     {
-        strCreationTime.copy("<td></td>");
+        strCreationTime.copy("");
     }
 
     // 終了日時
@@ -407,18 +438,18 @@ static void appendSequenceLogList(String* buffer, FileInfo* info)
     if (dateTime.getValue())
     {
         DateTimeFormat::toString(&strDt, dateTime, DateTimeFormat::DATE_TIME);
-        strLastWriteTime.format("<td>%s</td>", strDt.getBuffer());
+        strLastWriteTime.format("%s", strDt.getBuffer());
     }
     else
     {
-        strLastWriteTime.copy("<td></td>");
+        strLastWriteTime.copy("");
     }
 
     // ログファイル名
     const char* canonicalPath = info->getCanonicalPath().getBuffer();
 
     String strFileName;
-    strFileName.format("<td><a href=\"#\">%s</a></td>", canonicalPath);
+    strFileName.format("%s", canonicalPath);
 
     // サイズ
     String strSize;
@@ -430,37 +461,66 @@ static void appendSequenceLogList(String* buffer, FileInfo* info)
 
         if (size < 1024)
         {
-            strSize.format("<td align=\"right\">%s %d byte(s)</td>", message.getBuffer(), (int64_t)size);
+            strSize.format("%s %d byte(s)", message.getBuffer(), (int64_t)size);
         }
 
         else
         if (size < 1024 * 1024)
         {
-            strSize.format("<td align=\"right\">%s %.1f KB</td>", message.getBuffer(), size / 1024);
+            strSize.format("%s %.1f KB", message.getBuffer(), size / 1024);
         }
 
         else
         {
-            strSize.format("<td align=\"right\">%s %.1f MB</td>", message.getBuffer(), size / (1024 * 1024));
+            strSize.format("%s %.1f MB", message.getBuffer(), size / (1024 * 1024));
         }
     }
     else
     {
-        strSize.copy("<td></td>");
+        strSize.copy("");
     }
+
+    // 
+    const char* p = strFileName.getBuffer();
+    int32_t len =   strFileName.getLength() * 2;
+    char* filePath = new char[len + 1];
+    int32_t pos = 0;
+
+    while (*p)
+    {
+        if (*p != '\\')
+        {
+            filePath[pos] = *p;
+            pos++;
+        }
+        else
+        {
+            filePath[pos + 0] = '\\';
+            filePath[pos + 1] = '\\';
+            pos += 2;
+        }
+
+        p++;
+    }
+
+    filePath[pos] = '\0';
 
     // 文字列追加
     String str;
     str.format(
-        "<tr>"
-            "%s%s%s%s"
-        "</tr>",
+        "{"
+            "\"creationTime\" :\"%s\","
+            "\"lastWriteTime\":\"%s\","
+            "\"canonicalPath\":\"%s\","
+            "\"size\"         :\"%s\""
+        "}",
         strCreationTime. getBuffer(),
         strLastWriteTime.getBuffer(),
-        strFileName.     getBuffer(),
+        filePath,
         strSize.         getBuffer());
 
     buffer->append(str);
+    delete [] filePath;
 }
 
 /*!
@@ -503,25 +563,7 @@ static void appendJavaScript(String* buffer)
 {
     buffer->append(
         "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js\"></script>"
-        "<script type=\"text/javascript\">"
-        "$(function()"
-        "{"
-            "$('a[href=#]').click(function()"
-            "{"
-                "$.ajax("
-                "{"
-                    "url: '/',"
-                    "type: 'POST',"
-                    "dataType: 'text',"
-                    "data: "
-                    "{"
-                        "fileName: $(this).text()"
-                    "}"
-                "});"
-                "return false;"
-            "});"
-        "});"
-        "</script>");
+        "<script type=\"text/javascript\" src=\"http://" DOMAIN "/js/SequenceLogService.js\"></script>");
 }
 
 /*!
@@ -544,7 +586,8 @@ static void appendRequestContents(String* buffer)
     buffer->append(
         "<head>"
             FAVICON
-            "<title>Sequence Log Service</title>");
+            "<title>Sequence Log Service</title>"
+            "<link type=\"text/css\" rel=\"stylesheet\" href=\"http://" DOMAIN "/css/SequenceLogService.css\" media=\"screen\" />");
 
     appendJavaScript(buffer);
     appendCSS(buffer);
@@ -555,7 +598,7 @@ static void appendRequestContents(String* buffer)
         "<body>"
             "<h1>Sequence Log Service</h1>"
             "<div align=\"center\">"
-                "<table>"
+                "<table id=\"sequenceLogList\">"
 
                     // シーケンスログリストヘッダー
                     "<tr>"
@@ -563,23 +606,10 @@ static void appendRequestContents(String* buffer)
                         "<th>終了日時</th>"
                         "<th>ログファイル名</th>"
                         "<th>サイズ</th>"
-                    "</tr>");
-
-    // シーケンスログリスト
-    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-    ScopedLock lock(serviceMain->getMutex());
-
-    FileInfoArray* sum = serviceMain->getFileInfoArray();
-
-    for (FileInfoArray::iterator i = sum->begin(); i != sum->end(); i++)
-    {
-        appendSequenceLogList(buffer, *i);
-    }
-
-    buffer->append(
-            "</table>"
-        "</div>"
-        "<br />");
+                    "</tr>"
+                "</table>"
+            "</div>"
+            "<br />");
 
     appendFooter(buffer);
 }
@@ -667,6 +697,7 @@ void SequenceLogServiceWebServerResponseThread::run()
 {
     try
     {
+        String content;
         bool requestOK = analizeRequest();
 
         if (requestOK)
@@ -676,45 +707,77 @@ void SequenceLogServiceWebServerResponseThread::run()
 
             if (0 == url.getLength())
             {
-                String fileNameKey = "fileName";
-
-                for (map<String, String>::iterator i = mPostParams.begin(); i != mPostParams.end(); i++)
+                if (mMethod == GET)
                 {
-                    if (i->first.equals(fileNameKey))
-                    {
-                        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+                    appendRequestContents(&content);
+                }
+                else
+                {
+                    String fileNameKey = "fileName";
 
-                        requestOK = sendSequenceLog(
-                            serviceMain->getSequenceLogServerIP(),
-                            serviceMain->getSequenceLogServerPort(),
-                            i->second);
-                        break;
+                    for (map<String, String>::iterator i = mPostParams.begin(); i != mPostParams.end(); i++)
+                    {
+                        if (i->first.equals(fileNameKey))
+                        {
+                            SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+
+//                          requestOK = sendSequenceLog(
+                            SendSequenceLogThread* thread = new SendSequenceLogThread(
+                                serviceMain->getSequenceLogServerIP(),
+                                serviceMain->getSequenceLogServerPort(),
+                                i->second);
+
+                            thread->start();
+                            break;
+                        }
                     }
                 }
             }
             else
             {
-                requestOK = false;
+                if (mMethod == GET)
+                {
+                    requestOK = false;
+                }
+                else
+                {
+                    String getSequenceLogList = "getSequenceLogList";
+
+                    if (url.equals(getSequenceLogList))
+                    {
+                        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+                        ScopedLock lock(serviceMain->getMutex());
+
+                        FileInfoArray* sum = serviceMain->getFileInfoArray();
+                        char sep = '[';
+
+                        for (FileInfoArray::iterator i = sum->begin(); i != sum->end(); i++)
+                        {
+                            content.append(&sep, 1);
+                            appendSequenceLogList(&content, *i);
+                            sep = ',';
+                        }
+
+                        content.append("]", 1);
+                    }
+                    else
+                        content.copy("failed!");
+                }
             }
         }
 
         // 応答内容生成
-        String content;
-
-        if (requestOK)
-        {
-            appendRequestContents(&content);
-        }
-        else
+        if (requestOK == false && mMethod == GET)
         {
             appendNotFoundContents(&content);
         }
 
         // HTTPヘッダー送信
-        sendHttpHeader(content.getLength());
+        int32_t contentLen = content.getLength();
+        sendHttpHeader(contentLen);
 
         // 応答内容送信
-        mSocket->send(&content, content.getLength());
+        mSocket->send(&content, contentLen);
         mSocket->close();
     }
     catch (Exception& e)
