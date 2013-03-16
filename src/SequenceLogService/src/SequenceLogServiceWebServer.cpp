@@ -240,7 +240,7 @@ void WebServerResponseThread::analizePostParams(ByteBuffer* params)
 
         if (p2 == NULL)
         {
-            p2 = p1 + strlen(p1);
+            p2 = p1 + params->getLength();
             end = true;
         }
 
