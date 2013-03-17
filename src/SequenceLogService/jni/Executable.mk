@@ -7,7 +7,8 @@ LOCAL_MODULE	:= slogsvc
 LOCAL_SRC_FILES	:= \
 	../src/main.cpp \
 	../src/SequenceLogService.cpp \
-	../src/SequenceLogServiceMain.cpp
+	../src/SequenceLogServiceMain.cpp \
+	../src/SequenceLogServiceWebServer.cpp
 
 LOCAL_C_INCLUDES += \
 	$(ANDROID_NDK_ROOT)/sources/cxx-stl/stlport/stlport \

@@ -22,6 +22,8 @@
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
 
+#include "slog/Util.h"
+
 using namespace slog;
 
 //f defined(__ANDROID__)
@@ -85,6 +87,8 @@ static void JNICALL start(JNIEnv* env, jobject thiz,
     serviceMain->setMaxFileSize(maxFileSize);
     serviceMain->setMaxFileCount(maxFileCount);
     serviceMain->setRootAlways(rootAlways);
+//    serviceMain->setWebServerPort(webServerPort);
+//    serviceMain->setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
     serviceMain->start();
 }
 
@@ -98,8 +102,7 @@ static void JNICALL stop(JNIEnv* env, jobject thiz)
     SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
 //  TRACE("    serviceMain=0x%08X\n", serviceMain);
 
-    serviceMain->interrupt();
-    serviceMain->join();
+    Util::stopThread(serviceMain, SERVICE_PORT);
 
 //  env->SetIntField(thiz, s_refer, 0);
 }
@@ -236,6 +239,9 @@ void Application::main(int argc, char** argv)
     uint32_t size = 0;
     int32_t count = 0;
     bool rootAlways = true;
+    uint16_t webServerPort = 8080;
+    String sequenceLogServerIp = "127.0.0.1";
+    uint16_t sequenceLogServerPort = 8081;
     String user;
     String group;
 
@@ -284,6 +290,15 @@ void Application::main(int argc, char** argv)
 //      if (key == "ROOT_ALWAYS")
 //          rootAlways = (value1 == "true");
 
+        if (key == "WEB_SERVER_PORT")
+            webServerPort = value1;
+
+        if (key == "SEQUENCE_LOG_SERVER_IP")
+            sequenceLogServerIp.copy(value1);
+
+        if (key == "SEQUENCE_LOG_SERVER_PORT")
+            sequenceLogServerPort = value1;
+
         if (key == "USER")
             user.copy(value1);
 
@@ -293,8 +308,6 @@ void Application::main(int argc, char** argv)
 
     // サービス起動
     SequenceLogServiceMain serviceMain;
-    int32_t retryCount = 0;
-    int32_t retryMax = 6;
 
 #if defined(__unix__)
     serviceMain.setSharedMemoryPathName(sharedMemoryDir);
@@ -306,30 +319,9 @@ void Application::main(int argc, char** argv)
     serviceMain.setMaxFileSize(size);
     serviceMain.setMaxFileCount(count);
     serviceMain.setRootAlways(rootAlways);
-////serviceMain.connectSequenceLogPrint(printIp);
+    serviceMain.setWebServerPort(webServerPort);
+    serviceMain.setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
     serviceMain.start();
-
-    while (true)
-    {
-#if defined(__ANDROID__)
-        Thread::sleep(5 * 1000);
-#endif
-
-//      serviceMain.connectSequenceLogPrint(printIp);
-        retryCount++;
-
-#if defined(__ANDROID__) && 0
-        if (serviceMain.isConnectSequenceLogPrint())
-            break;
-
-        if (retryCount == retryMax)
-            break;
-
-        Thread::sleep(5 * 1000);
-#else
-        break;
-#endif
-    }
 
 #if defined(__unix__)
     struct group* gr =  (group.getLength() ? getgrnam(group.getBuffer()) : NULL);
@@ -453,7 +445,7 @@ static void onSignal(int sig)
         puts("");
 
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-    serviceMain->interrupt();
+    Util::stopThread(serviceMain, SERVICE_PORT);
 }
 #endif
 

@@ -23,9 +23,12 @@ objs = \
 	File.o \
 	FileFind.o \
 	FileInfo.o \
+	Json.o \
 	Socket.o \
 	Thread.o \
 	Tokenizer.o \
+	Util.o \
+	WebServerThread.o \
 	SequenceLog.o \
 	jp_printf_slog_Log.o
 

@@ -12,7 +12,8 @@ LDFLAGS = -lslog -lstdc++ -lrt
 objs = \
 	main.o \
 	SequenceLogService.o \
-	SequenceLogServiceMain.o
+	SequenceLogServiceMain.o \
+	SequenceLogServiceWebServer.o
 
 slogsvc: $(objs)
 	$(CC) -o slogsvc $^ $(LDFLAGS)

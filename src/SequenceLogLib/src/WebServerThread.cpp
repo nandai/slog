@@ -23,10 +23,31 @@
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
 
+#if defined(__linux__)
+    #include <stdlib.h>
+    #include <ctype.h>
+#endif
+
 using namespace std;
 
 namespace slog
 {
+
+/*!
+ *  \brief  コンストラクタ
+ */
+WebServerThread::WebServerThread()
+{
+    mPort = 8080;
+}
+
+/*!
+ *  \brief  ポート設定
+ */
+void WebServerThread::setPort(uint16_t port)
+{
+    mPort = port;
+}
 
 /*!
  *  \brief  実行

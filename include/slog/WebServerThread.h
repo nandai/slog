@@ -42,8 +42,8 @@ class SLOG_API WebServerThread : public Thread
 {
             uint16_t    mPort;
 
-public:     WebServerThread() {mPort = 8080;}
-            void setPort(uint16_t port) {mPort = port;}
+public:     WebServerThread();
+            void setPort(uint16_t port);
 
 private:    virtual void run();
             virtual WebServerResponseThread* createResponseThread(Socket* socket) const = 0;
