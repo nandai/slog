@@ -552,6 +552,14 @@
 			RelativePath="..\..\include\slog\Util.h"
 			>
 		</File>
+		<File
+			RelativePath=".\src\WebServerThread.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\slog\WebServerThread.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

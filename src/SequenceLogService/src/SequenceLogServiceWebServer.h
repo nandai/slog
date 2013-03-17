@@ -20,57 +20,17 @@
  *  \author Copyright 2013 printf.jp
  */
 #pragma once
-
-#include "slog/Thread.h"
-#include "slog/String.h"
-
-#include <map>
+#include "slog/WebServerThread.h"
 
 namespace slog
 {
-class Socket;
-class ByteBuffer;
-
-/*!
- *  \brief  WEBサーバー応答スレッドクラス
- */
-class WebServerResponseThread : public Thread, public ThreadListener
-{
-public:     enum METHOD
-            {
-                UNKNOWN,
-                GET,
-                POST,
-            };
-
-private:    Socket*                     mSocket;
-            METHOD                      mMethod;        // 要求メソッド
-            String                      mUrl;           // 要求URL
-            std::map<String, String>    mPostParams;    // POSTパラメータ
-
-public:     WebServerResponseThread(Socket* socket);
-            virtual ~WebServerResponseThread();
-
-private:    virtual void onTerminated(Thread* thread);
-
-public:     bool    analizeRequest();
-            int32_t analizeUrl(const char* request, int32_t len, METHOD method);
-            void    analizePostParams(ByteBuffer* params);
-
-            METHOD getMethod() const;
-            const CoreString& getUrl() const;
-            void getParam(const char* name, CoreString* param);
-
-            void sendHttpHeader(int32_t contentLen) const;
-            void sendContent(String* content) const;
-};
 
 /*!
  *  \brief  シーケンスログサービスWEBサーバースレッドクラス
  */
-class SequenceLogServiceWebServerThread : public Thread
+class SequenceLogServiceWebServerThread : public WebServerThread
 {
-            virtual void run();
+            virtual WebServerResponseThread* createResponseThread(Socket* socket) const;
 };
 
 /*!

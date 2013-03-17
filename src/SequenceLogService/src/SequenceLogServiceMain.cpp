@@ -418,6 +418,7 @@ void SequenceLogServiceMain::setWebServerPort(uint16_t port)
     }
 
     mWebServerPort = port;
+    mWebServer->setPort(port);
     mWebServer->start();
 }
 
