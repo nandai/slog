@@ -412,6 +412,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\src\Json.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\slog\Json.h"
+			>
+		</File>
+		<File
 			RelativePath=".\src\Log.cpp"
 			>
 			<FileConfiguration

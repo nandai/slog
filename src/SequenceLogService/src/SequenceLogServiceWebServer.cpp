@@ -30,6 +30,7 @@
 #include "slog/DateTimeFormat.h"
 #include "slog/FileInfo.h"
 #include "slog/Mutex.h"
+#include "slog/Json.h"
 
 using namespace std;
 
@@ -38,155 +39,6 @@ using namespace std;
 
 namespace slog
 {
-
-/*!
- *  \brief  エスケープエンコード
- */
-void encodeEscape(String* dest, const CoreString& src)
-{
-    static const char targets[] = {'\\', '"'};
-
-    const char* p = src.getBuffer();
-    int32_t len =   src.getLength() * 2;
-    char* buffer = new char[len + 1];
-    int32_t pos = 0;
-
-    while (*p)
-    {
-        bool hit = false;
-
-        for (int32_t i = 0; i < sizeof(targets); i++)
-        {
-            if (targets[i] != *p)
-                continue;
-
-            hit = true;
-            break;
-        }
-
-        if (hit == false)
-        {
-            buffer[pos] = *p;
-            pos++;
-        }
-        else
-        {
-            buffer[pos + 0] = '\\';
-            buffer[pos + 1] = *p;
-            pos += 2;
-        }
-
-        p++;
-    }
-
-    buffer[pos] = '\0';
-    dest->copy(buffer);
-
-    delete [] buffer;
-}
-
-/*!
- *  \brief  
- */
-class JsonAbstract
-{
-protected:  String      mName;
-
-protected:  JsonAbstract(const char* name)
-            {
-                mName.copy(name);
-            }
-
-public:     virtual ~JsonAbstract() {}
-
-            virtual void serialize(String* content) const = 0;
-};
-
-/*!
- *  \brief  
- */
-class JsonValue : public JsonAbstract
-{
-            String      mValue;
-
-public:     JsonValue(const char* name, const CoreString& value) : JsonAbstract(name)
-            {
-                encodeEscape(&mValue, value);
-            }
-
-            virtual void serialize(String* content) const
-            {
-                content->format("\"%s\":\"%s\"", mName.getBuffer(), mValue.getBuffer());
-            }
-};
-
-/*!
- *  \brief  
- */
-class JsonObject : public JsonAbstract
-{
-            char                mBracket[2];
-            list<JsonAbstract*> mList;
-
-public:     JsonObject(const char* name) : JsonAbstract(name)
-            {
-                mBracket[0] = '[';
-                mBracket[1] = ']';
-            }
-
-            virtual ~JsonObject()
-            {
-                for (list<JsonAbstract*>::iterator i = mList.begin(); i != mList.end(); i++)
-                    delete *i;
-            }
-
-            void add(const char* name, const CoreString& value)
-            {
-                mName.setLength(0);
-                mBracket[0] = '{';
-                mBracket[1] = '}';
-                mList.push_back(new JsonValue(name, value));
-            }
-
-            void add(JsonObject* json)
-            {
-                mList.push_back(json);
-            }
-
-            virtual void serialize(String* content) const
-            {
-                if (mList.size() == 0)
-                    return;
-
-                String work;
-
-                if (mName.getLength())
-                {
-                    work.format("\"%s\":%c", mName.getBuffer(), mBracket[0]);
-                }
-                else
-                {
-                    work.copy(&mBracket[0], 1);
-                }
-
-                String tmp;
-                char sep = ' ';
-
-                for (list<JsonAbstract*>::const_iterator i = mList.begin(); i != mList.end(); i++)
-                {
-                    tmp.setLength(0);
-                    (*i)->serialize(&tmp);
-
-                    work.append(&sep, 1);
-                    work.append(tmp);
-
-                    sep = ',';
-                }
-
-                work.append(&mBracket[1], 1);
-                content->append(work);
-            }
-};
 
 /*!
  *  \brief  コンストラクタ
@@ -584,7 +436,7 @@ void SendSequenceLogThread::onTerminated(Thread* thread)
 /*!
  *  \brief  シーケンスログリストJSON作成
  */
-static void createSequenceLogListJson(JsonObject* json, FileInfo* info)
+static void createSequenceLogListJson(Json* json, FileInfo* info)
 {
     DateTime dateTime;
 
@@ -866,17 +718,18 @@ void SequenceLogServiceWebServerResponseThread::run()
                         ScopedLock lock(serviceMain->getMutex());
 
                         FileInfoArray* sum = serviceMain->getFileInfoArray();
-                        JsonObject json("");
+                        Json* json = Json::getNewObject();
 
                         for (FileInfoArray::iterator i = sum->begin(); i != sum->end(); i++)
                         {
-                            JsonObject* jsonSequenceLogInfo = new JsonObject("");
+                            Json* jsonSequenceLogInfo = Json::getNewObject();
 
                             createSequenceLogListJson(jsonSequenceLogInfo, *i);
-                            json.add(jsonSequenceLogInfo);
+                            json->add(jsonSequenceLogInfo);
                         }
 
-                        json.serialize(&content);
+                        json->serialize(&content);
+                        delete json;
                     }
                 }
             }
