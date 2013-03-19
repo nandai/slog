@@ -15,73 +15,77 @@
  */
 package jp.printf.slog.service;
 
-import android.app.Activity;
+import android.preference.PreferenceActivity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.SpannableStringBuilder;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
 //port android.util.Log;
 
-public class Main extends Activity
+public class Main extends PreferenceActivity implements OnSharedPreferenceChangeListener
 {
     private Intent      mIntent;
-    
-    private Button      mStartStopService;          // サービス開始／終了ボタン
-    private EditText    mSharedMemoryPathName;      // 共有メモリ設定エリア
-//  private Button      mConnDisconnPrint;          // シーケンスログプリント接続／切断ボタン
-//  private EditText    mIPAddress;                 // シーケンスログプリントIPアドレス設定エリア
-    private EditText    mLogOutputDir;              // ログ出力ディレクトリ
-    private EditText    mMaxFileSize;               // 最大ログファイルサイズ
-    private Spinner     mMaxFileSizeUnit;           // 最大ログファイルサイズ単位
-    private EditText    mMaxFileCount;              // 最大ログファイル数
-    private EditText    mWebServerPort;             // Web Server ポート
-    private EditText    mSequenceLogServerIp;       // Sequence Log Server IP
-    private EditText    mSequenceLogServerPort;     // Sequence Log Server ポート
 
-    private void setSetting()
+    private void updateSummaries()
     {
         App app = (App)getApplication();
-        SpannableStringBuilder sb;
+        SharedPreferences sp = getPreferenceScreen().getSharedPreferences();
+        String key;
+        String value;
 
-        sb = (SpannableStringBuilder)mSharedMemoryPathName.getText();
-        app.mSharedMemoryPathName = sb.toString();
-        
-        sb = (SpannableStringBuilder)mLogOutputDir.getText();
-        app.mLogOutputDir = sb.toString();
+        // Sequence Log Service 開始 / 停止
+        key = "startStop";
+        findPreference(key).setSummary(
+            sp.getBoolean(key, false)
+                ? getString(R.string.running)
+                : getString(R.string.stopping));
 
-        sb = (SpannableStringBuilder)mMaxFileSize.getText();
-        app.mMaxFileSize = Integer.parseInt(sb.toString());
+        // 共有メモリパス
+        value = setSummary(sp, "sharedMemoryPathName");
+        app.mSharedMemoryPathName = value;
 
-        app.mMaxFileSizeUnit = (String)mMaxFileSizeUnit.getSelectedItem();
+        // ログ出力ディレクトリ
+        value = setSummary(sp, "logOutputDir");
+        app.mLogOutputDir = value;
 
-        sb = (SpannableStringBuilder)mMaxFileCount.getText();
-        app.mMaxFileCount = Integer.parseInt(sb.toString());
+        // 最大ファイルサイズ
+        value = setSummary(sp, "maxFileSize");
+        app.mMaxFileSize = Integer.parseInt(value);
 
-        sb = (SpannableStringBuilder)mWebServerPort.getText();
-        app.mWebServerPort = Integer.parseInt(sb.toString());
+        // 最大ファイルサイズ単位
+        value = setSummary(sp, "maxFileSizeUnit");
+        app.mMaxFileSizeUnit = value;
 
-        sb = (SpannableStringBuilder)mSequenceLogServerIp.getText();
-        app.mSequenceLogServerIp = sb.toString();
+        // 最大ファイル数
+        value = setSummary(sp, "maxFileCount");
+        app.mMaxFileCount = Integer.parseInt(value);
 
-        sb = (SpannableStringBuilder)mSequenceLogServerPort.getText();
-        app.mSequenceLogServerPort = Integer.parseInt(sb.toString());
+        // Sequence Log Service Web Server ポート
+        value = setSummary(sp, "webServerPort");
+        app.mWebServerPort = Integer.parseInt(value);
+
+        // Sequence Log Server IP
+        value = setSummary(sp, "sequenceLogServerIp");
+        app.mSequenceLogServerIp = value;
+
+        // Sequence Log Server ポート
+        value = setSummary(sp, "sequenceLogServerPort");
+        app.mSequenceLogServerPort = Integer.parseInt(value);
+    }
+
+    private String setSummary(SharedPreferences sp, String key)
+    {
+        String value = sp.getString(key, "");
+
+        findPreference(key).setSummary(value);
+        return value;
     }
 
     private void start()
     {
-        setSetting();
-
-        mStartStopService.setText(getString(R.string.stop_service));
         startService(mIntent);
 
         Intent activityIntent = new Intent(this, Main.class);
@@ -104,7 +108,6 @@ public class Main extends Activity
 
     private void stop()
     {
-        mStartStopService.setText(getString(R.string.start_service));
         stopService(mIntent);
 
         NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
@@ -112,117 +115,57 @@ public class Main extends Activity
     }
 
     /** Called when the activity is first created. */
-    @Override
     public void onCreate(Bundle savedInstanceState)
     {
 //      Log.d("seqlog", "Main.onCreate()");
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
 
         mIntent = new Intent(this, Service.class);
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 
-        // サービス開始／停止ボタン
-        final App app = ((App)getApplication());
+        addPreferencesFromResource(R.xml.settings);
+        updateSummaries();
 
-        mStartStopService = (Button)findViewById(R.id.startStopService);
-        mStartStopService.setText(
-            getString(app.isRunning() == false
-                ? R.string.start_service
-                : R.string.stop_service));
+        App app = (App)getApplication();
 
-        mStartStopService.setOnClickListener(new OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                if (app.isRunning() == false)
-                {
-                    start();
-                }
-                else
-                {
-                    if (app.canStop())
-                        stop();
-                }
-            }
-        });
-
-        // 共有メモリ設定エリア
-        String pathName = sp.getString("sharedMemoryPathName", getString(R.string.default_shared_memory_path));
-
-        mSharedMemoryPathName = (EditText)findViewById(R.id.sharedMemoryPathName);
-        mSharedMemoryPathName.setText(pathName);
-
-        // ログ出力ディレクトリ
-        String logOutputDir = sp.getString("logOutputDir", getString(R.string.default_log_output_dir));
-
-        mLogOutputDir = (EditText)findViewById(R.id.logOutputDir);
-        mLogOutputDir.setText(logOutputDir);
-
-        // 最大ログファイルサイズ 
-        Integer maxFileSize = sp.getInt("maxFileSize", 0);
-
-        mMaxFileSize = (EditText)findViewById(R.id.maxFileSize);
-        mMaxFileSize.setText(maxFileSize.toString());
-
-        String maxFileSizeUnit = sp.getString("maxFileSizeUnit", "KB");
-        mMaxFileSizeUnit = (Spinner)findViewById(R.id.maxFileSizeUnit);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        adapter.add("KB");
-        adapter.add("MB");
-        
-        mMaxFileSizeUnit.setAdapter(adapter);
-        mMaxFileSizeUnit.setSelection(maxFileSizeUnit.equals("KB") ? 0 : 1);
-
-        // 最大ログファイル数
-        Integer maxFileCount = sp.getInt("maxFileCount", 0);
-
-        mMaxFileCount = (EditText)findViewById(R.id.maxFileCount);
-        mMaxFileCount.setText(maxFileCount.toString());
-
-        // Web Server ポート
-        Integer webServerPort = sp.getInt("webServerPort", 8080);
-
-        mWebServerPort = (EditText)findViewById(R.id.webServerPort);
-        mWebServerPort.setText(webServerPort.toString());
-
-        // Sequence Log Server IP
-        String sequenceLogServerIp = sp.getString("sequenceLogServerIp", "192.168.0.2");
-
-        mSequenceLogServerIp = (EditText)findViewById(R.id.sequenceLogServerIp);
-        mSequenceLogServerIp.setText(sequenceLogServerIp);
-
-        // Sequence Log Server ポート
-        Integer sequenceLogServerPort = sp.getInt("sequenceLogServerPort", 8081);
-
-        mSequenceLogServerPort = (EditText)findViewById(R.id.sequenceLogServerPort);
-        mSequenceLogServerPort.setText(sequenceLogServerPort.toString());
+        if (app.isRunning() == false && getPreferenceScreen().getSharedPreferences().getBoolean("startStop", false))
+            start();
     }
 
-    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    protected void onPause()
+    {
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
     protected void onDestroy()
     {
 //      Log.d("seqlog", "Main.onDestroy()");
         super.onDestroy();
+    }
 
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,  String key)
+    {
         App app = (App)getApplication();
-        setSetting();
+        updateSummaries();
 
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sp.edit();
-
-        editor.putString("sharedMemoryPathName",  app.mSharedMemoryPathName);
-        editor.putString("logOutputDir",          app.mLogOutputDir);
-        editor.putInt(   "maxFileSize",           app.mMaxFileSize);
-        editor.putString("maxFileSizeUnit",       app.mMaxFileSizeUnit);
-        editor.putInt(   "maxFileCount",          app.mMaxFileCount);
-        editor.putInt(   "webServerPort",         app.mWebServerPort);
-        editor.putString("sequenceLogServerIp",   app.mSequenceLogServerIp);
-        editor.putInt(   "sequenceLogServerPort", app.mSequenceLogServerPort);
-
-        editor.commit();
+        if (key.equals("startStop"))
+        {
+            if (app.isRunning() == false)
+            {
+                start();
+            }
+            else
+            {
+                if (app.canStop())
+                    stop();
+            }
+        }
     }
 }
