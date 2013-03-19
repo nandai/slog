@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sequence Log Service</string>
+
+    <string name="shared_memory_path">Shared memory path</string>
+    <string name="log_output_dir">log output dir</string>
+    <string name="max_file_size">max file size</string>
+    <string name="max_file_count">max file count</string>
+    <string name="web_server_port">Web Server port</string>
+    <string name="sequence_log_server_ip">Sequence Log Server IP</string>
+    <string name="sequence_log_server_port">Sequence Log Server port</string>
+
+    <string name="default_shared_memory_path">/sdcard/slog/shm</string>
+    <string name="default_log_output_dir">/sdcard/slog</string>
+
+    <string name="start_service">Start Sequence Log Service</string>
+    <string name="stop_service">Stop Sequence Log Service</string>
 </resources>

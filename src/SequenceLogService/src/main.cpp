@@ -76,6 +76,10 @@ static void JNICALL start(JNIEnv* env, jobject thiz,
     jint maxFileCount,
     jboolean rootAlways)
 {
+    uint16_t webServerPort = 8080;
+    String sequenceLogServerIp = "192.168.0.2";
+    uint16_t sequenceLogServerPort = 8081;
+
     JavaString sharedMemoryPathName(env, aSharedMemoryPathName);
     JavaString logOutputDir(        env, aLogOutputDir);
 
@@ -87,8 +91,8 @@ static void JNICALL start(JNIEnv* env, jobject thiz,
     serviceMain->setMaxFileSize(maxFileSize);
     serviceMain->setMaxFileCount(maxFileCount);
     serviceMain->setRootAlways(rootAlways);
-//    serviceMain->setWebServerPort(webServerPort);
-//    serviceMain->setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
+    serviceMain->setWebServerPort(webServerPort);
+    serviceMain->setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
     serviceMain->start();
 }
 
@@ -176,7 +180,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
     if (vm->GetEnv((void**)&env, version) != JNI_OK)
         return -1;
 
-    if (registerNatives(env, "net/log_tools/slog/service/App", sMethods, sizeof(sMethods) / sizeof(sMethods[0])) == false)
+    if (registerNatives(env, "jp/printf/slog/service/App", sMethods, sizeof(sMethods) / sizeof(sMethods[0])) == false)
         return -1;
 
     return version;

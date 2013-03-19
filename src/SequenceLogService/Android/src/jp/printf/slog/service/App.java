@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 printf.jp
+ * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@ public class App extends android.app.Application
 {
     private int     mRefer = 0;
     private boolean mServiceRunning = false;
-//  private boolean mConnecting = false;
 
-    public String   mSharedMemoryPathName;
-    public String   mLogOutputDir;
-    public int      mMaxFileSize;
-    public String   mMaxFileSizeUnit;
-    public int      mMaxFileCount;
-//  public boolean  mRootAlways;
+    public String   mSharedMemoryPathName;  // 共有メモリパス
+    public String   mLogOutputDir;          // ログ出力ディレクトリ
+    public int      mMaxFileSize;           // 最大ファイルサイズ
+    public String   mMaxFileSizeUnit;       // 最大ファイルサイズ単位
+    public int      mMaxFileCount;          // 最大ファイル数
+    public int      mWebServerPort;         // Web Server ポート
+    public String   mSequenceLogServerIp;   // Sequence Log Server IP
+    public int      mSequenceLogServerPort; // Sequence Log Server ポート
 
     static
     {
@@ -40,29 +41,22 @@ public class App extends android.app.Application
         create();
     }
 
+    // Sequence Log Service が開始されているかどうか
     public boolean isRunning()
     {
         return mServiceRunning;
     }
 
+    // Sequence Log Service の動作状態設定
     public void running(boolean running)
     {
         mServiceRunning = running;
     }
 
-//  public boolean isConnecting()
-//  {
-//      return mConnecting;
-//  }
-    
-//  public void connecting(boolean connecting)
-//  {
-//      mConnecting = connecting;
-//  }
-
+    // Sequence Log Service の本体生成
     private native void create();
 
-    // シーケンスログサービス関連
+    // Sequence Log Service 開始
     public  void start()
     {
         start(
@@ -70,9 +64,10 @@ public class App extends android.app.Application
             mLogOutputDir,
             mMaxFileSize * (mMaxFileSizeUnit.equals("KB") ? 1024 : 1024 * 1024),
             mMaxFileCount,
-            false/*mRootAlways*/);
+            false);
     }
 
+    // Sequence Log Service 開始
     private native void start(
         String sharedMemoryPathName,
         String logOutputDir,
@@ -80,6 +75,7 @@ public class App extends android.app.Application
         int maxFileCount,
         boolean rootAlways);
 
+    // Sequence Log Service 停止
     public  native void stop();
     public  native boolean canStop();
 

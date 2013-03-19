@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shared_memory_path">共有メモリパス</string>
+    <string name="log_output_dir">ログ出力ディレクトリ</string>
+    <string name="max_file_size">最大ファイルサイズ</string>
+    <string name="max_file_count">最大ファイル数</string>
+    <string name="web_server_port">Web Server ポート</string>
+    <string name="sequence_log_server_ip">Sequence Log Server IP</string>
+    <string name="sequence_log_server_port">Sequence Log Server ポート</string>
+
+    <string name="start_service">Sequence Log Service 開始</string>
+    <string name="stop_service">Sequence Log Service 停止</string>
+</resources>
