@@ -28,73 +28,100 @@ import android.os.Bundle;
 
 public class Settings extends PreferenceFragment implements OnSharedPreferenceChangeListener
 {
-    private Intent      mIntent;
+    private final String        KEY_SHARED_MEMORY_PATH_NAME =  "sharedMemoryPathName";
+    private final String        KEY_LOG_OUTPUT_DIR =           "logOutputDir";
+    private final String        KEY_MAX_FILE_SIZE =            "maxFileSize";
+    private final String        KEY_MAX_FILE_SIZE_UNIT =       "maxFileSizeUnit";
+    private final String        KEY_MAX_FILE_COUNT =           "maxFileCount";
+    private final String        KEY_WEB_SERVER_PORT =          "webServerPort";
+    private final String        KEY_SEQUENCE_LOG_SERVER_IP =   "sequenceLogServerIp";
+    private final String        KEY_SEQUENCE_LOG_SERVER_PORT = "sequenceLogServerPort";
 
+    private Intent              mServiceIntent;     // Sequence Log Service を開始 / 停止するためのインテント
+    private SharedPreferences   mSP;
+
+    /**
+     * すべてのサマリーを更新する
+     * 
+     * Appクラスの各メンバの更新も行う
+     */
     private void updateSummaries()
     {
         App app = (App)getActivity().getApplication();
-        SharedPreferences sp = getPreferenceScreen().getSharedPreferences();
         String key;
         String value;
 
         // Sequence Log Service 開始 / 停止
         key = "startStop";
         findPreference(key).setSummary(
-            sp.getBoolean(key, false)
+            mSP.getBoolean(key, false)
                 ? getString(R.string.running)
                 : getString(R.string.stopping));
 
         // 共有メモリパス
-        value = setSummary(sp, "sharedMemoryPathName");
+        value = updateSummary(KEY_SHARED_MEMORY_PATH_NAME);
         app.mSharedMemoryPathName = value;
 
         // ログ出力ディレクトリ
-        value = setSummary(sp, "logOutputDir");
+        value = updateSummary(KEY_LOG_OUTPUT_DIR);
         app.mLogOutputDir = value;
 
         // 最大ファイルサイズ
-        value = setSummary(sp, "maxFileSize");
+        value = updateSummary(KEY_MAX_FILE_SIZE);
         app.mMaxFileSize = Integer.parseInt(value);
 
         // 最大ファイルサイズ単位
-        value = setSummary(sp, "maxFileSizeUnit");
+        value = updateSummary(KEY_MAX_FILE_SIZE_UNIT);
         app.mMaxFileSizeUnit = value;
 
         // 最大ファイル数
-        value = setSummary(sp, "maxFileCount");
+        value = updateSummary(KEY_MAX_FILE_COUNT);
         app.mMaxFileCount = Integer.parseInt(value);
 
         // Sequence Log Service Web Server ポート
-        value = setSummary(sp, "webServerPort");
+        value = updateSummary(KEY_WEB_SERVER_PORT);
         app.mWebServerPort = Integer.parseInt(value);
 
         // Sequence Log Server IP
-        value = setSummary(sp, "sequenceLogServerIp");
+        value = updateSummary(KEY_SEQUENCE_LOG_SERVER_IP);
         app.mSequenceLogServerIp = value;
 
         // Sequence Log Server ポート
-        value = setSummary(sp, "sequenceLogServerPort");
+        value = updateSummary(KEY_SEQUENCE_LOG_SERVER_PORT);
         app.mSequenceLogServerPort = Integer.parseInt(value);
     }
 
-    private String setSummary(SharedPreferences sp, String key)
+    /**
+     * サマリーを更新する
+     * 
+     * @param   key SharedPreferencesのキー
+     * 
+     * @return  keyで指定されたSharedPreferencesの値
+     */
+    private String updateSummary(String key)
     {
-        String value = sp.getString(key, "");
+        String value = mSP.getString(key, "");
 
         findPreference(key).setSummary(value);
         return value;
     }
 
+    /**
+     * Sequence Log Service を開始する
+     */
     private void start()
     {
         Activity activity = getActivity();
-        activity.startService(mIntent);
+        activity.startService(mServiceIntent);
 
+        // Notificationタッチ時のインテント
         Intent activityIntent = new Intent(activity, Main.class);
         activityIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
+        // Notificationに設定するインテント
         PendingIntent contentIntent = PendingIntent.getActivity(activity, 0, activityIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
 
+        // Notification生成
         Notification notification = new Notification.Builder(activity)
             .setSmallIcon(R.drawable.icon)
             .setTicker(getString(R.string.start_service))
@@ -104,61 +131,87 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
             .setContentIntent(contentIntent)
             .build();
 
+        // NotificationManagerにセット
         NotificationManager manager = (NotificationManager)activity.getSystemService(Activity.NOTIFICATION_SERVICE);
         manager.notify(0, notification);
     }
 
+    /**
+     * Sequence Log Service を停止する
+     */
     private void stop()
     {
         Activity activity = getActivity();
-        activity.stopService(mIntent);
+        activity.stopService(mServiceIntent);
 
         NotificationManager manager = (NotificationManager)activity.getSystemService(Activity.NOTIFICATION_SERVICE);
         manager.cancel(0);
     }
 
-    /** Called when the activity is first created. */
+    /**
+     * onCreate
+     */
     public void onCreate(Bundle savedInstanceState)
     {
 //      Log.d("seqlog", "Main.onCreate()");
 
         super.onCreate(savedInstanceState);
 
-        Activity activity = getActivity();
-        mIntent = new Intent(activity, Service.class);
-
+        // Preference追加
         addPreferencesFromResource(R.xml.settings);
+
+        // メンバ初期化
+        Activity activity = getActivity();
+
+        mServiceIntent = new Intent(activity, Service.class);
+        mSP = getPreferenceScreen().getSharedPreferences();
+
+        // サマリー更新
         updateSummaries();
 
+        // Sequence Log Service の開始
         App app = (App)activity.getApplication();
 
-        if (app.isRunning() == false && getPreferenceScreen().getSharedPreferences().getBoolean("startStop", false))
+        if (app.isRunning() == false && mSP.getBoolean("startStop", false))
             start();
     }
 
+    /**
+     * onResume
+     */
     public void onResume()
     {
         super.onResume();
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        mSP.registerOnSharedPreferenceChangeListener(this);
     }
 
+    /**
+     * onPause
+     */
     public void onPause()
     {
         super.onPause();
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        mSP.unregisterOnSharedPreferenceChangeListener(this);
     }
 
+    /**
+     * onDestroy
+     */
     public void onDestroy()
     {
 //      Log.d("seqlog", "Main.onDestroy()");
         super.onDestroy();
     }
 
+    /**
+     * onSharedPreferenceChanged
+     */
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,  String key)
     {
         App app = (App)getActivity().getApplication();
         updateSummaries();
 
+        // Sequence Log Service の開始 / 停止
         if (key.equals("startStop"))
         {
             if (app.isRunning() == false)
@@ -170,6 +223,11 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
                 if (app.canStop())
                     stop();
             }
+        }
+
+        // Sequence Log Service Web Server ポート
+        if (key.equals(KEY_WEB_SERVER_PORT))
+        {
         }
     }
 }
