@@ -15,6 +15,7 @@
  */
 package jp.printf.slog.service;
 
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.app.Activity;
 import android.app.Notification;
@@ -53,56 +54,61 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
 
         // Sequence Log Service 開始 / 停止
         key = "startStop";
+        boolean isRunning = mSP.getBoolean(key, false);
+
         findPreference(key).setSummary(
-            mSP.getBoolean(key, false)
+            isRunning
                 ? getString(R.string.running)
                 : getString(R.string.stopping));
 
         // 共有メモリパス
-        value = updateSummary(KEY_SHARED_MEMORY_PATH_NAME);
+        value = updateSummary(KEY_SHARED_MEMORY_PATH_NAME, (isRunning == false));
         app.mSharedMemoryPathName = value;
 
         // ログ出力ディレクトリ
-        value = updateSummary(KEY_LOG_OUTPUT_DIR);
+        value = updateSummary(KEY_LOG_OUTPUT_DIR, (isRunning == false));
         app.mLogOutputDir = value;
 
         // 最大ファイルサイズ
-        value = updateSummary(KEY_MAX_FILE_SIZE);
+        value = updateSummary(KEY_MAX_FILE_SIZE, (isRunning == false));
         app.mMaxFileSize = Integer.parseInt(value);
 
         // 最大ファイルサイズ単位
-        value = updateSummary(KEY_MAX_FILE_SIZE_UNIT);
+        value = updateSummary(KEY_MAX_FILE_SIZE_UNIT, (isRunning == false));
         app.mMaxFileSizeUnit = value;
 
         // 最大ファイル数
-        value = updateSummary(KEY_MAX_FILE_COUNT);
+        value = updateSummary(KEY_MAX_FILE_COUNT, (isRunning == false));
         app.mMaxFileCount = Integer.parseInt(value);
 
         // Sequence Log Service Web Server ポート
-        value = updateSummary(KEY_WEB_SERVER_PORT);
+        value = updateSummary(KEY_WEB_SERVER_PORT, true);
         app.mWebServerPort = Integer.parseInt(value);
 
         // Sequence Log Server IP
-        value = updateSummary(KEY_SEQUENCE_LOG_SERVER_IP);
+        value = updateSummary(KEY_SEQUENCE_LOG_SERVER_IP, true);
         app.mSequenceLogServerIp = value;
 
         // Sequence Log Server ポート
-        value = updateSummary(KEY_SEQUENCE_LOG_SERVER_PORT);
+        value = updateSummary(KEY_SEQUENCE_LOG_SERVER_PORT, true);
         app.mSequenceLogServerPort = Integer.parseInt(value);
     }
 
     /**
      * サマリーを更新する
      * 
-     * @param   key SharedPreferencesのキー
+     * @param   key     SharedPreferencesのキー
+     * @param   enabled 有効/無効化フラグ
      * 
      * @return  keyで指定されたSharedPreferencesの値
      */
-    private String updateSummary(String key)
+    private String updateSummary(String key, boolean enabled)
     {
+        Preference pref = findPreference(key);
         String value = mSP.getString(key, "");
 
-        findPreference(key).setSummary(value);
+        pref.setSummary(value);
+        pref.setEnabled(enabled);
         return value;
     }
 
