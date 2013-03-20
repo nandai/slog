@@ -29,6 +29,7 @@ import android.os.Bundle;
 
 public class Settings extends PreferenceFragment implements OnSharedPreferenceChangeListener
 {
+    private final String        KEY_START_STOP =               "startStop";
     private final String        KEY_SHARED_MEMORY_PATH_NAME =  "sharedMemoryPathName";
     private final String        KEY_LOG_OUTPUT_DIR =           "logOutputDir";
     private final String        KEY_MAX_FILE_SIZE =            "maxFileSize";
@@ -38,8 +39,12 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
     private final String        KEY_SEQUENCE_LOG_SERVER_IP =   "sequenceLogServerIp";
     private final String        KEY_SEQUENCE_LOG_SERVER_PORT = "sequenceLogServerPort";
 
-    private Intent              mServiceIntent;     // Sequence Log Service を開始 / 停止するためのインテント
+    private Intent              mServiceIntent;         // Sequence Log Service を開始 / 停止するためのインテント
     private SharedPreferences   mSP;
+
+    private int                 mWebServerPort;         // Web Server ポート
+    private String              mSequenceLogServerIp;   // Sequence Log Server IP
+    private int                 mSequenceLogServerPort; // Sequence Log Server ポート
 
     /**
      * すべてのサマリーを更新する
@@ -49,14 +54,12 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
     private void updateSummaries()
     {
         App app = (App)getActivity().getApplication();
-        String key;
         String value;
 
         // Sequence Log Service 開始 / 停止
-        key = "startStop";
-        boolean isRunning = mSP.getBoolean(key, false);
+        boolean isRunning = mSP.getBoolean(KEY_START_STOP, false);
 
-        findPreference(key).setSummary(
+        findPreference(KEY_START_STOP).setSummary(
             isRunning
                 ? getString(R.string.running)
                 : getString(R.string.stopping));
@@ -83,15 +86,19 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
 
         // Sequence Log Service Web Server ポート
         value = updateSummary(KEY_WEB_SERVER_PORT, true);
-        app.mWebServerPort = Integer.parseInt(value);
+        mWebServerPort = Integer.parseInt(value);
 
         // Sequence Log Server IP
         value = updateSummary(KEY_SEQUENCE_LOG_SERVER_IP, true);
-        app.mSequenceLogServerIp = value;
+        mSequenceLogServerIp = value;
 
         // Sequence Log Server ポート
         value = updateSummary(KEY_SEQUENCE_LOG_SERVER_PORT, true);
-        app.mSequenceLogServerPort = Integer.parseInt(value);
+        mSequenceLogServerPort = Integer.parseInt(value);
+
+        // 設定反映
+        app.updateSettings();
+        app.setSequenceLogServer(mSequenceLogServerIp, mSequenceLogServerPort);
     }
 
     /**
@@ -175,10 +182,12 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         // サマリー更新
         updateSummaries();
 
-        // Sequence Log Service の開始
+        // Sequence Log Service Web Server ポート設定
         App app = (App)activity.getApplication();
+        app.setWebServerPort(mWebServerPort);
 
-        if (app.isRunning() == false && mSP.getBoolean("startStop", false))
+        // Sequence Log Service の開始
+        if (app.isRunning() == false && mSP.getBoolean(KEY_START_STOP, false))
             start();
     }
 
@@ -234,6 +243,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         // Sequence Log Service Web Server ポート
         if (key.equals(KEY_WEB_SERVER_PORT))
         {
+            app.setWebServerPort(mWebServerPort);
         }
     }
 }

@@ -13,12 +13,14 @@
             android:key="sharedMemoryPathName"
             android:defaultValue="/sdcard/slog/shm"
             android:title="@string/shared_memory_path"
+            android:singleLine="true"
             android:dialogTitle="@string/shared_memory_path" />
 
         <EditTextPreference
             android:key="logOutputDir"
             android:defaultValue="/sdcard/slog"
             android:title="@string/log_output_dir"
+            android:singleLine="true"
             android:dialogTitle="@string/log_output_dir" />
 
         <EditTextPreference
@@ -58,6 +60,7 @@
             android:key="sequenceLogServerIp"
             android:defaultValue="192.168.0.2"
             android:title="@string/sequence_log_server_ip"
+            android:singleLine="true"
             android:dialogTitle="@string/sequence_log_server_ip" />
 
         <EditTextPreference

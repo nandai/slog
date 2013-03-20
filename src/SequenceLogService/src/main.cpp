@@ -67,32 +67,11 @@ static void JNICALL create(JNIEnv* env, jobject thiz)
 /*
  * Class:     jp_printf_slog_service_App
  * Method:    start
- * Signature: (Ljava/lang/String;Ljava/lang/String;IIZ)V
+ * Signature: ()V
  */
-static void JNICALL start(JNIEnv* env, jobject thiz,
-    jstring aSharedMemoryPathName,
-    jstring aLogOutputDir,
-    jint maxFileSize,
-    jint maxFileCount,
-    jboolean rootAlways)
+static void JNICALL start(JNIEnv* env, jobject thiz)
 {
-    uint16_t webServerPort = 8080;
-    String sequenceLogServerIp = "192.168.0.2";
-    uint16_t sequenceLogServerPort = 8081;
-
-    JavaString sharedMemoryPathName(env, aSharedMemoryPathName);
-    JavaString logOutputDir(        env, aLogOutputDir);
-
     SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
-
-    serviceMain->setSharedMemoryPathName(sharedMemoryPathName);
-//  serviceMain->setServiceListener(this);
-    serviceMain->setLogFolderName(logOutputDir);
-    serviceMain->setMaxFileSize(maxFileSize);
-    serviceMain->setMaxFileCount(maxFileCount);
-    serviceMain->setRootAlways(rootAlways);
-    serviceMain->setWebServerPort(webServerPort);
-    serviceMain->setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
     serviceMain->start();
 }
 
@@ -134,39 +113,62 @@ static jboolean JNICALL canStop(JNIEnv* env, jobject thiz)
 
 /*
  * Class:     jp_printf_slog_service_App
- * Method:    connectSequenceLogPrint
- * Signature: (Ljava/lang/String;)Z
+ * Method:    setSettings
+ * Signature: (Ljava/lang/String;Ljava/lang/String;IIZ)V
  */
-//static jboolean JNICALL connectSequenceLogPrint(JNIEnv* env, jobject thiz, jstring aIpAddress)
-//{
-//    JavaString ipAddress(env, aIpAddress);
-//
-//    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
-//    serviceMain->connectSequenceLogPrint(ipAddress);
-//
-//    return (serviceMain->isConnectSequenceLogPrint() ? JNI_TRUE : JNI_FALSE);
-//}
+static void JNICALL setSettings(JNIEnv* env, jobject thiz,
+    jstring aSharedMemoryPathName,
+    jstring aLogOutputDir,
+    jint maxFileSize,
+    jint maxFileCount)
+{
+    JavaString sharedMemoryPathName(env, aSharedMemoryPathName);
+    JavaString logOutputDir(        env, aLogOutputDir);
+
+    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+
+    serviceMain->setSharedMemoryPathName(sharedMemoryPathName);
+//  serviceMain->setServiceListener(this);
+    serviceMain->setLogFolderName(logOutputDir);
+    serviceMain->setMaxFileSize(maxFileSize);
+    serviceMain->setMaxFileCount(maxFileCount);
+    serviceMain->setRootAlways(false);
+}
 
 /*
  * Class:     jp_printf_slog_service_App
- * Method:    disconnectSequenceLogPrint
- * Signature: ()V
+ * Method:    setWebServerPort
+ * Signature: (I)V
  */
-//static void JNICALL disconnectSequenceLogPrint(JNIEnv* env, jobject thiz)
-//{
-//    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
-//    serviceMain->disconnectSequenceLogPrint();
-//}
+static void JNICALL setWebServerPort(JNIEnv* env, jobject thiz, jint port)
+{
+    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+    serviceMain->setWebServerPort(port);
+}
+
+/*
+ * Class:     jp_printf_slog_service_App
+ * Method:    setSequenceLogServer
+ * Signature: (Ljava/lang/String;I)V
+ */
+static jboolean JNICALL setSequenceLogServer(JNIEnv* env, jobject thiz, jstring aIp, jint port)
+{
+    JavaString ip(env, aIp);
+
+    SequenceLogServiceMain* serviceMain = (SequenceLogServiceMain*)env->GetIntField(thiz, s_refer);
+    serviceMain->setSequenceLogServer(ip, port);
+}
 
 // JNIメソッド配列
 static JNINativeMethod sMethods[] =
 {
-    {"create",                     "()V",                                        (void*)create                    },
-    {"start",                      "(Ljava/lang/String;Ljava/lang/String;IIZ)V", (void*)start                     },
-    {"stop",                       "()V",                                        (void*)stop                      },
-    {"canStop",                    "()Z",                                        (void*)canStop                   },
-//  {"connectSequenceLogPrint",    "(Ljava/lang/String;)Z",                      (void*)connectSequenceLogPrint   },
-//  {"disconnectSequenceLogPrint", "()V",                                        (void*)disconnectSequenceLogPrint},
+    {"create",                     "()V",                                        (void*)create              },
+    {"start",                      "()V",                                        (void*)start               },
+    {"stop",                       "()V",                                        (void*)stop                },
+    {"canStop",                    "()Z",                                        (void*)canStop             },
+    {"setSettings",                "(Ljava/lang/String;Ljava/lang/String;II)V",  (void*)setSettings         },
+    {"setWebServerPort",           "(I)V",                                       (void*)setWebServerPort    },
+    {"setSequenceLogServer",       "(Ljava/lang/String;I)V",                     (void*)setSequenceLogServer},
 };
 
 /*!

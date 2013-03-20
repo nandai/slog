@@ -25,9 +25,6 @@ public class App extends android.app.Application
     public int      mMaxFileSize;           // 最大ファイルサイズ
     public String   mMaxFileSizeUnit;       // 最大ファイルサイズ単位
     public int      mMaxFileCount;          // 最大ファイル数
-    public int      mWebServerPort;         // Web Server ポート
-    public String   mSequenceLogServerIp;   // Sequence Log Server IP
-    public int      mSequenceLogServerPort; // Sequence Log Server ポート
 
     static
     {
@@ -57,29 +54,41 @@ public class App extends android.app.Application
     private native void create();
 
     // Sequence Log Service 開始
-    public  void start()
-    {
-        start(
-            mSharedMemoryPathName,
-            mLogOutputDir,
-            mMaxFileSize * (mMaxFileSizeUnit.equals("KB") ? 1024 : 1024 * 1024),
-            mMaxFileCount,
-            false);
-    }
-
-    // Sequence Log Service 開始
-    private native void start(
-        String sharedMemoryPathName,
-        String logOutputDir,
-        int maxFileSize,
-        int maxFileCount,
-        boolean rootAlways);
+    public  native void start();
 
     // Sequence Log Service 停止
     public  native void stop();
     public  native boolean canStop();
 
-    // シーケンスログプリント関連
-//  public  native boolean connectSequenceLogPrint(String ipAddress);
-//  public  native void disconnectSequenceLogPrint();
+    // 設定反映
+    public void updateSettings()
+    {
+        setSettings(
+            mSharedMemoryPathName,
+            mLogOutputDir,
+            mMaxFileSize * (mMaxFileSizeUnit.equals("KB") ? 1024 : 1024 * 1024),
+            mMaxFileCount);
+    }
+
+    // Sequence Log Service 開始
+    private native void setSettings(
+        String sharedMemoryPathName,
+        String logOutputDir,
+        int maxFileSize,
+        int maxFileCount);
+
+    /**
+     * Sequence Log Service Web Server ポート設定
+     * 
+     * @param   port    Sequence Log Service Web Server のポート
+     */
+    public  native void setWebServerPort(int port);
+
+    /**
+     * Sequence Log Server のIPとポートを設定
+     * 
+     * @param   ip      Sequence Log Server IP
+     * @param   port    Sequence Log Server のポート
+     */
+    public  native void setSequenceLogServer(String ip, int port);
 }
