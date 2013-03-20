@@ -19,4 +19,7 @@
     <string name="start_service">Start Sequence Log Service</string>
     <string name="running">Running</string>
     <string name="stopping">Stopping</string>
+
+    <string name="official_home_page">http://www.printf.jp/SequenceLog/</string>
+    <string name="gitHub">https://github.com/nandai/slog/</string>
 </resources>

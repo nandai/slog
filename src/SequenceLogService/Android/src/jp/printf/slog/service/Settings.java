@@ -17,6 +17,7 @@ package jp.printf.slog.service;
 
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -51,6 +52,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
      * 
      * Appクラスの各メンバの更新も行う
      */
+    @SuppressLint("DefaultLocale")
     private void updateSummaries()
     {
         App app = (App)getActivity().getApplication();
@@ -95,6 +97,13 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         // Sequence Log Server ポート
         value = updateSummary(KEY_SEQUENCE_LOG_SERVER_PORT, true);
         mSequenceLogServerPort = Integer.parseInt(value);
+
+        // Sequence Log Service Web
+        LinkPreference pref = (LinkPreference)findPreference("serviceWeb");
+        String url = String.format("http://localhost:%d", mWebServerPort);
+
+        pref.setSummary(url);
+        pref.setUrl(url);
 
         // 設定反映
         app.updateSettings();

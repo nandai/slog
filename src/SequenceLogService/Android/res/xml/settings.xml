@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:printf="http://schemas.android.com/apk/res/jp.printf.slog.service">
+
     <PreferenceCategory android:title="@string/service_settings">
         <SwitchPreference
             android:key="startStop"
@@ -13,15 +16,15 @@
             android:key="sharedMemoryPathName"
             android:defaultValue="/sdcard/slog/shm"
             android:title="@string/shared_memory_path"
-            android:singleLine="true"
-            android:dialogTitle="@string/shared_memory_path" />
+            android:dialogTitle="@string/shared_memory_path"
+            android:inputType="text" />
 
         <EditTextPreference
             android:key="logOutputDir"
             android:defaultValue="/sdcard/slog"
             android:title="@string/log_output_dir"
-            android:singleLine="true"
-            android:dialogTitle="@string/log_output_dir" />
+            android:dialogTitle="@string/log_output_dir"
+            android:inputType="text" />
 
         <EditTextPreference
             android:key="maxFileSize"
@@ -54,14 +57,14 @@
             android:dialogTitle="@string/web_server_port"
             android:inputType="number" />
     </PreferenceCategory>
-        
+
     <PreferenceCategory android:title="@string/sequence_log_server_settings">
         <EditTextPreference
             android:key="sequenceLogServerIp"
             android:defaultValue="192.168.0.2"
             android:title="@string/sequence_log_server_ip"
-            android:singleLine="true"
-            android:dialogTitle="@string/sequence_log_server_ip" />
+            android:dialogTitle="@string/sequence_log_server_ip"
+            android:inputType="text" />
 
         <EditTextPreference
             android:key="sequenceLogServerPort"
@@ -69,6 +72,24 @@
             android:title="@string/sequence_log_server_port"
             android:dialogTitle="@string/sequence_log_server_port"
             android:inputType="number" />
-
     </PreferenceCategory>
+
+    <PreferenceCategory android:title="Home Page">
+        <jp.printf.slog.service.LinkPreference
+            android:key="serviceWeb"
+            android:title="Sequence Log Service Web"
+            />
+
+        <jp.printf.slog.service.LinkPreference
+            android:title="official home page"
+            android:summary="@string/official_home_page"
+            printf:url="@string/official_home_page"
+            />
+
+        <jp.printf.slog.service.LinkPreference
+            android:title="Sequence Log - GitHub"
+            android:summary="@string/gitHub"
+            printf:url="@string/gitHub"
+            />
+        </PreferenceCategory>
 </PreferenceScreen>
