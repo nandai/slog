@@ -132,7 +132,7 @@ static void JNICALL setSettings(JNIEnv* env, jobject thiz,
     serviceMain->setLogFolderName(logOutputDir);
     serviceMain->setMaxFileSize(maxFileSize);
     serviceMain->setMaxFileCount(maxFileCount);
-    serviceMain->setRootAlways(true);
+    serviceMain->setOutputScreen(false);
 }
 
 /*
@@ -240,11 +240,10 @@ void Application::main(int argc, char** argv)
     // 初期値
     String sharedMemoryDir = "/tmp";
     int32_t sharedMemoryItemCount = 100;
-//  String printIp = "127.0.0.1";
     String logOutputDir = "/var/log/slog";
     uint32_t size = 0;
     int32_t count = 0;
-    bool rootAlways = true;
+    bool outputScreen = true;
     uint16_t webServerPort = 8080;
     String sequenceLogServerIp = "127.0.0.1";
     uint16_t sequenceLogServerPort = 8081;
@@ -272,9 +271,6 @@ void Application::main(int argc, char** argv)
         if (key == "SHARED_MEMORY_ITEM_COUNT")
             sharedMemoryItemCount = value1;
 
-//      if (key == "LOG_PRINT_IP")
-//          printIp.copy(value1);
-
         if (key == "LOG_OUTPUT_DIR")
             logOutputDir.copy(value1);
 
@@ -293,8 +289,8 @@ void Application::main(int argc, char** argv)
         if (key == "MAX_FILE_COUNT")
             count = value1;
 
-//      if (key == "ROOT_ALWAYS")
-//          rootAlways = (value1 == "true");
+        if (key == "OUTPUT_SCREEN")
+            outputScreen = (value1 == "true");
 
         if (key == "WEB_SERVER_PORT")
             webServerPort = value1;
@@ -324,7 +320,7 @@ void Application::main(int argc, char** argv)
     serviceMain.setLogFolderName(logOutputDir);
     serviceMain.setMaxFileSize(size);
     serviceMain.setMaxFileCount(count);
-    serviceMain.setRootAlways(rootAlways);
+    serviceMain.setOutputScreen(outputScreen);
     serviceMain.setWebServerPort(webServerPort);
     serviceMain.setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
     serviceMain.start();

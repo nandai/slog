@@ -571,7 +571,7 @@ void SequenceLogService::writeSeqLogFile(File& file, SequenceLogItem* item)
     // シーケンスログプリントにログを送信
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-    if (serviceMain->isRootAlways())
+    if (serviceMain->isOutputScreen())
     {
         writeSeqLogFileText(file, item);
     }
@@ -724,7 +724,7 @@ void SequenceLogService::divideItems()
                 continue;
 
             if (item->mOutputFlag == slog::ROOT)
-                item->mOutputFlag = (serviceMain->isRootAlways() ? slog::ALWAYS : slog::KEEP);
+                item->mOutputFlag =  slog::ALWAYS;
 
             if (item->mType == SequenceLogItem::STEP_IN)
             {
@@ -740,7 +740,7 @@ void SequenceLogService::divideItems()
 
             if (item->mType == SequenceLogItem::MESSAGE)
             {
-                if (item->mLevel == slog::DEBUG || serviceMain->isRootAlways() == false)
+                if (item->mLevel == slog::DEBUG)
                     isKeep = true;
             }
 

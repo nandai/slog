@@ -66,8 +66,8 @@ class SequenceLogServiceMain : public Thread, public FileFindListener
             FileInfoArray                       mFileInfoArray;         //!< シーケンスログファイル情報
 
             Mutex*                              mMutex;
-            bool                                mRootAlways;
             bool                                mStartRunTime;
+            bool                                mOutputScreen;          //!< ログを画面に表示するかどうか
 
             SequenceLogServiceWebServerThread*  mWebServer;             //!< シーケンスログWEBサーバースレッド
 
@@ -108,6 +108,9 @@ public:     void cleanup();
 
             bool  isStartRunTime() const;
             void setStartRunTime(bool startRunTime);
+
+            bool  isOutputScreen() const;
+            void setOutputScreen(bool outputScreen);
 
             const CoreString& getLogFolderName() const;
             void setLogFolderName(const CoreString& name);
@@ -177,19 +180,19 @@ inline Mutex* SequenceLogServiceMain::getMutex() const
 }
 
 /*!
- *  \brief  ルートをALWAYSとするかどうか調べる
+ *  \brief  ログを画面に表示するかどうか調べる
  */
-inline bool SequenceLogServiceMain::isRootAlways() const
+inline bool SequenceLogServiceMain::isOutputScreen() const
 {
-    return mRootAlways;
+    return mOutputScreen;
 }
 
 /*!
- *  \brief  ルートをALWAYSとするかどうか設定する
+ *  \brief  ログを画面に表示するかどうか設定する
  */
-inline void SequenceLogServiceMain::setRootAlways(bool always)
+inline void SequenceLogServiceMain::setOutputScreen(bool always)
 {
-    mRootAlways = always;
+    mOutputScreen = always;
 }
 
 /*!

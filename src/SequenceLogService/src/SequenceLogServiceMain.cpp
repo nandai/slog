@@ -85,8 +85,8 @@ SequenceLogServiceMain::SequenceLogServiceMain()
     mMutex = new Mutex;
     ScopedLock lock(mMutex, false);
 
-    mRootAlways = true;
     mStartRunTime = false;
+    mOutputScreen = true;
 
     mWebServer = new SequenceLogServiceWebServerThread;
 }
