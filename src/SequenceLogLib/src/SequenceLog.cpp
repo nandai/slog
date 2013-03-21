@@ -333,7 +333,7 @@ void SequenceLogClient::init()
     try
     {
         // 初期化処理のためのソケット作成
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) && 0
         const char* SOCKET_SLOG = "/dev/socket/slog";
         struct stat buf;
 
@@ -347,16 +347,14 @@ void SequenceLogClient::init()
             mSocket.connect(FixedString<108>(SOCKET_SLOG));
         }
         else
-        {
 #endif
+        {
             PointerString address = sSequenceLogServiceAddress;
 
             mSocket.open();
             mSocket.setRecvTimeOut(3000);
             mSocket.connect(address, SERVICE_PORT);
-#if defined(__ANDROID__)
         }
-#endif
 
         // プロセスID送信
         Process process;

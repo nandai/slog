@@ -132,7 +132,7 @@ static void JNICALL setSettings(JNIEnv* env, jobject thiz,
     serviceMain->setLogFolderName(logOutputDir);
     serviceMain->setMaxFileSize(maxFileSize);
     serviceMain->setMaxFileCount(maxFileCount);
-    serviceMain->setRootAlways(false);
+    serviceMain->setRootAlways(true);
 }
 
 /*

@@ -323,7 +323,9 @@ void ConnectThread::onTerminated( Thread* thread)
  */
 void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 {
+#if !defined(__ANDROID__)
     mServiceListener->onUpdateLog(text);
+#endif
 }
 
 /*!
