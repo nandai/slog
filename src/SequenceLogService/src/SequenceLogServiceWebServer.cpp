@@ -132,20 +132,20 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
     // 開始日時
     String strCreationTime;
     dateTime = info->getCreationTime();
-    dateTime.toLocal();
 
     if (dateTime.getValue())
     {
+        dateTime.toLocal();
         DateTimeFormat::toString(&strCreationTime, dateTime, DateTimeFormat::DATE_TIME);
     }
 
     // 終了日時
     String strLastWriteTime;
     dateTime = info->getLastWriteTime();
-    dateTime.toLocal();
 
     if (dateTime.getValue())
     {
+        dateTime.toLocal();
         DateTimeFormat::toString(&strLastWriteTime, dateTime, DateTimeFormat::DATE_TIME);
     }
 
