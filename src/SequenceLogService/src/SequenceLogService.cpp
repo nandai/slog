@@ -224,7 +224,6 @@ SequenceLogService::~SequenceLogService()
  */
 bool SequenceLogService::init()
 {
-    TRACE("[S] SequenceLogService::init()\n", 0);
     bool result = true;
 
     try
@@ -280,13 +279,16 @@ bool SequenceLogService::init()
             mProcess.getId());
 #else
         FileInfo fileInfo(serviceMain->getSharedMemoryPathName());
-        const CoreString&  canonicalPath = fileInfo.getCanonicalPath();
+        const CoreString& canonicalPath = fileInfo.getCanonicalPath();
 
         shmName.format(
             "%s%cslogshm%d",
             canonicalPath.getBuffer(),
             PATH_DELIMITER,
             mProcess.getId());
+
+        FileInfo fileInfo2(shmName);
+        fileInfo2.mkdir();
 #endif
 
         mSHM.create(shmName, len);
@@ -335,17 +337,12 @@ bool SequenceLogService::init()
     }
     catch (Exception e)
     {
-        TRACE("    %s\n", e.getMessage());
-
-#if defined(__unix__)
-        syslog(LOG_WARNING, "%s", e.getMessage());
-#endif
+        noticeLog("%s\n", e.getMessage());
 
         cleanUp();
         result = false;
     }
 
-    TRACE("[E] SequenceLogService::init()\n", 0);
     return result;
 }
 
