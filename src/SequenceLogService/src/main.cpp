@@ -24,7 +24,65 @@
 
 #include "slog/Util.h"
 
+#if defined(__unix__)
+    #include <pwd.h>
+    #include <grp.h>
+#endif
+
 using namespace slog;
+
+/*!
+ *  \brief  グループとユーザーを変更する
+ */
+static bool changeGroupAndUser(const CoreString& aGroup, const CoreString& user)
+{
+#if defined(__unix__)
+    // 必ず以下の順序で変更する
+    //
+    // 1.グループ変更
+    // 2.ユーザー変更
+
+    // 1.グループ変更
+    if (0 < aGroup.getLength())
+    {
+        struct group* gr = getgrnam(aGroup.getBuffer());
+
+        if (gr == NULL || setgid(gr->gr_gid) != 0)
+        {
+            String err;
+            err.format("change group '%s' ... %s\n",
+                aGroup.getBuffer(),
+                gr ? strerror(errno) : "Not found");
+
+            const char* p = err.getBuffer();
+            noticeLog(p);
+
+            return false;
+        }
+    }
+
+    // 2.ユーザー変更
+    if (0 < user.getLength())
+    {
+        struct passwd* pw = (user. getLength() ? getpwnam(user. getBuffer()) : NULL);
+
+        if (pw == NULL || setuid(pw->pw_uid) != 0)
+        {
+            String err;
+            err.format("change user '%s' ... %s\n",
+                user.getBuffer(),
+                pw ? strerror(errno) : "Not found");
+
+            const char* p = err.getBuffer();
+            noticeLog(p);
+
+            return false;
+        }
+    }
+#endif
+
+    return true;
+}
 
 //f defined(__ANDROID__)
 #if defined(__ANDROID__) && !defined(__EXEC__)
@@ -194,11 +252,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 #include "slog/DateTimeFormat.h"
 #include "slog/FileInfo.h"
 
-#if defined(__unix__)
-#include <pwd.h>
-#include <grp.h>
-#endif
-
 #define VERSION "ver.1.2.3"
 
 class Application : public SequenceLogServiceThreadListener
@@ -308,6 +361,10 @@ void Application::main(int argc, char** argv)
             group.copy(value1);
     }
 
+    // ユーザーとグループを変更する
+    if (changeGroupAndUser(group, user) == false)
+        return;
+
     // サービス起動
     SequenceLogServiceMain serviceMain;
 
@@ -324,17 +381,6 @@ void Application::main(int argc, char** argv)
     serviceMain.setWebServerPort(webServerPort);
     serviceMain.setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
     serviceMain.start();
-
-#if defined(__unix__)
-    struct group* gr =  (group.getLength() ? getgrnam(group.getBuffer()) : NULL);
-    struct passwd* pw = (user. getLength() ? getpwnam(user. getBuffer()) : NULL);
-
-    if (gr)
-        setgid(gr->gr_gid);
-
-    if (pw)
-        setuid(pw->pw_uid);
-#endif
 
     Thread::sleep(100);
     serviceMain.join();

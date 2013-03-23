@@ -15,6 +15,7 @@
  */
 package jp.printf.slog.service;
 
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.annotation.SuppressLint;
@@ -36,6 +37,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
     private final String        KEY_MAX_FILE_SIZE =            "maxFileSize";
     private final String        KEY_MAX_FILE_SIZE_UNIT =       "maxFileSizeUnit";
     private final String        KEY_MAX_FILE_COUNT =           "maxFileCount";
+    private final String        KEY_CHANGE_SUPER_USER =        "superUser";
     private final String        KEY_WEB_SERVER_PORT =          "webServerPort";
     private final String        KEY_SEQUENCE_LOG_SERVER_IP =   "sequenceLogServerIp";
     private final String        KEY_SEQUENCE_LOG_SERVER_PORT = "sequenceLogServerPort";
@@ -86,6 +88,10 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         value = updateSummary(KEY_MAX_FILE_COUNT, (isRunning == false));
         app.mMaxFileCount = Integer.parseInt(value);
 
+        // スーパーユーザー
+        Preference pref = findPreference(KEY_CHANGE_SUPER_USER);
+        pref.setEnabled(isRunning == false);
+
         // Sequence Log Service Web Server ポート
         value = updateSummary(KEY_WEB_SERVER_PORT, true);
         mWebServerPort = Integer.parseInt(value);
@@ -99,11 +105,11 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         mSequenceLogServerPort = Integer.parseInt(value);
 
         // Sequence Log Service Web
-        LinkPreference pref = (LinkPreference)findPreference("serviceWeb");
+        LinkPreference linkPref = (LinkPreference)findPreference("serviceWeb");
         String url = String.format("http://localhost:%d", mWebServerPort);
 
-        pref.setSummary(url);
-        pref.setUrl(url);
+        linkPref.setSummary(url);
+        linkPref.setUrl(url);
 
         // 設定反映
         app.updateSettings();
@@ -195,6 +201,9 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         App app = (App)activity.getApplication();
         app.setWebServerPort(mWebServerPort);
 
+        // スーパーユーザー
+        setSuperUser();
+
         // Sequence Log Service の開始
         if (app.isRunning() == false && mSP.getBoolean(KEY_START_STOP, false))
             start();
@@ -249,10 +258,31 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
             }
         }
 
+        // スーパーユーザー
+        if (key.equals(KEY_CHANGE_SUPER_USER))
+        {
+            setSuperUser();
+        }
+
         // Sequence Log Service Web Server ポート
         if (key.equals(KEY_WEB_SERVER_PORT))
         {
             app.setWebServerPort(mWebServerPort);
+        }
+    }
+
+    /**
+     * スーパーユーザー設定
+     */
+    private void setSuperUser()
+    {
+        App app = (App)getActivity().getApplication();
+        boolean on = mSP.getBoolean(KEY_CHANGE_SUPER_USER, false);
+
+        if (app.setSuperUser(on) == false)
+        {
+            CheckBoxPreference pref = (CheckBoxPreference)findPreference(KEY_CHANGE_SUPER_USER);
+            pref.setChecked(false);
         }
     }
 }

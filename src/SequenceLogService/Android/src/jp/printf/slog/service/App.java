@@ -15,6 +15,10 @@
  */
 package jp.printf.slog.service;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public class App extends android.app.Application
 {
     private int     mRefer = 0;
@@ -25,6 +29,10 @@ public class App extends android.app.Application
     public int      mMaxFileSize;           // 最大ファイルサイズ
     public String   mMaxFileSizeUnit;       // 最大ファイルサイズ単位
     public int      mMaxFileCount;          // 最大ファイル数
+
+    private Process             mSu = null;
+    private DataInputStream     mInputStream = null;
+    private DataOutputStream    mOutputStream = null;
 
     static
     {
@@ -48,6 +56,102 @@ public class App extends android.app.Application
     public void running(boolean running)
     {
         mServiceRunning = running;
+    }
+
+    // スーパーユーザー設定
+    public boolean setSuperUser(boolean on)
+    {
+        if (mSu != null && on)
+        {
+            // 既にスーパーユーザー
+            return true;
+        }
+
+        if (mSu == null && on == false)
+        {
+            // 既に一般ユーザー
+            return true;
+        }
+
+        boolean result = true;
+
+        try
+        {
+            if (on)
+            {
+                result = false;
+
+                mSu = Runtime.getRuntime().exec("su");
+                mInputStream =  new DataInputStream( mSu.getInputStream());
+                mOutputStream = new DataOutputStream(mSu.getOutputStream());
+
+                mOutputStream.writeBytes("whoami\n");
+                mOutputStream.flush();
+
+                byte[] buffer = new byte[64];
+                int size = mInputStream.read(buffer);
+
+                if (0 < size)
+                {
+                    String res = new String(buffer, 0, size - 1);
+
+                    if (res.equals("root") == true)
+                    {
+                        // スーパーユーザー化成功
+                        return true;
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        // OutputStream後始末
+        try
+        {
+            if (mOutputStream != null)
+            {
+                mOutputStream.writeBytes("exit\n");
+                mOutputStream.flush();
+                mOutputStream.close();
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            mOutputStream = null;
+        }
+
+        // InputStream後始末
+        try
+        {
+            if (mInputStream != null)
+            {
+                mInputStream.close();
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            mInputStream = null;
+        }
+
+        // suプロセス後始末
+        if (mSu != null)
+        {
+            mSu.destroy();
+            mSu = null;
+        }
+
+        return result;
     }
 
     // Sequence Log Service の本体生成

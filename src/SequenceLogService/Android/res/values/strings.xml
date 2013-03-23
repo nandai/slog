@@ -8,6 +8,7 @@
     <string name="max_file_size">max file size</string>
     <string name="max_file_size_unit">file size unit</string>
     <string name="max_file_count">max file count</string>
+    <string name="change_super_user">change super user</string>
 
     <string name="web_server_settings">Sequence Log Service Web Server Settings</string>
     <string name="web_server_port">Sequence Log Service Web Server port</string>

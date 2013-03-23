@@ -34,8 +34,8 @@ public class Service extends android.app.Service
         super.onCreate();
 
         App app = (App)getApplication();
-        app.start();
         app.running(true);
+        app.start();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class Service extends android.app.Service
         super.onDestroy();
 
         App app = (App)getApplication();
-        app.stop();
         app.running(false);
+        app.stop();
     }
 }
