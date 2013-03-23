@@ -103,9 +103,6 @@ public:     void cleanup();
 
             Mutex* getMutex() const;
 
-            bool  isRootAlways() const;
-            void setRootAlways(bool always);
-
             bool  isStartRunTime() const;
             void setStartRunTime(bool startRunTime);
 
