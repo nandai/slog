@@ -17,10 +17,15 @@
     <string name="sequence_log_server_ip">Sequence Log Server IP</string>
     <string name="sequence_log_server_port">Sequence Log Server port</string>
 
+    <string name="official_home_page">http://www.printf.jp/SequenceLog/</string>
+    <string name="gitHub">https://github.com/nandai/slog/</string>
+
     <string name="start_service">Start Sequence Log Service</string>
     <string name="running">Running</string>
     <string name="stopping">Stopping</string>
 
-    <string name="official_home_page">http://www.printf.jp/SequenceLog/</string>
-    <string name="gitHub">https://github.com/nandai/slog/</string>
+    <string name="general_user">General user</string>
+    <string name="super_user">Super user</string>
+
+    <string name="permission_denied">directory permission denied.</string>
 </resources>

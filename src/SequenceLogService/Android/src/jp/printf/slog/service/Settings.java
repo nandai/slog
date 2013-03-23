@@ -18,6 +18,11 @@ package jp.printf.slog.service;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
+import android.widget.Toast;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
@@ -26,6 +31,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.graphics.Color;
 import android.os.Bundle;
 //port android.util.Log;
 
@@ -49,6 +55,9 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
     private String              mSequenceLogServerIp;   // Sequence Log Server IP
     private int                 mSequenceLogServerPort; // Sequence Log Server ポート
 
+    private boolean             mSharedMemoryPathOkFlag = true;
+    private boolean             mLogOutputDirOkFlag = true;
+
     /**
      * すべてのサマリーを更新する
      * 
@@ -61,20 +70,33 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         String value;
 
         // Sequence Log Service 開始 / 停止
+        Preference pref = findPreference(  KEY_START_STOP);
         boolean isRunning = mSP.getBoolean(KEY_START_STOP, false);
 
-        findPreference(KEY_START_STOP).setSummary(
-            isRunning
-                ? getString(R.string.running)
-                : getString(R.string.stopping));
+        setTitleColor(pref);
+        pref.setSummary(isRunning
+            ? getString(R.string.running)
+            : getString(R.string.stopping));
 
         // 共有メモリパス
         value = updateSummary(KEY_SHARED_MEMORY_PATH_NAME, (isRunning == false));
         app.mSharedMemoryPathName = value;
 
+        if (mSharedMemoryPathOkFlag == false)
+        {
+            pref = findPreference(KEY_SHARED_MEMORY_PATH_NAME);
+            setErrorSummaryColor(pref);
+        }
+
         // ログ出力ディレクトリ
         value = updateSummary(KEY_LOG_OUTPUT_DIR, (isRunning == false));
         app.mLogOutputDir = value;
+
+        if (mLogOutputDirOkFlag == false)
+        {
+            pref = findPreference(KEY_LOG_OUTPUT_DIR);
+            setErrorSummaryColor(pref);
+        }
 
         // 最大ファイルサイズ
         value = updateSummary(KEY_MAX_FILE_SIZE, (isRunning == false));
@@ -89,7 +111,13 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         app.mMaxFileCount = Integer.parseInt(value);
 
         // スーパーユーザー
-        Preference pref = findPreference(KEY_CHANGE_SUPER_USER);
+        pref = findPreference(KEY_CHANGE_SUPER_USER);
+        boolean isSuperUser = mSP.getBoolean(KEY_CHANGE_SUPER_USER, false);
+
+        setTitleColor(pref);
+        pref.setSummary(isSuperUser
+            ? getString(R.string.super_user)
+            : getString(R.string.general_user));
         pref.setEnabled(isRunning == false);
 
         // Sequence Log Service Web Server ポート
@@ -108,8 +136,17 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         LinkPreference linkPref = (LinkPreference)findPreference("serviceWeb");
         String url = String.format("http://localhost:%d", mWebServerPort);
 
+        setTitleColor(linkPref);
         linkPref.setSummary(url);
         linkPref.setUrl(url);
+
+        // official home page
+        pref = findPreference("officialHomePage");
+        setTitleColor(pref);
+
+        // gitHub
+        pref = findPreference("gitHub");
+        setTitleColor(pref);
 
         // 設定反映
         app.updateSettings();
@@ -129,9 +166,32 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         Preference pref = findPreference(key);
         String value = mSP.getString(key, "");
 
+        setTitleColor(pref);
         pref.setSummary(value);
         pref.setEnabled(enabled);
         return value;
+    }
+
+    /**
+     * Preferenceのタイトルカラーを設定する
+     */
+    private void setTitleColor(Preference pref)
+    {
+        SpannableString title = new SpannableString(pref.getTitle());
+        title.setSpan(new ForegroundColorSpan(Color.rgb(144, 255, 144)), 0, title.length(), 0);
+
+        pref.setTitle(title);
+    }
+
+    /**
+     * Preferenceのサマリーカラーを設定する
+     */
+    private void setErrorSummaryColor(Preference pref)
+    {
+        SpannableString summary = new SpannableString(pref.getSummary());
+        summary.setSpan(new ForegroundColorSpan(Color.RED), 0, summary.length(), 0);
+
+        pref.setSummary(summary);
     }
 
     /**
@@ -139,6 +199,33 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
      */
     private void start()
     {
+        App app = (App)getActivity().getApplication();
+        boolean success = true;
+
+        if (App.canUsableDirectory(app.mSharedMemoryPathName) == false)
+        {
+            success = false;
+            mSharedMemoryPathOkFlag = false;
+        }
+
+        if (App.canUsableDirectory(app.mLogOutputDir) == false)
+        {
+            success = false;
+            mLogOutputDirOkFlag = false;
+        }
+
+        if (success == false)
+        {
+            SwitchPreference pref = (SwitchPreference)findPreference(KEY_START_STOP);
+            pref.setChecked(false);
+            updateSummaries();
+
+            Toast toast = Toast.makeText(getActivity(), getString(R.string.permission_denied), Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return;
+        }
+
         Activity activity = getActivity();
         activity.startService(mServiceIntent);
 
@@ -242,10 +329,17 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,  String key)
     {
         App app = (App)getActivity().getApplication();
+
+        if (key.equals(KEY_SHARED_MEMORY_PATH_NAME))
+            mSharedMemoryPathOkFlag = true;
+
+        if (key.equals(KEY_LOG_OUTPUT_DIR))
+            mLogOutputDirOkFlag = true;
+
         updateSummaries();
 
         // Sequence Log Service の開始 / 停止
-        if (key.equals("startStop"))
+        if (key.equals(KEY_START_STOP))
         {
             if (app.isRunning() == false)
             {

@@ -86,12 +86,14 @@
             />
 
         <jp.printf.slog.service.LinkPreference
+            android:key="officialHomePage"
             android:title="official home page"
             android:summary="@string/official_home_page"
             printf:url="@string/official_home_page"
             />
 
         <jp.printf.slog.service.LinkPreference
+            android:key="gitHub"
             android:title="Sequence Log - GitHub"
             android:summary="@string/gitHub"
             printf:url="@string/gitHub"

@@ -17,6 +17,7 @@ package jp.printf.slog.service;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 public class App extends android.app.Application
@@ -152,6 +153,32 @@ public class App extends android.app.Application
         }
 
         return result;
+    }
+
+    // 使えるディレクトリかどうか
+    public static boolean canUsableDirectory(String path)
+    {
+        File dir = new File(path);
+
+        if (dir.exists() == false)
+        {
+            if (dir.mkdirs() == false)
+                return false;
+        }
+
+        try
+        {
+            File file = new File(path + "/SequenceLogServiceDirectoryCheck");
+            file.createNewFile();
+            file.delete();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     // Sequence Log Service の本体生成

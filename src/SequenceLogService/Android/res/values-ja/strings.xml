@@ -18,4 +18,9 @@
     <string name="start_service">Sequence Log Service 開始</string>
     <string name="running">動作中</string>
     <string name="stopping">停止中</string>
+
+    <string name="general_user">一般ユーザー</string>
+    <string name="super_user">スーパーユーザー</string>
+
+    <string name="permission_denied">ディレクトリのアクセスが拒否されました。</string>
 </resources>
