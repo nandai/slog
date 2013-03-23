@@ -252,7 +252,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 #include "slog/DateTimeFormat.h"
 #include "slog/FileInfo.h"
 
-#define VERSION "ver.1.2.3"
+#define VERSION "ver.1.2.4"
 
 class Application : public SequenceLogServiceThreadListener
 {
@@ -382,6 +382,11 @@ void Application::main(int argc, char** argv)
     serviceMain.setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
     serviceMain.start();
 
+#if defined(__ANDROID__)
+    getchar();
+    Util::stopThread(&serviceMain, SERVICE_PORT);
+#endif
+
     Thread::sleep(100);
     serviceMain.join();
 }
@@ -453,7 +458,7 @@ void Application::onLogFileChanged(Thread* thread)
 }
 
 /*!
- *  \brief	シーケンスログ更新通知
+ *  \brief  シーケンスログ更新通知
  */
 void Application::onUpdateLog(const Buffer* text)
 {
@@ -523,16 +528,6 @@ int main(int argc, char** argv)
 
     Socket::cleanup();
     return 0;
-}
-
-/*!
- *  \brief  シーケンスログファイル名取得
- *
- *  \note   libslog.soをリンクしているので、この関数を定義する必要がある。ただし呼ばれることはない。
- */
-extern "C" const char* getSequenceLogFileName()
-{
-    return NULL;
 }
 
 #endif // defined(__ANDROID__) && !defined(__EXEC__)

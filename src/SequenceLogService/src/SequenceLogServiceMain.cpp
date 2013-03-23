@@ -170,7 +170,7 @@ void SequenceLogServiceMain::run()
     try
     {
         // サーバーソケット作成
-#if !defined(__ANDROID__) || !defined(__EXEC__)
+#if !defined(__ANDROID__) || !defined(__EXEC__) || 1
         mSocket.open();
         mSocket.setReUseAddress(true);
 
@@ -186,7 +186,7 @@ void SequenceLogServiceMain::run()
     }
     catch (Exception e)
     {
-        TRACE("    %s\n", e.getMessage());
+        noticeLog("%s\n", e.getMessage());
         cleanup();
         return;
     }
@@ -323,7 +323,7 @@ void ConnectThread::onTerminated( Thread* thread)
  */
 void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 {
-#if !defined(__ANDROID__)
+#if !defined(__ANDROID__) || defined(__EXEC__)
     mServiceListener->onUpdateLog(text);
 #endif
 }
