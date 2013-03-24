@@ -359,7 +359,7 @@ bool Socket::isConnect() const
 /*!
  *  \brief  アドレス再利用設定
  */
-int Socket::setReUseAddress(bool reUse) const
+int Socket::setReUseAddress(bool reUse)
 {
 #if defined(MODERN_UI)
     return 0;
@@ -374,7 +374,7 @@ int Socket::setReUseAddress(bool reUse) const
 /*!
  *  \brief  受信タイムアウト設定
  */
-int Socket::setRecvTimeOut(int32_t msec) const
+int Socket::setRecvTimeOut(int32_t msec)
 {
 #if defined(MODERN_UI)
     return 0;
@@ -593,6 +593,21 @@ void Socket::recv(
     }
 
     buffer->setLength(len);
+}
+
+/*!
+ *  \brief  受信データが有るかどうか
+ */
+bool Socket::isReceiveData() const
+{
+    timeval timeout = {0, 0};
+    fd_set fds;
+
+    FD_ZERO(&fds);
+    FD_SET(mSocket, &fds);
+
+    int n = select(mSocket + 1, &fds, NULL, NULL, &timeout);
+    return (0 < n);
 }
 
 /*!

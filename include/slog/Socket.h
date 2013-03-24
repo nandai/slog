@@ -87,8 +87,8 @@ public:      Socket();
             bool isOpen() const;
             bool isConnect() const;
 
-            int setReUseAddress(bool reUse) const;
-            int setRecvTimeOut(int32_t msec) const;
+            int setReUseAddress(bool reUse);
+            int setRecvTimeOut(int32_t msec);
             const CoreString& getInetAddress() const;
 
             void send(const  int32_t* value) const throw(Exception);
@@ -99,6 +99,8 @@ public:      Socket();
             void recv( int32_t* value) const throw(Exception);
             void recv(uint32_t* value) const throw(Exception);
             void recv(Buffer* buffer, int32_t len) const throw(Exception);
+
+            bool isReceiveData() const;
 
 public:     static void startup();
             static void cleanup();

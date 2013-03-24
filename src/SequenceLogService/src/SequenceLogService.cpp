@@ -424,9 +424,10 @@ void SequenceLogService::run()
         sleep(1);
     }
 
+    receiver.interrupt();
     cleanUp();
-    receiver.join();
 
+    receiver.join();
     TRACE("[E] SequenceLogService::run()\n", 0);
 }
 
@@ -957,6 +958,16 @@ void SequenceLogService::receiveMain()
         while (true)
         {
             SLOG_ITEM_INFO* info;
+
+            if (mSocket->isReceiveData() == false)
+            {
+                if (isInterrupted())
+                    break;
+
+                sleep(1);
+                continue;
+            }
+
             mSocket->recv(&buffer, buffer.getCapacity());
 
             while (true)
