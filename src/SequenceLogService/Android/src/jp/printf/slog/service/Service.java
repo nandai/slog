@@ -30,29 +30,28 @@ public class Service extends android.app.Service
     @Override
     public void onCreate()
     {
-//      Log.d("seqlog", "Service.onCreate()");
         super.onCreate();
 
         App app = (App)getApplication();
         app.running(true);
-        app.start();
+//        app.start();
+        app.start2();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-//      Log.d("seqlog", "Service.onStartCommand()");
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy()
     {
-//      Log.d("seqlog", "Service.onDestroy()");
         super.onDestroy();
 
         App app = (App)getApplication();
         app.running(false);
-        app.stop();
+//        app.stop();
+        app.stop2();
     }
 }

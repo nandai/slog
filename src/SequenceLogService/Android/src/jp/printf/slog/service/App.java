@@ -18,8 +18,16 @@ package jp.printf.slog.service;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.res.AssetManager;
+
+@SuppressLint("DefaultLocale")
 public class App extends android.app.Application
 {
     private int     mRefer = 0;
@@ -30,8 +38,15 @@ public class App extends android.app.Application
     public int      mMaxFileSize;           // 最大ファイルサイズ
     public String   mMaxFileSizeUnit;       // 最大ファイルサイズ単位
     public int      mMaxFileCount;          // 最大ファイル数
+    public int      mWebServerPort;         // Webサーバーポート
+    public String   mSequenceLogServerIp;   // Sequence Log Server IP
+    public int      mSequenceLogServerPort; // Sequence Log Server ポート
 
-    private Process             mSu = null;
+    private Process             mExec = null;           // 実行プロセス
+    private String              mExecPath;              // 実行ファイルパス
+    private String              mConfigPath;            // 設定ファイルパス
+
+    private Process             mSu = null;             // suプロセス
     private DataInputStream     mInputStream = null;
     private DataOutputStream    mOutputStream = null;
 
@@ -44,6 +59,11 @@ public class App extends android.app.Application
     public void onCreate() 
     {
         super.onCreate();
+
+        mExecPath =   getFileStreamPath("slogsvc").  getAbsolutePath();
+        mConfigPath = getFileStreamPath("slog.conf").getAbsolutePath();
+
+        install();
         create();
     }
 
@@ -187,9 +207,78 @@ public class App extends android.app.Application
     // Sequence Log Service 開始
     public  native void start();
 
+    public void start2()
+    {
+        try
+        {
+            // 設定ファイル生成
+            File file = new File(mConfigPath);
+            FileWriter writer = new FileWriter(file);
+
+            String config = String.format(
+                "SHARED_MEMORY_DIR        %s\n" +
+                "SHARED_MEMORY_ITEM_COUNT 300\n" +
+                "LOG_OUTPUT_DIR           %s\n" +
+                "MAX_FILE_SIZE            %d %s\n" +
+                "MAX_FILE_COUNT           %d\n" +
+                "OUTPUT_SCREEN            false\n" +
+                "WEB_SERVER_PORT          %d\n" +
+                "SEQUENCE_LOG_SERVER_IP   %s\n" +
+                "SEQUENCE_LOG_SERVER_PORT %d\n",
+
+                mSharedMemoryPathName,
+                mLogOutputDir,
+                mMaxFileSize, mMaxFileSizeUnit,
+                mMaxFileCount,
+                mWebServerPort,
+                mSequenceLogServerIp,
+                mSequenceLogServerPort);
+
+            writer.write(config);
+            writer.close();
+
+            // 実行
+            if (mSu == null)
+            {
+                String commands[] = {mExecPath, "-f", mConfigPath};
+                mExec = Runtime.getRuntime().exec(commands);
+            }
+            else
+            {
+                mOutputStream.writeBytes(mExecPath + " -f " + mConfigPath + "\n");
+                mOutputStream.flush();
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     // Sequence Log Service 停止
     public  native void stop();
     public  native boolean canStop();
+    public void stop2()
+    {
+        try
+        {
+            if (mSu == null)
+            {
+                DataOutputStream outputStream = new DataOutputStream(mExec.getOutputStream());
+                outputStream.writeBytes("\n");
+                outputStream.flush();
+            }
+            else
+            {
+                mOutputStream.writeBytes("\n");
+                mOutputStream.flush();
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     // 設定反映
     public void updateSettings()
@@ -222,4 +311,40 @@ public class App extends android.app.Application
      * @param   port    Sequence Log Server のポート
      */
     public  native void setSequenceLogServer(String ip, int port);
+
+    /**
+     * インストール
+     */
+    public void install()
+    {
+        try
+        {
+            // Sequence Log Service の実体をassetsからfiles/にコピーする
+            AssetManager am = getResources().getAssets();
+
+            // 読み込み
+            InputStream is = am.open("bin/slogsvc");
+            int size =  is.available();
+            byte[] buffer = new byte[size];
+
+            is.read(buffer);
+            is.close();
+
+            // 書き込み
+            FileOutputStream os = openFileOutput("slogsvc", Context.MODE_PRIVATE);
+            os.write(buffer);
+            os.flush();
+            os.close();
+
+            // 実行権限付与
+            String commands[] = {"chmod", "755", ""};
+            commands[2] = mExecPath;
+
+            Runtime.getRuntime().exec(commands);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }

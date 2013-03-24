@@ -48,12 +48,10 @@
             android:dialogTitle="@string/max_file_count"
             android:inputType="number" />
 
-<!--
         <CheckBoxPreference
             android:key="superUser"
             android:defaultValue="false"
             android:title="@string/change_super_user" />
--->
     </PreferenceCategory>
         
     <PreferenceCategory android:title="@string/web_server_settings">
