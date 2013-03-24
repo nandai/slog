@@ -30,7 +30,6 @@ import android.content.res.AssetManager;
 @SuppressLint("DefaultLocale")
 public class App extends android.app.Application
 {
-    private int     mRefer = 0;
     private boolean mServiceRunning = false;
 
     public String   mSharedMemoryPathName;  // 共有メモリパス
@@ -50,11 +49,6 @@ public class App extends android.app.Application
     private DataInputStream     mInputStream = null;
     private DataOutputStream    mOutputStream = null;
 
-    static
-    {
-        System.loadLibrary("slogsvc");
-    }
-
     @Override
     public void onCreate() 
     {
@@ -64,7 +58,6 @@ public class App extends android.app.Application
         mConfigPath = getFileStreamPath("slog.conf").getAbsolutePath();
 
         install();
-        create();
     }
 
     // Sequence Log Service が開始されているかどうか
@@ -201,13 +194,7 @@ public class App extends android.app.Application
         return true;
     }
 
-    // Sequence Log Service の本体生成
-    private native void create();
-
-    // Sequence Log Service 開始
-    public  native void start();
-
-    public void start2()
+    public void start()
     {
         try
         {
@@ -256,9 +243,7 @@ public class App extends android.app.Application
     }
 
     // Sequence Log Service 停止
-    public  native void stop();
-    public  native boolean canStop();
-    public void stop2()
+    public void stop()
     {
         try
         {
@@ -279,38 +264,6 @@ public class App extends android.app.Application
             e.printStackTrace();
         }
     }
-
-    // 設定反映
-    public void updateSettings()
-    {
-        setSettings(
-            mSharedMemoryPathName,
-            mLogOutputDir,
-            mMaxFileSize * (mMaxFileSizeUnit.equals("KB") ? 1024 : 1024 * 1024),
-            mMaxFileCount);
-    }
-
-    // Sequence Log Service 開始
-    private native void setSettings(
-        String sharedMemoryPathName,
-        String logOutputDir,
-        int maxFileSize,
-        int maxFileCount);
-
-    /**
-     * Sequence Log Service Web Server ポート設定
-     * 
-     * @param   port    Sequence Log Service Web Server のポート
-     */
-    public  native void setWebServerPort(int port);
-
-    /**
-     * Sequence Log Server のIPとポートを設定
-     * 
-     * @param   ip      Sequence Log Server IP
-     * @param   port    Sequence Log Server のポート
-     */
-    public  native void setSequenceLogServer(String ip, int port);
 
     /**
      * インストール

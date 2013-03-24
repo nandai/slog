@@ -143,10 +143,6 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         // gitHub
         pref = findPreference("gitHub");
         setTitleColor(pref);
-
-        // 設定反映
-        app.updateSettings();
-        app.setSequenceLogServer(app.mSequenceLogServerIp, app.mSequenceLogServerPort);
     }
 
     /**
@@ -264,8 +260,6 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
      */
     public void onCreate(Bundle savedInstanceState)
     {
-//      Log.d("seqlog", "Main.onCreate()");
-
         super.onCreate(savedInstanceState);
 
         // Preference追加
@@ -280,14 +274,12 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         // サマリー更新
         updateSummaries();
 
-        // Sequence Log Service Web Server ポート設定
-        App app = (App)activity.getApplication();
-//        app.setWebServerPort(app.mWebServerPort);
-
         // スーパーユーザー
         setSuperUser();
 
         // Sequence Log Service の開始
+        App app = (App)activity.getApplication();
+
         if (app.isRunning() == false && mSP.getBoolean(KEY_START_STOP, false))
             start();
     }
@@ -315,7 +307,6 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
      */
     public void onDestroy()
     {
-//      Log.d("seqlog", "Main.onDestroy()");
         super.onDestroy();
     }
 
@@ -343,8 +334,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
             }
             else
             {
-                if (app.canStop())
-                    stop();
+                stop();
             }
         }
 
@@ -352,12 +342,6 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         if (key.equals(KEY_CHANGE_SUPER_USER))
         {
             setSuperUser();
-        }
-
-        // Sequence Log Service Web Server ポート
-        if (key.equals(KEY_WEB_SERVER_PORT))
-        {
-//            app.setWebServerPort(app.mWebServerPort);
         }
     }
 

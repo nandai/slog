@@ -34,8 +34,7 @@ public class Service extends android.app.Service
 
         App app = (App)getApplication();
         app.running(true);
-//        app.start();
-        app.start2();
+        app.start();
     }
 
     @Override
@@ -51,7 +50,6 @@ public class Service extends android.app.Service
 
         App app = (App)getApplication();
         app.running(false);
-//        app.stop();
-        app.stop2();
+        app.stop();
     }
 }
