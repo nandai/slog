@@ -225,6 +225,9 @@ void FileInfo::mkdir() const
 
 #if defined(_WINDOWS)
         bool success = (CreateDirectoryA(path.getBuffer(), NULL) == TRUE);
+
+        if (success == false && GetLastError() == ERROR_ALREADY_EXISTS)
+            success = true;
 #else
         errno = 0;
         bool success = (::mkdir(path.getBuffer(), 0755) == 0);
@@ -233,10 +236,10 @@ void FileInfo::mkdir() const
 
         if (success == false)
         {
-//          Exception e;
-//          e.setMessage("FileInfo::mkdir(\"%s\")", path.getBuffer());
-//
-//          throw e;
+            Exception e;
+            e.setMessage("FileInfo::mkdir(\"%s\")", path.getBuffer());
+
+            throw e;
         }
 
         index++;

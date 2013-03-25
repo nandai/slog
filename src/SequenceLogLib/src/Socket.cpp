@@ -606,7 +606,7 @@ bool Socket::isReceiveData() const
     FD_ZERO(&fds);
     FD_SET(mSocket, &fds);
 
-    int n = select(mSocket + 1, &fds, NULL, NULL, &timeout);
+    int n = select((int)mSocket + 1, &fds, NULL, NULL, &timeout);
     return (0 < n);
 }
 

@@ -356,11 +356,13 @@ void SequenceLogServiceMain::setLogFolderName(const CoreString& name)
     mLogFolderName.copy(name);
 
     FixedString<MAX_PATH> path;
-    path.format("%s%c*.*", mLogFolderName.getBuffer(), PATH_DELIMITER);
-
     FileFind find;
-
     find.setListener(this);
+
+    path.format("%s%c*.slog", mLogFolderName.getBuffer(), PATH_DELIMITER);
+    find.exec(path);
+
+    path.format("%s%c*.log",  mLogFolderName.getBuffer(), PATH_DELIMITER);
     find.exec(path);
 
     mFileInfoArray.sort(CompareFileInfo());

@@ -351,84 +351,89 @@ bool SequenceLogService::init()
  */
 void SequenceLogService::run()
 {
-    TRACE("[S] SequenceLogService::run()\n", 0);    // 最後の", 0"は
-                                                    // NDKでの"error: expected primary-expression before ')' token"エラー対策
-                                                    // 以降同じ。
-
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     SequenceLogReceiver receiver(this);
 
     receiver.start();
     Thread::sleep(100);
 
-    //
     // 書き込みループ
-    //
-    while (isInterrupted() == false)
+    try
     {
-//      if (mProcess.isAlive() == false)
-        if (receiver.isAlive() == false)
+        while (isInterrupted() == false)
         {
-            interrupt();
-        }
-
-        divideItems();
-
-        // 先頭シーケンスログアイテムを取得
-        SequenceLogItem* item = mOutputList->front();
-
-        while (item && mOutputList->isEnd(item) == false)
-        {
-#if 1
-            if (mFile.isOpen() == false)
+//          if (mProcess.isAlive() == false)
+            if (receiver.isAlive() == false)
             {
-                openSeqLogFile(mFile);
-
-#if !defined(__ANDROID__)
-                SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(getListener());
-                listener->onLogFileChanged(this);
-#endif
+                interrupt();
             }
 
-            // 書き込み
-            if (mBinaryLog)
-                writeSeqLogFile(    mFile, item);
-            else
-                writeSeqLogFileText(mFile, item);
-
-            // ローテーション
-            uint32_t maxSize = serviceMain->getMaxFileSize();
-            uint64_t size = mFile.getSize();
-
-            if (maxSize != 0 && maxSize < size)
-            {
-                mFile.close();
-                openSeqLogFile(mFile);
-
-#if !defined(__ANDROID__)
-                SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(getListener());
-                listener->onLogFileChanged(this);
-#endif
-            }
-#endif
-
-            // 次のシーケンスログアイテムを取得
-            SequenceLogItem* next = (SequenceLogItem*)item->mNext;
-
-            pushStockItem(item);
-            item = next;
+            divideItems();
+            writeMain();
+            sleep(1);
         }
-
-        // シーケンスログリスト初期化
-        mOutputList->clear();
-        sleep(1);
+    }
+    catch (Exception e)
+    {
+        noticeLog(e.getMessage());
     }
 
     receiver.interrupt();
     cleanUp();
 
     receiver.join();
-    TRACE("[E] SequenceLogService::run()\n", 0);
+}
+
+/*!
+ *  \brief  書き込みメイン
+ */
+void SequenceLogService::writeMain()
+{
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    SequenceLogItem* item = mOutputList->front();
+
+    while (item && mOutputList->isEnd(item) == false)
+    {
+        if (mFile.isOpen() == false)
+        {
+            openSeqLogFile(mFile);
+
+#if !defined(__ANDROID__)
+            SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(getListener());
+            listener->onLogFileChanged(this);
+#endif
+        }
+
+        // 書き込み
+        if (mBinaryLog)
+            writeSeqLogFile(    mFile, item);
+        else
+            writeSeqLogFileText(mFile, item);
+
+        // ローテーション
+        uint32_t maxSize = serviceMain->getMaxFileSize();
+        uint64_t size = mFile.getSize();
+
+        if (maxSize != 0 && maxSize < size)
+        {
+            mFile.close();
+            openSeqLogFile(mFile);
+
+#if !defined(__ANDROID__)
+            SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(getListener());
+            listener->onLogFileChanged(this);
+#endif
+        }
+
+        // 次のシーケンスログアイテムを取得
+        SequenceLogItem* next = (SequenceLogItem*)item->mNext;
+
+        pushStockItem(item);
+        item = next;
+    }
+
+    // シーケンスログリスト初期化
+    mOutputList->clear();
 }
 
 /*!
@@ -493,8 +498,6 @@ void SequenceLogService::cleanUp()
  */
 void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
 {
-    TRACE("[S] SequenceLogService::openSeqLogFile()\n", 0);
-
     FixedString<MAX_PATH> fileName = mBaseFileName;
     char* ext = (char*)strrchr(fileName.getBuffer(), '.');
     char defaultExt[] = "slog";
@@ -554,8 +557,6 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
 
     mFileInfo->update(true);
     mFileInfo->setLastWriteTime(DateTime());
-
-    TRACE("[E] SequenceLogService::openSeqLogFile()\n", 0);
 }
 
 /*!

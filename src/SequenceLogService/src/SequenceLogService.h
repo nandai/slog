@@ -75,6 +75,7 @@ public:     FileInfo* getFileInfo() const {return mFileInfo;}   //!< シーケ�
 
             // シーケンスログスレッド
 private:    virtual void run();
+            void writeMain();
             void cleanUp();
 
             // シーケンスログアイテムキープ / 追加
