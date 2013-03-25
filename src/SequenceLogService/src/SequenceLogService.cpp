@@ -382,6 +382,7 @@ void SequenceLogService::run()
     cleanUp();
 
     receiver.join();
+    mSocket->close();
 }
 
 /*!
@@ -481,8 +482,8 @@ void SequenceLogService::cleanUp()
     }
 
     // ソケット、共有メモリ、ファイルをクローズ
-    if (mSocket->isOpen())
-        mSocket->close();
+//  if (mSocket->isOpen())
+//      mSocket->close();
 
     mSHM. close();
     mFile.close();
@@ -960,10 +961,12 @@ void SequenceLogService::receiveMain()
         {
             SLOG_ITEM_INFO* info;
 
-            if (mSocket->isReceiveData() == false)
+            if (mSocket->isReceiveData(3000) == false)
             {
                 if (isInterrupted())
+                {
                     break;
+                }
 
                 sleep(1);
                 continue;

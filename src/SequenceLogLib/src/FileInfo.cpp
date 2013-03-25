@@ -20,6 +20,7 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/FileInfo.h"
+#include "slog/File.h"
 #include "slog/Tokenizer.h"
 
 #include <list>
@@ -211,8 +212,6 @@ void FileInfo::mkdir() const
 
     throw(Exception)
 {
-    TRACE("[S] FileInfo::mkdir()\n", 0);
-
     int32_t index = 0;
     FixedString<MAX_PATH> path;
 
@@ -231,7 +230,9 @@ void FileInfo::mkdir() const
 #else
         errno = 0;
         bool success = (::mkdir(path.getBuffer(), 0755) == 0);
-        TRACE("    \"%s\" - %s(%d)\n", path.getBuffer(), strerror(errno), errno);
+
+        if (errno == EEXIST)
+            success = true;
 #endif
 
         if (success == false)
@@ -245,7 +246,15 @@ void FileInfo::mkdir() const
         index++;
     }
 
-    TRACE("[E] FileInfo::mkdir()\n", 0);
+    // ファイルが作成できるかチェック
+    String name = "SequenceLogMakeDirectoryCheck";
+    appendPath(&path, name);
+
+    File file;
+    file.open(path, File::WRITE);
+    file.close();
+
+    File::unlink(path);
 }
 
 /*!

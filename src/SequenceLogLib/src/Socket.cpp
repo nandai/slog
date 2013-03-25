@@ -598,9 +598,13 @@ void Socket::recv(
 /*!
  *  \brief  受信データが有るかどうか
  */
-bool Socket::isReceiveData() const
+bool Socket::isReceiveData(int32_t timeoutMS) const
 {
-    timeval timeout = {0, 0};
+    timeval timeout =
+    {
+         timeoutMS / 1000,
+        (timeoutMS % 1000) * 1000
+    };
     fd_set fds;
 
     FD_ZERO(&fds);
