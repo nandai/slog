@@ -46,8 +46,8 @@ public class App extends android.app.Application
     private String              mConfigPath;            // 設定ファイルパス
 
     private Process             mSu = null;             // suプロセス
-    private DataInputStream     mInputStream = null;
-    private DataOutputStream    mOutputStream = null;
+    private DataInputStream     mInputStream = null;    // 標準入力
+    private DataOutputStream    mOutputStream = null;   // 標準出力
 
     @Override
     public void onCreate() 
@@ -99,21 +99,13 @@ public class App extends android.app.Application
                 mInputStream =  new DataInputStream( mSu.getInputStream());
                 mOutputStream = new DataOutputStream(mSu.getOutputStream());
 
-                mOutputStream.writeBytes("whoami\n");
-                mOutputStream.flush();
+                writeStream("whoami\n");
+                String res = readStream();
 
-                byte[] buffer = new byte[64];
-                int size = mInputStream.read(buffer);
-
-                if (0 < size)
+                if (res.equals("root") == true)
                 {
-                    String res = new String(buffer, 0, size - 1);
-
-                    if (res.equals("root") == true)
-                    {
-                        // スーパーユーザー化成功
-                        return true;
-                    }
+                    // スーパーユーザー化成功
+                    return true;
                 }
             }
         }
@@ -122,15 +114,69 @@ public class App extends android.app.Application
             e.printStackTrace();
         }
 
-        // OutputStream後始末
+        // 後始末
+        writeStream("exit\n");
+        closeStreams();
+
+        // suプロセス後始末
+        if (mSu != null)
+        {
+            mSu.destroy();
+            mSu = null;
+        }
+
+        return result;
+    }
+
+    // 標準入力から読み込む
+    private String readStream()
+    {
+        String res = "";
+
+        try
+        {
+            if (mInputStream != null)
+            {
+                byte[] buffer = new byte[64];
+                int size = mInputStream.read(buffer);
+
+                if (0 < size)
+                    res = new String(buffer, 0, size - 1);
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return res;
+    }
+
+    // 標準出力に書き込む
+    private void writeStream(String command)
+    {
+        try
+        {
+            if (mOutputStream == null)
+                return;
+
+            mOutputStream.writeBytes(command);
+            mOutputStream.flush();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    // 標準入力と標準出力をクローズする
+    private void closeStreams()
+    {
+        // OutputStreamクローズ
         try
         {
             if (mOutputStream != null)
-            {
-                mOutputStream.writeBytes("exit\n");
-                mOutputStream.flush();
                 mOutputStream.close();
-            }
         }
         catch (IOException e)
         {
@@ -141,13 +187,11 @@ public class App extends android.app.Application
             mOutputStream = null;
         }
 
-        // InputStream後始末
+        // InputStreamクローズ
         try
         {
             if (mInputStream != null)
-            {
                 mInputStream.close();
-            }
         }
         catch (IOException e)
         {
@@ -157,15 +201,6 @@ public class App extends android.app.Application
         {
             mInputStream = null;
         }
-
-        // suプロセス後始末
-        if (mSu != null)
-        {
-            mSu.destroy();
-            mSu = null;
-        }
-
-        return result;
     }
 
     // 使えるディレクトリかどうか
@@ -229,11 +264,12 @@ public class App extends android.app.Application
             {
                 String commands[] = {mExecPath, "-f", mConfigPath};
                 mExec = Runtime.getRuntime().exec(commands);
+                mInputStream =  new DataInputStream( mExec.getInputStream());
+                mOutputStream = new DataOutputStream(mExec.getOutputStream());
             }
             else
             {
-                mOutputStream.writeBytes(mExecPath + " -f " + mConfigPath + "\n");
-                mOutputStream.flush();
+                writeStream(mExecPath + " -f " + mConfigPath + "\n");
             }
         }
         catch (IOException e)
@@ -245,23 +281,20 @@ public class App extends android.app.Application
     // Sequence Log Service 停止
     public void stop()
     {
-        try
+        writeStream("\n");
+        String res = readStream();
+
+        if (res.equals("EXIT") == true)
         {
-            if (mSu == null)
-            {
-                DataOutputStream outputStream = new DataOutputStream(mExec.getOutputStream());
-                outputStream.writeBytes("\n");
-                outputStream.flush();
-            }
-            else
-            {
-                mOutputStream.writeBytes("\n");
-                mOutputStream.flush();
-            }
         }
-        catch (IOException e)
+
+        // プロセス後始末
+        if (mExec != null)
         {
-            e.printStackTrace();
+            closeStreams();
+
+            mExec.destroy();
+            mExec = null;
         }
     }
 

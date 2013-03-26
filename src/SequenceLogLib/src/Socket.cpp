@@ -598,7 +598,10 @@ void Socket::recv(
 /*!
  *  \brief  受信データが有るかどうか
  */
-bool Socket::isReceiveData(int32_t timeoutMS) const
+bool Socket::isReceiveData(int32_t timeoutMS)
+
+    const
+    throw(Exception)
 {
     timeval timeout =
     {
@@ -611,6 +614,15 @@ bool Socket::isReceiveData(int32_t timeoutMS) const
     FD_SET(mSocket, &fds);
 
     int n = select((int)mSocket + 1, &fds, NULL, NULL, &timeout);
+
+    if (n < 0)
+    {
+        Exception e;
+        e.setMessage("Socket::isReceiveData()");
+
+        throw e;
+    }
+
     return (0 < n);
 }
 

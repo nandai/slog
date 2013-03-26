@@ -233,8 +233,6 @@ void Application::main(int argc, char** argv)
  */
 void Application::onInitialized(Thread* thread)
 {
-    TRACE("[S] Application::onInitialized()\n", 0);
-
 #if defined(__ANDROID__)
     SequenceLogService* service = (SequenceLogService*)thread;
 #else
@@ -244,18 +242,16 @@ void Application::onInitialized(Thread* thread)
     FileInfo* fileInfo = service->getFileInfo();
     TRACE("fileInfo: 0x%08X\n", fileInfo);
 
-    if (fileInfo)
-    {
-        DateTime dateTime = fileInfo->getCreationTime();
-        dateTime.toLocal();
+    if (fileInfo == NULL)
+        return;
 
-        FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
-        DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
+    DateTime dateTime = fileInfo->getCreationTime();
+    dateTime.toLocal();
 
-        noticeLog("start %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
-    }
+    FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
+    DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
 
-    TRACE("[E] Application::onInitialized()\n", 0);
+    noticeLog("start %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
 }
 
 /*!
@@ -268,7 +264,12 @@ void Application::onTerminated(Thread* thread)
 #else
     SequenceLogService* service = dynamic_cast<SequenceLogService*>(thread);
 #endif
+
     FileInfo* fileInfo = service->getFileInfo();
+
+    if (fileInfo == NULL)
+        return;
+
     DateTime dateTime = fileInfo->getLastWriteTime();
 
     if (dateTime.getValue())

@@ -100,7 +100,7 @@ public:      Socket();
             void recv(uint32_t* value) const throw(Exception);
             void recv(Buffer* buffer, int32_t len) const throw(Exception);
 
-            bool isReceiveData(int32_t timeoutMS = 0) const;
+            bool isReceiveData(int32_t timeoutMS = 0) const throw(Exception);
 
 public:     static void startup();
             static void cleanup();
