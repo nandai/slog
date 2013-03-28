@@ -15,6 +15,7 @@
  */
 package jp.printf.slog.service;
 
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -41,11 +42,11 @@ public class App extends android.app.Application
     public String   mSequenceLogServerIp;   // Sequence Log Server IP
     public int      mSequenceLogServerPort; // Sequence Log Server ポート
 
-    private Process             mExec = null;           // 実行プロセス
     private String              mExecPath;              // 実行ファイルパス
     private String              mConfigPath;            // 設定ファイルパス
 
-    private Process             mSu = null;             // suプロセス
+    private boolean             mSuperUser = false;
+    private Process             mShell = null;          // shプロセス
     private DataInputStream     mInputStream = null;    // 標準入力
     private DataOutputStream    mOutputStream = null;   // 標準出力
 
@@ -56,6 +57,17 @@ public class App extends android.app.Application
 
         mExecPath =   getFileStreamPath("slogsvc").  getAbsolutePath();
         mConfigPath = getFileStreamPath("slog.conf").getAbsolutePath();
+
+        try
+        {
+            mShell = Runtime.getRuntime().exec("sh");
+            mInputStream =  new DataInputStream( mShell.getInputStream());
+            mOutputStream = new DataOutputStream(mShell.getOutputStream());
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
 
         install();
     }
@@ -75,57 +87,24 @@ public class App extends android.app.Application
     // スーパーユーザー設定
     public boolean setSuperUser(boolean on)
     {
-        if (mSu != null && on)
-        {
-            // 既にスーパーユーザー
+        if (mSuperUser == on)
             return true;
-        }
 
-        if (mSu == null && on == false)
+        if (on)
         {
-            // 既に一般ユーザー
-            return true;
+            writeStream("su\n");
+            writeStream("whoami\n");
+
+            String res = readStream();
+            mSuperUser = res.equals("root");
         }
-
-        boolean result = true;
-
-        try
+        else
         {
-            if (on)
-            {
-                result = false;
-
-                mSu = Runtime.getRuntime().exec("su");
-                mInputStream =  new DataInputStream( mSu.getInputStream());
-                mOutputStream = new DataOutputStream(mSu.getOutputStream());
-
-                writeStream("whoami\n");
-                String res = readStream();
-
-                if (res.equals("root") == true)
-                {
-                    // スーパーユーザー化成功
-                    return true;
-                }
-            }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
+            writeStream("exit\n");
+            mSuperUser = false;
         }
 
-        // 後始末
-        writeStream("exit\n");
-        closeStreams();
-
-        // suプロセス後始末
-        if (mSu != null)
-        {
-            mSu.destroy();
-            mSu = null;
-        }
-
-        return result;
+        return mSuperUser;
     }
 
     // 標準入力から読み込む
@@ -169,39 +148,31 @@ public class App extends android.app.Application
         }
     }
 
-    // 標準入力と標準出力をクローズする
-    private void closeStreams()
-    {
-        // OutputStreamクローズ
-        try
-        {
-            if (mOutputStream != null)
-                mOutputStream.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            mOutputStream = null;
-        }
-
-        // InputStreamクローズ
-        try
-        {
-            if (mInputStream != null)
-                mInputStream.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            mInputStream = null;
-        }
-    }
+//// 標準入力と標準出力をクローズする
+//    private void closeStreams()
+//    {
+//        // OutputStreamクローズ
+//        close(mOutputStream);
+//        mOutputStream = null;
+//
+//        // InputStreamクローズ
+//        close(mInputStream);
+//        mInputStream = null;
+//    }
+//
+//    // 例外が発生しようがとにかくclose()を呼び出す
+//    static private void close(Closeable obj)
+//    {
+//        try
+//        {
+//            if (obj != null)
+//                obj.close();
+//        }
+//        catch (IOException e)
+//        {
+//            e.printStackTrace();
+//        }
+//    }
 
     // 使えるディレクトリかどうか
     public static boolean canUsableDirectory(String path)
@@ -260,17 +231,7 @@ public class App extends android.app.Application
             writer.close();
 
             // 実行
-            if (mSu == null)
-            {
-                String commands[] = {mExecPath, "-f", mConfigPath};
-                mExec = Runtime.getRuntime().exec(commands);
-                mInputStream =  new DataInputStream( mExec.getInputStream());
-                mOutputStream = new DataOutputStream(mExec.getOutputStream());
-            }
-            else
-            {
-                writeStream(mExecPath + " -f " + mConfigPath + "\n");
-            }
+            writeStream(mExecPath + " -f " + mConfigPath + "\n");
         }
         catch (IOException e)
         {
@@ -286,15 +247,6 @@ public class App extends android.app.Application
 
         if (res.equals("EXIT") == true)
         {
-        }
-
-        // プロセス後始末
-        if (mExec != null)
-        {
-            closeStreams();
-
-            mExec.destroy();
-            mExec = null;
         }
     }
 
