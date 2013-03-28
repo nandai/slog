@@ -69,8 +69,6 @@ void FileFind::exec(
             continue;
 
         path.format("%.*s\\%s", len, p, fd.cFileName);
-        TRACE("    FileFind::exec() / path='%s'\n", path.getBuffer());
-
         mListener->onFind(path);
     }
 
@@ -86,8 +84,6 @@ void FileFind::exec(
     for (int32_t index = 0; index < globbuf.gl_pathc; index++)
     {
         PointerString path = globbuf.gl_pathv[index];
-        TRACE("    FileFind::exec() / path='%s'\n", path.getBuffer());
-
         mListener->onFind(path);
     }
 
@@ -95,8 +91,21 @@ void FileFind::exec(
 
 #else
     // Android用手抜きバージョン
-    *(strrchr(p, '/')) = '\0';
 
+    // ファイル名取得
+    char* searchFileName = strrchr(p, '/');
+    searchFileName[0] = '\0';
+    searchFileName++;
+
+    // 拡張子取得
+    char* ext = strchr(searchFileName, '.');
+
+    if (ext == NULL)
+        return;
+
+    bool any = (strcmp(ext, ".*") == 0);
+
+    // ディレクトリ内検索
     DIR* dir = opendir(p);
     dirent* ent;
 
@@ -110,9 +119,18 @@ void FileFind::exec(
         if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
             continue;
 
-        path.format("%s/%s", p, ent->d_name);
-        TRACE("    FileFind::exec() / path='%s'\n", path.getBuffer());
+        if (any == false)
+        {
+            char* entExt = strchr(ent->d_name, '.');
 
+            if (entExt == NULL)
+                continue;
+
+            if (strcmp(ext, entExt) != 0)
+                continue;
+        }
+
+        path.format("%s/%s", p, ent->d_name);
         mListener->onFind(path);
     }
 
