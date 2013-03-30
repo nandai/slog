@@ -27,6 +27,7 @@ import java.io.InputStream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.util.Log;
 
 @SuppressLint("DefaultLocale")
 public class App extends android.app.Application
@@ -160,53 +161,31 @@ public class App extends android.app.Application
 //        mInputStream = null;
 //    }
 //
-//    // 例外が発生しようがとにかくclose()を呼び出す
-//    static private void close(Closeable obj)
-//    {
-//        try
-//        {
-//            if (obj != null)
-//                obj.close();
-//        }
-//        catch (IOException e)
-//        {
-//            e.printStackTrace();
-//        }
-//    }
-
-    // 使えるディレクトリかどうか
-    public static boolean canUsableDirectory(String path)
+    // 例外が発生しようがとにかくclose()を呼び出す
+    static private void close(Closeable obj)
     {
-        File dir = new File(path);
-
-        if (dir.exists() == false)
-        {
-            if (dir.mkdirs() == false)
-                return false;
-        }
-
         try
         {
-            File file = new File(path + "/SequenceLogServiceDirectoryCheck");
-            file.createNewFile();
-            file.delete();
+            if (obj != null)
+                obj.close();
         }
         catch (IOException e)
         {
             e.printStackTrace();
-            return false;
         }
-
-        return true;
     }
 
-    public void start()
+    public int start()
     {
+        FileWriter writer = null;
+        int result = -1;
+        String response = "";
+
         try
         {
             // 設定ファイル生成
             File file = new File(mConfigPath);
-            FileWriter writer = new FileWriter(file);
+            writer = new FileWriter(file);
 
             String config = String.format(
                 "SHARED_MEMORY_DIR        %s\n" +
@@ -228,15 +207,36 @@ public class App extends android.app.Application
                 mSequenceLogServerPort);
 
             writer.write(config);
-            writer.close();
+            close(writer);
+            writer = null;
 
             // 実行
             writeStream(mExecPath + " -f " + mConfigPath + "\n");
+
+            response = readStream();
+            result = Integer.parseInt(response.substring(0, 3));
+//          Log.i("slog", response);
+
+            if (result == 0)
+            {
+                running(true);
+            }
+            else
+            {
+                stop();
+            }
         }
-        catch (IOException e)
+        catch (Exception e)
         {
+            Log.e("slog", response);
             e.printStackTrace();
         }
+        finally
+        {
+            close(writer);
+        }
+
+        return result;
     }
 
     // Sequence Log Service 停止
@@ -248,6 +248,8 @@ public class App extends android.app.Application
         if (res.equals("EXIT") == true)
         {
         }
+
+        running(false);
     }
 
     /**

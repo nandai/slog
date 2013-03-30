@@ -48,6 +48,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
     private final String        KEY_SEQUENCE_LOG_SERVER_IP =   "sequenceLogServerIp";
     private final String        KEY_SEQUENCE_LOG_SERVER_PORT = "sequenceLogServerPort";
 
+    private boolean             mStarting = false;
     private Intent              mServiceIntent;         // Sequence Log Service を開始 / 停止するためのインテント
     private SharedPreferences   mSP;
 
@@ -191,16 +192,19 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
      */
     private void start()
     {
+        mStarting = true;
+
         App app = (App)getActivity().getApplication();
+        int result = app.start();
         boolean success = true;
 
-        if (App.canUsableDirectory(app.mSharedMemoryPathName) == false)
+        if ((result & 0x01) != 0)
         {
             success = false;
             mSharedMemoryPathOkFlag = false;
         }
 
-        if (App.canUsableDirectory(app.mLogOutputDir) == false)
+        if ((result & 0x02) != 0)
         {
             success = false;
             mLogOutputDirOkFlag = false;
@@ -215,8 +219,14 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
             Toast toast = Toast.makeText(getActivity(), getString(R.string.permission_denied), Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
+
+            mStarting = false;
             return;
         }
+
+        mSharedMemoryPathOkFlag = true;
+        mLogOutputDirOkFlag = true;
+        updateSummaries();
 
         Activity activity = getActivity();
         activity.startService(mServiceIntent);
@@ -241,6 +251,8 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         // NotificationManagerにセット
         NotificationManager manager = (NotificationManager)activity.getSystemService(Activity.NOTIFICATION_SERVICE);
         manager.notify(0, notification);
+
+        mStarting = false;
     }
 
     /**
@@ -248,6 +260,9 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
      */
     private void stop()
     {
+        App app = (App)getActivity().getApplication();
+        app.stop();
+
         Activity activity = getActivity();
         activity.stopService(mServiceIntent);
 
@@ -328,6 +343,9 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         // Sequence Log Service の開始 / 停止
         if (key.equals(KEY_START_STOP))
         {
+            if (mStarting)
+                return;
+
             if (app.isRunning() == false)
             {
                 start();

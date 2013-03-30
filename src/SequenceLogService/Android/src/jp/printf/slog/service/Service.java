@@ -17,7 +17,6 @@ package jp.printf.slog.service;
 
 import android.content.Intent;
 import android.os.IBinder;
-//port android.util.Log;
 
 public class Service extends android.app.Service
 {
@@ -31,10 +30,6 @@ public class Service extends android.app.Service
     public void onCreate()
     {
         super.onCreate();
-
-        App app = (App)getApplication();
-        app.running(true);
-        app.start();
     }
 
     @Override
@@ -47,9 +42,5 @@ public class Service extends android.app.Service
     public void onDestroy()
     {
         super.onDestroy();
-
-        App app = (App)getApplication();
-        app.running(false);
-        app.stop();
     }
 }

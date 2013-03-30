@@ -91,6 +91,30 @@ static bool changeGroupAndUser(const CoreString& aGroup, const CoreString& user)
 
 #define VERSION "ver.1.2.4"
 
+/*!
+ *  \brief  アクセス可能なディレクトリかどうか
+ */
+static bool isDirectoryPermissionAllow(const CoreString& dirName)
+{
+    String path;
+    path.format("%s%c", dirName.getBuffer(), PATH_DELIMITER);
+
+    try
+    {
+        FileInfo fileInfo(path);
+        fileInfo.mkdir();
+    }
+    catch (Exception)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/*!
+ *  \brief  アプリケーションクラス
+ */
 class Application : public SequenceLogServiceThreadListener
 {
 public:     void main(int argc, char** argv);
@@ -204,20 +228,38 @@ void Application::main(int argc, char** argv)
 
     // サービス起動
     SequenceLogServiceMain serviceMain;
+    int32_t check = 0x00;
 
 #if defined(__unix__)
     serviceMain.setSharedMemoryPathName(sharedMemoryDir);
+
+    if (isDirectoryPermissionAllow(sharedMemoryDir) == false)
+        check |= 0x01;
 #endif
 
-    serviceMain.setSharedMemoryItemCount(sharedMemoryItemCount);
-    serviceMain.setServiceListener(this);
-    serviceMain.setLogFolderName(logOutputDir);
-    serviceMain.setMaxFileSize(size);
-    serviceMain.setMaxFileCount(count);
-    serviceMain.setOutputScreen(outputScreen);
-    serviceMain.setWebServerPort(webServerPort);
-    serviceMain.setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
-    serviceMain.start();
+    if (isDirectoryPermissionAllow(logOutputDir) == false)
+        check |= 0x02;
+
+    if (check != 0x00)
+    {
+        printf("%03X permission denied.\n", check);
+        fflush(stdout); // 必須！flushしないと受け手のプロセスで標準出力を読み込めない
+    }
+    else
+    {
+        serviceMain.setSharedMemoryItemCount(sharedMemoryItemCount);
+        serviceMain.setServiceListener(this);
+        serviceMain.setLogFolderName(logOutputDir);
+        serviceMain.setMaxFileSize(size);
+        serviceMain.setMaxFileCount(count);
+        serviceMain.setOutputScreen(outputScreen);
+        serviceMain.setWebServerPort(webServerPort);
+        serviceMain.setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
+        serviceMain.start();
+
+        printf("%03X OK\n", check);
+        fflush(stdout); // 必須！flushしないと受け手のプロセスで標準出力を読み込めない
+    }
 
 #if defined(__ANDROID__)
     getchar();
@@ -361,7 +403,7 @@ int main(int argc, char** argv)
     }
     catch (Exception e)
     {
-        printf("%s\n", e.getMessage());
+        noticeLog("%s\n", e.getMessage());
     }
 
     Socket::cleanup();

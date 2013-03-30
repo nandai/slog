@@ -32,6 +32,9 @@ namespace slog
  */
 void Util::stopThread(Thread* thread, uint16_t port)
 {
+    if (thread->isAlive() == false)
+        return;
+
     thread->interrupt();
 
     // 接続
