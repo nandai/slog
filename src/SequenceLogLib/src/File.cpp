@@ -20,6 +20,7 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/File.h"
+#include "slog/String.h"
 
 namespace slog
 {
@@ -50,8 +51,19 @@ void File::open(
 
     throw(Exception)
 {
+#if defined(_WINDOWS)
+    UTF16LE utf16le;
+    utf16le.conv(fileName);
+
+    String _fileName;
+    _fileName.conv(utf16le.getBuffer());
+
+    const char* p = _fileName.getBuffer();
+#else
+    const char* p =  fileName.getBuffer();
+#endif
+
     Exception e;
-    const char* p = fileName.getBuffer();
 
     if (mHandle != NULL)
     {

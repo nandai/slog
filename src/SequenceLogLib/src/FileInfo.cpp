@@ -223,24 +223,29 @@ void FileInfo::mkdir() const
         appendPath(&path, *i);
 
 #if defined(_WINDOWS)
-        bool success = (CreateDirectoryA(path.getBuffer(), NULL) == TRUE);
+        if (0 < index)  // Windowsの場合、index 0 はドライブなのでスキップ
+        {
+            bool success = (CreateDirectoryA(path.getBuffer(), NULL) == TRUE);
+            DWORD err = GetLastError();
 
-        if (success == false && GetLastError() == ERROR_ALREADY_EXISTS)
-            success = true;
+            if (success == false && err == ERROR_ALREADY_EXISTS)
+                success = true;
 #else
-        errno = 0;
-        bool success = (::mkdir(path.getBuffer(), 0755) == 0);
+        {
+            errno = 0;
+            bool success = (::mkdir(path.getBuffer(), 0755) == 0);
 
-        if (errno == EEXIST)
-            success = true;
+            if (errno == EEXIST)
+                success = true;
 #endif
 
-        if (success == false)
-        {
-            Exception e;
-            e.setMessage("FileInfo::mkdir(\"%s\")", path.getBuffer());
+            if (success == false)
+            {
+                Exception e;
+                e.setMessage("FileInfo::mkdir(\"%s\")", path.getBuffer());
 
-            throw e;
+                throw e;
+            }
         }
 
         index++;

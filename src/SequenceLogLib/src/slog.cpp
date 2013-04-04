@@ -83,6 +83,10 @@ extern "C" void noticeLog(const char* format, ...)
 
 #if defined(_WINDOWS)
     OutputDebugStringA(p);
+
+    if (p[str.getLength() - 1] != '\n')
+        OutputDebugStringA("\n");
+
 #elif defined(__ANDROID__)
     __android_log_write(ANDROID_LOG_INFO, "slog", p);
 #else
