@@ -31,7 +31,7 @@ class Thread;
  */
 class SLOG_API Util
 {
-public:     static void stopThread(Thread* thread, uint16_t port);
+//public:     static void stopThread(Thread* thread, uint16_t port);
 };
 
 } // namespace slog

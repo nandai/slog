@@ -68,15 +68,19 @@ void WebServerThread::run()
     {
         try
         {
-            client = new Socket;
-            client->accept(&server);
+            bool isReceive = server.isReceiveData(3000);
 
             if (isInterrupted())
-            {
-                client->close();
-                delete client;
                 break;
+
+            if (isReceive == false)
+            {
+                sleep(1);
+                continue;
             }
+
+            client = new Socket;
+            client->accept(&server);
 
             WebServerResponseThread* response = createResponseThread(client);
             response->start();
@@ -84,10 +88,11 @@ void WebServerThread::run()
         catch (Exception& e)
         {
             noticeLog(e.getMessage());
-            client->close();
             delete client;
             break;
         }
+
+        client = NULL;
     }
 }
 

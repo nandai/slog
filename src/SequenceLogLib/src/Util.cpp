@@ -30,23 +30,23 @@ namespace slog
 /*!
  *  \brief  スレッドを終了させる
  */
-void Util::stopThread(Thread* thread, uint16_t port)
-{
-    if (thread->isAlive() == false)
-        return;
-
-    thread->interrupt();
-
-    // 接続
-    Socket sock;
-    sock.open();
-    sock.connect(FixedString<16>("127.0.0.1"), port);
-
-    // スレッド終了待ち
-    thread->join();
-
-    // 切断
-    sock.close();
-}
+//void Util::stopThread(Thread* thread, uint16_t port)
+//{
+//    if (thread->isAlive() == false)
+//        return;
+//
+//    thread->interrupt();
+//
+//    // 接続
+//    Socket sock;
+//    sock.open();
+//    sock.connect(FixedString<16>("127.0.0.1"), port);
+//
+//    // スレッド終了待ち
+//    thread->join();
+//
+//    // 切断
+//    sock.close();
+//}
 
 } // namespace slog

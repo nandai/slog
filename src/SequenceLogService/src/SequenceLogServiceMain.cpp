@@ -195,19 +195,21 @@ void SequenceLogServiceMain::run()
     {
         try
         {
+            bool isReceive = mSocket.isReceiveData(3000);
+
+            if (isInterrupted())
+                break;
+
+            if (isReceive == false)
+            {
+                sleep(1);
+                continue;
+            }
+
             socket = new Socket();
             socket->accept(&mSocket);
 
-            if (isInterrupted())
-            {
-                socket->close();
-                delete socket;
-                break;
-            }
-
             SequenceLogService* service = new SequenceLogService(socket);
-            socket = NULL;
-
             mServiceManager.push_back(service);
 
             service->setListener(mServiceListener);
@@ -215,11 +217,10 @@ void SequenceLogServiceMain::run()
         }
         catch (Exception /*e*/)
         {
-            socket->close();
             delete socket;
         }
 
-        sleep(1);
+        socket = NULL;
     }
 
     cleanup();
@@ -418,7 +419,9 @@ void SequenceLogServiceMain::setWebServerPort(uint16_t port)
 
     if (mWebServer->isAlive())
     {
-        Util::stopThread(mWebServer, mWebServerPort);
+//      Util::stopThread(mWebServer, mWebServerPort);
+        mWebServer->interrupt();
+        mWebServer->join();
     }
 
     mWebServerPort = port;
