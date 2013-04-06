@@ -263,11 +263,12 @@ void Application::main(int argc, char** argv)
 
 #if defined(__ANDROID__)
     getchar();
-    Util::stopThread(&serviceMain, SERVICE_PORT);
-#endif
-
+    serviceMain.interrupt();
+    serviceMain.join();
+#else
     Thread::sleep(100);
     serviceMain.join();
+#endif
 }
 
 /*!
@@ -378,7 +379,7 @@ static void onSignal(int sig)
         puts("");
 
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-    Util::stopThread(serviceMain, SERVICE_PORT);
+    serviceMain->interrupt();
 }
 #endif
 
