@@ -89,7 +89,9 @@ public:      Socket();
 
             int setReUseAddress(bool reUse);
             int setRecvTimeOut(int32_t msec);
+
             const CoreString& getInetAddress() const;
+            const CoreString& getMyInetAddress() const;
 
             void send(const  int32_t* value) const throw(Exception);
             void send(const uint32_t* value) const throw(Exception);

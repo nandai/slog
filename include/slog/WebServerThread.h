@@ -43,7 +43,9 @@ class SLOG_API WebServerThread : public Thread
             uint16_t    mPort;
 
 public:     WebServerThread();
-            void setPort(uint16_t port);
+
+            uint16_t getPort() const;
+            void     setPort(uint16_t port);
 
 private:    virtual void run();
             virtual WebServerResponseThread* createResponseThread(Socket* socket) const = 0;
@@ -61,10 +63,11 @@ public:     enum METHOD
                 POST,
             };
 
-private:    Socket*                     mSocket;
-            METHOD                      mMethod;        // 要求メソッド
+protected:  Socket*                     mSocket;
+private:    METHOD                      mMethod;        // 要求メソッド
             String                      mUrl;           // 要求URL
             std::map<String, String>    mPostParams;    // POSTパラメータ
+            String                      mWebSocketKey;  // Sec-WebSocket-Key
 
 public:     WebServerResponseThread(Socket* socket);
             virtual ~WebServerResponseThread();
@@ -81,6 +84,9 @@ public:     bool    analizeRequest();
 
             void sendHttpHeader(int32_t contentLen) const;
             void sendContent(String* content) const;
+
+private:    void upgradeWebSocket();
+            virtual void WebSocketMain() = 0;
 };
 
 } // namespace slog

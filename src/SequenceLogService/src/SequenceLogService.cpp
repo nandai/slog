@@ -400,8 +400,13 @@ void SequenceLogService::writeMain()
             openSeqLogFile(mFile);
 
 #if !defined(__ANDROID__)
-            SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(getListener());
-            listener->onLogFileChanged(this);
+            ThreadListeners* listeners = getListeners();
+
+            for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+            {
+                SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
+                listener->onLogFileChanged(this);
+            }
 #endif
         }
 
@@ -421,8 +426,13 @@ void SequenceLogService::writeMain()
             openSeqLogFile(mFile);
 
 #if !defined(__ANDROID__)
-            SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(getListener());
-            listener->onLogFileChanged(this);
+            ThreadListeners* listeners = getListeners();
+
+            for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+            {
+                SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
+                listener->onLogFileChanged(this);
+            }
 #endif
         }
 

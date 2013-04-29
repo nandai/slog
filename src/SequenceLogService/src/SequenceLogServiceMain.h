@@ -35,9 +35,11 @@ class FileInfo;
 class Mutex;
 class SequenceLogService;
 class SequenceLogServiceWebServerThread;
+class SequenceLogServiceThreadListener;
 
-typedef std::list<SequenceLogService*>  SequenceLogServiceManager;
-typedef std::list<FileInfo*>            FileInfoArray;
+typedef std::list<SequenceLogService*>                  SequenceLogServiceManager;
+typedef std::list<SequenceLogServiceThreadListener*>    SequenceLogServiceThreadListeners;
+typedef std::list<FileInfo*>                            FileInfoArray;
 
 /*!
  *  \brief  シーケンスログサービスリスナークラス
@@ -62,7 +64,7 @@ class SequenceLogServiceMain : public Thread, public FileFindListener
 
             Socket                              mSocket;                //!< シーケンスログクライアントの接続待ち受けソケット
             SequenceLogServiceManager           mServiceManager;        //!< シーケンスログサービスマネージャー
-            SequenceLogServiceThreadListener*   mServiceListener;       //!< シーケンスログサービスリスナー
+            SequenceLogServiceThreadListeners   mServiceListeners;      //!< シーケンスログサービスリスナーリスト
             FileInfoArray                       mFileInfoArray;         //!< シーケンスログファイル情報
 
             Mutex*                              mMutex;
@@ -149,7 +151,7 @@ inline void SequenceLogServiceMain::setSharedMemoryItemCount(int32_t count)
  */
 inline void SequenceLogServiceMain::setServiceListener(SequenceLogServiceThreadListener* listener)
 {
-    mServiceListener = listener;
+    mServiceListeners.push_back(listener);
 }
 
 /*!

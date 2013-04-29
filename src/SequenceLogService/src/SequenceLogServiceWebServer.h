@@ -20,7 +20,9 @@
  *  \author Copyright 2013 printf.jp
  */
 #pragma once
+
 #include "slog/WebServerThread.h"
+#include "SequenceLogServiceMain.h"
 
 namespace slog
 {
@@ -36,10 +38,21 @@ class SequenceLogServiceWebServerThread : public WebServerThread
 /*!
  *  \brief  シーケンスログサービスWEBサーバー応答スレッドクラス
  */
-class SequenceLogServiceWebServerResponseThread : public WebServerResponseThread
+class SequenceLogServiceWebServerResponseThread :
+    public WebServerResponseThread,
+    public SequenceLogServiceThreadListener
 {
-public:     SequenceLogServiceWebServerResponseThread(Socket* socket);
+            uint16_t    mPort;
+
+public:     SequenceLogServiceWebServerResponseThread(Socket* socket, uint16_t port);
 private:    virtual void run();
+            virtual void WebSocketMain();
+            void getJsonContent(String* content) const;
+
+public:     virtual void onInitialized(Thread* thread) {}
+            virtual void onTerminated( Thread* thread);
+            virtual void onLogFileChanged(Thread* thread);
+            virtual void onUpdateLog(const Buffer* text) {}
 };
 
 } // namespace slog

@@ -20,7 +20,6 @@
  *  \author Copyright 2013 printf.jp
  */
 #include "SequenceLogServiceWebServer.h"
-#include "SequenceLogServiceMain.h"
 
 #include "slog/String.h"
 #include "slog/PointerString.h"
@@ -252,11 +251,24 @@ static void appendCSS(String* buffer)
 /*!
  *  \brief  文字列にjavascriptを追加
  */
-static void appendJavaScript(String* buffer)
+static void appendJavaScript(String* buffer, const CoreString& ip, uint16_t port)
 {
-    buffer->append(
+    String str;
+    str.format(
         "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js\"></script>"
-        "<script type=\"text/javascript\" src=\"http://" DOMAIN "/js/SequenceLogService.js\"></script>");
+        "<script type=\"text/javascript\" src=\"http://" DOMAIN "/js/SequenceLogService.js\"></script>\n"
+
+        "<script type=\"text/javascript\">"
+        "var conn = new WebSocket('ws://%s:%u/');"
+        "conn.onmessage = function(e) {"
+            "var json = eval(\"(\" + e.data + \")\");"
+            "$.sequenceLogList.update(json);"
+        "};"
+        "</script>\n",
+        ip.getBuffer(),
+        port);
+
+    buffer->append(str);
 }
 
 /*!
@@ -274,7 +286,7 @@ static void appendFooter(String* buffer)
 /*!
  *  \brief  文字列に要求内容を追加
  */
-static void appendRequestContents(String* buffer)
+static void appendRequestContents(String* buffer, const CoreString& ip, uint16_t port)
 {
     buffer->append(
         "<head>"
@@ -282,7 +294,7 @@ static void appendRequestContents(String* buffer)
             "<title>Sequence Log Service</title>"
             "<link type=\"text/css\" rel=\"stylesheet\" href=\"http://" DOMAIN "/css/SequenceLogService.css\" media=\"screen\" />");
 
-    appendJavaScript(buffer);
+    appendJavaScript(buffer, ip, port);
     appendCSS(buffer);
 
     buffer->append(
@@ -336,15 +348,16 @@ static void appendNotFoundContents(String* buffer)
  */
 WebServerResponseThread* SequenceLogServiceWebServerThread::createResponseThread(Socket* socket) const
 {
-    return new SequenceLogServiceWebServerResponseThread(socket);
+    return new SequenceLogServiceWebServerResponseThread(socket, getPort());
 }
 
 /*!
  *  \brief  コンストラクタ
  */
-SequenceLogServiceWebServerResponseThread::SequenceLogServiceWebServerResponseThread(Socket* socket) :
+SequenceLogServiceWebServerResponseThread::SequenceLogServiceWebServerResponseThread(Socket* socket, uint16_t port) :
     WebServerResponseThread(socket)
 {
+    mPort = port;
 }
 
 /*!
@@ -366,7 +379,8 @@ void SequenceLogServiceWebServerResponseThread::run()
             {
                 if (getMethod() == GET)
                 {
-                    appendRequestContents(&content);
+                    const CoreString& ip = mSocket->getMyInetAddress();
+                    appendRequestContents(&content, ip, mPort);
                 }
                 else
                 {
@@ -398,24 +412,7 @@ void SequenceLogServiceWebServerResponseThread::run()
                     String getSequenceLogList = "getSequenceLogList";
 
                     if (url.equals(getSequenceLogList))
-                    {
-                        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-                        ScopedLock lock(serviceMain->getMutex());
-
-                        FileInfoArray* sum = serviceMain->getFileInfoArray();
-                        Json* json = Json::getNewObject();
-
-                        for (FileInfoArray::iterator i = sum->begin(); i != sum->end(); i++)
-                        {
-                            Json* jsonSequenceLogInfo = Json::getNewObject();
-
-                            createSequenceLogListJson(jsonSequenceLogInfo, *i);
-                            json->add(jsonSequenceLogInfo);
-                        }
-
-                        json->serialize(&content);
-                        delete json;
-                    }
+                        getJsonContent(&content);
                 }
             }
         }
@@ -436,6 +433,89 @@ void SequenceLogServiceWebServerResponseThread::run()
     catch (Exception& e)
     {
         noticeLog(e.getMessage());
+    }
+}
+
+/*!
+ *  \brief  JSONコンテンツ取得
+ */
+void SequenceLogServiceWebServerResponseThread::getJsonContent(String* content) const
+{
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    ScopedLock lock(serviceMain->getMutex());
+
+    FileInfoArray* sum = serviceMain->getFileInfoArray();
+    Json* json = Json::getNewObject();
+
+    for (FileInfoArray::iterator i = sum->begin(); i != sum->end(); i++)
+    {
+        Json* jsonSequenceLogInfo = Json::getNewObject();
+
+        createSequenceLogListJson(jsonSequenceLogInfo, *i);
+        json->add(jsonSequenceLogInfo);
+    }
+
+    json->serialize(content);
+    delete json;
+}
+
+/*!
+ *  \brief  WebSocketメイン
+ */
+void SequenceLogServiceWebServerResponseThread::WebSocketMain()
+{
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    serviceMain->setServiceListener(this);
+
+    while (true)
+    {
+        if (mSocket->isReceiveData(1 * 1000))
+        {
+            ByteBuffer buffer(1);
+            mSocket->recv(&buffer, buffer.getLength());
+
+            const char* p = buffer.getBuffer();
+
+            String str;
+            str.format("%02X", (uint32_t)(uint8_t)p[0]);
+            noticeLog(str.getBuffer());
+
+//          if ((p[0] & 0x0F) == 0x08)
+//              break;
+        }
+
+        if (isInterrupted())
+            break;
+    }
+}
+
+/*!
+ *  \brief  スレッド終了通知
+ */
+void SequenceLogServiceWebServerResponseThread::onTerminated(Thread* thread)
+{
+    onLogFileChanged(thread);
+}
+
+/*!
+ *  \brief  
+ */
+void SequenceLogServiceWebServerResponseThread::onLogFileChanged(Thread* thread)
+{
+    String content;
+    getJsonContent(&content);
+
+    int16_t len = content.getLength();
+    char buffer[] = {(char)0x81, (char)126, (char)(len >> 8), (char)(len & 0xFF)};
+
+    try
+    {
+        mSocket->send(buffer, sizeof(buffer));
+        mSocket->send(&content, len);
+    }
+    catch (Exception&)
+    {
+        interrupt();
     }
 }
 

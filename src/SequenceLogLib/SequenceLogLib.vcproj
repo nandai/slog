@@ -497,6 +497,30 @@
 			>
 		</File>
 		<File
+			RelativePath=".\src\sha1.c"
+			>
+			<FileConfiguration
+				Name="Release-dll|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					CompileAs="2"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release-dll|x64"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					CompileAs="2"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\src\sha1.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\slog\SharedMemory.h"
 			>
 		</File>

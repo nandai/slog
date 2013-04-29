@@ -59,6 +59,7 @@ namespace slog
 struct Socket::Data
 {
     FixedString<16> mInetAddress;   //!< IPv4
+    FixedString<16> mMyInetAddress;
 };
 
 /*!
@@ -391,8 +392,7 @@ int Socket::setRecvTimeOut(int32_t msec)
 /*!
  *  \brief  接続先IPアドレス取得
  *
- *  \retval NULL以外  接続先IPアドレス
- *  \retval NULL        未接続
+ *  \return 接続先IPアドレス
  */
 const CoreString& Socket::getInetAddress() const
 {
@@ -405,6 +405,27 @@ const CoreString& Socket::getInetAddress() const
     else
         inetAddress.copy(inet_ntoa(mAddr.sin_addr));
 #endif
+
+    return inetAddress;
+}
+
+/*!
+ *  \brief  接続元IPアドレス取得
+ *
+ *  \return 接続元IPアドレス
+ */
+const CoreString& Socket::getMyInetAddress() const
+{
+    CoreString& inetAddress = (CoreString&)mData->mMyInetAddress;
+
+    sockaddr_in addr;
+    int32_t len = sizeof(addr);
+    getsockname(mSocket, (sockaddr*)&addr, &len);
+
+    if (isOpen() == false)
+        inetAddress.setLength(0);
+    else
+        inetAddress.copy(inet_ntoa(addr.sin_addr));
 
     return inetAddress;
 }

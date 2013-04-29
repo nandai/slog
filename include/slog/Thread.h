@@ -20,7 +20,11 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
+
 #include "slog/slog.h"
+#include <list>
+
+#pragma warning(disable:4251)
 
 #if defined(__unix__)
     #include <pthread.h>
@@ -30,7 +34,10 @@
 
 namespace slog
 {
+class ThreadListener;
 class Thread;
+
+typedef std::list<ThreadListener*> ThreadListeners;
 
 /*!
  *  \brief  スレッドリスナークラス
@@ -56,7 +63,7 @@ class SLOG_API Thread
             bool            mAlive;             //!< 生存フラグ
 
             ThreadListener  mDefaultListener;   //!< デフォルトリスナー
-            ThreadListener* mListener;          //!< リスナー
+            ThreadListeners mListeners;         //!< リスナーリスト
 
 public:     Thread();
             virtual ~Thread();
@@ -73,6 +80,8 @@ public:     virtual void interrupt();
 
             ThreadListener* getListener() const;
             void setListener(ThreadListener* listener);
+
+            ThreadListeners* getListeners() const;
 
 private:
 #if defined(_WINDOWS)
@@ -106,7 +115,10 @@ inline bool Thread::isAlive() const
  */
 inline ThreadListener* Thread::getListener() const
 {
-    return mListener;
+    if (mListeners.empty())
+        return (ThreadListener*)&mDefaultListener;
+
+    return mListeners.front();
 }
 
 /*!
@@ -114,7 +126,16 @@ inline ThreadListener* Thread::getListener() const
  */
 inline void Thread::setListener(ThreadListener* listener)
 {
-    mListener = (listener ? listener : &mDefaultListener);
+    if (listener)
+        mListeners.push_back(listener);
+}
+
+/*!
+ *  \brief  リスナーリスト取得
+ */
+inline ThreadListeners* Thread::getListeners() const
+{
+    return (ThreadListeners*)&mListeners;
 }
 
 /*!

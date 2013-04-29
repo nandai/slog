@@ -23,6 +23,8 @@
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
 
+#include "sha1.h"
+
 #if defined(__linux__)
     #include <stdlib.h>
     #include <ctype.h>
@@ -39,6 +41,14 @@ namespace slog
 WebServerThread::WebServerThread()
 {
     mPort = 8080;
+}
+
+/*!
+ *  \brief  ポート取得
+ */
+uint16_t WebServerThread::getPort() const
+{
+    return mPort;
 }
 
 /*!
@@ -185,6 +195,7 @@ bool WebServerResponseThread::analizeRequest()
             }
             else
             {
+                // Content-Length
                 const char* compare = "Content-Length: ";
                 int32_t compareLen = (int32_t)strlen(compare);
 
@@ -192,11 +203,23 @@ bool WebServerResponseThread::analizeRequest()
                 {
                     contentLen = atoi(request + compareLen);
                 }
+
+                // Sec-WebSocket-Key
+                compare = "Sec-WebSocket-Key: ";
+                compareLen = (int32_t)strlen(compare);
+
+                if (strncmp(request, compare, compareLen) == 0)
+                {
+                    mWebSocketKey.copy(request + compareLen);
+                }
             }
         }
 
         i = 0;
     }
+
+    if (0 < mWebSocketKey.getLength())
+        upgradeWebSocket();
 
     return true;
 }
@@ -393,7 +416,7 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
         "\n",
         contentLen);
 
-    mSocket->send(str.getBuffer(), str.getLength());
+    mSocket->send(&str, str.getLength());
 }
 
 /*!
@@ -403,6 +426,94 @@ void WebServerResponseThread::sendContent(String* content) const
 {
     mSocket->send(content, content->getLength());
     mSocket->close();
+}
+
+/*!
+ *  \brief  ビット指定で値を取得
+ */
+static int64_t getBitsValue(const char* p, int32_t len, int32_t bitPos, int32_t count)
+{
+    int32_t pos =       bitPos / CHAR_BIT;
+    int32_t charInPos = bitPos % CHAR_BIT;
+
+    if (len <= pos)
+        return -1;
+
+    unsigned char c = (p[pos] << charInPos);
+    int64_t res = 0;
+
+    for (int32_t i = 0; i < count; i++)
+    {
+        res = (res << 1) | (c & 0x80 ? 0x01 : 0x00);
+        c <<= 1;
+        charInPos++;
+
+        if (charInPos == CHAR_BIT)
+        {
+            pos++;
+
+            if (pos < len)
+            {
+                charInPos = 0;
+                c = p[pos];
+            }
+        }
+    }
+
+    return res;
+}
+
+/*!
+ *  \brief  Base64エンコード
+ */
+static void encodeBase64(String* dest, const char* src, int32_t srcLen)
+{
+    const char* table = "=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    int32_t destLen = (srcLen *  4 / 3 + 3) / 4 * 4;
+    char* buffer = new char[destLen];
+    int32_t bitPos = 0;
+
+    for (int32_t i = 0; i < destLen; i++)
+    {
+        int64_t value = getBitsValue(src, srcLen, bitPos, 6);
+        buffer[i] = table[value + 1];
+        bitPos += 6;
+    }
+
+    dest->copy(buffer, destLen);
+    delete [] buffer;
+}
+
+/*!
+ *  \brief  WebSocketにアップグレード
+ */
+void WebServerResponseThread::upgradeWebSocket()
+{
+    String mes;
+    mes.format("%s%s", mWebSocketKey.getBuffer(), "258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
+
+    uint8_t digest[SHA1HashSize];
+
+    SHA1Context sha;
+    SHA1Reset( &sha);
+    SHA1Input( &sha, (uint8_t*)mes.getBuffer(), mes.getLength());
+    SHA1Result(&sha, digest);
+
+    String resValue;
+    encodeBase64(&resValue, (char*)digest, SHA1HashSize);
+
+    // 応答内容送信
+    String str;
+    str.format(
+        "HTTP/1.1 101 OK\r\n"
+        "Upgrade: websocket\r\n"
+        "Connection: Upgrade\r\n"
+        "Sec-WebSocket-Accept: %s\r\n"
+        "\r\n",
+        resValue.getBuffer());
+
+    mSocket->send(&str, str.getLength());
+    WebSocketMain();
 }
 
 } // namespace slog

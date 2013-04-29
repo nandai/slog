@@ -74,7 +74,6 @@ struct CompareFileInfo
 SequenceLogServiceMain::SequenceLogServiceMain()
 {
     sServiceMain = this;
-    mServiceListener = NULL;
 
     mSharedMemoryItemCount = 100;
 
@@ -212,7 +211,9 @@ void SequenceLogServiceMain::run()
             SequenceLogService* service = new SequenceLogService(socket);
             mServiceManager.push_back(service);
 
-            service->setListener(mServiceListener);
+            for (SequenceLogServiceThreadListeners::iterator i = mServiceListeners.begin(); i != mServiceListeners.end(); i++)
+                service->setListener(*i);
+
             service->start();
         }
         catch (Exception /*e*/)
@@ -325,7 +326,8 @@ void ConnectThread::onTerminated( Thread* thread)
 void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 {
 #if !defined(__ANDROID__) || defined(__EXEC__)
-    mServiceListener->onUpdateLog(text);
+    for (SequenceLogServiceThreadListeners::iterator i = mServiceListeners.begin(); i != mServiceListeners.end(); i++)
+        (*i)->onUpdateLog(text);
 #endif
 }
 

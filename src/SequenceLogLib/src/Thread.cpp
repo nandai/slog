@@ -97,18 +97,23 @@ void* Thread::main(void* param)
 #endif
 {
     Thread* thread = (Thread*)param;
+    ThreadListeners* listeners = thread->getListeners();
 
     thread->mInterrupted = false;
     thread->mAlive = true;
 
     if (thread->init())
     {
-        thread->mListener->onInitialized(thread);
+        for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+            (*i)->onInitialized(thread);
+
         thread->run();
     }
 
     thread->mAlive = false;
-    thread->mListener->onTerminated(thread);
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+        (*i)->onTerminated(thread);
 
 #if defined(_WINDOWS)
     #if !defined(MODERN_UI)
