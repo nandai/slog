@@ -17,7 +17,12 @@
 #ifndef _SHA1_H_
 #define _SHA1_H_
 
-#include "slog/stdint.h"
+#include "slog/slog.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /*
  * If you do not have the ISO standard stdint.h header file, then you
  * must typdef the following:
@@ -63,5 +68,9 @@ typedef struct SHA1Context {
 int SHA1Reset(SHA1Context *);
 int SHA1Input(SHA1Context *, const uint8_t *, unsigned int);
 int SHA1Result(SHA1Context *, uint8_t Message_Digest[SHA1HashSize]);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

@@ -30,7 +30,8 @@ objs = \
 	Util.o \
 	WebServerThread.o \
 	SequenceLog.o \
-	jp_printf_slog_Log.o
+	jp_printf_slog_Log.o \
+        sha1.o
 
 #all: depend libslog.so
 

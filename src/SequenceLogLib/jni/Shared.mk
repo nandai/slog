@@ -20,7 +20,8 @@ LOCAL_SRC_FILES := \
     ../src/Util.cpp \
     ../src/WebServerThread.cpp \
     ../src/SequenceLog.cpp \
-    ../src/jp_printf_slog_Log.cpp
+    ../src/jp_printf_slog_Log.cpp \
+    ../src/sha1.c
 
 LOCAL_C_INCLUDES += \
     $(ANDROID_NDK_ROOT)/sources/cxx-stl/stlport/stlport \

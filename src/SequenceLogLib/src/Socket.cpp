@@ -417,9 +417,14 @@ const CoreString& Socket::getInetAddress() const
 const CoreString& Socket::getMyInetAddress() const
 {
     CoreString& inetAddress = (CoreString&)mData->mMyInetAddress;
-
     sockaddr_in addr;
-    int32_t len = sizeof(addr);
+
+#if defined(_WINDOWS)
+        int len = sizeof(addr);
+#else
+        socklen_t len = sizeof(addr);
+#endif
+
     getsockname(mSocket, (sockaddr*)&addr, &len);
 
     if (isOpen() == false)
