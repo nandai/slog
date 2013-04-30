@@ -82,6 +82,7 @@ public:     virtual void interrupt();
             void setListener(ThreadListener* listener);
 
             ThreadListeners* getListeners() const;
+            void removeListener(ThreadListener* listener);
 
 private:
 #if defined(_WINDOWS)

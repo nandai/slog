@@ -88,6 +88,23 @@ void Thread::interrupt()
 }
 
 /*!
+ *  \brief  リスナー除外
+ */
+void Thread::removeListener(ThreadListener* listener)
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    {
+        if (*i == listener)
+        {
+            listeners->erase(i);
+            break;
+        }
+    }
+}
+
+/*!
  *  \brief  スレッドエントリーポイント
  */
 #if defined(_WINDOWS)

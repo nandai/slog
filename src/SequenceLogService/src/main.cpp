@@ -248,7 +248,7 @@ void Application::main(int argc, char** argv)
     else
     {
         serviceMain.setSharedMemoryItemCount(sharedMemoryItemCount);
-        serviceMain.setServiceListener(this);
+        serviceMain.setListener(this);
         serviceMain.setLogFolderName(logOutputDir);
         serviceMain.setMaxFileSize(size);
         serviceMain.setMaxFileCount(count);

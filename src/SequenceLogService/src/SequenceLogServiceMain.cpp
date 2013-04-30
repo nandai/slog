@@ -208,9 +208,7 @@ void SequenceLogServiceMain::run()
             SequenceLogService* service = new SequenceLogService(socket);
             mServiceManager.push_back(service);
 
-            for (SequenceLogServiceThreadListeners::iterator i = mServiceListeners.begin(); i != mServiceListeners.end(); i++)
-                service->setListener(*i);
-
+            service->setListener(this);
             service->start();
         }
         catch (Exception /*e*/)
@@ -323,8 +321,7 @@ void ConnectThread::onTerminated( Thread* thread)
 void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 {
 #if !defined(__ANDROID__) || defined(__EXEC__)
-    for (SequenceLogServiceThreadListeners::iterator i = mServiceListeners.begin(); i != mServiceListeners.end(); i++)
-        (*i)->onUpdateLog(text);
+    onUpdateLog(text);
 #endif
 }
 
@@ -467,6 +464,60 @@ void SequenceLogServiceMain::onFind(const CoreString& path)
     }
 
     mFileInfoArray.push_back(info);
+}
+
+/*!
+ *  \brief	シーケンスログサービススレッド初期化完了通知
+ */
+void SequenceLogServiceMain::onInitialized(Thread* thread)
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+        (*i)->onInitialized(thread);
+}
+
+/*!
+ *  \brief	シーケンスログサービススレッド終了通知
+ */
+void SequenceLogServiceMain::onTerminated(Thread* thread)
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+        (*i)->onTerminated(thread);
+}
+
+/*!
+ *  \brief	シーケンスログファイル変更通知
+ */
+void SequenceLogServiceMain::onLogFileChanged(Thread* thread)
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    {
+        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
+
+        if (listener)
+            listener->onLogFileChanged(thread);
+    }
+}
+
+/*!
+ *  \brief	シーケンスログ更新通知
+ */
+void SequenceLogServiceMain::onUpdateLog(const Buffer* text)
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    {
+        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
+
+        if (listener)
+            listener->onUpdateLog(text);
+    }
 }
 
 } // namespace slog

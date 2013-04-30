@@ -468,7 +468,7 @@ void SequenceLogServiceWebServerResponseThread::getJsonContent(String* content) 
 void SequenceLogServiceWebServerResponseThread::WebSocketMain()
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-    serviceMain->setServiceListener(this);
+    serviceMain->setListener(this);
 
     while (true)
     {
@@ -498,14 +498,19 @@ void SequenceLogServiceWebServerResponseThread::WebSocketMain()
 void SequenceLogServiceWebServerResponseThread::onTerminated(Thread* thread)
 {
     if (thread == this)
+    {
+        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+        serviceMain->removeListener(this);
         delete this;
-
+    }
     else
+    {
         onLogFileChanged(thread);
+    }
 }
 
 /*!
- *  \brief  
+ *  \brief	シーケンスログ更新通知
  */
 void SequenceLogServiceWebServerResponseThread::onLogFileChanged(Thread* thread)
 {

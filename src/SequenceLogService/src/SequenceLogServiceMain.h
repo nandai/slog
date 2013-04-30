@@ -53,7 +53,10 @@ public:     virtual void onLogFileChanged(Thread* thread) {}
 /*!
  *  \brief  シーケンスログサービスメインクラス
  */
-class SequenceLogServiceMain : public Thread, public FileFindListener
+class SequenceLogServiceMain :
+    public Thread,
+    public FileFindListener,
+    public SequenceLogServiceThreadListener
 {
             FixedString<MAX_PATH>               mSharedMemoryPathName;  //!< 共有メモリパス
             int32_t                             mSharedMemoryItemCount; //!< 共有メモリに格納できるシーケンスログアイテムの最大数
@@ -64,7 +67,6 @@ class SequenceLogServiceMain : public Thread, public FileFindListener
 
             Socket                              mSocket;                //!< シーケンスログクライアントの接続待ち受けソケット
             SequenceLogServiceManager           mServiceManager;        //!< シーケンスログサービスマネージャー
-            SequenceLogServiceThreadListeners   mServiceListeners;      //!< シーケンスログサービスリスナーリスト
             FileInfoArray                       mFileInfoArray;         //!< シーケンスログファイル情報
 
             Mutex*                              mMutex;
@@ -96,7 +98,6 @@ public:     void cleanup();
             void    setSharedMemoryItemCount(int32_t count);
 
             // その他
-            void setServiceListener(SequenceLogServiceThreadListener* listener);
             SequenceLogServiceManager* getSequenceLogServiceManager() const;
 
             FileInfoArray* getFileInfoArray() const;
@@ -128,6 +129,10 @@ public:     void cleanup();
             void              setSequenceLogServer(const CoreString& ip, uint16_t port);
 
 private:    virtual void onFind(const CoreString& path);
+            virtual void onInitialized(   Thread* thread);
+            virtual void onTerminated(    Thread* thread);
+            virtual void onLogFileChanged(Thread* thread);
+            virtual void onUpdateLog(const Buffer* text);
 };
 
 /*!
@@ -144,14 +149,6 @@ inline int32_t SequenceLogServiceMain::getSharedMemoryItemCount() const
 inline void SequenceLogServiceMain::setSharedMemoryItemCount(int32_t count)
 {
     mSharedMemoryItemCount = count;
-}
-
-/*!
- *  \brief  シーケンスログサービスリスナー設定
- */
-inline void SequenceLogServiceMain::setServiceListener(SequenceLogServiceThreadListener* listener)
-{
-    mServiceListeners.push_back(listener);
 }
 
 /*!
