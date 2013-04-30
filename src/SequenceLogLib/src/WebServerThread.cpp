@@ -124,14 +124,6 @@ WebServerResponseThread::~WebServerResponseThread()
 }
 
 /*!
- *  \brief  スレッド終了通知
- */
-void WebServerResponseThread::onTerminated(Thread* thread)
-{
-    delete this;
-}
-
-/*!
  *  \brief  要求解析
  */
 bool WebServerResponseThread::analizeRequest()

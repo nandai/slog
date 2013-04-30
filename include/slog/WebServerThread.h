@@ -54,7 +54,7 @@ private:    virtual void run();
 /*!
  *  \brief  WEBサーバー応答スレッドクラス
  */
-class SLOG_API WebServerResponseThread : public Thread, public ThreadListener
+class SLOG_API WebServerResponseThread : public Thread
 {
 public:     enum METHOD
             {
@@ -71,8 +71,6 @@ private:    METHOD                      mMethod;        // 要求メソッド
 
 public:     WebServerResponseThread(Socket* socket);
             virtual ~WebServerResponseThread();
-
-private:    virtual void onTerminated(Thread* thread);
 
 public:     bool    analizeRequest();
             int32_t analizeUrl(const char* request, int32_t len, METHOD method);

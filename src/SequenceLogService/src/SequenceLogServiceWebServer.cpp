@@ -62,6 +62,8 @@ SendSequenceLogThread::SendSequenceLogThread(const CoreString& ip, uint16_t port
     mIP.copy(ip);
     mPort = port;
     mLogFilePath.copy(path);
+
+    setListener(this);
 }
 
 /*!
@@ -358,6 +360,7 @@ SequenceLogServiceWebServerResponseThread::SequenceLogServiceWebServerResponseTh
     WebServerResponseThread(socket)
 {
     mPort = port;
+    setListener(this);
 }
 
 /*!
@@ -494,7 +497,11 @@ void SequenceLogServiceWebServerResponseThread::WebSocketMain()
  */
 void SequenceLogServiceWebServerResponseThread::onTerminated(Thread* thread)
 {
-    onLogFileChanged(thread);
+    if (thread == this)
+        delete this;
+
+    else
+        onLogFileChanged(thread);
 }
 
 /*!

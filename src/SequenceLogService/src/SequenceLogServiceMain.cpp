@@ -200,10 +200,7 @@ void SequenceLogServiceMain::run()
                 break;
 
             if (isReceive == false)
-            {
-                sleep(1);
                 continue;
-            }
 
             socket = new Socket();
             socket->accept(&mSocket);

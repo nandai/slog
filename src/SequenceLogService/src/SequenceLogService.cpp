@@ -360,17 +360,17 @@ void SequenceLogService::run()
     // 書き込みループ
     try
     {
-        while (isInterrupted() == false)
+        while (true)
         {
-//          if (mProcess.isAlive() == false)
             if (receiver.isAlive() == false)
-            {
                 interrupt();
-            }
 
             divideItems();
             writeMain();
             sleep(1);
+
+            if (receiver.isAlive() == false)
+                break;
         }
     }
     catch (Exception e)
@@ -379,9 +379,9 @@ void SequenceLogService::run()
     }
 
     receiver.interrupt();
-    cleanUp();
-
     receiver.join();
+
+    cleanUp();
     mSocket->close();
 }
 
@@ -970,17 +970,13 @@ void SequenceLogService::receiveMain()
         while (true)
         {
             SLOG_ITEM_INFO* info;
+            bool isReceive = mSocket->isReceiveData(3000);
 
-            if (mSocket->isReceiveData(3000) == false)
-            {
-                if (isInterrupted())
-                {
-                    break;
-                }
+            if (isInterrupted())
+                break;
 
-                sleep(1);
+            if (isReceive == false)
                 continue;
-            }
 
             mSocket->recv(&buffer, buffer.getCapacity());
 
