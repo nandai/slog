@@ -398,16 +398,7 @@ void SequenceLogService::writeMain()
         if (mFile.isOpen() == false)
         {
             openSeqLogFile(mFile);
-
-#if !defined(__ANDROID__)
-            ThreadListeners* listeners = getListeners();
-
-            for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
-            {
-                SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
-                listener->onLogFileChanged(this);
-            }
-#endif
+            callLogFileChanged();
         }
 
         // 書き込み
@@ -423,17 +414,9 @@ void SequenceLogService::writeMain()
         if (maxSize != 0 && maxSize < size)
         {
             mFile.close();
+
             openSeqLogFile(mFile);
-
-#if !defined(__ANDROID__)
-            ThreadListeners* listeners = getListeners();
-
-            for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
-            {
-                SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
-                listener->onLogFileChanged(this);
-            }
-#endif
+            callLogFileChanged();
         }
 
         // 次のシーケンスログアイテムを取得
@@ -445,6 +428,20 @@ void SequenceLogService::writeMain()
 
     // シーケンスログリスト初期化
     mOutputList->clear();
+}
+
+/*!
+    *  \brief  リスナーのonLogFileChanged()をコール
+ */
+void SequenceLogService::callLogFileChanged()
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    {
+        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
+        listener->onLogFileChanged(this);
+    }
 }
 
 /*!
