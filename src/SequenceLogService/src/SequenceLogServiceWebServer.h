@@ -52,7 +52,9 @@ private:    virtual void run();
 public:     virtual void onInitialized(Thread* thread) {}
             virtual void onTerminated( Thread* thread);
             virtual void onLogFileChanged(Thread* thread);
-            virtual void onUpdateLog(const Buffer* text) {}
+            virtual void onUpdateLog(const Buffer* text);
+
+            void send(const char* commandNo, const Buffer* payloadData);
 };
 
 } // namespace slog

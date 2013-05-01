@@ -224,28 +224,23 @@ static void appendCSS(String* buffer)
 {
     buffer->append(
         "<style type=\"text/css\">"
-            "body"
+            "#logViewer"
             "{"
-                "font-size: 14px;"
-                "font-family: meiryo;"
-                "background: #FFFFFF;"
+            "    color: white;"
+            "    background-color: black;"
+            "    border: 1px solid gray;"
+            "    font-size: small;"
             "}"
 
-            "table"
+            "ul"
             "{"
-                "border-collapse: collapse;"
+            "    margin: 4px;"
+            "    padding: 0px;"
             "}"
 
-            "th, td"
+            "li"
             "{"
-                "border: 1px solid #808080;"
-                "padding: 5px;"
-                "white-space: nowrap;"
-            "}"
-
-            "th"
-            "{"
-            "    background-color: #80FF80;"
+            "    list-style-type: none;"
             "}"
         "</style>");
 }
@@ -261,11 +256,27 @@ static void appendJavaScript(String* buffer, const CoreString& ip, uint16_t port
         "<script type=\"text/javascript\" src=\"http://" DOMAIN "/js/SequenceLogService.js\"></script>\n"
 
         "<script type=\"text/javascript\">"
-        "var conn = new WebSocket('ws://%s:%u/');"
-        "conn.onmessage = function(e) {"
-            "var json = eval(\"(\" + e.data + \")\");"
-            "$.sequenceLogList.update(json);"
-        "};"
+        "$(function() {"
+            "var conn = new WebSocket('ws://%s:%u/');"
+            "var colors = {d: 'yellowgreen', i: 'white', w: 'yellow', e: 'red'};"
+
+            "conn.onmessage = function(e) {"
+                "var cmd = e.data.substring(0, 4);"
+                "if (cmd === '0001') {"
+                    "var json = eval(\"(\" + e.data.slice(4) + \")\");"
+                    "$.sequenceLogList.update(json);"
+                "}"
+                "else if (cmd === '0002') {"
+                    "$.outputLog("
+                        "e.data.slice(4 + 1)"
+                        ".fontcolor(colors[e.data.charAt(4)]));"
+                "}"
+            "};"
+
+            "$.outputLog('--- Sequence Log Service View ---'.fontcolor('lightgreen'));"
+            "for (var i = 0; i < 20 - 1; i++)"
+                "$.outputLog('&nbsp;');"
+        "});"
         "</script>\n",
         ip.getBuffer(),
         port);
@@ -282,7 +293,8 @@ static void appendFooter(String* buffer)
         "<hr />"
         "<div align=\"right\">"
             "Copyright (c) 2013 <a href=\"http://" DOMAIN "\" target=\"_blank\">" DOMAIN "</a> All rights reserved."
-        "</div>");
+        "</div>"
+        "</body>");
 }
 
 /*!
@@ -316,6 +328,8 @@ static void appendRequestContents(String* buffer, const CoreString& ip, uint16_t
                     "</tr>"
                 "</table>"
             "</div>"
+            "<br />"
+            "<div id=\"logViewer\"></div>"
             "<br />");
 
     appendFooter(buffer);
@@ -517,13 +531,53 @@ void SequenceLogServiceWebServerResponseThread::onLogFileChanged(Thread* thread)
     String content;
     getJsonContent(&content);
 
-    int16_t len = content.getLength();
-    char buffer[] = {(char)0x81, (char)126, (char)(len >> 8), (char)(len & 0xFF)};
+    send("0001", &content);
+}
+
+/*!
+ *  \brief	シーケンスログ更新通知
+ */
+void SequenceLogServiceWebServerResponseThread::onUpdateLog(const Buffer* text)
+{
+    send("0002", text);
+}
+
+/*!
+ *  \brief	
+ */
+void SequenceLogServiceWebServerResponseThread::send(const char* commandNo, const Buffer* payloadData)
+{
+    uint32_t payloadDataLen = payloadData->getLength();
+    uint32_t commandNoLen = (uint32_t)strlen(commandNo);
+
+    if (commandNoLen != 4)
+    {
+        noticeLog("commandNoは４バイトでなければならない。");
+        return;
+    }
+
+    char frame[4];
+    int32_t frameLen = 0;
+    int32_t totalLen = commandNoLen + payloadDataLen;
+
+    if (totalLen < 126)
+    {
+        frame[frameLen++] = (char)0x81;
+        frame[frameLen++] = (char)totalLen;
+    }
+    else
+    {
+        frame[frameLen++] = (char)0x81;
+        frame[frameLen++] = (char)126;
+        frame[frameLen++] = (char)(totalLen >> 8);
+        frame[frameLen++] = (char)(totalLen & 0xFF);
+    }
 
     try
     {
-        mSocket->send(buffer, sizeof(buffer));
-        mSocket->send(&content, len);
+        mSocket->send(frame, frameLen);
+        mSocket->send(commandNo, commandNoLen);
+        mSocket->send(payloadData, payloadDataLen);
     }
     catch (Exception&)
     {
