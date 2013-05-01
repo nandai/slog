@@ -276,14 +276,14 @@ void Application::main(int argc, char** argv)
  */
 void Application::onInitialized(Thread* thread)
 {
-#if defined(__ANDROID__)
-    SequenceLogService* service = (SequenceLogService*)thread;
-#else
-    SequenceLogService* service = dynamic_cast<SequenceLogService*>(thread);
-#endif
+    // SequenceLogService取得
+    SequenceLogService*  service = dynamic_cast<SequenceLogService*>(thread);
 
+    if (service == NULL)
+        return;
+
+    // FileInfo取得
     FileInfo* fileInfo = service->getFileInfo();
-    TRACE("fileInfo: 0x%08X\n", fileInfo);
 
     if (fileInfo == NULL)
         return;
@@ -302,12 +302,13 @@ void Application::onInitialized(Thread* thread)
  */
 void Application::onTerminated(Thread* thread)
 {
-#if defined(__ANDROID__)
-    SequenceLogService* service = (SequenceLogService*)thread;
-#else
+    // SequenceLogService取得
     SequenceLogService* service = dynamic_cast<SequenceLogService*>(thread);
-#endif
 
+    if (service == NULL)
+        return;
+
+    // FileInfo取得
     FileInfo* fileInfo = service->getFileInfo();
 
     if (fileInfo == NULL)
