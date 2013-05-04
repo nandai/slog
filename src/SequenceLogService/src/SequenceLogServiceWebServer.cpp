@@ -217,16 +217,16 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
 /*!
  *  \brief  WEBサーバー応答スレッドオブジェクト生成
  */
-WebServerResponseThread* SequenceLogServiceWebServerThread::createResponseThread(Socket* socket) const
+WebServerResponseThread* SequenceLogServiceWebServerThread::createResponseThread(HttpRequest* httpRequest) const
 {
-    return new SequenceLogServiceWebServerResponseThread(socket, getPort());
+    return new SequenceLogServiceWebServerResponseThread(httpRequest);
 }
 
 /*!
  *  \brief  コンストラクタ
  */
-SequenceLogServiceWebServerResponseThread::SequenceLogServiceWebServerResponseThread(Socket* socket, uint16_t port) :
-    WebServerResponseThread(socket, port)
+SequenceLogServiceWebServerResponseThread::SequenceLogServiceWebServerResponseThread(HttpRequest* httpRequest) :
+    WebServerResponseThread(httpRequest)
 {
     setListener(this);
 }
@@ -239,10 +239,10 @@ const WebServerResponseThread::URLMAP* SequenceLogServiceWebServerResponseThread
     #define self (WEBPROC)&SequenceLogServiceWebServerResponseThread
     static const URLMAP urlmaps[] =
     {
-        {GET,     "",                   "index.html", self::getContents},
-        {POST,    "",                   "",           self::webSendSequenceLog},
-        {POST,    "getSequenceLogList", "",           self::webGetSequenceLogList},
-        {UNKNOWN}
+        {HttpRequest::GET,  "",                   "index.html", self::getContents},
+        {HttpRequest::POST, "",                   "",           self::webSendSequenceLog},
+        {HttpRequest::POST, "getSequenceLogList", "",           self::webGetSequenceLogList},
+        {HttpRequest::UNKNOWN}
     };
     return urlmaps;
 }
@@ -285,7 +285,7 @@ bool SequenceLogServiceWebServerResponseThread::webGetSequenceLogList(String* co
 bool SequenceLogServiceWebServerResponseThread::webSendSequenceLog(String* content, const char* url)
 {
     String fileName;
-    getParam("fileName", &fileName);
+    mHttpRequest->getParam("fileName", &fileName);
 
     if (fileName.getLength() == 0)
         return false;
@@ -332,12 +332,14 @@ void SequenceLogServiceWebServerResponseThread::WebSocketMain()
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     serviceMain->setListener(this);
 
+    Socket* socket = mHttpRequest->getSocket();
+
     while (true)
     {
-        if (mSocket->isReceiveData(1 * 1000))
+        if (socket->isReceiveData(1 * 1000))
         {
             ByteBuffer buffer(1);
-            mSocket->recv(&buffer, buffer.getLength());
+            socket->recv(&buffer, buffer.getLength());
 
             const char* p = buffer.getBuffer();
 
@@ -423,9 +425,11 @@ void SequenceLogServiceWebServerResponseThread::send(const char* commandNo, cons
 
     try
     {
-        mSocket->send(frame, frameLen);
-        mSocket->send(commandNo, commandNoLen);
-        mSocket->send(payloadData, payloadDataLen);
+        Socket* socket = mHttpRequest->getSocket();
+
+        socket->send(frame, frameLen);
+        socket->send(commandNo, commandNoLen);
+        socket->send(payloadData, payloadDataLen);
     }
     catch (Exception&)
     {

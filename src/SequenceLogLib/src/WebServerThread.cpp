@@ -38,6 +38,47 @@ namespace slog
 {
 
 /*!
+ *  \brief  16進数文字列を数値に変換
+ */
+template <class T>
+inline const char* _hexToValue(const char* hex, T* value)
+{
+    int32_t i;
+    int32_t size = sizeof(*value) * 2;
+    *value = 0;
+
+    for (i = 0; i < size; i++)
+    {
+        char c = toupper(hex[i]);
+
+        if ('0' <= c && c <= '9')
+        {
+            c = c - '0';
+        }
+        else if ('A' <= c && c <= 'F')
+        {
+            c = c - 'A' + 0x0A;
+        }
+        else
+        {
+            break;
+        }
+
+        *value = (*value << 4) | c;
+    }
+
+    return (hex + i);
+}
+
+/*!
+ *  \brief  16進数文字列をchar型の数値に変換
+ */
+static const char* hexToValue(const char* hex, char* value)
+{
+    return _hexToValue(hex, value);
+}
+
+/*!
  *  \brief  コンストラクタ
  */
 WebServerThread::WebServerThread()
@@ -86,16 +127,22 @@ void WebServerThread::run()
                 break;
 
             if (isReceive == false)
-            {
-                sleep(1);
                 continue;
-            }
 
             client = new Socket;
             client->accept(&server);
 
-            WebServerResponseThread* response = createResponseThread(client);
-            response->start();
+            HttpRequest* httpRequest = new HttpRequest(client, mPort);
+
+            if (httpRequest->analizeRequest())
+            {
+                WebServerResponseThread* response = createResponseThread(httpRequest);
+                response->start();
+            }
+            else
+            {
+                delete httpRequest;
+            }
         }
         catch (Exception& e)
         {
@@ -111,7 +158,7 @@ void WebServerThread::run()
 /*!
  *  \brief  コンストラクタ
  */
-WebServerResponseThread::WebServerResponseThread(Socket* socket, uint16_t port)
+HttpRequest::HttpRequest(Socket* socket, uint16_t port)
 {
     mSocket = socket;
     mPort = port;
@@ -121,7 +168,7 @@ WebServerResponseThread::WebServerResponseThread(Socket* socket, uint16_t port)
 /*!
  *  \brief  デストラクタ
  */
-WebServerResponseThread::~WebServerResponseThread()
+HttpRequest::~HttpRequest()
 {
     delete mSocket;
 }
@@ -129,7 +176,7 @@ WebServerResponseThread::~WebServerResponseThread()
 /*!
  *  \brief  要求解析
  */
-bool WebServerResponseThread::analizeRequest()
+bool HttpRequest::analizeRequest()
 {
     int32_t size = 1;
     ByteBuffer buffer(size);
@@ -213,16 +260,13 @@ bool WebServerResponseThread::analizeRequest()
         i = 0;
     }
 
-    if (0 < mWebSocketKey.getLength())
-        upgradeWebSocket();
-
     return true;
 }
 
 /*!
  *  \brief  URL解析
  */
-int32_t WebServerResponseThread::analizeUrl(const char* request, int32_t len, METHOD method)
+int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 {
     const char* compare;
 
@@ -260,50 +304,9 @@ int32_t WebServerResponseThread::analizeUrl(const char* request, int32_t len, ME
 }
 
 /*!
- *  \brief  16進数文字列を数値に変換
- */
-template <class T>
-inline const char* _hexToValue(const char* hex, T* value)
-{
-    int32_t i;
-    int32_t size = sizeof(*value) * 2;
-    *value = 0;
-
-    for (i = 0; i < size; i++)
-    {
-        char c = toupper(hex[i]);
-
-        if ('0' <= c && c <= '9')
-        {
-            c = c - '0';
-        }
-        else if ('A' <= c && c <= 'F')
-        {
-            c = c - 'A' + 0x0A;
-        }
-        else
-        {
-            break;
-        }
-
-        *value = (*value << 4) | c;
-    }
-
-    return (hex + i);
-}
-
-/*!
- *  \brief  16進数文字列をchar型の数値に変換
- */
-static const char* hexToValue(const char* hex, char* value)
-{
-    return _hexToValue(hex, value);
-}
-
-/*!
  *  \brief  POSTパラメータ解析
  */
-void WebServerResponseThread::analizePostParams(ByteBuffer* params)
+void HttpRequest::analizePostParams(ByteBuffer* params)
 {
     const char* p1 = params->getBuffer();
     bool end = false;
@@ -370,9 +373,25 @@ void WebServerResponseThread::analizePostParams(ByteBuffer* params)
 }
 
 /*!
+ *  \brief  ソケット取得
+ */
+Socket* HttpRequest::getSocket() const
+{
+    return mSocket;
+}
+
+/*!
+ *  \brief  ポート取得
+ */
+uint16_t HttpRequest::getPort() const
+{
+    return mPort;
+}
+
+/*!
  *  \brief  HTTPメソッド取得
  */
-WebServerResponseThread::METHOD WebServerResponseThread::getMethod() const
+HttpRequest::METHOD HttpRequest::getMethod() const
 {
     return mMethod;
 }
@@ -380,7 +399,7 @@ WebServerResponseThread::METHOD WebServerResponseThread::getMethod() const
 /*!
  *  \brief  URL取得
  */
-const CoreString& WebServerResponseThread::getUrl() const
+const CoreString& HttpRequest::getUrl() const
 {
     return mUrl;
 }
@@ -388,9 +407,33 @@ const CoreString& WebServerResponseThread::getUrl() const
 /*!
  *  \brief  POSTパラメータ取得
  */
-void WebServerResponseThread::getParam(const char* name, CoreString* param)
+void HttpRequest::getParam(const char* name, CoreString* param)
 {
     param->copy(mPostParams[name]);
+}
+
+/*!
+ *  \brief  Sec-WebSocket-Key取得
+ */
+const CoreString& HttpRequest::getWebSocketKey() const
+{
+    return mWebSocketKey;
+}
+
+/*!
+ *  \brief  コンストラクタ
+ */
+WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
+{
+    mHttpRequest = httpRequest;
+}
+
+/*!
+ *  \brief  デストラクタ
+ */
+WebServerResponseThread::~WebServerResponseThread()
+{
+    delete mHttpRequest;
 }
 
 /*!
@@ -407,7 +450,7 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
         "\n",
         contentLen);
 
-    mSocket->send(&str, str.getLength());
+    mHttpRequest->getSocket()->send(&str, str.getLength());
 }
 
 /*!
@@ -415,8 +458,10 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
  */
 void WebServerResponseThread::sendContent(String* content) const
 {
-    mSocket->send(content, content->getLength());
-    mSocket->close();
+    Socket* socket = mHttpRequest->getSocket();
+
+    socket->send(content, content->getLength());
+    socket->close();
 }
 
 /*!
@@ -428,46 +473,49 @@ void WebServerResponseThread::run()
     {
         String content;
 
-        if (analizeRequest())
+        if (mHttpRequest->getWebSocketKey().getLength())
         {
-            // URL取得
-            const CoreString& url = getUrl();
+            upgradeWebSocket();
+            return;
+        }
 
-            // URLマップに一致する処理を行う
-            const URLMAP* urlmap = getUrlMaps();
-            bool res = false;
+        HttpRequest::METHOD method = mHttpRequest->getMethod();
+        const CoreString& url =      mHttpRequest->getUrl();
 
-            while (urlmap->method != UNKNOWN)
+        // URLマップに一致する処理を行う
+        const URLMAP* urlmap = getUrlMaps();
+        bool res = false;
+
+        while (urlmap->method != HttpRequest::UNKNOWN)
+        {
+            String tmp = urlmap->url;
+
+            if (urlmap->method == method && url.equals(tmp))
             {
-                String tmp = urlmap->url;
+                WEBPROC proc = urlmap->proc;
+                res = (this->*proc)(&content, (urlmap->replaceUrl[0] == '\0'
+                    ? urlmap->url
+                    : urlmap->replaceUrl));
 
-                if (urlmap->method == getMethod() && url.equals(tmp))
-                {
-                    WEBPROC proc = urlmap->proc;
-                    res = (this->*proc)(&content, (urlmap->replaceUrl[0] == '\0'
-                        ? urlmap->url
-                        : urlmap->replaceUrl));
+                break;
+            }
 
+            urlmap++;
+        }
+
+        if (res == false && HttpRequest::GET == method)
+        {
+            do
+            {
+                if (getContents(&content, url.getBuffer()))
                     break;
-                }
 
-                urlmap++;
+                if (getContents(&content, "notfound.html"))
+                    break;
+
+                return;
             }
-
-            if (res == false && GET == getMethod())
-            {
-                do
-                {
-                    if (getContents(&content, url.getBuffer()))
-                        break;
-
-                    if (getContents(&content, "notfound.html"))
-                        break;
-
-                    return;
-                }
-                while (false);
-            }
+            while (false);
         }
 
         // HTTPヘッダー送信
@@ -490,7 +538,7 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
 {
     try
     {
-        const CoreString& ip = mSocket->getMyInetAddress();
+        const CoreString& ip = mHttpRequest->getSocket()->getMyInetAddress();
 
         String processPath;
         Util::getProcessPath(&processPath);
@@ -534,7 +582,7 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
                 if (0 <= pos)
                 {
                     String ws;
-                    ws.format("%s:%u", ip.getBuffer(), mPort);
+                    ws.format("%s:%u", ip.getBuffer(), mHttpRequest->getPort());
 
                     content->append(p + index, pos - index);
                     content->append(ws.getBuffer());
@@ -564,7 +612,7 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
 void WebServerResponseThread::upgradeWebSocket()
 {
     String mes;
-    mes.format("%s%s", mWebSocketKey.getBuffer(), "258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
+    mes.format("%s%s", mHttpRequest->getWebSocketKey().getBuffer(), "258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
 
     uint8_t digest[SHA1HashSize];
 
@@ -586,7 +634,7 @@ void WebServerResponseThread::upgradeWebSocket()
         "\r\n",
         resValue.getBuffer());
 
-    mSocket->send(&str, str.getLength());
+    mHttpRequest->getSocket()->send(&str, str.getLength());
     WebSocketMain();
 }
 

@@ -32,7 +32,7 @@ namespace slog
  */
 class SequenceLogServiceWebServerThread : public WebServerThread
 {
-            virtual WebServerResponseThread* createResponseThread(Socket* socket) const;
+            virtual WebServerResponseThread* createResponseThread(HttpRequest* httpRequest) const;
 };
 
 /*!
@@ -42,7 +42,7 @@ class SequenceLogServiceWebServerResponseThread :
     public WebServerResponseThread,
     public SequenceLogServiceThreadListener
 {
-public:     SequenceLogServiceWebServerResponseThread(Socket* socket, uint16_t port);
+public:     SequenceLogServiceWebServerResponseThread(HttpRequest* httpRequest);
 
 private:    virtual const URLMAP* getUrlMaps() const;
             virtual const char* getDomain() const;
