@@ -204,6 +204,23 @@ int32_t CoreString::find(char c) const
 }
 
 /*!
+ *  \brief  検索
+ */
+int32_t CoreString::indexOf(const char* find, int32_t index) const
+{
+    if (index < 0 || getLength() <= index)
+        return -1;
+
+    const char* buffer = getBuffer();
+    const char* p = strstr(buffer + index, find);
+
+    if (p == NULL)
+        return -1;
+
+    return (int32_t)(p - buffer);
+}
+
+/*!
  *  \brief  文字数を取得する
  */
 int32_t CoreString::getCharacters() const

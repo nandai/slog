@@ -63,14 +63,28 @@ public:     enum METHOD
                 POST,
             };
 
+            typedef bool (WebServerResponseThread::*WEBPROC)(String* content, const char* url);
+            struct URLMAP
+            {
+                METHOD      method;                     // メソッド
+                const char* url;                        // URL
+                const char* replaceUrl;                 // 置換URL
+                WEBPROC     proc;                       // プロシージャ
+            };
+
 protected:  Socket*                     mSocket;
+            uint16_t                    mPort;
 private:    METHOD                      mMethod;        // 要求メソッド
             String                      mUrl;           // 要求URL
             std::map<String, String>    mPostParams;    // POSTパラメータ
             String                      mWebSocketKey;  // Sec-WebSocket-Key
 
-public:     WebServerResponseThread(Socket* socket);
+public:     WebServerResponseThread(Socket* socket, uint16_t port);
             virtual ~WebServerResponseThread();
+
+private:    virtual const URLMAP* getUrlMaps() const = 0;
+            virtual const char* getDomain() const = 0;
+            virtual const char* getRootDir() const = 0;
 
 public:     bool    analizeRequest();
             int32_t analizeUrl(const char* request, int32_t len, METHOD method);
@@ -82,6 +96,9 @@ public:     bool    analizeRequest();
 
             void sendHttpHeader(int32_t contentLen) const;
             void sendContent(String* content) const;
+
+private:    virtual void run();
+protected:  bool getContents(String* content, const char* url);
 
 private:    void upgradeWebSocket();
             virtual void WebSocketMain() = 0;

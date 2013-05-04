@@ -24,14 +24,16 @@
 
 namespace slog
 {
-class Thread;
+class String;
 
 /*!
  *  \brief  ユーティリティクラス
  */
 class SLOG_API Util
 {
-//public:     static void stopThread(Thread* thread, uint16_t port);
+public:     static void getProcessPath(String* path);
+            static int64_t getBitsValue(const char* p, int32_t len, int32_t bitPos, int32_t count);
+            static void encodeBase64(String* dest, const char* src, int32_t srcLen);
 };
 
 } // namespace slog

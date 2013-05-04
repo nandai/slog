@@ -42,15 +42,21 @@ class SequenceLogServiceWebServerResponseThread :
     public WebServerResponseThread,
     public SequenceLogServiceThreadListener
 {
-            uint16_t    mPort;
-
 public:     SequenceLogServiceWebServerResponseThread(Socket* socket, uint16_t port);
-private:    virtual void run();
-            virtual void WebSocketMain();
+
+private:    virtual const URLMAP* getUrlMaps() const;
+            virtual const char* getDomain() const;
+            virtual const char* getRootDir() const;
+
+private:    virtual void WebSocketMain();
+
+            bool webGetSequenceLogList(String* content, const char* url);
+            bool webSendSequenceLog(   String* content, const char* url);
+
             void getJsonContent(String* content) const;
 
-public:     virtual void onInitialized(Thread* thread) {}
-            virtual void onTerminated( Thread* thread);
+public:     virtual void onInitialized(   Thread* thread) {}
+            virtual void onTerminated(    Thread* thread);
             virtual void onLogFileChanged(Thread* thread);
             virtual void onUpdateLog(const Buffer* text);
 

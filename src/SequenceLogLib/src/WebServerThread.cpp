@@ -22,6 +22,8 @@
 #include "slog/WebServerThread.h"
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
+#include "slog/Util.h"
+#include "slog/File.h"
 
 #include "sha1.h"
 
@@ -109,9 +111,10 @@ void WebServerThread::run()
 /*!
  *  \brief  コンストラクタ
  */
-WebServerResponseThread::WebServerResponseThread(Socket* socket)
+WebServerResponseThread::WebServerResponseThread(Socket* socket, uint16_t port)
 {
     mSocket = socket;
+    mPort = port;
     mMethod = UNKNOWN;
 }
 
@@ -399,11 +402,7 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 
     str.format(
         "HTTP/1.1 200 OK\n"
-#if defined(_WINDOWS)
-        "Content-type: text/html; charset=SHIFT_JIS\n"
-#else
         "Content-type: text/html; charset=UTF-8\n"
-#endif
         "Content-length: %d\n"
         "\n",
         contentLen);
@@ -421,59 +420,142 @@ void WebServerResponseThread::sendContent(String* content) const
 }
 
 /*!
- *  \brief  ビット指定で値を取得
+ *  \brief  実行
  */
-static int64_t getBitsValue(const char* p, int32_t len, int32_t bitPos, int32_t count)
+void WebServerResponseThread::run()
 {
-    int32_t pos =       bitPos / CHAR_BIT;
-    int32_t charInPos = bitPos % CHAR_BIT;
-
-    if (len <= pos)
-        return -1;
-
-    unsigned char c = (p[pos] << charInPos);
-    int64_t res = 0;
-
-    for (int32_t i = 0; i < count; i++)
+    try
     {
-        res = (res << 1) | (c & 0x80 ? 0x01 : 0x00);
-        c <<= 1;
-        charInPos++;
+        String content;
 
-        if (charInPos == CHAR_BIT)
+        if (analizeRequest())
         {
-            pos++;
+            // URL取得
+            const CoreString& url = getUrl();
 
-            if (pos < len)
+            // URLマップに一致する処理を行う
+            const URLMAP* urlmap = getUrlMaps();
+            bool res = false;
+
+            while (urlmap->method != UNKNOWN)
             {
-                charInPos = 0;
-                c = p[pos];
+                String tmp = urlmap->url;
+
+                if (urlmap->method == getMethod() && url.equals(tmp))
+                {
+                    WEBPROC proc = urlmap->proc;
+                    res = (this->*proc)(&content, (urlmap->replaceUrl[0] == '\0'
+                        ? urlmap->url
+                        : urlmap->replaceUrl));
+
+                    break;
+                }
+
+                urlmap++;
+            }
+
+            if (res == false && GET == getMethod())
+            {
+                do
+                {
+                    if (getContents(&content, url.getBuffer()))
+                        break;
+
+                    if (getContents(&content, "notfound.html"))
+                        break;
+
+                    return;
+                }
+                while (false);
             }
         }
-    }
 
-    return res;
+        // HTTPヘッダー送信
+        int32_t contentLen = content.getLength();
+        sendHttpHeader(contentLen);
+
+        // コンテンツ送信
+        sendContent(&content);
+    }
+    catch (Exception& e)
+    {
+        noticeLog(e.getMessage());
+    }
 }
 
 /*!
- *  \brief  Base64エンコード
+ *  \brief  コンテンツ取得
  */
-static void encodeBase64(String* dest, const char* src, int32_t srcLen)
+bool WebServerResponseThread::getContents(String* content, const char* url)
 {
-    const char* table = "=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    int32_t destLen = (srcLen *  4 / 3 + 3) / 4 * 4;
-    char* buffer = new char[destLen];
-    int32_t bitPos = 0;
-
-    for (int32_t i = 0; i < destLen; i++)
+    try
     {
-        int64_t value = getBitsValue(src, srcLen, bitPos, 6);
-        buffer[i] = table[value + 1];
-        bitPos += 6;
+        const CoreString& ip = mSocket->getMyInetAddress();
+
+        String processPath;
+        Util::getProcessPath(&processPath);
+        const char* rootDir = getRootDir();
+
+        String htmlPath;
+        htmlPath.format("%s%c%s%c%s",
+            processPath.getBuffer(),
+            PATH_DELIMITER,
+            rootDir,
+            PATH_DELIMITER,
+            url);
+
+        File file;
+        file.open(htmlPath, File::READ);
+
+        String buffer;
+        while (file.read(&buffer))
+        {
+            const char* p = buffer.getBuffer();
+            int32_t index = 0;
+
+            while (true)
+            {
+                // DOMAIN変換
+                const char* find = "<? DOMAIN ?>";
+                int32_t pos = buffer.indexOf(find, index);
+
+                if (0 <= pos)
+                {
+                    content->append(p + index, pos - index);
+                    content->append(getDomain());
+                    index = (int32_t)(pos + strlen(find));
+                    continue;
+                }
+
+                // WS変換
+                find = "<? WS ?>";
+                pos = buffer.indexOf(find);
+
+                if (0 <= pos)
+                {
+                    String ws;
+                    ws.format("%s:%u", ip.getBuffer(), mPort);
+
+                    content->append(p + index, pos - index);
+                    content->append(ws.getBuffer());
+                    index = (int32_t)(pos + strlen(find));
+                }
+
+                // その他
+                content->append(p + index);
+                break;
+            }
+
+            content->append("\n");
+        }
+    }
+    catch (Exception& e)
+    {
+        noticeLog(e.getMessage());
+        return false;
     }
 
-    dest->copy(buffer, destLen);
-    delete [] buffer;
+    return true;
 }
 
 /*!
@@ -492,7 +574,7 @@ void WebServerResponseThread::upgradeWebSocket()
     SHA1Result(&sha, digest);
 
     String resValue;
-    encodeBase64(&resValue, (char*)digest, SHA1HashSize);
+    Util::encodeBase64(&resValue, (char*)digest, SHA1HashSize);
 
     // 応答内容送信
     String str;

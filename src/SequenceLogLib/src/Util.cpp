@@ -20,33 +20,84 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/Util.h"
-#include "slog/Thread.h"
-#include "slog/Socket.h"
-#include "slog/FixedString.h"
+#include "slog/String.h"
 
 namespace slog
 {
 
 /*!
- *  \brief  スレッドを終了させる
+ *  \brief  プロセスの実行ファイルパスを取得
  */
-//void Util::stopThread(Thread* thread, uint16_t port)
-//{
-//    if (thread->isAlive() == false)
-//        return;
-//
-//    thread->interrupt();
-//
-//    // 接続
-//    Socket sock;
-//    sock.open();
-//    sock.connect(FixedString<16>("127.0.0.1"), port);
-//
-//    // スレッド終了待ち
-//    thread->join();
-//
-//    // 切断
-//    sock.close();
-//}
+void Util::getProcessPath(String* path)
+{
+    char buffer[MAX_PATH];
+
+#if defined(_WINDOWS)
+    GetModuleFileNameA(NULL, buffer, sizeof(buffer));
+#else
+    String linkPath;
+    linkPath.format("/proc/%d/exe", getpid());
+    readlink(linkPath.getBuffer(), buffer, sizeof(buffer));
+#endif
+
+    char* fileName = strrchr(buffer, PATH_DELIMITER);
+    path->copy(buffer, (int32_t)(fileName - buffer));
+}
+
+/*!
+ *  \brief  ビット指定で値を取得
+ */
+int64_t Util::getBitsValue(const char* p, int32_t len, int32_t bitPos, int32_t count)
+{
+    int32_t pos =       bitPos / CHAR_BIT;
+    int32_t charInPos = bitPos % CHAR_BIT;
+
+    if (len <= pos)
+        return -1;
+
+    unsigned char c = (p[pos] << charInPos);
+    int64_t res = 0;
+
+    for (int32_t i = 0; i < count; i++)
+    {
+        res = (res << 1) | (c & 0x80 ? 0x01 : 0x00);
+        c <<= 1;
+        charInPos++;
+
+        if (charInPos == CHAR_BIT)
+        {
+            pos++;
+
+            if (pos < len)
+            {
+                charInPos = 0;
+                c = p[pos];
+            }
+        }
+    }
+
+    return res;
+}
+
+/*!
+ *  \brief  Base64エンコード
+ */
+void Util::encodeBase64(String* dest, const char* src, int32_t srcLen)
+{
+    const char* table = "=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    int32_t destLen = (srcLen *  4 / 3 + 3) / 4 * 4;
+    char* buffer = new char[destLen];
+    int32_t bitPos = 0;
+
+    for (int32_t i = 0; i < destLen; i++)
+    {
+        int64_t value = getBitsValue(src, srcLen, bitPos, 6);
+        buffer[i] = table[value + 1];
+        bitPos += 6;
+    }
+
+    dest->copy(buffer, destLen);
+    delete [] buffer;
+}
 
 } // namespace slog

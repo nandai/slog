@@ -82,6 +82,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
 
             // 検索
             int32_t find(char c) const;
+            int32_t indexOf(const char* find, int32_t index = 0) const;
 
             // 文字コード関連（SJIS / UTF-8）
     		static bool  isCommonSJIS()   {return sSJIS;}

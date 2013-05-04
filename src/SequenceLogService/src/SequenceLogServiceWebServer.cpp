@@ -33,9 +33,6 @@
 #include "slog/Json.h"
 #include "slog/Tokenizer.h"
 
-#define DOMAIN  "printf.jp"
-#define FAVICON "<link rel=\"shortcut icon\" href=\"http://" DOMAIN "/images/SequenceLogService.ico\">"
-
 namespace slog
 {
 
@@ -218,148 +215,6 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
 }
 
 /*!
- *  \brief  文字列にcssを追加
- */
-static void appendCSS(String* buffer)
-{
-    buffer->append(
-        "<style type=\"text/css\">"
-            "#logViewer"
-            "{"
-            "    color: white;"
-            "    background-color: black;"
-            "    border: 1px solid gray;"
-            "    font-size: small;"
-            "}"
-
-            "ul"
-            "{"
-            "    margin: 4px;"
-            "    padding: 0px;"
-            "}"
-
-            "li"
-            "{"
-            "    list-style-type: none;"
-            "}"
-        "</style>");
-}
-
-/*!
- *  \brief  文字列にjavascriptを追加
- */
-static void appendJavaScript(String* buffer, const CoreString& ip, uint16_t port)
-{
-    String str;
-    str.format(
-        "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js\"></script>"
-        "<script type=\"text/javascript\" src=\"http://" DOMAIN "/js/SequenceLogService.js\"></script>\n"
-
-        "<script type=\"text/javascript\">"
-        "$(function() {"
-            "var conn = new WebSocket('ws://%s:%u/');"
-            "var colors = {d: 'yellowgreen', i: 'white', w: 'yellow', e: 'red'};"
-
-            "conn.onmessage = function(e) {"
-                "var cmd = e.data.substring(0, 4);"
-                "if (cmd === '0001') {"
-                    "var json = eval(\"(\" + e.data.slice(4) + \")\");"
-                    "$.sequenceLogList.update(json);"
-                "}"
-                "else if (cmd === '0002') {"
-                    "$.outputLog("
-                        "e.data.slice(4 + 1)"
-                        ".fontcolor(colors[e.data.charAt(4)]));"
-                "}"
-            "};"
-
-            "$.outputLog('--- Sequence Log Service View ---'.fontcolor('lightgreen'));"
-            "for (var i = 0; i < 20 - 1; i++)"
-                "$.outputLog('&nbsp;');"
-        "});"
-        "</script>\n",
-        ip.getBuffer(),
-        port);
-
-    buffer->append(str);
-}
-
-/*!
- *  \brief  文字列にフッターを追加
- */
-static void appendFooter(String* buffer)
-{
-    buffer->append(
-        "<hr />"
-        "<div align=\"right\">"
-            "Copyright (c) 2013 <a href=\"http://" DOMAIN "\" target=\"_blank\">" DOMAIN "</a> All rights reserved."
-        "</div>"
-        "</body>");
-}
-
-/*!
- *  \brief  文字列に要求内容を追加
- */
-static void appendRequestContents(String* buffer, const CoreString& ip, uint16_t port)
-{
-    buffer->append(
-        "<head>"
-            FAVICON
-            "<title>Sequence Log Service</title>"
-            "<link type=\"text/css\" rel=\"stylesheet\" href=\"http://" DOMAIN "/css/SequenceLogService.css\" media=\"screen\" />");
-
-    appendJavaScript(buffer, ip, port);
-    appendCSS(buffer);
-
-    buffer->append(
-        "</head>"
-
-        "<body>"
-            "<h1>Sequence Log Service</h1>"
-            "<div align=\"center\">"
-                "<table id=\"sequenceLogList\">"
-
-                    // シーケンスログリストヘッダー
-                    "<tr>"
-                        "<th>開始日時</th>"
-                        "<th>終了日時</th>"
-                        "<th>ログファイル名</th>"
-                        "<th>サイズ</th>"
-                    "</tr>"
-                "</table>"
-            "</div>"
-            "<br />"
-            "<div id=\"logViewer\"></div>"
-            "<br />");
-
-    appendFooter(buffer);
-}
-
-/*!
- *  \brief  文字列に"Not Found"を追加
- */
-static void appendNotFoundContents(String* buffer)
-{
-    buffer->append(
-        "<head>"
-            FAVICON
-            "<title>404 Not Found</title>");
-
-    appendCSS(buffer);
-
-    buffer->append(
-        "</head>"
-
-        "<body>"
-            "<h1>Sequence Log Service</h1>"
-            "<div align=\"center\">"
-                "<h2>Not Found</h2>"
-            "</div>");
-
-    appendFooter(buffer);
-}
-
-/*!
  *  \brief  WEBサーバー応答スレッドオブジェクト生成
  */
 WebServerResponseThread* SequenceLogServiceWebServerThread::createResponseThread(Socket* socket) const
@@ -371,86 +226,74 @@ WebServerResponseThread* SequenceLogServiceWebServerThread::createResponseThread
  *  \brief  コンストラクタ
  */
 SequenceLogServiceWebServerResponseThread::SequenceLogServiceWebServerResponseThread(Socket* socket, uint16_t port) :
-    WebServerResponseThread(socket)
+    WebServerResponseThread(socket, port)
 {
-    mPort = port;
     setListener(this);
 }
 
 /*!
- *  \brief  実行
+ *  \brief  URLマップ取得
  */
-void SequenceLogServiceWebServerResponseThread::run()
+const WebServerResponseThread::URLMAP* SequenceLogServiceWebServerResponseThread::getUrlMaps() const
 {
-    try
+    #define self (WEBPROC)&SequenceLogServiceWebServerResponseThread
+    static const URLMAP urlmaps[] =
     {
-        String content;
-        bool requestOK = analizeRequest();
+        {GET,     "",                   "index.html", self::getContents},
+        {POST,    "",                   "",           self::webSendSequenceLog},
+        {POST,    "getSequenceLogList", "",           self::webGetSequenceLogList},
+        {UNKNOWN}
+    };
+    return urlmaps;
+}
 
-        if (requestOK)
-        {
-            // URL取得
-            const CoreString& url = getUrl();
+/*!
+ *  \brief  ドメイン取得
+ */
+const char* SequenceLogServiceWebServerResponseThread::getDomain() const
+{
+    static const char* domain = "printf.jp";
+    return domain;
+}
 
-            if (0 == url.getLength())
-            {
-                if (getMethod() == GET)
-                {
-                    const CoreString& ip = mSocket->getMyInetAddress();
-                    appendRequestContents(&content, ip, mPort);
-                }
-                else
-                {
-                    String fileName;
-                    getParam("fileName", &fileName);
+/*!
+ *  \brief  ルートディレクトリ取得
+ */
+const char* SequenceLogServiceWebServerResponseThread::getRootDir() const
+{
+    static const char* rootDir = "SequenceLogServiceWeb";
+    return rootDir;
+}
 
-                    if (fileName.getLength())
-                    {
-                        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+/*!
+ *  \brief  シーケンスログリスト（JSON）
+ */
+bool SequenceLogServiceWebServerResponseThread::webGetSequenceLogList(String* content, const char* url)
+{
+    getJsonContent(content);
+    return true;
+}
 
-//                      requestOK = sendSequenceLog(
-                        SendSequenceLogThread* thread = new SendSequenceLogThread(
-                            serviceMain->getSequenceLogServerIP(),
-                            serviceMain->getSequenceLogServerPort(),
-                            fileName);
+/*!
+ *  \brief  Sequence Log サーバーにシーケンスログ送信
+ */
+bool SequenceLogServiceWebServerResponseThread::webSendSequenceLog(String* content, const char* url)
+{
+    String fileName;
+    getParam("fileName", &fileName);
 
-                        thread->start();
-                    }
-                }
-            }
-            else
-            {
-                if (getMethod() == GET)
-                {
-                    requestOK = false;
-                }
-                else
-                {
-                    String getSequenceLogList = "getSequenceLogList";
+    if (fileName.getLength() == 0)
+        return false;
 
-                    if (url.equals(getSequenceLogList))
-                        getJsonContent(&content);
-                }
-            }
-        }
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-        // 応答内容生成
-        if (requestOK == false && getMethod() == GET)
-        {
-            appendNotFoundContents(&content);
-        }
+    SendSequenceLogThread* thread = new SendSequenceLogThread(
+        serviceMain->getSequenceLogServerIP(),
+        serviceMain->getSequenceLogServerPort(),
+        fileName);
 
-        // HTTPヘッダー送信
-        int32_t contentLen = content.getLength();
-        sendHttpHeader(contentLen);
-
-        // 応答内容送信
-        sendContent(&content);
-    }
-    catch (Exception& e)
-    {
-        noticeLog(e.getMessage());
-    }
+    thread->start();
+    return true;
 }
 
 /*!

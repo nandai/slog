@@ -1,0 +1,40 @@
+<head>
+<link rel="shortcut icon" href="http://<? DOMAIN ?>/images/SequenceLogService.ico">
+<title>Sequence Log Service</title>
+<link type="text/css" rel="stylesheet" href="http://<? DOMAIN ?>/css/SequenceLogService.css" media="screen" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://<? DOMAIN ?>/js/SequenceLogService.js"></script>
+<script type="text/javascript">
+$(function()
+{
+    // WebSocket
+    var conn = new WebSocket('ws://<? WS ?>/');
+
+    conn.onmessage = function(e)
+    {
+        $.sequenceLogList.onMessage(e.data);
+    };
+});
+</script>
+</head>
+
+<body>
+<h1>Sequence Log Service</h1>
+<div align="center">
+    <table id="sequenceLogList">
+        <tr>
+            <th>開始日時</th>
+            <th>終了日時</th>
+            <th>ログファイル名</th>
+            <th>サイズ</th>
+        </tr>
+    </table>
+</div>
+<br />
+<div id="logViewerFrame"><canvas id="logViewer"></canvas></div>
+<br />
+<hr />
+<div align="right">
+    Copyright (c) 2013 <a href="http://<? DOMAIN ?>" target="_blank"><? DOMAIN ?></a> All rights reserved.
+</div>
+</body>
