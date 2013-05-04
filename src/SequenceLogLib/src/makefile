@@ -49,6 +49,8 @@ install:
 	ln -sf        $(INSTALLDIR)/libslog.so.1.2.3 $(INSTALLDIR)/libslog.so.1
 	ln -sf        $(INSTALLDIR)/libslog.so.1     $(INSTALLDIR)/libslog.so
 
+	cp -rf ../../../include/slog /usr/include/
+
 clean:
 	$(RM) libslog.so $(objs) depend.inc
 

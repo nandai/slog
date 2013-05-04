@@ -70,7 +70,9 @@ public class App extends android.app.Application
             e.printStackTrace();
         }
 
-        install();
+        install("bin/slogsvc",       "slogsvc",       "755");
+        install("web/index.html",    "index.html",    "644");
+        install("web/notfound.html", "notfound.html", "644");
     }
 
     // Sequence Log Service が開始されているかどうか
@@ -255,7 +257,7 @@ public class App extends android.app.Application
     /**
      * インストール
      */
-    public void install()
+    public void install(String src, String dest, String mode)
     {
         try
         {
@@ -263,7 +265,7 @@ public class App extends android.app.Application
             AssetManager am = getResources().getAssets();
 
             // 読み込み
-            InputStream is = am.open("bin/slogsvc");
+            InputStream is = am.open(src);
             int size =  is.available();
             byte[] buffer = new byte[size];
 
@@ -271,14 +273,14 @@ public class App extends android.app.Application
             is.close();
 
             // 書き込み
-            FileOutputStream os = openFileOutput("slogsvc", Context.MODE_PRIVATE);
+            FileOutputStream os = openFileOutput(dest, Context.MODE_PRIVATE);
             os.write(buffer);
             os.flush();
             os.close();
 
             // 実行権限付与
-            String commands[] = {"chmod", "755", ""};
-            commands[2] = mExecPath;
+            String commands[] = {"chmod", mode, ""};
+            commands[2] = getFileStreamPath(dest).getAbsolutePath();
 
             Runtime.getRuntime().exec(commands);
         }

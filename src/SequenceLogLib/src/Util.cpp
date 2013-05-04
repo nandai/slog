@@ -22,6 +22,10 @@
 #include "slog/Util.h"
 #include "slog/String.h"
 
+#if defined(__linux__)
+#include <unistd.h>
+#endif
+
 namespace slog
 {
 

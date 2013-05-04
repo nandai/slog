@@ -261,7 +261,12 @@ const char* SequenceLogServiceWebServerResponseThread::getDomain() const
  */
 const char* SequenceLogServiceWebServerResponseThread::getRootDir() const
 {
+#if !defined(__ANDROID__)
     static const char* rootDir = "SequenceLogServiceWeb";
+#else
+    static const char* rootDir = "";
+#endif
+
     return rootDir;
 }
 

@@ -9,6 +9,8 @@ CFLAGS = \
 
 LDFLAGS = -lslog -lstdc++ -lrt
 
+INSTALLDIR = /usr/bin
+
 objs = \
 	main.o \
 	SequenceLogService.o \
@@ -22,7 +24,8 @@ slogsvc: $(objs)
 	$(CC) $(CFLAGS) -c $<
 
 install:
-	cp slogsvc /usr/bin/
+	cp slogsvc    $(INSTALLDIR)/
+	cp -rf ../web $(INSTALLDIR)/SequenceLogServiceWeb
 
 clean:
 	$(RM) slogsvc $(objs) depend.inc
