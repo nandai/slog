@@ -1,4 +1,4 @@
-ï»¿/*
+/*
  * Copyright (C) 2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,22 +15,25 @@
  */
 
 /*!
- *  \file   SequenceLogServiceWebServer.h
- *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ã‚µãƒ¼ãƒ“ã‚¹WEBã‚µãƒ¼ãƒãƒ¼ã‚¯ãƒ©ã‚¹
+ *  \file   SequenceLogServiceWebServerResponse.h
+ *  \brief  ƒV[ƒPƒ“ƒXƒƒOƒT[ƒrƒXWEBƒT[ƒo[‰“šƒNƒ‰ƒX
  *  \author Copyright 2013 printf.jp
  */
 #pragma once
-#include "slog/WebServerThread.h"
+#include "slog/WebServerResponseThread.h"
 
 namespace slog
 {
 
 /*!
- *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ã‚µãƒ¼ãƒ“ã‚¹WEBã‚µãƒ¼ãƒãƒ¼ã‚¹ãƒ¬ãƒƒãƒ‰ã‚¯ãƒ©ã‚¹
+ *  \brief  ƒV[ƒPƒ“ƒXƒƒOƒT[ƒrƒXWEBƒT[ƒo[‰“šƒNƒ‰ƒX
  */
-class SequenceLogServiceWebServerThread : public WebServerThread
+class SequenceLogServiceWebServerResponse : public WebServerResponseThread
 {
-            virtual const CREATE* getCreateList() const;
+public:     SequenceLogServiceWebServerResponse(HttpRequest* httpRequest);
+
+private:    virtual const char* getDomain() const;
+            virtual const char* getRootDir() const;
 };
 
 } // namespace slog

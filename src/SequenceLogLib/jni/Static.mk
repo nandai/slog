@@ -13,12 +13,14 @@ LOCAL_SRC_FILES := \
     ../src/File.cpp \
     ../src/FileFind.cpp \
     ../src/FileInfo.cpp \
+    ../src/HttpRequest.cpp \
     ../src/Json.cpp \
     ../src/Socket.cpp \
     ../src/Thread.cpp \
     ../src/Tokenizer.cpp \
     ../src/Util.cpp \
     ../src/WebServerThread.cpp \
+    ../src/WebServerResponseThread.cpp \
     ../src/SequenceLog.cpp \
     ../src/jp_printf_slog_Log.cpp \
     ../src/sha1.c

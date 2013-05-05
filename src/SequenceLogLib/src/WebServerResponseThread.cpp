@@ -207,10 +207,15 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
 /*!
  *  \brief  WebSocketにアップグレード
  */
-void WebServerResponseThread::upgradeWebSocket()
+bool WebServerResponseThread::upgradeWebSocket()
 {
+    const CoreString& webSocketKey = mHttpRequest->getWebSocketKey();
+
+    if (webSocketKey.getLength() == 0)
+        return false;
+
     String mes;
-    mes.format("%s%s", mHttpRequest->getWebSocketKey().getBuffer(), "258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
+    mes.format("%s%s", webSocketKey.getBuffer(), "258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
 
     uint8_t digest[SHA1HashSize];
 
@@ -233,6 +238,7 @@ void WebServerResponseThread::upgradeWebSocket()
         resValue.getBuffer());
 
     mHttpRequest->getSocket()->send(&str, str.getLength());
+    return true;
 }
 
 } // namespace slog

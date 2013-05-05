@@ -48,7 +48,7 @@ protected:  void send(const CoreString& content) const;
 private:    virtual void run();
 protected:  bool getContents(String* content, const char* url);
 
-protected:  void upgradeWebSocket();
+protected:  bool upgradeWebSocket();
 };
 
 } // namespace slog

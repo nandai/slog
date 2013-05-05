@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,22 +15,16 @@
  */
 
 /*!
- *  \file   SequenceLogServiceWebServer.h
- *  \brief  シーケンスログサービスWEBサーバークラス
+ *  \file   getSequenceLogListJson.h
+ *  \brief  �V�[�P���X���O���X�g�iJSON�j�擾
  *  \author Copyright 2013 printf.jp
  */
 #pragma once
-#include "slog/WebServerThread.h"
 
 namespace slog
 {
+class String;
 
-/*!
- *  \brief  シーケンスログサービスWEBサーバースレッドクラス
- */
-class SequenceLogServiceWebServerThread : public WebServerThread
-{
-            virtual const CREATE* getCreateList() const;
-};
+void getSequenceLogListJson(String* content);
 
 } // namespace slog

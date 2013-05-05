@@ -349,7 +349,7 @@ void Application::onUpdateLog(const Buffer* text)
     switch (*p)
     {
     case 'd':
-        printf("\x1B[32;49;0m");
+        printf("\x1B[32;49;1m");
         break;
 
     case 'i':

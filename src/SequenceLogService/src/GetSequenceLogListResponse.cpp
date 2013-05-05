@@ -1,4 +1,4 @@
-ï»¿/*
+/*
  * Copyright (C) 2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,22 +15,27 @@
  */
 
 /*!
- *  \file   SequenceLogServiceWebServer.h
- *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ã‚µãƒ¼ãƒ“ã‚¹WEBã‚µãƒ¼ãƒãƒ¼ã‚¯ãƒ©ã‚¹
+ *  \file   GetSequenceLogListResponse.cpp
+ *  \brief  ƒV[ƒPƒ“ƒXƒƒOƒŠƒXƒgiJSONj‘—MƒNƒ‰ƒX
  *  \author Copyright 2013 printf.jp
  */
-#pragma once
-#include "slog/WebServerThread.h"
+#include "GetSequenceLogListResponse.h"
+#include "getSequenceLogListJson.h"
+
+#include "slog/String.h"
 
 namespace slog
 {
 
 /*!
- *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ã‚µãƒ¼ãƒ“ã‚¹WEBã‚µãƒ¼ãƒãƒ¼ã‚¹ãƒ¬ãƒƒãƒ‰ã‚¯ãƒ©ã‚¹
+ *  \brief	ƒV[ƒPƒ“ƒXƒƒOƒŠƒXƒgiJSONj‘—M
  */
-class SequenceLogServiceWebServerThread : public WebServerThread
+void GetSequenceLogListResponse::run()
 {
-            virtual const CREATE* getCreateList() const;
-};
+    String content;
+
+    getSequenceLogListJson(&content);
+    send(content);
+}
 
 } // namespace slog
