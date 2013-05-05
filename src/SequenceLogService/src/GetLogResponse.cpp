@@ -115,6 +115,7 @@ void GetLogResponse::send(const char* commandNo, const Buffer* payloadData)
 {
     uint32_t payloadDataLen = payloadData->getLength();
     uint32_t commandNoLen = (uint32_t)strlen(commandNo);
+    int32_t totalLen = commandNoLen + payloadDataLen;
 
     if (commandNoLen != 4)
     {
@@ -122,28 +123,11 @@ void GetLogResponse::send(const char* commandNo, const Buffer* payloadData)
         return;
     }
 
-    char frame[4];
-    int32_t frameLen = 0;
-    int32_t totalLen = commandNoLen + payloadDataLen;
-
-    if (totalLen < 126)
-    {
-        frame[frameLen++] = (char)0x81;
-        frame[frameLen++] = (char)totalLen;
-    }
-    else
-    {
-        frame[frameLen++] = (char)0x81;
-        frame[frameLen++] = (char)126;
-        frame[frameLen++] = (char)(totalLen >> 8);
-        frame[frameLen++] = (char)(totalLen & 0xFF);
-    }
-
     try
     {
         Socket* socket = mHttpRequest->getSocket();
 
-        socket->send(frame, frameLen);
+        sendWebSocketHeader(totalLen);
         socket->send(commandNo, commandNoLen);
         socket->send(payloadData, payloadDataLen);
     }

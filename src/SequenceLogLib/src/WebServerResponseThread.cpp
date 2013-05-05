@@ -24,6 +24,7 @@
 #include "slog/Socket.h"
 #include "slog/Util.h"
 #include "slog/File.h"
+#include "slog/ByteBuffer.h"
 
 #include "sha1.h"
 
@@ -239,6 +240,55 @@ bool WebServerResponseThread::upgradeWebSocket()
 
     mHttpRequest->getSocket()->send(&str, str.getLength());
     return true;
+}
+
+/*!
+ *  \brief  WebSocketヘッダー送信
+ */
+void WebServerResponseThread::sendWebSocketHeader(uint64_t payloadDataLen, bool toClient) const
+{
+    Socket* socket = mHttpRequest->getSocket();
+    sendWebSocketHeader(socket, payloadDataLen, toClient);
+}
+
+void WebServerResponseThread::sendWebSocketHeader(Socket* socket, uint64_t payloadDataLen, bool toClient)
+{
+    ByteBuffer buffer(2 + 8 + 4);
+    char mask = 0x00;
+
+    if (toClient == false)
+    {
+        mask = (char)0x80;
+        payloadDataLen += 4;
+    }
+
+    if (payloadDataLen < 126)
+    {
+        buffer.put((char)0x81);
+        buffer.put(mask | (char)payloadDataLen);
+    }
+    else if (payloadDataLen <= 0xFFFF)
+    {
+        buffer.put((char)0x81);
+        buffer.put(mask | (char)126);
+        buffer.putShort((short)payloadDataLen);
+    }
+    else
+    {
+        buffer.put((char)0x81);
+        buffer.put(mask | (char)127);
+        buffer.putLong(payloadDataLen);
+    }
+
+    if (toClient == false)
+    {
+        buffer.put((char)0x00);
+        buffer.put((char)0x00);
+        buffer.put((char)0x00);
+        buffer.put((char)0x00);
+    }
+
+    socket->send(&buffer, buffer.getLength());
 }
 
 } // namespace slog

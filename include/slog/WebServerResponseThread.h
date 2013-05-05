@@ -27,6 +27,7 @@ namespace slog
 class HttpRequest;
 class CoreString;
 class String;
+class Socket;
 
 /*!
  *  \brief  WEBサーバー応答スレッドクラス
@@ -49,6 +50,8 @@ private:    virtual void run();
 protected:  bool getContents(String* content, const char* url);
 
 protected:  bool upgradeWebSocket();
+            void sendWebSocketHeader(uint64_t payloadDataLen, bool toClient = true) const;
+            static void sendWebSocketHeader(Socket* socket, uint64_t payloadDataLen, bool toClient = true);
 };
 
 } // namespace slog
