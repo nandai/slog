@@ -215,11 +215,47 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
 }
 
 /*!
- *  \brief  WEBサーバー応答スレッドオブジェクト生成
+ *  \brief  JSONコンテンツ取得
  */
-WebServerResponseThread* SequenceLogServiceWebServerThread::createResponseThread(HttpRequest* httpRequest) const
+static void getJsonContent(String* content)
 {
-    return new SequenceLogServiceWebServerResponseThread(httpRequest);
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    ScopedLock lock(serviceMain->getMutex());
+
+    FileInfoArray* sum = serviceMain->getFileInfoArray();
+    Json* json = Json::getNewObject();
+
+    for (FileInfoArray::iterator i = sum->begin(); i != sum->end(); i++)
+    {
+        Json* jsonSequenceLogInfo = Json::getNewObject();
+
+        createSequenceLogListJson(jsonSequenceLogInfo, *i);
+        json->add(jsonSequenceLogInfo);
+    }
+
+    json->serialize(content);
+    delete json;
+}
+
+/*!
+ *  \brief  WEBサーバー応答スレッドオブジェクト生成リスト取得
+ */
+static WebServerResponseThread* createSequenceLogServiceWebServerResponse(HttpRequest* httpRequest) {return new SequenceLogServiceWebServerResponseThread(httpRequest);}
+static WebServerResponseThread* createSendSequenceLogResponse(            HttpRequest* httpRequest) {return new SendSequenceLogResponse(                  httpRequest);}
+static WebServerResponseThread* createGetSequenceLogListResponse(         HttpRequest* httpRequest) {return new GetSequenceLogListResponse(               httpRequest);}
+static WebServerResponseThread* createGetLogResponse(                     HttpRequest* httpRequest) {return new GetLogResponse(                           httpRequest);}
+
+const WebServerThread::CREATE* SequenceLogServiceWebServerThread::getCreateList() const
+{
+    static const CREATE creates[] =
+    {
+        {HttpRequest::GET,     "",                   "index.html", createSequenceLogServiceWebServerResponse},
+        {HttpRequest::POST,    "",                   "",           createSendSequenceLogResponse},
+        {HttpRequest::POST,    "getSequenceLogList", "",           createGetSequenceLogListResponse},
+        {HttpRequest::GET,     "getLog",             "",           createGetLogResponse},
+        {HttpRequest::UNKNOWN, "",                   "",           createSequenceLogServiceWebServerResponse}
+    };
+    return creates;
 }
 
 /*!
@@ -228,23 +264,6 @@ WebServerResponseThread* SequenceLogServiceWebServerThread::createResponseThread
 SequenceLogServiceWebServerResponseThread::SequenceLogServiceWebServerResponseThread(HttpRequest* httpRequest) :
     WebServerResponseThread(httpRequest)
 {
-    setListener(this);
-}
-
-/*!
- *  \brief  URLマップ取得
- */
-const WebServerResponseThread::URLMAP* SequenceLogServiceWebServerResponseThread::getUrlMaps() const
-{
-    #define self (WEBPROC)&SequenceLogServiceWebServerResponseThread
-    static const URLMAP urlmaps[] =
-    {
-        {HttpRequest::GET,  "",                   "index.html", self::getContents},
-        {HttpRequest::POST, "",                   "",           self::webSendSequenceLog},
-        {HttpRequest::POST, "getSequenceLogList", "",           self::webGetSequenceLogList},
-        {HttpRequest::UNKNOWN}
-    };
-    return urlmaps;
 }
 
 /*!
@@ -271,95 +290,85 @@ const char* SequenceLogServiceWebServerResponseThread::getRootDir() const
 }
 
 /*!
- *  \brief  シーケンスログリスト（JSON）
+ *  \brief	シーケンスログリスト（JSON）送信
  */
-bool SequenceLogServiceWebServerResponseThread::webGetSequenceLogList(String* content, const char* url)
+void GetSequenceLogListResponse::run()
 {
-    getJsonContent(content);
-    return true;
+    String content;
+
+    getJsonContent(&content);
+    send(content);
 }
 
 /*!
- *  \brief  Sequence Log サーバーにシーケンスログ送信
+ *  \brief	Sequence Log サーバーにシーケンスログ送信
  */
-bool SequenceLogServiceWebServerResponseThread::webSendSequenceLog(String* content, const char* url)
+void SendSequenceLogResponse::run()
 {
     String fileName;
     mHttpRequest->getParam("fileName", &fileName);
 
-    if (fileName.getLength() == 0)
-        return false;
-
-    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-
-    SendSequenceLogThread* thread = new SendSequenceLogThread(
-        serviceMain->getSequenceLogServerIP(),
-        serviceMain->getSequenceLogServerPort(),
-        fileName);
-
-    thread->start();
-    return true;
-}
-
-/*!
- *  \brief  JSONコンテンツ取得
- */
-void SequenceLogServiceWebServerResponseThread::getJsonContent(String* content) const
-{
-    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-    ScopedLock lock(serviceMain->getMutex());
-
-    FileInfoArray* sum = serviceMain->getFileInfoArray();
-    Json* json = Json::getNewObject();
-
-    for (FileInfoArray::iterator i = sum->begin(); i != sum->end(); i++)
+    if (fileName.getLength())
     {
-        Json* jsonSequenceLogInfo = Json::getNewObject();
+        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-        createSequenceLogListJson(jsonSequenceLogInfo, *i);
-        json->add(jsonSequenceLogInfo);
+        SendSequenceLogThread* thread = new SendSequenceLogThread(
+            serviceMain->getSequenceLogServerIP(),
+            serviceMain->getSequenceLogServerPort(),
+            fileName);
+
+        thread->start();
     }
 
-    json->serialize(content);
-    delete json;
+    sendHttpHeader(0);
 }
 
 /*!
- *  \brief  WebSocketメイン
+ *  \brief	
  */
-void SequenceLogServiceWebServerResponseThread::WebSocketMain()
+void GetLogResponse::run()
 {
-    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-    serviceMain->setListener(this);
+    setListener(this);
+    upgradeWebSocket();
 
-    Socket* socket = mHttpRequest->getSocket();
-
-    while (true)
+    try
     {
-        if (socket->isReceiveData(1 * 1000))
+        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+        serviceMain->setListener(this);
+
+        Socket* socket = mHttpRequest->getSocket();
+
+        while (true)
         {
-            ByteBuffer buffer(1);
-            socket->recv(&buffer, buffer.getLength());
+            if (socket->isReceiveData(1 * 1000))
+            {
+                ByteBuffer buffer(1);
+                socket->recv(&buffer, buffer.getLength());
 
-            const char* p = buffer.getBuffer();
+                const char* p = buffer.getBuffer();
 
-            String str;
-            str.format("%02X", (uint32_t)(uint8_t)p[0]);
-            noticeLog(str.getBuffer());
+                String str;
+                str.format("%02X", (uint32_t)(uint8_t)p[0]);
+                noticeLog(str.getBuffer());
 
-//          if ((p[0] & 0x0F) == 0x08)
-//              break;
+//              if ((p[0] & 0x0F) == 0x08)
+//                  break;
+            }
+
+            if (isInterrupted())
+                break;
         }
-
-        if (isInterrupted())
-            break;
+    }
+    catch (Exception& e)
+    {
+        noticeLog(e.getMessage());
     }
 }
 
 /*!
  *  \brief  スレッド終了通知
  */
-void SequenceLogServiceWebServerResponseThread::onTerminated(Thread* thread)
+void GetLogResponse::onTerminated(Thread* thread)
 {
     if (thread == this)
     {
@@ -376,7 +385,7 @@ void SequenceLogServiceWebServerResponseThread::onTerminated(Thread* thread)
 /*!
  *  \brief	シーケンスログ更新通知
  */
-void SequenceLogServiceWebServerResponseThread::onLogFileChanged(Thread* thread)
+void GetLogResponse::onLogFileChanged(Thread* thread)
 {
     String content;
     getJsonContent(&content);
@@ -387,7 +396,7 @@ void SequenceLogServiceWebServerResponseThread::onLogFileChanged(Thread* thread)
 /*!
  *  \brief	シーケンスログ更新通知
  */
-void SequenceLogServiceWebServerResponseThread::onUpdateLog(const Buffer* text)
+void GetLogResponse::onUpdateLog(const Buffer* text)
 {
     send("0002", text);
 }
@@ -395,7 +404,7 @@ void SequenceLogServiceWebServerResponseThread::onUpdateLog(const Buffer* text)
 /*!
  *  \brief	
  */
-void SequenceLogServiceWebServerResponseThread::send(const char* commandNo, const Buffer* payloadData)
+void GetLogResponse::send(const char* commandNo, const Buffer* payloadData)
 {
     uint32_t payloadDataLen = payloadData->getLength();
     uint32_t commandNoLen = (uint32_t)strlen(commandNo);

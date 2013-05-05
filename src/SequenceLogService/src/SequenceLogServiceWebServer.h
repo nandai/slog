@@ -32,28 +32,47 @@ namespace slog
  */
 class SequenceLogServiceWebServerThread : public WebServerThread
 {
-            virtual WebServerResponseThread* createResponseThread(HttpRequest* httpRequest) const;
+            virtual const CREATE* getCreateList() const;
 };
 
 /*!
  *  \brief  シーケンスログサービスWEBサーバー応答スレッドクラス
  */
-class SequenceLogServiceWebServerResponseThread :
-    public WebServerResponseThread,
-    public SequenceLogServiceThreadListener
+class SequenceLogServiceWebServerResponseThread : public WebServerResponseThread
 {
 public:     SequenceLogServiceWebServerResponseThread(HttpRequest* httpRequest);
 
-private:    virtual const URLMAP* getUrlMaps() const;
-            virtual const char* getDomain() const;
+private:    virtual const char* getDomain() const;
             virtual const char* getRootDir() const;
+};
 
-private:    virtual void WebSocketMain();
+/*!
+ *  \brief  シーケンスログリスト（JSON）送信
+ */
+class GetSequenceLogListResponse : public WebServerResponseThread
+{
+public:     GetSequenceLogListResponse(HttpRequest* httpRequest) : WebServerResponseThread(httpRequest) {}
+private:    virtual void run();
+};
 
-            bool webGetSequenceLogList(String* content, const char* url);
-            bool webSendSequenceLog(   String* content, const char* url);
+/*!
+ *  \brief  Sequence Log サーバーにシーケンスログ送信
+ */
+class SendSequenceLogResponse : public WebServerResponseThread
+{
+public:     SendSequenceLogResponse(HttpRequest* httpRequest) : WebServerResponseThread(httpRequest) {}
+private:    virtual void run();
+};
 
-            void getJsonContent(String* content) const;
+/*!
+ *  \brief  
+ */
+class GetLogResponse :
+    public WebServerResponseThread,
+    public SequenceLogServiceThreadListener
+{
+public:     GetLogResponse(HttpRequest* httpRequest) : WebServerResponseThread(httpRequest) {}
+private:    virtual void run();
 
 public:     virtual void onInitialized(   Thread* thread) {}
             virtual void onTerminated(    Thread* thread);

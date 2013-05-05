@@ -65,6 +65,7 @@ public:     Socket* getSocket() const;
             uint16_t getPort() const;
             METHOD getMethod() const;
             const CoreString& getUrl() const;
+            void setUrl(const char* url);
             void getParam(const char* name, CoreString* param);
             const CoreString& getWebSocketKey() const;
 };
@@ -74,6 +75,15 @@ public:     Socket* getSocket() const;
  */
 class SLOG_API WebServerThread : public Thread
 {
+protected:  typedef WebServerResponseThread* (*WEBCREATEPROC)(HttpRequest* httpRequest);
+            struct CREATE
+            {
+                HttpRequest::METHOD method;         // メソッド
+                const char*         url;            // URL
+                const char*         replaceUrl;     // 置換URL
+                WEBCREATEPROC       proc;           // プロシージャ
+            };
+
             uint16_t    mPort;
 
 public:     WebServerThread();
@@ -82,7 +92,9 @@ public:     WebServerThread();
             void     setPort(uint16_t port);
 
 private:    virtual void run();
-            virtual WebServerResponseThread* createResponseThread(HttpRequest* httpRequest) const = 0;
+
+            virtual const CREATE* getCreateList() const = 0;
+            WebServerResponseThread* createResponse(HttpRequest* httpRequest);
 };
 
 /*!
@@ -90,32 +102,22 @@ private:    virtual void run();
  */
 class SLOG_API WebServerResponseThread : public Thread
 {
-protected:  typedef bool (WebServerResponseThread::*WEBPROC)(String* content, const char* url);
-            struct URLMAP
-            {
-                HttpRequest::METHOD method;         // メソッド
-                const char*         url;            // URL
-                const char*         replaceUrl;     // 置換URL
-                WEBPROC             proc;           // プロシージャ
-            };
-
 protected:  HttpRequest*            mHttpRequest;
 
 public:     WebServerResponseThread(HttpRequest* httpRequest);
             virtual ~WebServerResponseThread();
 
-private:    virtual const URLMAP* getUrlMaps() const = 0;
-            virtual const char* getDomain() const = 0;
-            virtual const char* getRootDir() const = 0;
+private:    virtual const char* getDomain() const {return NULL;}
+            virtual const char* getRootDir() const {return NULL;}
 
-public:     void sendHttpHeader(int32_t contentLen) const;
-            void sendContent(String* content) const;
+protected:  void send(const CoreString& content) const;
+            void sendHttpHeader(int32_t contentLen) const;
+            void sendContent(const CoreString& content) const;
 
 private:    virtual void run();
 protected:  bool getContents(String* content, const char* url);
 
-private:    void upgradeWebSocket();
-            virtual void WebSocketMain() = 0;
+protected:  void upgradeWebSocket();
 };
 
 } // namespace slog

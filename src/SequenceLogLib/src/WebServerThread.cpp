@@ -133,10 +133,13 @@ void WebServerThread::run()
             client->accept(&server);
 
             HttpRequest* httpRequest = new HttpRequest(client, mPort);
+            WebServerResponseThread* response = NULL;
 
             if (httpRequest->analizeRequest())
+                response = createResponse(httpRequest);
+
+            if (response)
             {
-                WebServerResponseThread* response = createResponseThread(httpRequest);
                 response->start();
             }
             else
@@ -153,6 +156,39 @@ void WebServerThread::run()
 
         client = NULL;
     }
+}
+
+/*!
+ *  \brief  WEBサーバー応答スレッドオブジェクト生成
+ */
+WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpRequest)
+{
+    HttpRequest::METHOD method = httpRequest->getMethod();
+    const CoreString& url =      httpRequest->getUrl();
+
+    const CREATE* createList = getCreateList();
+    WebServerResponseThread* response = NULL;
+
+    while (createList->method != HttpRequest::UNKNOWN)
+    {
+        String tmp = createList->url;
+
+        if (createList->method == method && url.equals(tmp))
+        {
+            if (createList->replaceUrl[0] != '\0')
+                httpRequest->setUrl(createList->replaceUrl);
+
+            response = (*createList->proc)(httpRequest);
+            break;
+        }
+
+        createList++;
+    }
+
+    if (response == NULL && HttpRequest::GET == method)
+        response = (*createList->proc)(httpRequest);
+
+    return response;
 }
 
 /*!
@@ -405,6 +441,14 @@ const CoreString& HttpRequest::getUrl() const
 }
 
 /*!
+ *  \brief  URL設定
+ */
+void HttpRequest::setUrl(const char* url)
+{
+    mUrl.copy(url);
+}
+
+/*!
  *  \brief  POSTパラメータ取得
  */
 void HttpRequest::getParam(const char* name, CoreString* param)
@@ -437,12 +481,24 @@ WebServerResponseThread::~WebServerResponseThread()
 }
 
 /*!
- *  \brief  HTTPヘッダー送信
+ *  \brief  送信
+ */
+void WebServerResponseThread::send(const CoreString& content) const
+{
+    // HTTPヘッダー送信
+    int32_t contentLen = content.getLength();
+    sendHttpHeader(contentLen);
+
+    // コンテンツ送信
+    sendContent(content);
+}
+
+/*!
+ *  \brief  HTTPヘッダー送信（＆切断）
  */
 void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 {
     String str;
-
     str.format(
         "HTTP/1.1 200 OK\n"
         "Content-type: text/html; charset=UTF-8\n"
@@ -450,17 +506,21 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
         "\n",
         contentLen);
 
-    mHttpRequest->getSocket()->send(&str, str.getLength());
+    Socket* socket = mHttpRequest->getSocket();
+    socket->send(&str, str.getLength());
+
+    if (contentLen == 0)
+        socket->close();
 }
 
 /*!
  *  \brief  応答内容送信＆切断
  */
-void WebServerResponseThread::sendContent(String* content) const
+void WebServerResponseThread::sendContent(const CoreString& content) const
 {
     Socket* socket = mHttpRequest->getSocket();
 
-    socket->send(content, content->getLength());
+    socket->send(&content, content.getLength());
     socket->close();
 }
 
@@ -473,57 +533,24 @@ void WebServerResponseThread::run()
     {
         String content;
 
-        if (mHttpRequest->getWebSocketKey().getLength())
-        {
-            upgradeWebSocket();
-            return;
-        }
-
         HttpRequest::METHOD method = mHttpRequest->getMethod();
         const CoreString& url =      mHttpRequest->getUrl();
 
-        // URLマップに一致する処理を行う
-        const URLMAP* urlmap = getUrlMaps();
-        bool res = false;
-
-        while (urlmap->method != HttpRequest::UNKNOWN)
+        do
         {
-            String tmp = urlmap->url;
-
-            if (urlmap->method == method && url.equals(tmp))
-            {
-                WEBPROC proc = urlmap->proc;
-                res = (this->*proc)(&content, (urlmap->replaceUrl[0] == '\0'
-                    ? urlmap->url
-                    : urlmap->replaceUrl));
-
+            if (getContents(&content, url.getBuffer()))
                 break;
-            }
 
-            urlmap++;
+            if (getContents(&content, "notfound.html"))
+                break;
+
+            mHttpRequest->getSocket()->close();
+            return;
         }
+        while (false);
 
-        if (res == false && HttpRequest::GET == method)
-        {
-            do
-            {
-                if (getContents(&content, url.getBuffer()))
-                    break;
-
-                if (getContents(&content, "notfound.html"))
-                    break;
-
-                return;
-            }
-            while (false);
-        }
-
-        // HTTPヘッダー送信
-        int32_t contentLen = content.getLength();
-        sendHttpHeader(contentLen);
-
-        // コンテンツ送信
-        sendContent(&content);
+        // 送信
+        send(content);
     }
     catch (Exception& e)
     {
@@ -635,7 +662,6 @@ void WebServerResponseThread::upgradeWebSocket()
         resValue.getBuffer());
 
     mHttpRequest->getSocket()->send(&str, str.getLength());
-    WebSocketMain();
 }
 
 } // namespace slog
