@@ -13,6 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*!
+ *  \file   HttpRequest.cpp
+ *  \brief  httpリクエストクラス
+ *  \author Copyright 2011-2013 printf.jp
+ */
 #include "slog/HttpRequest.h"
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"

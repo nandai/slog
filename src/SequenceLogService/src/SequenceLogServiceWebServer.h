@@ -22,6 +22,7 @@
 #pragma once
 
 #include "slog/WebServerThread.h"
+#include "slog/WebServerResponseThread.h"
 #include "SequenceLogServiceMain.h"
 
 namespace slog

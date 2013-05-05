@@ -585,6 +585,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\src\WebServerResponseThread.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\slog\WebServerResponseThread.h"
+			>
+		</File>
+		<File
 			RelativePath=".\src\WebServerThread.cpp"
 			>
 		</File>

@@ -13,6 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*!
+ *  \file   HttpRequest.h
+ *  \brief  httpリクエストクラス
+ *  \author Copyright 2011-2013 printf.jp
+ */
 #pragma once
 
 #include "slog/String.h"

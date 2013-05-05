@@ -55,27 +55,4 @@ private:    virtual void run();
             WebServerResponseThread* createResponse(HttpRequest* httpRequest);
 };
 
-/*!
- *  \brief  WEBサーバー応答スレッドクラス
- */
-class SLOG_API WebServerResponseThread : public Thread
-{
-protected:  HttpRequest*            mHttpRequest;
-
-public:     WebServerResponseThread(HttpRequest* httpRequest);
-            virtual ~WebServerResponseThread();
-
-private:    virtual const char* getDomain() const {return NULL;}
-            virtual const char* getRootDir() const {return NULL;}
-
-protected:  void send(const CoreString& content) const;
-            void sendHttpHeader(int32_t contentLen) const;
-            void sendContent(const CoreString& content) const;
-
-private:    virtual void run();
-protected:  bool getContents(String* content, const char* url);
-
-protected:  void upgradeWebSocket();
-};
-
 } // namespace slog
