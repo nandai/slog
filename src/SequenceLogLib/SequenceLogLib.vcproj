@@ -404,6 +404,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\src\HttpRequest.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\slog\HttpRequest.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\slog\JavaString.h"
 			>
 		</File>

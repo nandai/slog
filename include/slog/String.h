@@ -28,7 +28,7 @@ namespace slog
 /*!
  *  \brief  可変長文字列クラス
  */
-class String : public CoreString
+class SLOG_API String : public CoreString
 {
             char*   mBuffer;    //!< バッファ
             int32_t mCapacity;  //!< バッファ容量

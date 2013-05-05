@@ -22,53 +22,11 @@
 #pragma once
 
 #include "slog/Thread.h"
-#include "slog/String.h"
-
-#include <map>
-
-#pragma warning(disable:4251)
+#include "slog/HttpRequest.h"
 
 namespace slog
 {
-class Socket;
-class ByteBuffer;
-
 class WebServerResponseThread;
-
-/*!
- *  \brief  httpリクエストクラス
- */
-class SLOG_API HttpRequest
-{
-public:     enum METHOD
-            {
-                UNKNOWN,
-                GET,
-                POST,
-            };
-
-private:    Socket*                     mSocket;
-            uint16_t                    mPort;
-            METHOD                      mMethod;        // 要求メソッド
-            String                      mUrl;           // 要求URL
-            std::map<String, String>    mPostParams;    // POSTパラメータ
-            String                      mWebSocketKey;  // Sec-WebSocket-Key
-
-public:      HttpRequest(Socket* socket, uint16_t port);
-            ~HttpRequest();
-
-public:     bool    analizeRequest();
-private:    int32_t analizeUrl(const char* request, int32_t len, METHOD method);
-            void    analizePostParams(ByteBuffer* params);
-
-public:     Socket* getSocket() const;
-            uint16_t getPort() const;
-            METHOD getMethod() const;
-            const CoreString& getUrl() const;
-            void setUrl(const char* url);
-            void getParam(const char* name, CoreString* param);
-            const CoreString& getWebSocketKey() const;
-};
 
 /*!
  *  \brief  WEBサーバースレッドクラス
