@@ -38,7 +38,6 @@ import android.os.Bundle;
 public class Settings extends PreferenceFragment implements OnSharedPreferenceChangeListener
 {
     private final String        KEY_START_STOP =               "startStop";
-    private final String        KEY_SHARED_MEMORY_PATH_NAME =  "sharedMemoryPathName";
     private final String        KEY_LOG_OUTPUT_DIR =           "logOutputDir";
     private final String        KEY_MAX_FILE_SIZE =            "maxFileSize";
     private final String        KEY_MAX_FILE_SIZE_UNIT =       "maxFileSizeUnit";
@@ -52,7 +51,6 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
     private Intent              mServiceIntent;         // Sequence Log Service を開始 / 停止するためのインテント
     private SharedPreferences   mSP;
 
-    private boolean             mSharedMemoryPathOkFlag = true;
     private boolean             mLogOutputDirOkFlag = true;
 
     /**
@@ -74,16 +72,6 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         pref.setSummary(isRunning
             ? getString(R.string.running)
             : getString(R.string.stopping));
-
-        // 共有メモリパス
-        value = updateSummary(KEY_SHARED_MEMORY_PATH_NAME, (isRunning == false));
-        app.mSharedMemoryPathName = value;
-
-        if (mSharedMemoryPathOkFlag == false)
-        {
-            pref = findPreference(KEY_SHARED_MEMORY_PATH_NAME);
-            setErrorSummaryColor(pref);
-        }
 
         // ログ出力ディレクトリ
         value = updateSummary(KEY_LOG_OUTPUT_DIR, (isRunning == false));
@@ -198,12 +186,6 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         int result = app.start();
         boolean success = true;
 
-        if ((result & 0x01) != 0)
-        {
-            success = false;
-            mSharedMemoryPathOkFlag = false;
-        }
-
         if ((result & 0x02) != 0)
         {
             success = false;
@@ -224,7 +206,6 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
             return;
         }
 
-        mSharedMemoryPathOkFlag = true;
         mLogOutputDirOkFlag = true;
         updateSummaries();
 
@@ -331,9 +312,6 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,  String key)
     {
         App app = (App)getActivity().getApplication();
-
-        if (key.equals(KEY_SHARED_MEMORY_PATH_NAME))
-            mSharedMemoryPathOkFlag = true;
 
         if (key.equals(KEY_LOG_OUTPUT_DIR))
             mLogOutputDirOkFlag = true;

@@ -34,7 +34,6 @@ public class App extends android.app.Application
 {
     private boolean mServiceRunning = false;
 
-    public String   mSharedMemoryPathName;  // 共有メモリパス
     public String   mLogOutputDir;          // ログ出力ディレクトリ
     public int      mMaxFileSize;           // 最大ファイルサイズ
     public String   mMaxFileSizeUnit;       // 最大ファイルサイズ単位
@@ -190,17 +189,14 @@ public class App extends android.app.Application
             writer = new FileWriter(file);
 
             String config = String.format(
-                "SHARED_MEMORY_DIR        %s\n" +
-                "SHARED_MEMORY_ITEM_COUNT 300\n" +
                 "LOG_OUTPUT_DIR           %s\n" +
                 "MAX_FILE_SIZE            %d %s\n" +
                 "MAX_FILE_COUNT           %d\n" +
-                "OUTPUT_SCREEN            false\n" +
+                "OUTPUT_SCREEN            true\n" +
                 "WEB_SERVER_PORT          %d\n" +
                 "SEQUENCE_LOG_SERVER_IP   %s\n" +
                 "SEQUENCE_LOG_SERVER_PORT %d\n",
 
-                mSharedMemoryPathName,
                 mLogOutputDir,
                 mMaxFileSize, mMaxFileSizeUnit,
                 mMaxFileCount,

@@ -13,13 +13,6 @@
             android:summary=" " />
 
         <EditTextPreference
-            android:key="sharedMemoryPathName"
-            android:defaultValue="/sdcard/slog/shm"
-            android:title="@string/shared_memory_path"
-            android:dialogTitle="@string/shared_memory_path"
-            android:inputType="text" />
-
-        <EditTextPreference
             android:key="logOutputDir"
             android:defaultValue="/sdcard/slog"
             android:title="@string/log_output_dir"
