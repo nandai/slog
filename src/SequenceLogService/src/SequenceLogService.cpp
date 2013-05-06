@@ -179,25 +179,12 @@ public:     long        mAlwaysCount;       //!< 常出力カウンタ（1以上
 };
 
 /*!
- *  \brief  シーケンスログ受信クラス
- */
-class SequenceLogReceiver : public Thread
-{
-            SequenceLogService* mService;
-
-public:     SequenceLogReceiver(SequenceLogService* service) {mService = service;}
-
-private:    virtual void run() {mService->receiveMain();}
-};
-
-/*!
  *  \brief  コンストラクタ
  */
 SequenceLogService::SequenceLogService(slog::Socket* socket) :
     mFileOutputBuffer(1024 * 2)
 {
     mSocket = socket;
-    mMutex = NULL;
     mSHM = NULL;
 
     mOutputList =       NULL;
@@ -261,17 +248,6 @@ bool SequenceLogService::init()
 
         mSHM = (SLOG_SHM*)new char[len];
 
-        // ミューテックス生成
-#if defined(_WINDOWS)
-        FixedString<MAX_PATH> name;
-        name.format("slogMutex%d", mProcess.getId());
-
-        mMutex = new slog::Mutex(true, name);
-#else
-        mMutex = new slog::Mutex(true, &mSHM->header.mutex);
-#endif
-        ScopedLock lock(mMutex, false);
-
         // 初期化：共有メモリヘッダー
         SLOG_SHM_HEADER* header = &mSHM->header;
         header->seq = 1;
@@ -306,35 +282,7 @@ bool SequenceLogService::init()
  */
 void SequenceLogService::run()
 {
-    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-    SequenceLogReceiver receiver(this);
-
-    receiver.start();
-    Thread::sleep(100);
-
-    // 書き込みループ
-    try
-    {
-        while (true)
-        {
-            if (receiver.isAlive() == false)
-                interrupt();
-
-            divideItems();
-            writeMain();
-            sleep(1);
-
-            if (receiver.isAlive() == false)
-                break;
-        }
-    }
-    catch (Exception e)
-    {
-        noticeLog(e.getMessage());
-    }
-
-    receiver.interrupt();
-    receiver.join();
+    receiveMain();
 
     cleanUp();
     mSocket->close();
@@ -404,9 +352,6 @@ void SequenceLogService::callLogFileChanged()
  */
 void SequenceLogService::cleanUp()
 {
-    delete mMutex;
-    mMutex = NULL;
-
     // シーケンスログアイテムキューマネージャー削除
     if (mItemQueueManager)
     {
@@ -447,8 +392,6 @@ void SequenceLogService::cleanUp()
 
     if (mFileInfo)
         mFileInfo->update();
-
-    TRACE("[E] SequenceLogService::CleanUp()\n", 0);
 }
 
 /*!
@@ -630,7 +573,6 @@ void SequenceLogService::divideItems()
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
     int32_t putOff = 0;
-    ScopedLock lock(mMutex);
 
     SLOG_SHM_HEADER* header =   &mSHM->header;
     SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[0];
@@ -929,8 +871,6 @@ void SequenceLogService::receiveMain()
             while (true)
             {
                 uint32_t threadId = item->mThreadId;
-
-                ScopedLock lock(mMutex);
                 SLOG_SHM_HEADER* header = &mSHM->header;
 
                 if (header->index >= mSHM->count)
@@ -957,6 +897,9 @@ void SequenceLogService::receiveMain()
 
                 info->item = *item;
                 info->ready = true;
+
+                divideItems();
+                writeMain();
                 break;
             }
         }

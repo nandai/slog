@@ -272,10 +272,6 @@ struct SLOG_ITEM_INFO
 
 struct SLOG_SHM_HEADER
 {
-#if defined(__unix__)
-    pthread_mutex_t mutex;                  //!< 同期オブジェクト
-#endif
-
     uint32_t        seq;                    //!< 次に取得するシーケンス番号
     uint32_t        index;                  //!< 次に書き込むシーケンスログアイテムのインデックス（シーケンスログサービスによってログが取り込まれたら0に戻る）
     uint32_t        max;                    //!< 最大index（デバッグ用）
