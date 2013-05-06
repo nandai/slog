@@ -232,25 +232,6 @@ bool SequenceLogService::init()
         Exception e;
         int32_t len;
 
-        int32_t useLogSocket;
-        mSocket->recv(&useLogSocket);
-
-#if defined(__unix__)
-        if (useLogSocket == 0)
-        {
-            mSocket->recv(&len);
-
-            int32_t perm = (sizeof(pthread_mutex_t) == len);
-            mSocket->send(&perm);
-
-            if (perm == 0)
-            {
-                e.setMessage("SequenceLogService::init() / pthread_mutex_t size is different");
-                throw e;
-            }
-        }
-#endif
-
         // ログファイル名受信
         mSocket->recv(&len);
         mSocket->recv(&mBaseFileName, len);
@@ -329,12 +310,6 @@ bool SequenceLogService::init()
                 infoArray[index].no = index;
             }
         }
-
-        // 共有メモリ名送信
-        len = shmName.getLength() + 1;
-
-        mSocket->send(&len);
-        mSocket->send(&shmName, len);
     }
     catch (Exception e)
     {
@@ -1017,7 +992,7 @@ void SequenceLogService::receiveMain()
     }
     catch (Exception e)
     {
-        TRACE("    %s\n", e.getMessage());
+        noticeLog("receiveMain: %s", e.getMessage());
     }
 }
 

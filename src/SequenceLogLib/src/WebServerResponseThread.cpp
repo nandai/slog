@@ -267,7 +267,6 @@ void WebServerResponseThread::sendWebSocketHeader(Socket* socket, uint64_t paylo
     {
         // client -> server
         mask = (char)0x80;
-        payloadLen += 4;
     }
 
     // FIN & opcode
@@ -346,8 +345,8 @@ bool WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBuffer)
     if (payloadLen != dataBuffer->getCapacity())
     {
         Exception e;
+        e.setMessage("payloadLen=%d, dataBufferLen=%d", payloadLen, dataBuffer->getCapacity());
 
-        e.setMessage("payloadLen=%d, dataBufferLen=%d", payloadLen, dataBuffer->getLength());
         throw e;
     }
 

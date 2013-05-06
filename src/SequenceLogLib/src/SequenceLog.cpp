@@ -113,81 +113,9 @@ static char                     sSequenceLogFileName[MAX_PATH + 1] = "";        
 static char                     sSequenceLogServiceAddress[255 + 1] = "127.0.0.1";  //!< シーケンスログサービスアドレス
 static SequenceLogOutputFlag    sRootFlag = ROOT;
 
-#if !defined(MODERN_UI)
-static bool                     sUseLogSocket = false;          //!< trueの場合はソケット経由で、falseの場合は共有メモリでログを出力する
-#else
-static bool                     sUseLogSocket = true;           //!< 共有メモリを使うことが出来ないので常にソケット経由
-#endif
-
 class  SequenceLogClient;
 static SequenceLogClient*       sClient = NULL;                 //!< シーケンスログクライアントオブジェクト
 static bool                     sClientInitialized = false;     //!< 初期化フラグ
-
-/*!
- *  \brief  シーケンスログソケットクラス
- */
-class SequenceLogSocket : public Socket
-{
-            FixedString<MAX_PATH>   mShmName;                   //!< 共有メモリ名
-
-public:     void canUseService() const throw(Exception);
-            const CoreString& recvSharedMemoryName() throw(Exception);
-};
-
-/*!
- *  \brief  シーケンスログサービスが使用可能か確認する
- */
-void SequenceLogSocket::canUseService() const throw(Exception)
-{
-#if defined(__unix__)
-    Exception e;
-
-    int32_t len = sizeof(pthread_mutex_t);
-    send(&len);
-
-    int32_t canUse = 0;
-    recv(&canUse);
-
-    if (canUse == 0)
-    {
-#if defined(__x86_64)
-        printf("slogsvc(32 bits) can't use, because this process is 64 bits.\n");
-#else
-        printf("slogsvc(64 bits) can't use, because this process is 32 bits.\n");
-#endif
-
-        e.setMessage("SequenceLogSocket::canUseService() / can not use");
-        throw e;
-    }
-
-    if (canUse != 1)
-    {
-        e.setMessage("SequenceLogSocket::canUseService() / receive illegal value(%d)", canUse);
-        throw e;
-    }
-#endif
-}
-
-/*!
- *  \brief  共有メモリ名受信
- */
-const CoreString& SequenceLogSocket::recvSharedMemoryName() throw(Exception)
-{
-    int32_t len = 0;
-
-    recv(&len);
-    recv(&mShmName, len);
-
-    if (mShmName[len - 1] != '\0')
-    {
-        Exception e;
-        e.setMessage("SequenceLogSocket::recvSharedMemoryName() / receive name is not null-terminated");
-
-        throw e;
-    }
-
-    return mShmName;
-}
 
 #if !defined(MODERN_UI)
 /*!
@@ -250,13 +178,8 @@ SLOG_ITEM_INFO* SequenceLogSharedMemory::getSequenceLogItem(uint32_t threadId, u
  */
 class SequenceLogClient
 {
-            SequenceLogSocket       mSocket;                        //!< ソケット
-            Mutex*                  mSocketMutex;                   //!< ソケット用ミューテックス
-
-#if !defined(MODERN_UI)
-            SequenceLogSharedMemory mSHM;                           //!< 共有メモリ
-            Mutex*                  mMutex[SLOG_SHM::BUFFER_COUNT]; //!< ミューテックス
-#endif
+            Socket  mSocket;        //!< ソケット
+            Mutex*  mSocketMutex;   //!< ソケット用ミューテックス
 
 public:      SequenceLogClient();
             ~SequenceLogClient();
@@ -272,17 +195,8 @@ public:     SLOG_ITEM_INFO* lock(uint32_t* seq);
  */
 inline SequenceLogClient::SequenceLogClient()
 {
-//  TRACE("[S] SequenceLogClient::SequenceLogClient()\n", 0);
-
     Socket::startup();
     mSocketMutex = NULL;
-
-#if !defined(MODERN_UI)
-    for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
-        mMutex[index] = NULL;
-#endif
-
-//  TRACE("[E] SequenceLogClient::SequenceLogClient()\n", 0);
 }
 
 /*!
@@ -290,18 +204,10 @@ inline SequenceLogClient::SequenceLogClient()
  */
 inline SequenceLogClient::~SequenceLogClient()
 {
-//  TRACE("[S] SequenceLogClient::~SequenceLogClient()\n", 0);
-
-#if !defined(MODERN_UI)
-    for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
-        delete mMutex[index];
-#endif
-
     delete mSocketMutex;
     mSocket.close();
 
     Socket::cleanup();
-//  TRACE("[E] SequenceLogClient::~SequenceLogClient()\n", 0);
 }
 
 /*!
@@ -309,27 +215,16 @@ inline SequenceLogClient::~SequenceLogClient()
  */
 void SequenceLogClient::init()
 {
-    TRACE("[S] SequenceLogClient::init()\n", 0);
     noticeLog("client initialize.\n");
 
     // シーケンスログファイル名取得
     const char* p = sSequenceLogFileName;
-    TRACE("    sSequenceLogFileName='%s'\n", p);
-
-//  if (p[0] == '\0')
-//  {
-//      TRACE("    getSequenceLogFileName() calling...\n", 0);
-//      p = getSequenceLogFileName();
-//  }
 
     if (p == NULL || p[0] == '\0')
     {
         TRACE("[E] SequenceLogClient::init() - failed\n", 0);
         return;
     }
-
-    FixedString<MAX_PATH> name = p;
-    int32_t len = name.getLength() + 1;
 
     try
     {
@@ -357,60 +252,32 @@ void SequenceLogClient::init()
             mSocket.connect(address, SERVICE_PORT);
         }
 
-        // プロセスID送信
+        // WebSocketヘッダー送信
         Process process;
         uint32_t pid = process.getId();
+
+        FixedString<MAX_PATH> name = p;
+        int32_t len = name.getLength() + 1;
+
+//      WebServerResponseThread::sendWebSocketHeader(&mSocket,
+//          sizeof(pid) + sizeof(len) + len,
+//          false, false);
+
+        // プロセスID送信
         mSocket.send(&pid);
-
-        // ログ出力にソケットを使うかどうかを送信
-        int32_t useLogSocket = (sUseLogSocket ? 1 : 0);
-        mSocket.send(&useLogSocket);
-
-        if (sUseLogSocket == false)
-        {
-            // シーケンスログサービスが使用可能か調べる
-            mSocket.canUseService();
-        }
 
         // シーケンスログファイル名送信
         mSocket.send(&len);
         mSocket.send(&name, len);
 
-        // 共有メモリ名受信
-        const CoreString& shmName = mSocket.recvSharedMemoryName();
-        TRACE("    shmName='%s'\n", shmName.getBuffer());
-
-        if (sUseLogSocket == false)
-        {
-#if !defined(MODERN_UI)
-            // 共有メモリ取得
-            mSHM.open(shmName);
-            mSHM.validate();
-
-            // ミューテックス取得
-            for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
-            {
-    #if defined(_WINDOWS)
-                name.format("slogMutex%d-%d", pid, index);
-                mMutex[index] = new Mutex(false, name);
-    #else
-                mMutex[index] = new Mutex(false, &mSHM->header[index].mutex);
-    #endif
-            }
-#endif // !defined(MODERN_UI)
-        }
-        else
-        {
-            mSocketMutex = new Mutex();
-        }
+        // ソケット用ミューテックス生成
+        mSocketMutex = new Mutex();
     }
     catch (Exception e)
     {
         noticeLog("%s\n", e.getMessage());
         mSocket.close();
     }
-
-    TRACE("[E] SequenceLogClient::init()\n", 0);
 }
 
 /*!
@@ -426,53 +293,9 @@ SLOG_ITEM_INFO* SequenceLogClient::lock(uint32_t* seq)
     if (mSocket.isOpen() == false)
         return NULL;
 
-    if (sUseLogSocket == false)
-    {
-#if !defined(MODERN_UI)
-        static const uint32_t TIMEOUT = 3000;
-        TimeSpan timeSpan1;
-
-        while (true)
-        {
-            uint32_t threadId = Thread::getCurrentId();
-            uint32_t bufferIndex = (threadId % SLOG_SHM::BUFFER_COUNT);
-
-            ScopedLock lock(mMutex[bufferIndex]);
-            info = mSHM.getSequenceLogItem(threadId, bufferIndex, seq);
-
-            if (info)
-                break;
-
-    #if 1   // SequenceLogServiceが落ちた、あるいは停止させた場合にこの処理がないと
-            // 無限ループになる
-            TimeSpan timeSpan2;
-
-            if (timeSpan2 - timeSpan1 > TIMEOUT)
-            {
-                // TIMEOUTミリ秒以上ログ出力出来なかったので以降のログ出力をキャンセルする
-                TRACE("    SequenceLogClient::lock() %d > %d ms\n", timeSpan2 - timeSpan1, TIMEOUT);
-                noticeLog("Could not log output more than %d ms, the logging stopped.\n",  TIMEOUT);
-
-                mSocket.close();
-                return NULL;
-            }
-    #endif
-        }
-
-    #if 1
-        TimeSpan timeSpan2;
-
-        if (timeSpan2 - timeSpan1 > TIMEOUT)
-            noticeLog("Log output elapsed time: %d ms\n", timeSpan2 - timeSpan1);
-    #endif
-#endif // !defined(MODERN_UI)
-    }
-    else
-    {
-        info = new SLOG_ITEM_INFO;
-        info->item.setCurrentDateTime();
-        info->item.mThreadId = Thread::getCurrentId();
-    }
+    info = new SLOG_ITEM_INFO;
+    info->item.setCurrentDateTime();
+    info->item.mThreadId = Thread::getCurrentId();
 
     return info;
 }
@@ -482,30 +305,27 @@ SLOG_ITEM_INFO* SequenceLogClient::lock(uint32_t* seq)
  */
 void SequenceLogClient::sendItem(SLOG_ITEM_INFO* info, uint32_t* seq)
 {
-    if (sUseLogSocket)
+    try
     {
-        try
+        ScopedLock lock(mSocketMutex);
+
+        // シーケンスログアイテム送信
+        WebServerResponseThread::sendWebSocketHeader(&mSocket, sizeof(info->item), false, false);
+        mSocket.send((char*)&info->item, sizeof(info->item));
+
+        // STEP_INの場合はシーケンス番号を受信する
+        if (info->item.mType == SequenceLogItemCore::STEP_IN)
         {
-            ScopedLock lock(mSocketMutex);
+            ByteBuffer buffer(sizeof(uint32_t));
 
-            // シーケンスログアイテム送信
-            WebServerResponseThread::sendWebSocketHeader(&mSocket, sizeof(info->item), false, false);
-            mSocket.send((char*)&info->item, sizeof(info->item));
-
-            // STEP_INの場合はシーケンス番号を受信する
-            if (info->item.mType == SequenceLogItemCore::STEP_IN)
-            {
-                ByteBuffer buffer(sizeof(uint32_t));
-
-                WebServerResponseThread::recvData(&mSocket, &buffer);
-                *seq = buffer.getInt();
-            }
+            WebServerResponseThread::recvData(&mSocket, &buffer);
+            *seq = buffer.getInt();
         }
-        catch (Exception e)
-        {
-            noticeLog("%s\n", e.getMessage());
-            mSocket.close();
-        }
+    }
+    catch (Exception e)
+    {
+        noticeLog("%s\n", e.getMessage());
+        mSocket.close();
     }
 
     delete info;
@@ -708,7 +528,6 @@ extern "C" void setSequenceLogServiceAddress(const char* address)
     if (strlen(address) <= sizeof(slog::sSequenceLogServiceAddress) - 1)
     {
         strcpy(slog::sSequenceLogServiceAddress, address);
-        slog::sUseLogSocket = true;
     }
 }
 
