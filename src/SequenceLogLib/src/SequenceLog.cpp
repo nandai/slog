@@ -310,7 +310,6 @@ SequenceLog::SequenceLog(
     if (info)
     {
         info->item.init(mSeqNo, mOutputFlag, className, funcName);
-        info->ready = true;
         sClient->sendItem(info, &mSeqNo);
     }
 #if defined(_DEBUG)
@@ -377,7 +376,6 @@ SequenceLog::~SequenceLog()
     if (info)
     {
         info->item.init(mSeqNo, mOutputFlag);
-        info->ready = true;
         sClient->sendItem(info, NULL);
     }
 }
@@ -432,7 +430,6 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
             // 何もしない
         }
 
-        info->ready = true;
         sClient->sendItem(info, NULL);
     }
 }

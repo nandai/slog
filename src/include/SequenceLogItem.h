@@ -266,7 +266,6 @@ inline PointerString SequenceLogItem::getMessage()   const {return PointerString
 struct SLOG_ITEM_INFO
 {
     SequenceLogItem item;                   //!< シーケンスログアイテム
-    bool            ready;                  //!< 準備完了フラグ
     uint32_t        no;                     //!< 配列№
 };
 

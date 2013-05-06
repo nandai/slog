@@ -262,7 +262,6 @@ bool SequenceLogService::init()
 
         for (int32_t index = 0; index < count; index++)
         {
-            infoArray[index].ready = false;
             infoArray[index].no = index;
         }
     }
@@ -572,8 +571,6 @@ void SequenceLogService::divideItems()
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-    int32_t putOff = 0;
-
     SLOG_SHM_HEADER* header =   &mSHM->header;
     SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[0];
 
@@ -593,16 +590,7 @@ void SequenceLogService::divideItems()
         int32_t no = info->no;
         info = &infoArray[no];
 
-        if (info->ready == false)
-        {
-            infoArray[index]. no = infoArray[putOff].no;
-            infoArray[putOff].no = no;
-            putOff++;
-            continue;
-        }
-
         const SequenceLogItem& src = info->item;
-        info->ready = false;
 
         if (src.mType != SequenceLogItem::STEP_IN  &&
             src.mType != SequenceLogItem::STEP_OUT &&
@@ -646,7 +634,7 @@ void SequenceLogService::divideItems()
         else
             forward(queue, item);
     }
-    header->index = putOff;
+    header->index = 0;
 
     if (isInterrupted())
     {
@@ -896,7 +884,6 @@ void SequenceLogService::receiveMain()
                 }
 
                 info->item = *item;
-                info->ready = true;
 
                 divideItems();
                 writeMain();
