@@ -831,7 +831,7 @@ void SequenceLogService::receiveMain()
                 seqNoBuf.putInt(item->mSeqNo);
 
                 WebServerResponseThread::sendWebSocketHeader(mSocket, sizeof(item->mSeqNo), false);
-                mSocket->send(&buffer, sizeof(item->mSeqNo));
+                mSocket->send(&seqNoBuf, sizeof(item->mSeqNo));
             }
 
             mSHM->info.item = *item;
