@@ -245,41 +245,54 @@ bool WebServerResponseThread::upgradeWebSocket()
 /*!
  *  \brief  WebSocketƒwƒbƒ_[‘—M
  */
-void WebServerResponseThread::sendWebSocketHeader(uint64_t payloadDataLen, bool toClient) const
+void WebServerResponseThread::sendWebSocketHeader(uint64_t payloadLen, bool isText, bool toClient) const
 {
     Socket* socket = mHttpRequest->getSocket();
-    sendWebSocketHeader(socket, payloadDataLen, toClient);
+    sendWebSocketHeader(socket, payloadLen, isText, toClient);
 }
 
-void WebServerResponseThread::sendWebSocketHeader(Socket* socket, uint64_t payloadDataLen, bool toClient)
+void WebServerResponseThread::sendWebSocketHeader(Socket* socket, uint64_t payloadLen, bool isText, bool toClient)
 {
     ByteBuffer buffer(2 + 8 + 4);
-    char mask = 0x00;
+    char opcode = 0x01;     // text frame
+    char mask =   0x00;     // no mask
+
+    if (isText == false)
+    {
+        // binary frame
+        opcode = 0x02;
+    }
 
     if (toClient == false)
     {
+        // client -> server
         mask = (char)0x80;
-        payloadDataLen += 4;
+        payloadLen += 4;
     }
 
-    if (payloadDataLen < 126)
+    // FIN & opcode
+    buffer.put((char)0x80 | opcode);
+
+    // MASK & Payload length
+    if (payloadLen < 126)
     {
-        buffer.put((char)0x81);
-        buffer.put(mask | (char)payloadDataLen);
+        // 0 ` 125 bytes
+        buffer.put(mask | (char)payloadLen);
     }
-    else if (payloadDataLen <= 0xFFFF)
+    else if (payloadLen <= 0xFFFF)
     {
-        buffer.put((char)0x81);
+        // 126 ` 65535 bytes
         buffer.put(mask | (char)126);
-        buffer.putShort((short)payloadDataLen);
+        buffer.putShort((short)payloadLen);
     }
     else
     {
-        buffer.put((char)0x81);
+        // 65536 `
         buffer.put(mask | (char)127);
-        buffer.putLong(payloadDataLen);
+        buffer.putLong(payloadLen);
     }
 
+    // Masking-key
     if (toClient == false)
     {
         buffer.put((char)0x00);
@@ -289,6 +302,67 @@ void WebServerResponseThread::sendWebSocketHeader(Socket* socket, uint64_t paylo
     }
 
     socket->send(&buffer, buffer.getLength());
+}
+
+/*!
+ *  \brief  ƒf[ƒ^ŽóM
+ */
+bool WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBuffer)
+{
+    ByteBuffer buffer(2 + 8 + 4);
+    const char* p = buffer.getBuffer();
+
+    socket->recv(&buffer, 2);
+
+    // opcode
+    char opcode = p[0] & 0x0F;
+
+    if (opcode != 0x01 && opcode != 0x02)
+    {
+        noticeLog("opcode=0x%02X", opcode);
+        return false;
+    }
+
+    // MASK & Payload length
+    bool mask = ((p[1] & 0x80) == 0x80);
+    uint64_t payloadLen = p[1] & 0x7F;
+
+    if (payloadLen == 126)
+    {
+        socket->recv(&buffer, 2);
+        payloadLen = buffer.getShort();
+    }
+    else if (payloadLen == 127)
+    {
+        socket->recv(&buffer, 8);
+        payloadLen = buffer.getLong();
+    }
+
+    // Masking-key
+    if (mask)
+        socket->recv(&buffer, 4);
+
+    // Payload Data
+    if (payloadLen != dataBuffer->getCapacity())
+    {
+        Exception e;
+
+        e.setMessage("payloadLen=%d, dataBufferLen=%d", payloadLen, dataBuffer->getLength());
+        throw e;
+    }
+
+//  socket->recv(dataBuffer, payloadLen);   ‚Ç‚¤‚·‚é‚©ŒŸ“¢
+    socket->recv(dataBuffer, (int32_t)payloadLen);
+
+    if (mask)
+    {
+        char* p2 = dataBuffer->getBuffer();
+
+        for (uint64_t i = 0; i < payloadLen; i++)
+            p2[i] ^= p[i % 4];
+    }
+
+    return true;
 }
 
 } // namespace slog

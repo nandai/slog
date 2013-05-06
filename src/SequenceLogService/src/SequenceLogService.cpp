@@ -26,6 +26,7 @@
 #include "slog/Mutex.h"
 #include "slog/FileInfo.h"
 #include "slog/DateTimeFormat.h"
+#include "slog/WebServerResponseThread.h"
 
 #if defined(__unix__)
     #define stricmp strcasecmp
@@ -975,7 +976,8 @@ void SequenceLogService::receiveMain()
             if (isReceive == false)
                 continue;
 
-            mSocket->recv(&buffer, buffer.getCapacity());
+            if (WebServerResponseThread::recvData(mSocket, &buffer) == false)
+                break;
 
             while (true)
             {
@@ -1000,7 +1002,11 @@ void SequenceLogService::receiveMain()
                     item->mSeqNo = header->seq;
                     header->seq++;
 
-                    mSocket->send(&item->mSeqNo);
+                    ByteBuffer seqNoBuf(sizeof(item->mSeqNo));
+                    seqNoBuf.putInt(item->mSeqNo);
+
+                    WebServerResponseThread::sendWebSocketHeader(mSocket, sizeof(item->mSeqNo), false);
+                    mSocket->send(&buffer, sizeof(item->mSeqNo));
                 }
 
                 info->item = *item;

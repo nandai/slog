@@ -28,6 +28,7 @@ class HttpRequest;
 class CoreString;
 class String;
 class Socket;
+class ByteBuffer;
 
 /*!
  *  \brief  WEBサーバー応答スレッドクラス
@@ -36,22 +37,39 @@ class SLOG_API WebServerResponseThread : public Thread
 {
 protected:  HttpRequest*    mHttpRequest;
 
+            // コンストラクタ / デストラクタ
 public:     WebServerResponseThread(HttpRequest* httpRequest);
             virtual ~WebServerResponseThread();
 
+            // ドメイン取得
 private:    virtual const char* getDomain() const {return NULL;}
+
+            // ルートディレクトリ取得
             virtual const char* getRootDir() const {return NULL;}
 
+            // 送信
 protected:  void send(const CoreString& content) const;
+
+            // HTTPヘッダー送信（＆切断）
             void sendHttpHeader(int32_t contentLen) const;
+
+            // 応答内容送信＆切断
             void sendContent(const CoreString& content) const;
 
+            // 実行
 private:    virtual void run();
+
+            // コンテンツ取得
 protected:  bool getContents(String* content, const char* url);
 
+            // WebSocketにアップグレード
 protected:  bool upgradeWebSocket();
-            void sendWebSocketHeader(uint64_t payloadDataLen, bool toClient = true) const;
-            static void sendWebSocketHeader(Socket* socket, uint64_t payloadDataLen, bool toClient = true);
+
+            // WebSocketヘッダー送信
+                   void sendWebSocketHeader(                uint64_t payloadLen, bool isText = true, bool toClient = true) const;
+public:     static void sendWebSocketHeader(Socket* socket, uint64_t payloadLen, bool isText = true, bool toClient = true);
+
+            static bool recvData(Socket* socket, ByteBuffer* dataBuffer);
 };
 
 } // namespace slog

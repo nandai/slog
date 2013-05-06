@@ -27,6 +27,7 @@
 #include "slog/TimeSpan.h"
 #include "slog/Process.h"
 #include "slog/FixedString.h"
+#include "slog/WebServerResponseThread.h"
 
 #if !defined(MODERN_UI)
 #include "slog/SharedMemory.h"
@@ -481,24 +482,30 @@ SLOG_ITEM_INFO* SequenceLogClient::lock(uint32_t* seq)
  */
 void SequenceLogClient::sendItem(SLOG_ITEM_INFO* info, uint32_t* seq)
 {
-    if (sUseLogSocket == false)
-        return;
-
-    try
+    if (sUseLogSocket)
     {
-        TRACE("SequenceLogClient::sendItem className='%s' lock before\n", info->item.getClassName().getBuffer());
-        ScopedLock lock(mSocketMutex);
-        TRACE("SequenceLogClient::sendItem className='%s' lock after\n",  info->item.getClassName().getBuffer());
+        try
+        {
+            ScopedLock lock(mSocketMutex);
 
-        mSocket.send((char*)&info->item, sizeof(info->item));
+            // シーケンスログアイテム送信
+            WebServerResponseThread::sendWebSocketHeader(&mSocket, sizeof(info->item), false, false);
+            mSocket.send((char*)&info->item, sizeof(info->item));
 
-        if (info->item.mType == SequenceLogItemCore::STEP_IN)
-            mSocket.recv(seq);
-    }
-    catch (Exception e)
-    {
-        noticeLog("%s\n", e.getMessage());
-        mSocket.close();
+            // STEP_INの場合はシーケンス番号を受信する
+            if (info->item.mType == SequenceLogItemCore::STEP_IN)
+            {
+                ByteBuffer buffer(sizeof(uint32_t));
+
+                WebServerResponseThread::recvData(&mSocket, &buffer);
+                *seq = buffer.getInt();
+            }
+        }
+        catch (Exception e)
+        {
+            noticeLog("%s\n", e.getMessage());
+            mSocket.close();
+        }
     }
 
     delete info;
