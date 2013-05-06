@@ -197,9 +197,8 @@ SequenceLogService::SequenceLogService(slog::Socket* socket) :
     mFileOutputBuffer(1024 * 2)
 {
     mSocket = socket;
-
-    for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
-        mMutex[index] = NULL;
+    mMutex = NULL;
+    mSHM = NULL;
 
     mOutputList =       NULL;
     mItemQueueManager = NULL;
@@ -258,44 +257,37 @@ bool SequenceLogService::init()
         SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
         int32_t size = sizeof(SLOG_ITEM_INFO);
         int32_t count = serviceMain->getSharedMemoryItemCount();
-        len = sizeof(SLOG_SHM) + size * (count * SLOG_SHM::BUFFER_COUNT - 1);
+        len = sizeof(SLOG_SHM) + size * (count - 1);
 
         mSHM = (SLOG_SHM*)new char[len];
 
         // ミューテックス生成
-        for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
-        {
 #if defined(_WINDOWS)
-            FixedString<MAX_PATH> name;
-            name.format(       "slogMutex%d-%d", mProcess.getId(), index);
+        FixedString<MAX_PATH> name;
+        name.format("slogMutex%d", mProcess.getId());
 
-            mMutex[index] = new slog::Mutex(true, name);
+        mMutex = new slog::Mutex(true, name);
 #else
-            mMutex[index] = new slog::Mutex(true, &mSHM->header[index].mutex);
+        mMutex = new slog::Mutex(true, &mSHM->header.mutex);
 #endif
-            ScopedLock lock(mMutex[index], false);
-        }
+        ScopedLock lock(mMutex, false);
 
-        // 初期設定
-        for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
-        {
-            SLOG_SHM_HEADER* header = &mSHM->header[index];
-            header->seq = 1;
-            header->index = 0;
-            header->max = 0;
-        }
+        // 初期化：共有メモリヘッダー
+        SLOG_SHM_HEADER* header = &mSHM->header;
+        header->seq = 1;
+        header->index = 0;
+        header->max = 0;
 
+        // 初期化：シーケンスログアイテム情報の配列数
         mSHM->count = count;
 
-        for (int32_t bufferIndex = 0; bufferIndex < SLOG_SHM::BUFFER_COUNT; bufferIndex++)
-        {
-            SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[bufferIndex * count];
+        // 初期化：シーケンスログアイテム情報の配列
+        SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[0];
 
-            for (int32_t index = 0; index < count; index++)
-            {
-                infoArray[index].ready = false;
-                infoArray[index].no = index;
-            }
+        for (int32_t index = 0; index < count; index++)
+        {
+            infoArray[index].ready = false;
+            infoArray[index].no = index;
         }
     }
     catch (Exception e)
@@ -412,13 +404,8 @@ void SequenceLogService::callLogFileChanged()
  */
 void SequenceLogService::cleanUp()
 {
-    TRACE("[S] SequenceLogService::CleanUp()\n", 0);
-
-    for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
-    {
-        delete mMutex[index];
-        mMutex[index] = NULL;
-    }
+    delete mMutex;
+    mMutex = NULL;
 
     // シーケンスログアイテムキューマネージャー削除
     if (mItemQueueManager)
@@ -642,85 +629,82 @@ void SequenceLogService::divideItems()
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-    for (int32_t bufferIndex = 0; bufferIndex < SLOG_SHM::BUFFER_COUNT; bufferIndex++)
+    int32_t putOff = 0;
+    ScopedLock lock(mMutex);
+
+    SLOG_SHM_HEADER* header =   &mSHM->header;
+    SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[0];
+
+    if (header->max < header->index)
     {
-        int32_t putOff = 0;
-        ScopedLock lock(mMutex[bufferIndex]);
-
-        SLOG_SHM_HEADER* header =   &mSHM->header[bufferIndex];
-        SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[bufferIndex * mSHM->count];
-
-        if (header->max < header->index)
-        {
-//          noticeLog("inside information: update entry item max (%d: %d -> %d)\n", bufferIndex, header->max, header->index);
-            header->max = header->index;
-        }
-
-//      if (header->index == mSHM->count)
-//          noticeLog("inside information: ** LIMIT ** entry item (%d)\n", bufferIndex);
-
-        // 振り分け処理
-        for (int32_t index = 0; index < (int32_t)header->index; index++)
-        {
-            SLOG_ITEM_INFO* info = &infoArray[index];
-            int32_t no = info->no;
-            info = &infoArray[no];
-
-            if (info->ready == false)
-            {
-                infoArray[index]. no = infoArray[putOff].no;
-                infoArray[putOff].no = no;
-                putOff++;
-                continue;
-            }
-
-            const SequenceLogItem& src = info->item;
-            info->ready = false;
-
-            if (src.mType != SequenceLogItem::STEP_IN  &&
-                src.mType != SequenceLogItem::STEP_OUT &&
-                src.mType != SequenceLogItem::MESSAGE)
-            {
-                TRACE("Illegal value: src.mType=%d\n", src.mType);
-                interrupt();
-                break;
-            }
-
-            ItemQueue* queue = getItemQueue(src);
-            SequenceLogItem* item = createSequenceLogItem(queue, src);
-            bool isKeep = false;
-
-            if (item == NULL)
-                continue;
-
-            if (item->mOutputFlag == slog::ROOT)
-                item->mOutputFlag =  slog::ALWAYS;
-
-            if (item->mType == SequenceLogItem::STEP_IN)
-            {
-                isKeep = true;
-
-                // あらかじめSTEP_OUTのアイテムを作成しておく
-                SequenceLogItem* stepOutItem = popStockItem();
-                stepOutItem->init(item->mSeqNo, item->mOutputFlag);
-                stepOutItem->mThreadId = item->mThreadId;
-
-                queue->mStepOutList.push_back(stepOutItem);
-            }
-
-            if (item->mType == SequenceLogItem::MESSAGE)
-            {
-                if (item->mLevel == slog::DEBUG)
-                    isKeep = true;
-            }
-
-            if (isKeep)
-                keep(   queue, item);
-            else
-                forward(queue, item);
-        }
-        header->index = putOff;
+//      noticeLog("inside information: update entry item max (%d -> %d)\n", header->max, header->index);
+        header->max = header->index;
     }
+
+//  if (header->index == mSHM->count)
+//      noticeLog("inside information: ** LIMIT ** entry item\n");
+
+    // 振り分け処理
+    for (int32_t index = 0; index < (int32_t)header->index; index++)
+    {
+        SLOG_ITEM_INFO* info = &infoArray[index];
+        int32_t no = info->no;
+        info = &infoArray[no];
+
+        if (info->ready == false)
+        {
+            infoArray[index]. no = infoArray[putOff].no;
+            infoArray[putOff].no = no;
+            putOff++;
+            continue;
+        }
+
+        const SequenceLogItem& src = info->item;
+        info->ready = false;
+
+        if (src.mType != SequenceLogItem::STEP_IN  &&
+            src.mType != SequenceLogItem::STEP_OUT &&
+            src.mType != SequenceLogItem::MESSAGE)
+        {
+            TRACE("Illegal value: src.mType=%d\n", src.mType);
+            interrupt();
+            break;
+        }
+
+        ItemQueue* queue = getItemQueue(src);
+        SequenceLogItem* item = createSequenceLogItem(queue, src);
+        bool isKeep = false;
+
+        if (item == NULL)
+            continue;
+
+        if (item->mOutputFlag == slog::ROOT)
+            item->mOutputFlag =  slog::ALWAYS;
+
+        if (item->mType == SequenceLogItem::STEP_IN)
+        {
+            isKeep = true;
+
+            // あらかじめSTEP_OUTのアイテムを作成しておく
+            SequenceLogItem* stepOutItem = popStockItem();
+            stepOutItem->init(item->mSeqNo, item->mOutputFlag);
+            stepOutItem->mThreadId = item->mThreadId;
+
+            queue->mStepOutList.push_back(stepOutItem);
+        }
+
+        if (item->mType == SequenceLogItem::MESSAGE)
+        {
+            if (item->mLevel == slog::DEBUG)
+                isKeep = true;
+        }
+
+        if (isKeep)
+            keep(   queue, item);
+        else
+            forward(queue, item);
+    }
+    header->index = putOff;
 
     if (isInterrupted())
     {
@@ -938,21 +922,21 @@ void SequenceLogService::receiveMain()
             if (isReceive == false)
                 continue;
 
+            // シーケンスログアイテム受信
             if (WebServerResponseThread::recvData(mSocket, &buffer) == NULL)
                 break;
 
             while (true)
             {
                 uint32_t threadId = item->mThreadId;
-                uint32_t bufferIndex = (threadId % SLOG_SHM::BUFFER_COUNT);
 
-                ScopedLock lock(mMutex[bufferIndex]);
-                SLOG_SHM_HEADER* header = &mSHM->header[bufferIndex];
+                ScopedLock lock(mMutex);
+                SLOG_SHM_HEADER* header = &mSHM->header;
 
                 if (header->index >= mSHM->count)
                     continue;
 
-                SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[bufferIndex * mSHM->count];
+                SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[0];
                 uint32_t index = header->index;
                 index = infoArray[index].no;
 

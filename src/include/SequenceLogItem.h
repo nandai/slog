@@ -283,11 +283,9 @@ struct SLOG_SHM_HEADER
 
 struct SLOG_SHM
 {
-    enum {BUFFER_COUNT = 3};                //!< WindowsのスレッドIDは偶数しかないようだ。2では意味がないため3にする。
-
-    SLOG_SHM_HEADER header[BUFFER_COUNT];   //!< 共有メモリヘッダー
+    SLOG_SHM_HEADER header;                 //!< 共有メモリヘッダー
     uint32_t        count;                  //!< シーケンスログアイテム情報の配列数
-    SLOG_ITEM_INFO  infoArray[1];           //!< シーケンスログアイテム情報の配列（count * BUFFER_COUNT個）
+    SLOG_ITEM_INFO  infoArray[1];           //!< シーケンスログアイテム情報の配列
 };
 #pragma pack(pop)
 

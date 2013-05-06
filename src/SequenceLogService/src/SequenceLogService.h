@@ -46,7 +46,7 @@ typedef std::map<uint32_t, ItemQueue*> ItemQueueManager;        // キーはス�
 class SequenceLogService : public Thread
 {
 private:    Socket*                 mSocket;                    //!< シーケンスログクライアントとの接続用ソケット
-            Mutex*                  mMutex[SLOG_SHM::BUFFER_COUNT]; //!< ミューテックス
+            Mutex*                  mMutex;                     //!< ミューテックス
             SLOG_SHM*               mSHM;                       //!< 共有メモリ
 
             Process                 mProcess;                   //!< プロセスオブジェクト
