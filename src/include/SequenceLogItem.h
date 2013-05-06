@@ -268,14 +268,9 @@ struct SLOG_ITEM_INFO
     SequenceLogItem item;       //!< シーケンスログアイテム
 };
 
-struct SLOG_SHM_HEADER
-{
-    uint32_t        seq;        //!< 次に取得するシーケンス番号
-};
-
 struct SLOG_SHM
 {
-    SLOG_SHM_HEADER header;     //!< 共有メモリヘッダー
+    uint32_t        seq;        //!< 次に取得するシーケンス番号
     SLOG_ITEM_INFO  info;       //!< シーケンスログアイテム情報
 };
 #pragma pack(pop)

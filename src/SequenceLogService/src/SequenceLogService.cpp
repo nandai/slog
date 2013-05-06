@@ -242,10 +242,7 @@ bool SequenceLogService::init()
 
         // ログバッファ（旧 - 共有メモリ）生成
         mSHM = new SLOG_SHM;
-
-        // 初期化：共有メモリヘッダー
-        SLOG_SHM_HEADER* header = &mSHM->header;
-        header->seq = 1;
+        mSHM->seq = 1;
     }
     catch (Exception e)
     {
@@ -553,8 +550,7 @@ void SequenceLogService::divideItems()
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-    SLOG_SHM_HEADER* header = &mSHM->header;
-    SLOG_ITEM_INFO* info =    &mSHM->info;
+    SLOG_ITEM_INFO* info = &mSHM->info;
 
     // 振り分け処理
     do
@@ -825,12 +821,11 @@ void SequenceLogService::receiveMain()
                 break;
 
             uint32_t threadId = item->mThreadId;
-            SLOG_SHM_HEADER* header = &mSHM->header;
 
             if (item->mType == SequenceLogItem::STEP_IN)
             {
-                item->mSeqNo = header->seq;
-                header->seq++;
+                item->mSeqNo = mSHM->seq;
+                mSHM->seq++;
 
                 ByteBuffer seqNoBuf(sizeof(item->mSeqNo));
                 seqNoBuf.putInt(item->mSeqNo);
