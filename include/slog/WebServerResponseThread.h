@@ -69,7 +69,7 @@ protected:  bool upgradeWebSocket();
                    void sendWebSocketHeader(                uint64_t payloadLen, bool isText = true, bool toClient = true) const;
 public:     static void sendWebSocketHeader(Socket* socket, uint64_t payloadLen, bool isText = true, bool toClient = true);
 
-            static bool recvData(Socket* socket, ByteBuffer* dataBuffer);
+            static ByteBuffer* recvData(Socket* socket, ByteBuffer* dataBuffer);
 };
 
 } // namespace slog

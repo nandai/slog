@@ -259,9 +259,9 @@ void SequenceLogClient::init()
         FixedString<MAX_PATH> name = p;
         int32_t len = name.getLength() + 1;
 
-//      WebServerResponseThread::sendWebSocketHeader(&mSocket,
-//          sizeof(pid) + sizeof(len) + len,
-//          false, false);
+        WebServerResponseThread::sendWebSocketHeader(&mSocket,
+            sizeof(pid) + sizeof(len) + len,
+            false, false);
 
         // プロセスID送信
         mSocket.send(&pid);

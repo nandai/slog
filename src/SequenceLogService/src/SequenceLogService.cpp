@@ -205,10 +205,6 @@ SequenceLogService::SequenceLogService(slog::Socket* socket) :
     mItemQueueManager = NULL;
     mStockItems =       NULL;
 
-    uint32_t id;
-    mSocket->recv(&id);
-    mProcess.setId(id);
-
     mFileInfo = NULL;
 }
 
@@ -229,16 +225,25 @@ bool SequenceLogService::init()
 
     try
     {
-        Exception e;
-        int32_t len;
+        ByteBuffer* buffer = WebServerResponseThread::recvData(mSocket, NULL);
 
-        // ログファイル名受信
-        mSocket->recv(&len);
-        mSocket->recv(&mBaseFileName, len);
+        // プロセスID取得
+        uint32_t id = buffer->getInt();
+        mProcess.setId(id);
 
+        // シーケンスログファイル名取得
+        int32_t len = buffer->getInt();
+        mBaseFileName.copy(buffer->get(len), len);
+
+        // バッファ削除
+        delete buffer;
+
+        // ファイル名チェック
         if (mBaseFileName[len - 1] != '\0')
         {
+            Exception e;
             e.setMessage("SequenceLogService::init() / receive name is not null-terminated");
+
             throw e;
         }
 
@@ -951,7 +956,7 @@ void SequenceLogService::receiveMain()
             if (isReceive == false)
                 continue;
 
-            if (WebServerResponseThread::recvData(mSocket, &buffer) == false)
+            if (WebServerResponseThread::recvData(mSocket, &buffer) == NULL)
                 break;
 
             while (true)

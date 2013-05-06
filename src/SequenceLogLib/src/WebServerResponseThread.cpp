@@ -306,7 +306,7 @@ void WebServerResponseThread::sendWebSocketHeader(Socket* socket, uint64_t paylo
 /*!
  *  \brief  データ受信
  */
-bool WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBuffer)
+ByteBuffer* WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBuffer)
 {
     ByteBuffer buffer(2 + 8 + 4);
     const char* p = buffer.getBuffer();
@@ -319,7 +319,7 @@ bool WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBuffer)
     if (opcode != 0x01 && opcode != 0x02)
     {
         noticeLog("opcode=0x%02X", opcode);
-        return false;
+        return NULL;
     }
 
     // MASK & Payload length
@@ -342,12 +342,19 @@ bool WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBuffer)
         socket->recv(&buffer, 4);
 
     // Payload Data
-    if (payloadLen != dataBuffer->getCapacity())
+    if (dataBuffer)
     {
-        Exception e;
-        e.setMessage("payloadLen=%d, dataBufferLen=%d", payloadLen, dataBuffer->getCapacity());
+        if (payloadLen != dataBuffer->getCapacity())
+        {
+            Exception e;
+            e.setMessage("payloadLen=%d, dataBufferLen=%d", payloadLen, dataBuffer->getCapacity());
 
-        throw e;
+            throw e;
+        }
+    }
+    else
+    {
+        dataBuffer = new ByteBuffer((int32_t)payloadLen);
     }
 
 //  socket->recv(dataBuffer, payloadLen);   どうするか検討
@@ -361,7 +368,7 @@ bool WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBuffer)
             p2[i] ^= p[i % 4];
     }
 
-    return true;
+    return dataBuffer;
 }
 
 } // namespace slog
