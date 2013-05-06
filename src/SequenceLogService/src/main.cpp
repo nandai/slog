@@ -152,7 +152,6 @@ void Application::main(int argc, char** argv)
     }
 
     // 初期値
-    int32_t sharedMemoryItemCount = 100;
     String logOutputDir = "/var/log/slog";
     uint32_t size = 0;
     int32_t count = 0;
@@ -177,9 +176,6 @@ void Application::main(int argc, char** argv)
 
         const CoreString& key = tokenizer.getValue("key");
         const Variant& value1 = tokenizer.getValue("value1");
-
-        if (key == "SHARED_MEMORY_ITEM_COUNT")
-            sharedMemoryItemCount = value1;
 
         if (key == "LOG_OUTPUT_DIR")
             logOutputDir.copy(value1);
@@ -236,7 +232,6 @@ void Application::main(int argc, char** argv)
     }
     else
     {
-        serviceMain.setSharedMemoryItemCount(sharedMemoryItemCount);
         serviceMain.setListener(this);
         serviceMain.setLogFolderName(logOutputDir);
         serviceMain.setMaxFileSize(size);

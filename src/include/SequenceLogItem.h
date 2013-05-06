@@ -265,22 +265,18 @@ inline PointerString SequenceLogItem::getMessage()   const {return PointerString
  */
 struct SLOG_ITEM_INFO
 {
-    SequenceLogItem item;                   //!< シーケンスログアイテム
-    uint32_t        no;                     //!< 配列№
+    SequenceLogItem item;       //!< シーケンスログアイテム
 };
 
 struct SLOG_SHM_HEADER
 {
-    uint32_t        seq;                    //!< 次に取得するシーケンス番号
-    uint32_t        index;                  //!< 次に書き込むシーケンスログアイテムのインデックス（シーケンスログサービスによってログが取り込まれたら0に戻る）
-    uint32_t        max;                    //!< 最大index（デバッグ用）
+    uint32_t        seq;        //!< 次に取得するシーケンス番号
 };
 
 struct SLOG_SHM
 {
-    SLOG_SHM_HEADER header;                 //!< 共有メモリヘッダー
-    uint32_t        count;                  //!< シーケンスログアイテム情報の配列数
-    SLOG_ITEM_INFO  infoArray[1];           //!< シーケンスログアイテム情報の配列
+    SLOG_SHM_HEADER header;     //!< 共有メモリヘッダー
+    SLOG_ITEM_INFO  info;       //!< シーケンスログアイテム情報
 };
 #pragma pack(pop)
 

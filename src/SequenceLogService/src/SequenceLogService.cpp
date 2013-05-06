@@ -241,29 +241,11 @@ bool SequenceLogService::init()
         mItemQueueManager = new ItemQueueManager;
 
         // ログバッファ（旧 - 共有メモリ）生成
-        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-        int32_t size = sizeof(SLOG_ITEM_INFO);
-        int32_t count = serviceMain->getSharedMemoryItemCount();
-        len = sizeof(SLOG_SHM) + size * (count - 1);
-
-        mSHM = (SLOG_SHM*)new char[len];
+        mSHM = new SLOG_SHM;
 
         // 初期化：共有メモリヘッダー
         SLOG_SHM_HEADER* header = &mSHM->header;
         header->seq = 1;
-        header->index = 0;
-        header->max = 0;
-
-        // 初期化：シーケンスログアイテム情報の配列数
-        mSHM->count = count;
-
-        // 初期化：シーケンスログアイテム情報の配列
-        SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[0];
-
-        for (int32_t index = 0; index < count; index++)
-        {
-            infoArray[index].no = index;
-        }
     }
     catch (Exception e)
     {
@@ -386,7 +368,7 @@ void SequenceLogService::cleanUp()
 //  if (mSocket->isOpen())
 //      mSocket->close();
 
-    delete [] (char*)mSHM;
+    delete mSHM;
     mFile.close();
 
     if (mFileInfo)
@@ -571,25 +553,12 @@ void SequenceLogService::divideItems()
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-    SLOG_SHM_HEADER* header =   &mSHM->header;
-    SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[0];
-
-    if (header->max < header->index)
-    {
-//      noticeLog("inside information: update entry item max (%d -> %d)\n", header->max, header->index);
-        header->max = header->index;
-    }
-
-//  if (header->index == mSHM->count)
-//      noticeLog("inside information: ** LIMIT ** entry item\n");
+    SLOG_SHM_HEADER* header = &mSHM->header;
+    SLOG_ITEM_INFO* info =    &mSHM->info;
 
     // 振り分け処理
-    for (int32_t index = 0; index < (int32_t)header->index; index++)
+    do
     {
-        SLOG_ITEM_INFO* info = &infoArray[index];
-        int32_t no = info->no;
-        info = &infoArray[no];
-
         const SequenceLogItem& src = info->item;
 
         if (src.mType != SequenceLogItem::STEP_IN  &&
@@ -634,7 +603,7 @@ void SequenceLogService::divideItems()
         else
             forward(queue, item);
     }
-    header->index = 0;
+    while (false);
 
     if (isInterrupted())
     {
@@ -843,7 +812,6 @@ void SequenceLogService::receiveMain()
     {
         while (true)
         {
-            SLOG_ITEM_INFO* info;
             bool isReceive = mSocket->isReceiveData(3000);
 
             if (isInterrupted())
@@ -856,39 +824,25 @@ void SequenceLogService::receiveMain()
             if (WebServerResponseThread::recvData(mSocket, &buffer) == NULL)
                 break;
 
-            while (true)
+            uint32_t threadId = item->mThreadId;
+            SLOG_SHM_HEADER* header = &mSHM->header;
+
+            if (item->mType == SequenceLogItem::STEP_IN)
             {
-                uint32_t threadId = item->mThreadId;
-                SLOG_SHM_HEADER* header = &mSHM->header;
+                item->mSeqNo = header->seq;
+                header->seq++;
 
-                if (header->index >= mSHM->count)
-                    continue;
+                ByteBuffer seqNoBuf(sizeof(item->mSeqNo));
+                seqNoBuf.putInt(item->mSeqNo);
 
-                SLOG_ITEM_INFO* infoArray = &mSHM->infoArray[0];
-                uint32_t index = header->index;
-                index = infoArray[index].no;
-
-                info = &infoArray[index];
-                header->index++;
-
-                if (item->mType == SequenceLogItem::STEP_IN)
-                {
-                    item->mSeqNo = header->seq;
-                    header->seq++;
-
-                    ByteBuffer seqNoBuf(sizeof(item->mSeqNo));
-                    seqNoBuf.putInt(item->mSeqNo);
-
-                    WebServerResponseThread::sendWebSocketHeader(mSocket, sizeof(item->mSeqNo), false);
-                    mSocket->send(&buffer, sizeof(item->mSeqNo));
-                }
-
-                info->item = *item;
-
-                divideItems();
-                writeMain();
-                break;
+                WebServerResponseThread::sendWebSocketHeader(mSocket, sizeof(item->mSeqNo), false);
+                mSocket->send(&buffer, sizeof(item->mSeqNo));
             }
+
+            mSHM->info.item = *item;
+
+            divideItems();
+            writeMain();
         }
     }
     catch (Exception e)

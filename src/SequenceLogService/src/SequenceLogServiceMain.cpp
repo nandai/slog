@@ -75,8 +75,6 @@ SequenceLogServiceMain::SequenceLogServiceMain()
 {
     sServiceMain = this;
 
-    mSharedMemoryItemCount = 100;
-
     mMaxFileSize = 1024 * 4;
     mMaxFileCount = 10;
     mWebServerPort = 0;

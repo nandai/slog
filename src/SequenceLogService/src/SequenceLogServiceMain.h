@@ -58,8 +58,6 @@ class SequenceLogServiceMain :
     public FileFindListener,
     public SequenceLogServiceThreadListener
 {
-            FixedString<MAX_PATH>               mSharedMemoryPathName;  //!< 共有メモリパス
-            int32_t                             mSharedMemoryItemCount; //!< 共有メモリに格納できるシーケンスログアイテムの最大数
             FixedString<MAX_PATH>               mLogFolderName;         //!< シーケンスログフォルダ名
             uint32_t                            mMaxFileSize;           //!< 最大ファイルサイズ
             int32_t                             mMaxFileCount;          //!< 最大ファイル数
@@ -88,10 +86,6 @@ public:     void cleanup();
 
             // シーケンスログプリント関連
             void printLog(const Buffer* text, int32_t len);
-
-            // 共有メモリ
-            int32_t getSharedMemoryItemCount() const;
-            void    setSharedMemoryItemCount(int32_t count);
 
             // その他
             SequenceLogServiceManager* getSequenceLogServiceManager() const;
@@ -130,22 +124,6 @@ private:    virtual void onFind(const CoreString& path);
             virtual void onLogFileChanged(Thread* thread);
             virtual void onUpdateLog(const Buffer* text);
 };
-
-/*!
- *  \brief  共有メモリに格納できるシーケンスログアイテムの最大数を取得
- */
-inline int32_t SequenceLogServiceMain::getSharedMemoryItemCount() const
-{
-    return mSharedMemoryItemCount;
-}
-
-/*!
- *  \brief  共有メモリに格納できるシーケンスログアイテムの最大数を設定
- */
-inline void SequenceLogServiceMain::setSharedMemoryItemCount(int32_t count)
-{
-    mSharedMemoryItemCount = count;
-}
 
 /*!
  *  \brief  シーケンスログサービスマネージャー取得
