@@ -117,62 +117,6 @@ class  SequenceLogClient;
 static SequenceLogClient*       sClient = NULL;                 //!< シーケンスログクライアントオブジェクト
 static bool                     sClientInitialized = false;     //!< 初期化フラグ
 
-#if !defined(MODERN_UI)
-/*!
- *  \brief  シーケンスログ共有メモリクラス
- */
-class SequenceLogSharedMemory : public SharedMemory<SLOG_SHM*>
-{
-public:     void validate() const throw(Exception);
-
-            SLOG_ITEM_INFO* getSequenceLogItem(uint32_t threadId, uint32_t bufferIndex, uint32_t* seq) const;
-};
-
-/*!
- *  \brief  共有メモリが有効か確認する
- */
-void SequenceLogSharedMemory::validate() const throw(Exception)
-{
-    if (getSize() < sizeof(SLOG_SHM) + sizeof(SequenceLogItem) * ((*this)->count - 1))
-    {
-        Exception e;
-        e.setMessage("SequenceLogSharedMemory::validate() / illegal shared memory size");
-
-        throw e;
-    }
-}
-
-/*!
- *  \brief  シーケンスログアイテム取得
- */
-SLOG_ITEM_INFO* SequenceLogSharedMemory::getSequenceLogItem(uint32_t threadId, uint32_t bufferIndex, uint32_t* seq) const
-{
-    SLOG_SHM* shm = getBuffer();
-    SLOG_SHM_HEADER* header = &shm->header[bufferIndex];
-
-    if (header->index >= shm->count)
-        return NULL;
-
-    SLOG_ITEM_INFO* infoArray = &shm->infoArray[bufferIndex * shm->count];
-    uint32_t index = header->index;
-    index = infoArray[index].no;
-
-    SLOG_ITEM_INFO* info = &infoArray[index];
-    header->index++;
-
-    info->item.setCurrentDateTime();
-    info->item.mThreadId = threadId;
-
-    if (seq)
-    {
-        *seq = header->seq;
-        header->seq++;
-    }
-
-    return info;
-}
-#endif
-
 /*!
  *  \brief  シーケンスログクライアントクラス
  */

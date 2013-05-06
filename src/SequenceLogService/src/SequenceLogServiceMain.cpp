@@ -326,25 +326,6 @@ void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 }
 
 /*!
- *  \brief 共有メモリパス取得
- */
-const CoreString& SequenceLogServiceMain::getSharedMemoryPathName()
-{
-    return mSharedMemoryPathName;
-}
-
-#if defined(__unix__)
-/*!
- *  \brief 共有メモリパス設定
- */
-void SequenceLogServiceMain::setSharedMemoryPathName(
-    const CoreString& pathName) //!< パス名
-{
-    mSharedMemoryPathName.format("%s/", pathName.getBuffer());
-}
-#endif
-
-/*!
  *  \brief  シーケンスログフォルダ名設定
  */
 void SequenceLogServiceMain::setLogFolderName(const CoreString& name)

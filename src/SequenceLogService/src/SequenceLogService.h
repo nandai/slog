@@ -23,7 +23,6 @@
 
 #include "SequenceLogItem.h"
 
-#include "slog/SharedMemory.h"
 #include "slog/Thread.h"
 #include "slog/File.h"
 #include "slog/Process.h"
@@ -48,7 +47,7 @@ class SequenceLogService : public Thread
 {
 private:    Socket*                 mSocket;                    //!< シーケンスログクライアントとの接続用ソケット
             Mutex*                  mMutex[SLOG_SHM::BUFFER_COUNT]; //!< ミューテックス
-            SharedMemory<SLOG_SHM*> mSHM;                       //!< 共有メモリ
+            SLOG_SHM*               mSHM;                       //!< 共有メモリ
 
             Process                 mProcess;                   //!< プロセスオブジェクト
 

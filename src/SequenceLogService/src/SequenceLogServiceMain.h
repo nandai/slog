@@ -89,11 +89,7 @@ public:     void cleanup();
             // シーケンスログプリント関連
             void printLog(const Buffer* text, int32_t len);
 
-            // 共有メモリパス
-            const CoreString& getSharedMemoryPathName();
-#if defined(__unix__)
-            void setSharedMemoryPathName(const CoreString& pathName);
-#endif
+            // 共有メモリ
             int32_t getSharedMemoryItemCount() const;
             void    setSharedMemoryItemCount(int32_t count);
 

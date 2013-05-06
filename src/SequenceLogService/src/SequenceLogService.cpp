@@ -254,31 +254,13 @@ bool SequenceLogService::init()
         mOutputList =       new ItemList;
         mItemQueueManager = new ItemQueueManager;
 
-        // 共有メモリ生成
+        // ログバッファ（旧 - 共有メモリ）生成
         SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
         int32_t size = sizeof(SLOG_ITEM_INFO);
         int32_t count = serviceMain->getSharedMemoryItemCount();
         len = sizeof(SLOG_SHM) + size * (count * SLOG_SHM::BUFFER_COUNT - 1);
 
-#if defined(_WINDOWS)
-        shmName.format(
-            "slogshm%d",
-            mProcess.getId());
-#else
-        FileInfo fileInfo(serviceMain->getSharedMemoryPathName());
-        const CoreString& canonicalPath = fileInfo.getCanonicalPath();
-
-        shmName.format(
-            "%s%cslogshm%d",
-            canonicalPath.getBuffer(),
-            PATH_DELIMITER,
-            mProcess.getId());
-
-        FileInfo fileInfo2(shmName);
-        fileInfo2.mkdir();
-#endif
-
-        mSHM.create(shmName, len);
+        mSHM = (SLOG_SHM*)new char[len];
 
         // ミューテックス生成
         for (int32_t index = 0; index < SLOG_SHM::BUFFER_COUNT; index++)
@@ -473,7 +455,7 @@ void SequenceLogService::cleanUp()
 //  if (mSocket->isOpen())
 //      mSocket->close();
 
-    mSHM. close();
+    delete [] (char*)mSHM;
     mFile.close();
 
     if (mFileInfo)

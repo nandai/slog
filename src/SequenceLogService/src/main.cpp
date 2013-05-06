@@ -152,7 +152,6 @@ void Application::main(int argc, char** argv)
     }
 
     // 初期値
-    String sharedMemoryDir = "/tmp";
     int32_t sharedMemoryItemCount = 100;
     String logOutputDir = "/var/log/slog";
     uint32_t size = 0;
@@ -178,9 +177,6 @@ void Application::main(int argc, char** argv)
 
         const CoreString& key = tokenizer.getValue("key");
         const Variant& value1 = tokenizer.getValue("value1");
-
-        if (key == "SHARED_MEMORY_DIR")
-            sharedMemoryDir.copy(value1);
 
         if (key == "SHARED_MEMORY_ITEM_COUNT")
             sharedMemoryItemCount = value1;
@@ -229,13 +225,6 @@ void Application::main(int argc, char** argv)
     // サービス起動
     SequenceLogServiceMain serviceMain;
     int32_t check = 0x00;
-
-#if defined(__unix__)
-    serviceMain.setSharedMemoryPathName(sharedMemoryDir);
-
-    if (isDirectoryPermissionAllow(sharedMemoryDir) == false)
-        check |= 0x01;
-#endif
 
     if (isDirectoryPermissionAllow(logOutputDir) == false)
         check |= 0x02;
