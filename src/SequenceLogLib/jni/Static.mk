@@ -14,6 +14,7 @@ LOCAL_SRC_FILES := \
     ../src/FileFind.cpp \
     ../src/FileInfo.cpp \
     ../src/HttpRequest.cpp \
+    ../src/HttpResponse.cpp \
     ../src/Json.cpp \
     ../src/Socket.cpp \
     ../src/Thread.cpp \

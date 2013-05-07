@@ -24,6 +24,7 @@ objs = \
 	FileFind.o \
 	FileInfo.o \
 	HttpRequest.o \
+	HttpResponse.o \
 	Json.o \
 	Socket.o \
 	Thread.o \
