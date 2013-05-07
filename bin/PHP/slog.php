@@ -1,6 +1,6 @@
 <?php
 function slogSetFileName($name) {}
-function slogSetServiceAddress($address) {}
+function slogSetServiceAddress($address, $port) {}
 function slogEnableOutput($enable) {}
 function slogStepIn($className, $funcName) {}
 function slogStepOut($slog) {}
