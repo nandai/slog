@@ -88,6 +88,7 @@ void WebServerThread::run()
 
             if (response)
             {
+                onResponseStart(response);
                 response->start();
             }
             else

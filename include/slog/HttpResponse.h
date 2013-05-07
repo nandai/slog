@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,27 @@
  */
 
 /*!
- *  \file   SequenceLogServiceWebServer.h
- *  \brief  シーケンスログサービスWEBサーバークラス
- *  \author Copyright 2013 printf.jp
+ *  \file   HttpResponse.h
+ *  \brief  httpレスポンスクラス
+ *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
-#include "slog/WebServerThread.h"
+#include "slog/slog.h"
 
 namespace slog
 {
+class Socket;
 
 /*!
- *  \brief  シーケンスログサービスWEBサーバースレッドクラス
+ *  \brief  httpレスポンスクラス
  */
-class SequenceLogServiceWebServerThread : public WebServerThread
+class SLOG_API HttpResponse
 {
-            virtual const CREATE* getCreateList() const;
-protected:  virtual void run();
+            Socket* mSocket;
+
+public:     HttpResponse(Socket* socket);
+
+public:     bool analizeResponse();
 };
 
 } // namespace slog

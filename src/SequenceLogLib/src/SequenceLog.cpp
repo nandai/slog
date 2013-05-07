@@ -27,7 +27,10 @@
 #include "slog/TimeSpan.h"
 #include "slog/Process.h"
 #include "slog/FixedString.h"
+#include "slog/String.h"
+
 #include "slog/WebServerResponseThread.h"
+#include "slog/HttpResponse.h"
 
 #if !defined(MODERN_UI)
 #include "slog/SharedMemory.h"
@@ -193,7 +196,25 @@ void SequenceLogClient::init()
 
             mSocket.open();
             mSocket.setRecvTimeOut(3000);
-            mSocket.connect(address, SERVICE_PORT);
+            mSocket.connect(address, 8080);
+        }
+
+        // WebSocketアップグレード
+        String upgrade =
+            "GET /outputLog HTTP/1.1\r\n"
+            "Upgrade: websocket\r\n"
+            "Sec-WebSocket-Key: m31EnckktzJZ/3ZWkvwNHQ==\r\n"
+            "Sec-WebSocket-Version: 13\r\n"
+            "\r\n";
+
+        mSocket.send(&upgrade, upgrade.getLength());
+
+        // WebSocketアップグレードレスポンス受信
+        HttpResponse httpResponse(&mSocket);
+
+        if (httpResponse.analizeResponse() == false)
+        {
+            return;
         }
 
         // WebSocketヘッダー送信

@@ -23,7 +23,7 @@
 
 #include "SequenceLogItem.h"
 
-#include "slog/Thread.h"
+#include "slog/WebServerResponseThread.h"
 #include "slog/File.h"
 #include "slog/Process.h"
 #include "slog/FixedString.h"
@@ -43,10 +43,9 @@ typedef std::map<uint32_t, ItemQueue*> ItemQueueManager;        // キーはス�
 /*!
  *  \brief  シーケンスログサービスクラス
  */
-class SequenceLogService : public Thread
+class SequenceLogService : public WebServerResponseThread
 {
-private:    Socket*                 mSocket;                    //!< シーケンスログクライアントとの接続用ソケット
-            SLOG_SHM*               mSHM;                       //!< 共有メモリ
+private:    SLOG_SHM*               mSHM;                       //!< ログバッファ（旧 - 共有メモリ）
 
             Process                 mProcess;                   //!< プロセスオブジェクト
 
@@ -63,8 +62,8 @@ private:    Socket*                 mSocket;                    //!< シーケ�
             FileInfo*               mFileInfo;                  //!< シーケンスログファイル情報
 
             // 初期化 / 破棄
-public:      SequenceLogService(Socket* socket);
-            ~SequenceLogService();
+public:     SequenceLogService(HttpRequest* httpRequest);
+            virtual ~SequenceLogService();
 
 private:    virtual bool init();
 

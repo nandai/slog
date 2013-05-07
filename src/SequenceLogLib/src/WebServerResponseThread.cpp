@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   WebServerResponseThread.cpp
- *  \brief  WEBƒT[ƒo[‰“šƒXƒŒƒbƒhƒNƒ‰ƒX
+ *  \brief  WEBã‚µãƒ¼ãƒãƒ¼å¿œç­”ã‚¹ãƒ¬ãƒƒãƒ‰ã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/WebServerResponseThread.h"
@@ -32,7 +32,7 @@ namespace slog
 {
 
 /*!
- *  \brief  ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+ *  \brief  ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
 {
@@ -40,7 +40,7 @@ WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
 }
 
 /*!
- *  \brief  ƒfƒXƒgƒ‰ƒNƒ^
+ *  \brief  ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 WebServerResponseThread::~WebServerResponseThread()
 {
@@ -48,20 +48,20 @@ WebServerResponseThread::~WebServerResponseThread()
 }
 
 /*!
- *  \brief  ‘—M
+ *  \brief  é€ä¿¡
  */
 void WebServerResponseThread::send(const CoreString& content) const
 {
-    // HTTPƒwƒbƒ_[‘—M
+    // HTTPãƒ˜ãƒƒãƒ€ãƒ¼é€ä¿¡
     int32_t contentLen = content.getLength();
     sendHttpHeader(contentLen);
 
-    // ƒRƒ“ƒeƒ“ƒc‘—M
+    // ã‚³ãƒ³ãƒ†ãƒ³ãƒ„é€ä¿¡
     sendContent(content);
 }
 
 /*!
- *  \brief  HTTPƒwƒbƒ_[‘—Mi•Ø’fj
+ *  \brief  HTTPãƒ˜ãƒƒãƒ€ãƒ¼é€ä¿¡ï¼ˆï¼†åˆ‡æ–­ï¼‰
  */
 void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 {
@@ -81,7 +81,7 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 }
 
 /*!
- *  \brief  ‰“š“à—e‘—M•Ø’f
+ *  \brief  å¿œç­”å†…å®¹é€ä¿¡ï¼†åˆ‡æ–­
  */
 void WebServerResponseThread::sendContent(const CoreString& content) const
 {
@@ -92,7 +92,7 @@ void WebServerResponseThread::sendContent(const CoreString& content) const
 }
 
 /*!
- *  \brief  Às
+ *  \brief  å®Ÿè¡Œ
  */
 void WebServerResponseThread::run()
 {
@@ -116,7 +116,7 @@ void WebServerResponseThread::run()
         }
         while (false);
 
-        // ‘—M
+        // é€ä¿¡
         send(content);
     }
     catch (Exception& e)
@@ -126,7 +126,7 @@ void WebServerResponseThread::run()
 }
 
 /*!
- *  \brief  ƒRƒ“ƒeƒ“ƒcæ“¾
+ *  \brief  ã‚³ãƒ³ãƒ†ãƒ³ãƒ„å–å¾—
  */
 bool WebServerResponseThread::getContents(String* content, const char* url)
 {
@@ -157,7 +157,7 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
 
             while (true)
             {
-                // DOMAIN•ÏŠ·
+                // DOMAINå¤‰æ›
                 const char* find = "<? DOMAIN ?>";
                 int32_t pos = buffer.indexOf(find, index);
 
@@ -169,7 +169,7 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
                     continue;
                 }
 
-                // WS•ÏŠ·
+                // WSå¤‰æ›
                 find = "<? WS ?>";
                 pos = buffer.indexOf(find);
 
@@ -183,7 +183,7 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
                     index = (int32_t)(pos + strlen(find));
                 }
 
-                // ‚»‚Ì‘¼
+                // ãã®ä»–
                 content->append(p + index);
                 break;
             }
@@ -201,7 +201,7 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
 }
 
 /*!
- *  \brief  WebSocket‚ÉƒAƒbƒvƒOƒŒ[ƒh
+ *  \brief  WebSocketã«ã‚¢ãƒƒãƒ—ã‚°ãƒ¬ãƒ¼ãƒ‰
  */
 bool WebServerResponseThread::upgradeWebSocket()
 {
@@ -223,7 +223,7 @@ bool WebServerResponseThread::upgradeWebSocket()
     String resValue;
     Util::encodeBase64(&resValue, (char*)digest, SHA1HashSize);
 
-    // ‰“š“à—e‘—M
+    // å¿œç­”å†…å®¹é€ä¿¡
     String str;
     str.format(
         "HTTP/1.1 101 OK\r\n"
@@ -238,7 +238,7 @@ bool WebServerResponseThread::upgradeWebSocket()
 }
 
 /*!
- *  \brief  WebSocketƒwƒbƒ_[‘—M
+ *  \brief  WebSocketãƒ˜ãƒƒãƒ€ãƒ¼é€ä¿¡
  */
 void WebServerResponseThread::sendWebSocketHeader(uint64_t payloadLen, bool isText, bool toClient) const
 {
@@ -270,18 +270,18 @@ void WebServerResponseThread::sendWebSocketHeader(Socket* socket, uint64_t paylo
     // MASK & Payload length
     if (payloadLen < 126)
     {
-        // 0 ` 125 bytes
+        // 0 ï½ 125 bytes
         buffer.put(mask | (char)payloadLen);
     }
     else if (payloadLen <= 0xFFFF)
     {
-        // 126 ` 65535 bytes
+        // 126 ï½ 65535 bytes
         buffer.put(mask | (char)126);
         buffer.putShort((short)payloadLen);
     }
     else
     {
-        // 65536 `
+        // 65536 ï½
         buffer.put(mask | (char)127);
         buffer.putLong(payloadLen);
     }
@@ -299,8 +299,14 @@ void WebServerResponseThread::sendWebSocketHeader(Socket* socket, uint64_t paylo
 }
 
 /*!
- *  \brief  ƒf[ƒ^óM
+ *  \brief  ãƒ‡ãƒ¼ã‚¿å—ä¿¡
  */
+ByteBuffer* WebServerResponseThread::recvData(ByteBuffer* dataBuffer) const
+{
+    Socket* socket = mHttpRequest->getSocket();
+    return recvData(socket, dataBuffer);
+}
+
 ByteBuffer* WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBuffer)
 {
     ByteBuffer buffer(2 + 8 + 4);
@@ -352,7 +358,7 @@ ByteBuffer* WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBu
         dataBuffer = new ByteBuffer((int32_t)payloadLen);
     }
 
-//  socket->recv(dataBuffer, payloadLen);   ‚Ç‚¤‚·‚é‚©ŒŸ“¢
+//  socket->recv(dataBuffer, payloadLen);   ã©ã†ã™ã‚‹ã‹æ¤œè¨
     socket->recv(dataBuffer, (int32_t)payloadLen);
 
     if (mask)

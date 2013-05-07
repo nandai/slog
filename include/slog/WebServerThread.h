@@ -49,9 +49,10 @@ public:     WebServerThread();
             uint16_t getPort() const;
             void     setPort(uint16_t port);
 
-private:    virtual void run();
+protected:  virtual void run();
+            virtual void onResponseStart(WebServerResponseThread* response) {}
 
-            virtual const CREATE* getCreateList() const = 0;
+private:    virtual const CREATE* getCreateList() const = 0;
             WebServerResponseThread* createResponse(HttpRequest* httpRequest);
 };
 

@@ -153,6 +153,9 @@ bool HttpRequest::analizeRequest()
 
                 if (analizeUrl(request, i, POST) == -1)
                     return false;
+
+                if (mMethod == UNKNOWN)
+                    return false;
             }
             else
             {

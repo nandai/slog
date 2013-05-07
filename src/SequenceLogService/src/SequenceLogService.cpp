@@ -26,7 +26,7 @@
 #include "slog/Mutex.h"
 #include "slog/FileInfo.h"
 #include "slog/DateTimeFormat.h"
-#include "slog/WebServerResponseThread.h"
+#include "slog/HttpRequest.h"
 
 #if defined(__unix__)
     #define stricmp strcasecmp
@@ -181,10 +181,9 @@ public:     long        mAlwaysCount;       //!< 常出力カウンタ（1以上
 /*!
  *  \brief  コンストラクタ
  */
-SequenceLogService::SequenceLogService(slog::Socket* socket) :
+SequenceLogService::SequenceLogService(HttpRequest* httpRequest) : WebServerResponseThread(httpRequest),
     mFileOutputBuffer(1024 * 2)
 {
-    mSocket = socket;
     mSHM = NULL;
 
     mOutputList =       NULL;
@@ -199,7 +198,6 @@ SequenceLogService::SequenceLogService(slog::Socket* socket) :
  */
 SequenceLogService::~SequenceLogService()
 {
-    delete mSocket;
 }
 
 /*!
@@ -209,9 +207,13 @@ bool SequenceLogService::init()
 {
     bool result = true;
 
+    if (upgradeWebSocket() == false)
+        return false;
+
     try
     {
-        ByteBuffer* buffer = WebServerResponseThread::recvData(mSocket, NULL);
+        Socket* socket = mHttpRequest->getSocket();
+        ByteBuffer* buffer = WebServerResponseThread::recvData(socket, NULL);
 
         // プロセスID取得
         uint32_t id = buffer->getInt();
@@ -261,9 +263,7 @@ bool SequenceLogService::init()
 void SequenceLogService::run()
 {
     receiveMain();
-
     cleanUp();
-    mSocket->close();
 }
 
 /*!
@@ -806,9 +806,11 @@ void SequenceLogService::receiveMain()
 
     try
     {
+        Socket* socket = mHttpRequest->getSocket();
+
         while (true)
         {
-            bool isReceive = mSocket->isReceiveData(3000);
+            bool isReceive = socket->isReceiveData(3000);
 
             if (isInterrupted())
                 break;
@@ -817,7 +819,7 @@ void SequenceLogService::receiveMain()
                 continue;
 
             // シーケンスログアイテム受信
-            if (WebServerResponseThread::recvData(mSocket, &buffer) == NULL)
+            if (WebServerResponseThread::recvData(socket, &buffer) == NULL)
                 break;
 
             uint32_t threadId = item->mThreadId;
@@ -830,8 +832,8 @@ void SequenceLogService::receiveMain()
                 ByteBuffer seqNoBuf(sizeof(item->mSeqNo));
                 seqNoBuf.putInt(item->mSeqNo);
 
-                WebServerResponseThread::sendWebSocketHeader(mSocket, sizeof(item->mSeqNo), false);
-                mSocket->send(&seqNoBuf, sizeof(item->mSeqNo));
+                WebServerResponseThread::sendWebSocketHeader(socket, sizeof(item->mSeqNo), false);
+                socket->send(&seqNoBuf, sizeof(item->mSeqNo));
             }
 
             mSHM->info.item = *item;

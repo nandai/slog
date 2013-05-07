@@ -21,7 +21,6 @@
  */
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
-#include "SequenceLogServiceWebServer.h"
 
 #include "slog/Mutex.h"
 #include "slog/TimeSpan.h"
@@ -77,15 +76,12 @@ SequenceLogServiceMain::SequenceLogServiceMain()
 
     mMaxFileSize = 1024 * 4;
     mMaxFileCount = 10;
-    mWebServerPort = 0;
 
     mMutex = new Mutex;
     ScopedLock lock(mMutex, false);
 
     mStartRunTime = false;
     mOutputScreen = true;
-
-    mWebServer = new SequenceLogServiceWebServerThread;
 }
 
 /*!
@@ -94,9 +90,7 @@ SequenceLogServiceMain::SequenceLogServiceMain()
 SequenceLogServiceMain::~SequenceLogServiceMain()
 {
     deleteFileInfoArray();
-
     delete mMutex;
-    delete mWebServer;
 }
 
 /*!
@@ -161,64 +155,22 @@ void SequenceLogServiceMain::addFileInfo(FileInfo* info)
  */
 void SequenceLogServiceMain::run()
 {
-    TRACE("[S] SequenceLogServiceMain::run()\n", 0);
-    Socket* socket = NULL;
-
-    try
-    {
-        // サーバーソケット作成
-#if !defined(__ANDROID__) || !defined(__EXEC__) || 1
-        mSocket.open();
-        mSocket.setReUseAddress(true);
-
-        mSocket.bind(SERVICE_PORT);
-        mSocket.listen();
-#else
-        mSocket.open(false);
-        mSocket.setReUseAddress(true);
-
-        mSocket.bind(FixedString<108>("/dev/socket/slog"));
-        mSocket.listen();
-#endif
-    }
-    catch (Exception e)
-    {
-        noticeLog("%s\n", e.getMessage());
-        cleanup();
-        return;
-    }
-
-    while (true)
-    {
-        try
-        {
-            bool isReceive = mSocket.isReceiveData(3000);
-
-            if (isInterrupted())
-                break;
-
-            if (isReceive == false)
-                continue;
-
-            socket = new Socket();
-            socket->accept(&mSocket);
-
-            SequenceLogService* service = new SequenceLogService(socket);
-            mServiceManager.push_back(service);
-
-            service->setListener(this);
-            service->start();
-        }
-        catch (Exception /*e*/)
-        {
-            delete socket;
-        }
-
-        socket = NULL;
-    }
-
+    SequenceLogServiceWebServerThread::run();
     cleanup();
-    TRACE("[E] SequenceLogServiceMain::run()\n", 0);
+}
+
+/*!
+ *  \brief  onResponseStart
+ */
+void SequenceLogServiceMain::onResponseStart(WebServerResponseThread* response)
+{
+    SequenceLogService* service = dynamic_cast<SequenceLogService*>(response);
+
+    if (service)
+    {
+        mServiceManager.push_back(service);
+        service->setListener(this);
+    }
 }
 
 /*!
@@ -226,30 +178,20 @@ void SequenceLogServiceMain::run()
  */
 void SequenceLogServiceMain::cleanup()
 {
-    long index = 0;
-
-    do
+    for (SequenceLogServiceManager::iterator i = mServiceManager.begin(); i != mServiceManager.end(); i++)
     {
-        index = 0;
-
-        for (SequenceLogServiceManager::iterator i = mServiceManager.begin(); i != mServiceManager.end(); i++)
-        {
-            SequenceLogService* service = *i;
-
-            if (service->isAlive())
-            {
-                index++;
-                service->interrupt();
-            }
-        }
+        SequenceLogService* service = *i;
+        service->interrupt();
     }
-    while (index);
 
     for (SequenceLogServiceManager::iterator i = mServiceManager.begin(); i != mServiceManager.end(); i++)
-        delete *i;
+    {
+        SequenceLogService* service = *i;
+        service->join();
+        delete service;
+    }
 
     mServiceManager.clear();
-    mSocket.close();
 }
 
 /*!
@@ -381,7 +323,7 @@ void SequenceLogServiceMain::setMaxFileCount(int32_t count)
  */
 uint16_t SequenceLogServiceMain::getWebServerPort() const
 {
-    return mWebServerPort;
+    return getPort();
 }
 
 /*!
@@ -389,19 +331,14 @@ uint16_t SequenceLogServiceMain::getWebServerPort() const
  */
 void SequenceLogServiceMain::setWebServerPort(uint16_t port)
 {
-    if (mWebServerPort == port)
+    if (getPort() == port)
         return;
 
-    if (mWebServer->isAlive())
-    {
-//      Util::stopThread(mWebServer, mWebServerPort);
-        mWebServer->interrupt();
-        mWebServer->join();
-    }
+    interrupt();
+    join();
 
-    mWebServerPort = port;
-    mWebServer->setPort(port);
-    mWebServer->start();
+    setPort(port);
+    start();
 }
 
 /*!

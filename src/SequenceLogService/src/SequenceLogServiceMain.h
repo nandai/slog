@@ -27,14 +27,15 @@
 #include "slog/FixedString.h"
 #include "slog/String.h"
 
+#include "SequenceLogServiceWebServer.h"
 #include <list>
 
 namespace slog
 {
 class FileInfo;
 class Mutex;
+class WebServerResponseThread;
 class SequenceLogService;
-class SequenceLogServiceWebServerThread;
 class SequenceLogServiceThreadListener;
 
 typedef std::list<SequenceLogService*>                  SequenceLogServiceManager;
@@ -54,24 +55,20 @@ public:     virtual void onLogFileChanged(Thread* thread) {}
  *  \brief  シーケンスログサービスメインクラス
  */
 class SequenceLogServiceMain :
-    public Thread,
+    public SequenceLogServiceWebServerThread,
     public FileFindListener,
     public SequenceLogServiceThreadListener
 {
             FixedString<MAX_PATH>               mLogFolderName;         //!< シーケンスログフォルダ名
             uint32_t                            mMaxFileSize;           //!< 最大ファイルサイズ
             int32_t                             mMaxFileCount;          //!< 最大ファイル数
-            uint16_t                            mWebServerPort;         //!< シーケンスログWEBサーバーポート
 
-            Socket                              mSocket;                //!< シーケンスログクライアントの接続待ち受けソケット
             SequenceLogServiceManager           mServiceManager;        //!< シーケンスログサービスマネージャー
             FileInfoArray                       mFileInfoArray;         //!< シーケンスログファイル情報
 
             Mutex*                              mMutex;
             bool                                mStartRunTime;
             bool                                mOutputScreen;          //!< ログを画面に表示するかどうか
-
-            SequenceLogServiceWebServerThread*  mWebServer;             //!< シーケンスログWEBサーバースレッド
 
             String                              mSequenceLogServerIp;   //!< シーケンスログサーバーIP
             uint16_t                            mSequenceLogServerPort; //!< シーケンスログサーバーポート
@@ -82,6 +79,7 @@ public:     SequenceLogServiceMain();
             static SequenceLogServiceMain* getInstance();
 
 private:    virtual void run();
+            virtual void onResponseStart(WebServerResponseThread* response);
 public:     void cleanup();
 
             // シーケンスログプリント関連
