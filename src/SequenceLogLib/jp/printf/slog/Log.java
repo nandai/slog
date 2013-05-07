@@ -33,7 +33,7 @@ public final class Log
      * シーケンスログファイル名設定
      */
     public native static void setFileName(String name);
-    public native static void setServiceAddress(String address);
+    public native static void setServiceAddress(String address, int port);
 //  public native static void setRootFlag(int outputFlag);
     public native static void enableOutput(boolean enable);
 

@@ -331,14 +331,7 @@ uint16_t SequenceLogServiceMain::getWebServerPort() const
  */
 void SequenceLogServiceMain::setWebServerPort(uint16_t port)
 {
-    if (getPort() == port)
-        return;
-
-    interrupt();
-    join();
-
     setPort(port);
-    start();
 }
 
 /*!

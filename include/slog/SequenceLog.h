@@ -48,7 +48,7 @@
 //  #define SLOG_STEPIN2(classID,   funcName)               void* _slog = _slog_stepIn2(classID,   funcName)
 //  #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = _slog_stepIn3(classID,   funcID,   outputFlag)
 //  #define SLOG_STEPIN3(classID,   funcID)                 void* _slog = _slog_stepIn3(classID,   funcID)
-    #define SLOG_STEPOUT                _slog_stepOut(_slog)
+    #define SLOG_STEPOUT                _slog_stepOut( _slog)
     #define SMSGC( level, format, ...)  _slog_message( _slog, level, format, __VA_ARGS__)
 //  #define SMSGC2(level, messageID)    _slog_message2(_slog, level, messageID)
 
@@ -125,7 +125,7 @@ SLOG_API void  _slog_message( void* p, int32_t          level, const char* forma
 //OG_API void  _slog_message2(void* p, int32_t          level, uint32_t messageID);
 
 SLOG_API void setSequenceLogFileName(const char* fileName);
-SLOG_API void setSequenceLogServiceAddress(const char* address);
+SLOG_API void setSequenceLogServiceAddress(const char* address, uint16_t port);
 //OG_API void setRootFlag(int32_t outputFlag);
 SLOG_API void enableOutput(int32_t enable);
 

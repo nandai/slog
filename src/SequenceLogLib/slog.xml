@@ -20,7 +20,7 @@ This is Sequence Log Library.
 
   <release>
     <version>1.2.3</version>
-    <date>2012-11-11</date>
+    <date>2013-05-07</date>
     <state>stable</state>
     <notes><?data
 - Initial release.
@@ -47,9 +47,9 @@ This is Sequence Log Library.
     </function>
 
     <function name="slogSetServiceAddress">
-      <proto>void slogSetServiceAddress(string address)</proto>
+      <proto>void slogSetServiceAddress(string address, int port)</proto>
       <code>
-        setSequenceLogServiceAddress(address);
+        setSequenceLogServiceAddress(address, (uint16_t)port);
       </code>
     </function>
 

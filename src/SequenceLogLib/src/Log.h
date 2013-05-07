@@ -56,7 +56,7 @@ public:
 private:    Log() {}
 
 public:     static void SetFileName(String^ aName);
-            static void SetServiceAddress(String^ address);
+            static void SetServiceAddress(String^ address, uint16_t port);
 //          static void SetRootFlag(int32_t outputFlag);
             static void EnableOutput(bool enable);
 

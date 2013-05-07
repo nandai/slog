@@ -49,7 +49,7 @@ void Log::SetFileName(String^ aName)
 /*!
  *  \brief  シーケンスログサービスのアドレスを設定する
  */
-void Log::SetServiceAddress(String^ aAddress)
+void Log::SetServiceAddress(String^ aAddress, uint16_t port)
 {
 #if !defined(MODERN_UI)
     slog::CSharpString address = aAddress;
@@ -57,7 +57,7 @@ void Log::SetServiceAddress(String^ aAddress)
     slog::String address;
     address.conv(aAddress->Data());
 #endif
-    setSequenceLogServiceAddress(address.getBuffer());
+    setSequenceLogServiceAddress(address.getBuffer(), port);
 }
 
 /*!

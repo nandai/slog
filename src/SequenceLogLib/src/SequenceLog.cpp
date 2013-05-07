@@ -114,6 +114,7 @@ namespace slog
 
 static char                     sSequenceLogFileName[MAX_PATH + 1] = "";            //!< シーケンスログファイル名
 static char                     sSequenceLogServiceAddress[255 + 1] = "127.0.0.1";  //!< シーケンスログサービスアドレス
+static uint16_t                 sSequenceLogServicePort = 8080;                     //!< シーケンスログサービスポート
 static SequenceLogOutputFlag    sRootFlag = ROOT;
 
 class  SequenceLogClient;
@@ -196,7 +197,7 @@ void SequenceLogClient::init()
 
             mSocket.open();
             mSocket.setRecvTimeOut(3000);
-            mSocket.connect(address, 8080);
+            mSocket.connect(address, sSequenceLogServicePort);
         }
 
         // WebSocketアップグレード
@@ -485,11 +486,12 @@ extern "C" void setSequenceLogFileName(const char* fileName)
 /*!
  *  \brief  シーケンスログサービスのアドレスを設定する
  */
-extern "C" void setSequenceLogServiceAddress(const char* address)
+extern "C" void setSequenceLogServiceAddress(const char* address, uint16_t port)
 {
     if (strlen(address) <= sizeof(slog::sSequenceLogServiceAddress) - 1)
     {
         strcpy(slog::sSequenceLogServiceAddress, address);
+        slog::sSequenceLogServicePort = port;
     }
 }
 
