@@ -366,7 +366,10 @@ ByteBuffer* WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBu
         char* p2 = dataBuffer->getBuffer();
 
         for (uint64_t i = 0; i < payloadLen; i++)
+        {
+//          noticeLog("%03u: %02X ^ %02X = %02X", i, (uint8_t)p2[i], (uint8_t)p[i % 4], (uint8_t)(p2[i] ^ p[i % 4]));
             p2[i] ^= p[i % 4];
+        }
     }
 
     return dataBuffer;

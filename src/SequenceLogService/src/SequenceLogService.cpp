@@ -561,7 +561,7 @@ void SequenceLogService::divideItems()
             src.mType != SequenceLogItem::STEP_OUT &&
             src.mType != SequenceLogItem::MESSAGE)
         {
-            TRACE("Illegal value: src.mType=%d\n", src.mType);
+            noticeLog("Illegal value: src.mType=%d\n", src.mType);
             interrupt();
             break;
         }
@@ -846,6 +846,9 @@ void SequenceLogService::receiveMain()
     {
         noticeLog("receiveMain: %s", e.getMessage());
     }
+
+    divideItems();
+    writeMain();
 }
 
 } // namespace slog
