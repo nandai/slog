@@ -47,28 +47,26 @@ void GetLogResponse::run()
 
         while (true)
         {
-            if (socket->isReceiveData(1 * 1000))
-            {
-                ByteBuffer buffer(1);
-                socket->recv(&buffer, buffer.getLength());
-
-                const char* p = buffer.getBuffer();
-
-                String str;
-                str.format("%02X", (uint32_t)(uint8_t)p[0]);
-                noticeLog(str.getBuffer());
-
-//              if ((p[0] & 0x0F) == 0x08)
-//                  break;
-            }
+            bool isReceive = socket->isReceiveData(1000);
 
             if (isInterrupted())
                 break;
+
+            if (isReceive == false)
+                continue;
+
+            ByteBuffer* buffer = recvData(socket, NULL);
+
+            if (buffer)
+            {
+                noticeLog("GetLobResponse: データを受信する予定はない");
+                delete buffer;
+            }
         }
     }
     catch (Exception& e)
     {
-        noticeLog(e.getMessage());
+        noticeLog("GetLogResponse: %s", e.getMessage());
     }
 }
 

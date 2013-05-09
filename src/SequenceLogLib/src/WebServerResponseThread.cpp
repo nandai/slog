@@ -309,6 +309,11 @@ ByteBuffer* WebServerResponseThread::recvData(ByteBuffer* dataBuffer) const
 
 ByteBuffer* WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBuffer)
 {
+    #define OPE_TEXT    0x01
+    #define OPE_BINARY  0x02
+    #define OPE_CLOSE   0x08
+    #define OPE_PONG    0x0A
+
     ByteBuffer buffer(2 + 8 + 4);
     const char* p = buffer.getBuffer();
 
@@ -317,9 +322,12 @@ ByteBuffer* WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBu
     // opcode
     char opcode = p[0] & 0x0F;
 
-    if (opcode != 0x01 && opcode != 0x02)
+    if (opcode != OPE_TEXT &&
+        opcode != OPE_BINARY &&
+        opcode != OPE_CLOSE &&
+        opcode != OPE_PONG)
     {
-        noticeLog("opcode=0x%02X", opcode);
+        noticeLog("unknown opcode=0x%02X", opcode);
         return NULL;
     }
 
@@ -343,33 +351,64 @@ ByteBuffer* WebServerResponseThread::recvData(Socket* socket, ByteBuffer* dataBu
         socket->recv(&buffer, 4);
 
     // Payload Data
+    ByteBuffer* newDataBuffer = NULL;
+
     if (dataBuffer)
     {
-        if (payloadLen != dataBuffer->getCapacity())
+        if (opcode == OPE_TEXT || opcode == OPE_BINARY)
         {
-            Exception e;
-            e.setMessage("payloadLen=%d, dataBufferLen=%d", payloadLen, dataBuffer->getCapacity());
+            // 受信バッファが指定されていて、受信データ（テキスト／バイナリ）長が異なる場合は例外スロー
+            if (payloadLen != dataBuffer->getCapacity())
+            {
+                Exception e;
+                e.setMessage("opcode=0x%02X, payloadLen=%d, dataBufferLen=%d", opcode, payloadLen, dataBuffer->getCapacity());
 
-            throw e;
+                throw e;
+            }
+        }
+        else
+        {
+            // 受信バッファが指定されていて、OPE_TEXTでもOPE_BINARYでもない場合は、
+            // 指定された受信バッファのサイズが受信データ長未満の可能性を考慮して
+            // 内部で確保するバッファを使用することとし、受信バッファは一旦NULLにする
+            dataBuffer = NULL;
         }
     }
-    else
+
+    if (dataBuffer == NULL)
     {
-        dataBuffer = new ByteBuffer((int32_t)payloadLen);
+        if (payloadLen != 0)
+        {
+            newDataBuffer = new ByteBuffer((int32_t)payloadLen);
+            dataBuffer = newDataBuffer;
+        }
     }
 
-//  socket->recv(dataBuffer, payloadLen);   どうするか検討
-    socket->recv(dataBuffer, (int32_t)payloadLen);
-
-    if (mask)
+    if (payloadLen != 0)
     {
-        char* p2 = dataBuffer->getBuffer();
+//      socket->recv(dataBuffer, payloadLen);   どうするか検討
+        socket->recv(dataBuffer, (int32_t)payloadLen);
 
-        for (uint64_t i = 0; i < payloadLen; i++)
+        if (mask)
         {
-//          noticeLog("%03u: %02X ^ %02X = %02X", i, (uint8_t)p2[i], (uint8_t)p[i % 4], (uint8_t)(p2[i] ^ p[i % 4]));
-            p2[i] ^= p[i % 4];
+            char* p2 = dataBuffer->getBuffer();
+
+            for (uint64_t i = 0; i < payloadLen; i++)
+            {
+//              noticeLog("%03u: %02X ^ %02X = %02X", i, (uint8_t)p2[i], (uint8_t)p[i % 4], (uint8_t)(p2[i] ^ p[i % 4]));
+                p2[i] ^= p[i % 4];
+            }
         }
+    }
+
+    if (opcode != OPE_TEXT &&
+        opcode != OPE_BINARY)
+    {
+        noticeLog("opcode=0x%02X", opcode);
+
+        delete newDataBuffer;
+        newDataBuffer = NULL;
+        dataBuffer = NULL;
     }
 
     return dataBuffer;

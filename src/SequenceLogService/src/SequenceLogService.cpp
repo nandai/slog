@@ -820,7 +820,7 @@ void SequenceLogService::receiveMain()
 
             // シーケンスログアイテム受信
             if (WebServerResponseThread::recvData(socket, &buffer) == NULL)
-                break;
+                continue;
 
             uint32_t threadId = item->mThreadId;
 
