@@ -45,7 +45,6 @@ Thread::Thread()
  */
 Thread::~Thread()
 {
-    TRACE("Thread::~Thread()\n", 0);
 }
 
 /*!
@@ -144,10 +143,10 @@ void* Thread::main(void* param)
                 (*i)->onTerminated(thread);
         }
 
-        thread->mAlive = false;
-
         if (self)
             self->onTerminated(thread);
+
+        thread->mAlive = false;
     }
 
 #if defined(_WINDOWS)

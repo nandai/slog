@@ -38,9 +38,8 @@ class WebServerResponseThread;
 class SequenceLogService;
 class SequenceLogServiceThreadListener;
 
-typedef std::list<SequenceLogService*>                  SequenceLogServiceManager;
-typedef std::list<SequenceLogServiceThreadListener*>    SequenceLogServiceThreadListeners;
-typedef std::list<FileInfo*>                            FileInfoArray;
+typedef std::list<Thread*>      SequenceLogServiceManager;
+typedef std::list<FileInfo*>    FileInfoArray;
 
 /*!
  *  \brief  シーケンスログサービスリスナークラス
@@ -59,19 +58,20 @@ class SequenceLogServiceMain :
     public FileFindListener,
     public SequenceLogServiceThreadListener
 {
-            FixedString<MAX_PATH>               mLogFolderName;         //!< シーケンスログフォルダ名
-            uint32_t                            mMaxFileSize;           //!< 最大ファイルサイズ
-            int32_t                             mMaxFileCount;          //!< 最大ファイル数
+            FixedString<MAX_PATH>       mLogFolderName;         //!< シーケンスログフォルダ名
+            uint32_t                    mMaxFileSize;           //!< 最大ファイルサイズ
+            int32_t                     mMaxFileCount;          //!< 最大ファイル数
 
-            SequenceLogServiceManager           mServiceManager;        //!< シーケンスログサービスマネージャー
-            FileInfoArray                       mFileInfoArray;         //!< シーケンスログファイル情報
+            SequenceLogServiceManager   mServiceManager;        //!< シーケンスログサービスマネージャー
+            FileInfoArray               mFileInfoArray;         //!< シーケンスログファイル情報
+            bool                        mCleanupFlag;
 
-            Mutex*                              mMutex;
-            bool                                mStartRunTime;
-            bool                                mOutputScreen;          //!< ログを画面に表示するかどうか
+            Mutex*                      mMutex;
+            bool                        mStartRunTime;
+            bool                        mOutputScreen;          //!< ログを画面に表示するかどうか
 
-            String                              mSequenceLogServerIp;   //!< シーケンスログサーバーIP
-            uint16_t                            mSequenceLogServerPort; //!< シーケンスログサーバーポート
+            String                      mSequenceLogServerIp;   //!< シーケンスログサーバーIP
+            uint16_t                    mSequenceLogServerPort; //!< シーケンスログサーバーポート
 
 public:     SequenceLogServiceMain();
             virtual ~SequenceLogServiceMain();
@@ -86,8 +86,6 @@ public:     void cleanup();
             void printLog(const Buffer* text, int32_t len);
 
             // その他
-            SequenceLogServiceManager* getSequenceLogServiceManager() const;
-
             FileInfoArray* getFileInfoArray() const;
             void        deleteFileInfoArray();
             void addFileInfo(FileInfo* info);
@@ -122,14 +120,6 @@ private:    virtual void onFind(const CoreString& path);
             virtual void onLogFileChanged(Thread* thread);
             virtual void onUpdateLog(const Buffer* text);
 };
-
-/*!
- *  \brief  シーケンスログサービスマネージャー取得
- */
-inline SequenceLogServiceManager* SequenceLogServiceMain::getSequenceLogServiceManager() const
-{
-    return (SequenceLogServiceManager*)&mServiceManager;
-}
 
 /*!
  *  \brief  シーケンスログファイル情報取得

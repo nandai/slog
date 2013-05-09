@@ -84,7 +84,10 @@ void WebServerThread::run()
             WebServerResponseThread* response = NULL;
 
             if (httpRequest->analizeRequest())
+            {
+                noticeLog("request URL: /%s", httpRequest->getUrl().getBuffer());
                 response = createResponse(httpRequest);
+            }
 
             if (response)
             {

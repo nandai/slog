@@ -77,6 +77,8 @@ SequenceLogServiceMain::SequenceLogServiceMain()
     mMaxFileSize = 1024 * 4;
     mMaxFileCount = 10;
 
+    mCleanupFlag = false;
+
     mMutex = new Mutex;
     ScopedLock lock(mMutex, false);
 
@@ -164,13 +166,8 @@ void SequenceLogServiceMain::run()
  */
 void SequenceLogServiceMain::onResponseStart(WebServerResponseThread* response)
 {
-    SequenceLogService* service = dynamic_cast<SequenceLogService*>(response);
-
-    if (service)
-    {
-        mServiceManager.push_back(service);
-        service->setListener(this);
-    }
+    mServiceManager.push_back(response);
+    response->setListener(this);
 }
 
 /*!
@@ -178,17 +175,19 @@ void SequenceLogServiceMain::onResponseStart(WebServerResponseThread* response)
  */
 void SequenceLogServiceMain::cleanup()
 {
+    mCleanupFlag = true;
+
     for (SequenceLogServiceManager::iterator i = mServiceManager.begin(); i != mServiceManager.end(); i++)
     {
-        SequenceLogService* service = *i;
-        service->interrupt();
+        Thread* thread = *i;
+        thread->interrupt();
     }
 
     for (SequenceLogServiceManager::iterator i = mServiceManager.begin(); i != mServiceManager.end(); i++)
     {
-        SequenceLogService* service = *i;
-        service->join();
-        delete service;
+        Thread* thread = *i;
+        thread->join();
+        delete thread;
     }
 
     mServiceManager.clear();
@@ -383,7 +382,12 @@ void SequenceLogServiceMain::onInitialized(Thread* thread)
     ThreadListeners* listeners = getListeners();
 
     for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
-        (*i)->onInitialized(thread);
+    {
+        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
+
+        if (listener)
+            listener->onInitialized(thread);
+    }
 }
 
 /*!
@@ -391,10 +395,18 @@ void SequenceLogServiceMain::onInitialized(Thread* thread)
  */
 void SequenceLogServiceMain::onTerminated(Thread* thread)
 {
+    if (mCleanupFlag)
+        return;
+
     ThreadListeners* listeners = getListeners();
 
     for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
-        (*i)->onTerminated(thread);
+    {
+        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
+
+        if (listener)
+            listener->onTerminated(thread);
+    }
 }
 
 /*!

@@ -35,6 +35,8 @@ class GetLogResponse :
     public SequenceLogServiceThreadListener
 {
 public:     GetLogResponse(HttpRequest* httpRequest) : WebServerResponseThread(httpRequest) {}
+            virtual~GetLogResponse();
+
 private:    virtual void run();
 
 public:     virtual void onInitialized(   Thread* thread) {}

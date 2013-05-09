@@ -111,6 +111,7 @@ void WebServerResponseThread::run()
             if (getContents(&content, "notfound.html"))
                 break;
 
+            noticeLog("WebServerResponseThread: %s", url.getBuffer());
             mHttpRequest->getSocket()->close();
             return;
         }
@@ -121,7 +122,7 @@ void WebServerResponseThread::run()
     }
     catch (Exception& e)
     {
-        noticeLog(e.getMessage());
+        noticeLog("WebServerResponseThread: %s", e.getMessage());
     }
 }
 
@@ -193,7 +194,7 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
     }
     catch (Exception& e)
     {
-        noticeLog(e.getMessage());
+        noticeLog("getContents: %s", e.getMessage());
         return false;
     }
 

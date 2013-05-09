@@ -29,7 +29,14 @@ namespace slog
 {
 
 /*!
- *  \brief	
+ *  \brief	デストラクタ
+ */
+GetLogResponse::~GetLogResponse()
+{
+}
+
+/*!
+ *  \brief	実行
  */
 void GetLogResponse::run()
 {
@@ -79,7 +86,6 @@ void GetLogResponse::onTerminated(Thread* thread)
     {
         SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
         serviceMain->removeListener(this);
-        delete this;
     }
     else
     {
