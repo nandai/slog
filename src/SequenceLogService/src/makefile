@@ -29,9 +29,9 @@ slogsvc: $(objs)
 	$(CC) $(CFLAGS) -c $<
 
 install:
-	cp slogsvc     $(INSTALLDIR)/
-	mkdir -p       $(INSTALLDIR)/SequenceLogServiceWeb
-	cp  ../web/*.* $(INSTALLDIR)/SequenceLogServiceWeb/
+	cp slogsvc                       $(INSTALLDIR)/
+	mkdir -p                         $(INSTALLDIR)/SequenceLogServiceWeb
+	cp  ../SequenceLogServiceWeb/*.* $(INSTALLDIR)/SequenceLogServiceWeb/
 
 clean:
 	$(RM) slogsvc $(objs) depend.inc
