@@ -21,6 +21,7 @@
  */
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
+#include "SequenceLogServiceWebServerResponse.h"
 
 #include "slog/Mutex.h"
 #include "slog/TimeSpan.h"
@@ -379,6 +380,11 @@ void SequenceLogServiceMain::onFind(const CoreString& path)
  */
 void SequenceLogServiceMain::onInitialized(Thread* thread)
 {
+    SequenceLogServiceWebServerResponse* response = dynamic_cast<SequenceLogServiceWebServerResponse*>(thread);
+
+    if (response == NULL)
+        return;
+
     ThreadListeners* listeners = getListeners();
 
     for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
@@ -395,6 +401,11 @@ void SequenceLogServiceMain::onInitialized(Thread* thread)
  */
 void SequenceLogServiceMain::onTerminated(Thread* thread)
 {
+    SequenceLogServiceWebServerResponse* response = dynamic_cast<SequenceLogServiceWebServerResponse*>(thread);
+
+    if (response == NULL)
+        return;
+
     if (mCleanupFlag)
         return;
 
