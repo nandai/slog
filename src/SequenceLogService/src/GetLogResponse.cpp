@@ -16,7 +16,7 @@
 
 /*!
  *  \file   GetLogResponse.cpp
- *  \brief  æ“¾ƒƒO‘—MƒNƒ‰ƒX
+ *  \brief  å–å¾—ãƒ­ã‚°é€ä¿¡ã‚¯ãƒ©ã‚¹
  *  \author Copyright 2013 printf.jp
  */
 #include "GetLogResponse.h"
@@ -29,14 +29,14 @@ namespace slog
 {
 
 /*!
- *  \brief	ƒfƒXƒgƒ‰ƒNƒ^
+ *  \brief	ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 GetLogResponse::~GetLogResponse()
 {
 }
 
 /*!
- *  \brief	Às
+ *  \brief	å®Ÿè¡Œ
  */
 void GetLogResponse::run()
 {
@@ -66,7 +66,7 @@ void GetLogResponse::run()
 
             if (buffer)
             {
-                noticeLog("GetLobResponse: ƒf[ƒ^‚ğóM‚·‚é—\’è‚Í‚È‚¢");
+                noticeLog("GetLobResponse: ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã™ã‚‹äºˆå®šã¯ãªã„");
                 delete buffer;
             }
         }
@@ -78,7 +78,7 @@ void GetLogResponse::run()
 }
 
 /*!
- *  \brief  ƒXƒŒƒbƒhI—¹’Ê’m
+ *  \brief  ã‚¹ãƒ¬ãƒƒãƒ‰çµ‚äº†é€šçŸ¥
  */
 void GetLogResponse::onTerminated(Thread* thread)
 {
@@ -94,7 +94,7 @@ void GetLogResponse::onTerminated(Thread* thread)
 }
 
 /*!
- *  \brief	ƒV[ƒPƒ“ƒXƒƒOXV’Ê’m
+ *  \brief	ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°æ›´æ–°é€šçŸ¥
  */
 void GetLogResponse::onLogFileChanged(Thread* thread)
 {
@@ -105,7 +105,7 @@ void GetLogResponse::onLogFileChanged(Thread* thread)
 }
 
 /*!
- *  \brief	ƒV[ƒPƒ“ƒXƒƒOXV’Ê’m
+ *  \brief	ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°æ›´æ–°é€šçŸ¥
  */
 void GetLogResponse::onUpdateLog(const Buffer* text)
 {
@@ -113,7 +113,7 @@ void GetLogResponse::onUpdateLog(const Buffer* text)
 }
 
 /*!
- *  \brief	æ“¾ƒƒO‘—M
+ *  \brief	å–å¾—ãƒ­ã‚°é€ä¿¡
  */
 void GetLogResponse::send(const char* commandNo, const Buffer* payloadData)
 {
@@ -123,7 +123,7 @@ void GetLogResponse::send(const char* commandNo, const Buffer* payloadData)
 
     if (commandNoLen != 4)
     {
-        noticeLog("commandNo‚Í‚SƒoƒCƒg‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢B");
+        noticeLog("commandNoã¯ï¼”ãƒã‚¤ãƒˆã§ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚");
         return;
     }
 
