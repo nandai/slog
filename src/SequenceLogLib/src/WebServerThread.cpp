@@ -26,6 +26,56 @@
 namespace slog
 {
 
+class CreateResponseThread : public Thread
+{
+            WebServerThread*    mWebServer;
+            HttpRequest*        mHttpRequest;
+
+public:     CreateResponseThread(WebServerThread* webServer, HttpRequest* httpRequest);
+            virtual ~CreateResponseThread();
+
+            virtual void run();
+};
+
+CreateResponseThread::CreateResponseThread(WebServerThread* webServer, HttpRequest* httpRequest)
+{
+    mWebServer = webServer;
+    mHttpRequest = httpRequest;
+}
+
+CreateResponseThread::~CreateResponseThread()
+{
+}
+
+void CreateResponseThread::run()
+{
+    try
+    {
+        WebServerResponseThread* response = NULL;
+
+        if (mHttpRequest->analizeRequest())
+        {
+            noticeLog("request URL: /%s", mHttpRequest->getUrl().getBuffer());
+            response = mWebServer->createResponse(mHttpRequest);
+        }
+
+        if (response)
+        {
+            mWebServer->onResponseStart(response);
+            response->start();
+        }
+        else
+        {
+            delete mHttpRequest;
+        }
+    }
+    catch (Exception& e)
+    {
+        noticeLog("CreateResponseThread: %s", e.getMessage());
+        delete mHttpRequest;
+    }
+}
+
 /*!
  *  \brief  コンストラクタ
  */
@@ -81,28 +131,13 @@ void WebServerThread::run()
             client->accept(&server);
 
             HttpRequest* httpRequest = new HttpRequest(client, mPort);
-            WebServerResponseThread* response = NULL;
+            CreateResponseThread* createResponseThread = new CreateResponseThread(this, httpRequest);
 
-            if (httpRequest->analizeRequest())
-            {
-                noticeLog("request URL: /%s", httpRequest->getUrl().getBuffer());
-                response = createResponse(httpRequest);
-            }
-
-            if (response)
-            {
-                onResponseStart(response);
-                response->start();
-            }
-            else
-            {
-                delete httpRequest;
-            }
+            createResponseThread->start();
         }
         catch (Exception& e)
         {
             noticeLog("WebServerThread: %s", e.getMessage());
-            delete client;
             continue;
         }
     }

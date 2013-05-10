@@ -112,6 +112,7 @@ bool HttpRequest::analizeRequest()
 
         // 改行までリクエストバッファに貯める
         char c = buffer.get();
+//      noticeLog("%d: %c(%02X)", i, c, (uint8_t)c);
 
         if (c != '\r')
         {
@@ -130,6 +131,9 @@ bool HttpRequest::analizeRequest()
         buffer.setLength(0);
         mSocket->recv(&buffer, size);
 
+//      c = buffer.get();
+//      noticeLog("%d: %c(%02X)", i + 1, c, (uint8_t)c);
+
         if (i == 0)
         {
             // 空行だったらループを抜ける
@@ -140,6 +144,7 @@ bool HttpRequest::analizeRequest()
                 mSocket->recv(&params, contentLen);
                 analizePostParams(&params);
             }
+//          noticeLog("analizeRequest ended");
 
             break;
         }

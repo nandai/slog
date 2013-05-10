@@ -50,10 +50,10 @@ public:     WebServerThread();
             void     setPort(uint16_t port);
 
 protected:  virtual void run();
-            virtual void onResponseStart(WebServerResponseThread* response) {}
+public:     virtual void onResponseStart(WebServerResponseThread* response) {}
 
 private:    virtual const CREATE* getCreateList() const = 0;
-            WebServerResponseThread* createResponse(HttpRequest* httpRequest);
+public:     WebServerResponseThread* createResponse(HttpRequest* httpRequest);
 };
 
 } // namespace slog
