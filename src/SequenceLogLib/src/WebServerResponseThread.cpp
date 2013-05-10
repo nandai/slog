@@ -65,12 +65,49 @@ void WebServerResponseThread::send(const CoreString& content) const
  */
 void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 {
+    struct
+    {
+        const char* ext;
+        const char* type;
+    }
+    static mimeArray[] =
+    {
+        {"css",  "css"},
+        {"js",   "javascript"},
+        {NULL,   "html"},
+    };
+
+    const CoreString& url = mHttpRequest->getUrl();
+    int32_t extPos = url.lastIndexOf(".");
+    const char* mimeType = NULL;
+
+    const char* p = url.getBuffer();
+    const char* ext = p + extPos + 1;
+
+    int32_t mimeCount = sizeof(mimeArray) / sizeof(mimeArray[0]);
+    mimeArray[mimeCount - 1].ext = ext;
+
+    for (int32_t i = 0; i < mimeCount; i++)
+    {
+#if defined(_WINDOWS)
+        if (_stricmp(
+#else
+        if (strcasecmp(
+#endif
+            ext, mimeArray[i].ext) == 0)
+        {
+            mimeType = mimeArray[i].type;
+            break;
+        }
+    }
+
     String str;
     str.format(
         "HTTP/1.1 200 OK\n"
-        "Content-type: text/html; charset=UTF-8\n"
+        "Content-type: text/%s; charset=UTF-8\n"
         "Content-length: %d\n"
         "\n",
+        mimeType,
         contentLen);
 
     Socket* socket = mHttpRequest->getSocket();

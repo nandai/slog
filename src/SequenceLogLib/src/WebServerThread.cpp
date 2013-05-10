@@ -63,10 +63,10 @@ void WebServerThread::run()
     server.listen();
 
     // 要求待ち
-    Socket* client = NULL;
-
     while (true)
     {
+        Socket* client = NULL;
+
         try
         {
             bool isReceive = server.isReceiveData(3000);
@@ -101,12 +101,10 @@ void WebServerThread::run()
         }
         catch (Exception& e)
         {
-            noticeLog(e.getMessage());
+            noticeLog("WebServerThread: %s", e.getMessage());
             delete client;
-            break;
+            continue;
         }
-
-        client = NULL;
     }
 }
 

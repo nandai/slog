@@ -204,7 +204,7 @@ int32_t CoreString::find(char c) const
 }
 
 /*!
- *  \brief  検索
+ *  \brief  前方検索
  */
 int32_t CoreString::indexOf(const char* find, int32_t index) const
 {
@@ -218,6 +218,30 @@ int32_t CoreString::indexOf(const char* find, int32_t index) const
         return -1;
 
     return (int32_t)(p - buffer);
+}
+
+/*!
+ *  \brief  後方検索
+ */
+int32_t CoreString::lastIndexOf(const char* find, int32_t index) const
+{
+    if (index == -1)
+        index = getLength() - 1;
+
+    if (index < 0 || getLength() <= index)
+        return -1;
+
+    const char* buffer = getBuffer();
+
+    for (; 0 <= index; index--)
+    {
+        const char* p = strstr(buffer + index, find);
+
+        if (p)
+            return (int32_t)(p - buffer);
+    }
+
+    return -1;
 }
 
 /*!
