@@ -21,7 +21,6 @@
  */
 #include "SequenceLogServiceWebServer.h"
 #include "SequenceLogServiceWebServerResponse.h"
-#include "SendSequenceLogResponse.h"
 #include "GetLogResponse.h"
 #include "SequenceLogService.h"
 
@@ -32,7 +31,6 @@ namespace slog
  *  \brief  WEBサーバー応答スレッドオブジェクト生成リスト取得
  */
 static WebServerResponseThread* createSequenceLogServiceWebServerResponse(HttpRequest* httpRequest) {return new SequenceLogServiceWebServerResponse(httpRequest);}
-static WebServerResponseThread* createSendSequenceLogResponse(            HttpRequest* httpRequest) {return new SendSequenceLogResponse(            httpRequest);}
 static WebServerResponseThread* createGetLogResponse(                     HttpRequest* httpRequest) {return new GetLogResponse(                     httpRequest);}
 static WebServerResponseThread* createSequenceLogService(                 HttpRequest* httpRequest) {return new SequenceLogService(                 httpRequest);}
 
@@ -41,7 +39,6 @@ const WebServerThread::CREATE* SequenceLogServiceWebServerThread::getCreateList(
     static const CREATE creates[] =
     {
         {HttpRequest::GET,     "",                   "index.html", createSequenceLogServiceWebServerResponse},
-        {HttpRequest::POST,    "",                   "",           createSendSequenceLogResponse},
         {HttpRequest::GET,     "getLog",             "",           createGetLogResponse},
         {HttpRequest::GET,     "outputLog",          "",           createSequenceLogService},
         {HttpRequest::UNKNOWN, "",                   "",           createSequenceLogServiceWebServerResponse}
