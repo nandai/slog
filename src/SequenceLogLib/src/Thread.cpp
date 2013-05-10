@@ -143,10 +143,11 @@ void* Thread::main(void* param)
                 (*i)->onTerminated(thread);
         }
 
+        thread->mAlive = false;     // 自身のonTerminated()でdeleteする可能性があるので
+                                    // mAliveへの値設定はonTerminated()の前に行う
+
         if (self)
             self->onTerminated(thread);
-
-        thread->mAlive = false;
     }
 
 #if defined(_WINDOWS)

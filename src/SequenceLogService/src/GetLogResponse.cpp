@@ -51,6 +51,7 @@ void GetLogResponse::run()
         serviceMain->setListener(this);
 
         Socket* socket = mHttpRequest->getSocket();
+        onLogFileChanged(NULL);
 
         while (true)
         {
