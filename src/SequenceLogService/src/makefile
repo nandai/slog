@@ -15,8 +15,6 @@ objs = \
 	main.o \
 	getSequenceLogListJson.o \
 	GetLogResponse.o \
-	GetSequenceLogListResponse.o \
-	SendSequenceLogResponse.o \
 	SequenceLogService.o \
 	SequenceLogServiceMain.o \
 	SequenceLogServiceWebServer.o \

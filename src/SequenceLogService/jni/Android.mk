@@ -8,8 +8,6 @@ LOCAL_SRC_FILES	:= \
 	../src/main.cpp \
 	../src/getSequenceLogListJson.cpp \
 	../src/GetLogResponse.cpp \
-	../src/GetSequenceLogListResponse.cpp \
-	../src/SendSequenceLogResponse.cpp \
 	../src/SequenceLogService.cpp \
 	../src/SequenceLogServiceMain.cpp \
 	../src/SequenceLogServiceWebServer.cpp \

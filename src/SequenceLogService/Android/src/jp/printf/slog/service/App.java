@@ -72,6 +72,9 @@ public class App extends android.app.Application
         install("bin/slogsvc",       "slogsvc",       "755");
         install("web/index.html",    "index.html",    "644");
         install("web/notfound.html", "notfound.html", "644");
+
+        install("web/SequenceLogService.css", "SequenceLogService.css", "644");
+        install("web/SequenceLogService.js",  "SequenceLogService.js",  "644");
     }
 
     // Sequence Log Service が開始されているかどうか
@@ -257,7 +260,7 @@ public class App extends android.app.Application
     {
         try
         {
-            // Sequence Log Service の実体をassetsからfiles/にコピーする
+            // assets/のファイルをfiles/にコピーする
             AssetManager am = getResources().getAssets();
 
             // 読み込み
