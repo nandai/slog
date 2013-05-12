@@ -1,15 +1,5 @@
 $(function()
 {
-    // ブラウザサイズ変更時のハンドラ
-    function onSize()
-    {
-        var canvas =    $('#logViewer').get(0);
-        canvas.width =  $('#logViewer').parent().width() * 95 / 100;
-        canvas.height = $.sequenceLogList.size.height * $.sequenceLogList.logVisibleLineCount;
-
-        $.sequenceLogList.draw();
-    }
-
     // シーケンスログファイル一覧更新
     function updateLogFileList(data)
     {
@@ -31,15 +21,43 @@ $(function()
 
         $('a[href=#]').click(function()
         {
-            $.sequenceLogList.openLog($(this).text());
+            slog.openLog($(this).text());
             return false;
         });
     }
 
-    // 初期設定
-    var domain = location.href.split('/')[2];
-    $.sequenceLogList.init(domain, updateLogFileList, 'logViewer');
+    // ブラウザサイズ変更時のハンドラ
+    function onSize(view)
+    {
+//      var height = $(window).height();
+//      view.member.logVisibleLineCount = height / view.member.size.height / 2;
 
-    $(window).bind('resize', onSize);
-    onSize();
+        var canvas =    view.get(0);
+        canvas.width =  view.parent().width() * 95 / 100;
+        canvas.height = view.member.size.height * view.member.logVisibleLineCount;
+
+        view.draw();
+    }
+
+    // シーケンスログビュー設定
+    function settingLogView(logView)
+    {
+        slog.service.defaultLogView(logView);
+        slog.service.addLogView(logView);
+
+        $(window).resize(function() {onSize(logView);});
+        onSize(logView);
+    }
+
+    // シーケンスログサービス設定
+    var domain = location.href.split('/')[2];
+    slog.service.init(domain, updateLogFileList);
+
+    // デフォルトビュー設定
+    var logView = $('#logView');
+    settingLogView(logView);
+
+    // テスト用
+//  var logView2 = $('#logView2');
+//  settingLogView(logView2);
 });

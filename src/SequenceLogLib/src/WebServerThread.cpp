@@ -64,15 +64,10 @@ void CreateResponseThread::run()
             mWebServer->onResponseStart(response);
             response->start();
         }
-        else
-        {
-            delete mHttpRequest;
-        }
     }
     catch (Exception& e)
     {
         noticeLog("CreateResponseThread: %s", e.getMessage());
-        delete mHttpRequest;
     }
 }
 

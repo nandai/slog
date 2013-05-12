@@ -66,12 +66,12 @@ table tr:hover {
   cursor:default;
 }
 
-#logViewerFrame
+.logViewFrame
 {
     text-align: center;
 }
 
-#logViewer
+.logView
 {
     color: white;
     background-color: black;
@@ -79,15 +79,4 @@ table tr:hover {
     font-size: small;
     box-shadow: 9px 9px 17px rgba(000,000,000,0.7);
     border-radius: 8px;
-}
-
-ul
-{
-    margin: 4px;
-    padding: 0px;
-}
-
-li
-{
-    list-style-type: none;
 }

@@ -59,7 +59,7 @@
             this.ws.onmessage = function(e)
             {
 //              var dataView = new DataView(e.data);
-//              var seqNo = dataView.getInt32(0); 
+//              var seqNo = dataView.getInt32(0);
             };
 
             this.ws.onerror = function()
@@ -321,12 +321,11 @@
     // slog登録
     var client = new SequenceLogClient();
 
-    exports.slog =
-    {
-        setFileName:       function(name)          {client.setFileName(name);},
-        setServiceAddress: function(address, port) {client.setServiceAddress(address, port);},
-        enableOutput:      function(enable)        {client.enableOutput(enable);},
+    if (exports.slog === undefined)
+        exports.slog = {};
 
-        stepIn: function(className, funcName) {return new SequenceLog(className, funcName);}
-    };
+    exports.slog.setFileName =       function(name)          {client.setFileName(name);},
+    exports.slog.setServiceAddress = function(address, port) {client.setServiceAddress(address, port);},
+    exports.slog.enableOutput =      function(enable)        {client.enableOutput(enable);},
+    exports.slog.stepIn =            function(className, funcName) {return new SequenceLog(className, funcName);}
 })(this);

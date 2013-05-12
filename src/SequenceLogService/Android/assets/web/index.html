@@ -7,6 +7,7 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script type="text/javascript" src="http://<? DOMAIN ?>/js/jquery.mousewheel-3.0.6.pack.js"></script>
 <script type="text/javascript" src="http://<? DOMAIN ?>/js/slog.service.js"></script>
+<script type="text/javascript" src="http://<? DOMAIN ?>/js/slog.service.defaultView.js"></script>
 <script type="text/javascript" src="SequenceLogService.js"></script>
 </head>
 
@@ -27,8 +28,12 @@
 <br />
 
 <!-- 受信ログ表示エリア -->
-<div id="logViewerFrame"><canvas id="logViewer"></canvas></div>
+<div class="logViewFrame"><canvas class="logView" id="logView"></canvas></div>
 <br />
+<!--
+<div class="logViewFrame"><canvas class="logView" id="logView2"></canvas></div>
+<br />
+-->
 
 <!-- フッター -->
 <hr />
