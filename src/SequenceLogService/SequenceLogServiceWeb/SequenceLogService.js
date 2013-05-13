@@ -1,5 +1,7 @@
 $(function()
 {
+    'use strict';
+
     // シーケンスログファイル一覧更新
     function updateLogFileList(data)
     {
@@ -21,7 +23,7 @@ $(function()
 
         $('a[href=#]').click(function()
         {
-            slog.openLog($(this).text());
+            slog.service.openLog($(this).text());
             return false;
         });
     }
@@ -29,12 +31,9 @@ $(function()
     // ブラウザサイズ変更時のハンドラ
     function onSize(view)
     {
-//      var height = $(window).height();
-//      view.member.logVisibleLineCount = height / view.member.size.height / 2;
-
         var canvas =    view.get(0);
         canvas.width =  view.parent().width() * 95 / 100;
-        canvas.height = view.member.size.height * view.member.logVisibleLineCount;
+        canvas.height = view.member.size.height * view.member.visibleLineCount;
 
         view.draw();
     }
@@ -42,7 +41,7 @@ $(function()
     // シーケンスログビュー設定
     function settingLogView(logView)
     {
-        slog.service.defaultLogView(logView);
+        slog.utils.textView(logView);
         slog.service.addLogView(logView);
 
         $(window).resize(function() {onSize(logView);});
@@ -51,7 +50,8 @@ $(function()
 
     // シーケンスログサービス設定
     var domain = location.href.split('/')[2];
-    slog.service.init(domain, updateLogFileList);
+    var buffer = new slog.utils.RingBuffer(2000);
+    slog.service.init(domain, buffer, updateLogFileList);
 
     // デフォルトビュー設定
     var logView = $('#logView');

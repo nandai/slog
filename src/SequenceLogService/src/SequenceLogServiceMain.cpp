@@ -380,7 +380,7 @@ void SequenceLogServiceMain::onFind(const CoreString& path)
  */
 void SequenceLogServiceMain::onInitialized(Thread* thread)
 {
-    SequenceLogServiceWebServerResponse* response = dynamic_cast<SequenceLogServiceWebServerResponse*>(thread);
+    SequenceLogService* response = dynamic_cast<SequenceLogService*>(thread);
 
     if (response == NULL)
         return;
@@ -401,7 +401,7 @@ void SequenceLogServiceMain::onInitialized(Thread* thread)
  */
 void SequenceLogServiceMain::onTerminated(Thread* thread)
 {
-    SequenceLogServiceWebServerResponse* response = dynamic_cast<SequenceLogServiceWebServerResponse*>(thread);
+    SequenceLogService* response = dynamic_cast<SequenceLogService*>(thread);
 
     if (response == NULL)
         return;
