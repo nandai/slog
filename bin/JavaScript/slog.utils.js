@@ -1,10 +1,12 @@
 // require:
 //     jquery.js
 //     jquery.mousewheel.js
-//     slog.service.js
 (function(exports)
 {
     'use strict';
+
+    if ($ == null)
+        $ = jQuery;
 
     var SCROLLBOX_WIDTH = 16;           // スクロールボックスの幅
     var SCROLLBOX_MIN_HEIGHT = 12;      // スクロールボックスの最小の高さ
@@ -352,9 +354,9 @@
     // 空バッファ
     exports.slog.utils.emptyBuffer =
     {
-        add:      function(data)  {},
+        add:      function(data)  {return 0;},
         get:      function(index) {return null;},
-        getCount: function(view)  {return 0;}
+        getCount: function()      {return 0;}
     };
 
     // 普通のバッファ
@@ -365,9 +367,9 @@
 
     exports.slog.utils.Buffer.prototype =
     {
-        add:      function(data) {        this.buffer[this.buffer.length] = data;},
+        add:      function(data)  {       this.buffer[this.buffer.length] = data; return 0;},
         get:      function(index) {return this.buffer[index];},
-        getCount: function(view)  {return this.buffer.length;}
+        getCount: function()      {return this.buffer.length;}
     };
 
     // リングバッファ
@@ -407,7 +409,7 @@
 
         // データ数取得
         // バッファ行数と追加データ数の小さい方を返す
-        getCount: function(view)
+        getCount: function()
         {
             return Math.min(this.buffer.length, this.count);
         }
