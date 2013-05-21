@@ -335,14 +335,6 @@ void SequenceLogServiceMain::setWebServerPort(uint16_t port)
 }
 
 /*!
- *  \brief  シーケンスログサーバーIP取得
- */
-const CoreString& SequenceLogServiceMain::getSequenceLogServerIP() const
-{
-    return mSequenceLogServerIp;
-}
-
-/*!
  *  \brief  シーケンスログサーバーポート取得
  */
 uint16_t SequenceLogServiceMain::getSequenceLogServerPort() const
@@ -351,11 +343,10 @@ uint16_t SequenceLogServiceMain::getSequenceLogServerPort() const
 }
 
 /*!
- *  \brief  シーケンスログサーバーのIPとポートを設定する
+ *  \brief  シーケンスログサーバーポート設定
  */
-void SequenceLogServiceMain::setSequenceLogServer(const CoreString& ip, uint16_t port)
+void SequenceLogServiceMain::setSequenceLogServerPort(uint16_t port)
 {
-    mSequenceLogServerIp.copy(ip);
     mSequenceLogServerPort = port;
 }
 

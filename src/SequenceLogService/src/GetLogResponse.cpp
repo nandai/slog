@@ -102,8 +102,9 @@ void SendSequenceLogThread::run()
         viewerSocket.close();
         file.close();
     }
-    catch (Exception&)
+    catch (Exception& e)
     {
+        noticeLog("SendSequenceLogThread: %s", e.getMessage());
     }
 }
 
@@ -165,7 +166,7 @@ void GetLogResponse::run()
                     fileName.copy(buffer->get(len), len);
 
                     SendSequenceLogThread* thread = new SendSequenceLogThread(
-                        serviceMain->getSequenceLogServerIP(),
+                        socket->getInetAddress(),
                         serviceMain->getSequenceLogServerPort(),
                         fileName);
 

@@ -390,9 +390,9 @@ int Socket::setRecvTimeOut(int32_t msec)
 }
 
 /*!
- *  \brief  接続先IPアドレス取得
+ *  \brief  接続元／先IPアドレス取得
  *
- *  \return 接続先IPアドレス
+ *  \return 接続元／先IPアドレス
  */
 const CoreString& Socket::getInetAddress() const
 {
@@ -410,9 +410,9 @@ const CoreString& Socket::getInetAddress() const
 }
 
 /*!
- *  \brief  接続元IPアドレス取得
+ *  \brief  自IPアドレス取得
  *
- *  \return 接続元IPアドレス
+ *  \return 自IPアドレス
  */
 const CoreString& Socket::getMyInetAddress() const
 {

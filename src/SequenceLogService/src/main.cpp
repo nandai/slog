@@ -157,7 +157,6 @@ void Application::main(int argc, char** argv)
     int32_t count = 0;
     bool outputScreen = true;
     uint16_t webServerPort = 8080;
-    String sequenceLogServerIp = "127.0.0.1";
     uint16_t sequenceLogServerPort = 8081;
     String user;
     String group;
@@ -201,9 +200,6 @@ void Application::main(int argc, char** argv)
         if (key == "WEB_SERVER_PORT")
             webServerPort = value1;
 
-        if (key == "SEQUENCE_LOG_SERVER_IP")
-            sequenceLogServerIp.copy(value1);
-
         if (key == "SEQUENCE_LOG_SERVER_PORT")
             sequenceLogServerPort = value1;
 
@@ -238,7 +234,7 @@ void Application::main(int argc, char** argv)
         serviceMain.setMaxFileCount(count);
         serviceMain.setOutputScreen(outputScreen);
         serviceMain.setWebServerPort(webServerPort);
-        serviceMain.setSequenceLogServer(sequenceLogServerIp, sequenceLogServerPort);
+        serviceMain.setSequenceLogServerPort(sequenceLogServerPort);
         serviceMain.start();
 
         printf("%03X OK\n", check);

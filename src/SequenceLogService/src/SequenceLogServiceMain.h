@@ -70,7 +70,6 @@ class SequenceLogServiceMain :
             bool                        mStartRunTime;
             bool                        mOutputScreen;          //!< ログを画面に表示するかどうか
 
-            String                      mSequenceLogServerIp;   //!< シーケンスログサーバーIP
             uint16_t                    mSequenceLogServerPort; //!< シーケンスログサーバーポート
 
 public:     SequenceLogServiceMain();
@@ -110,9 +109,8 @@ public:     void cleanup();
             uint16_t getWebServerPort() const;
             void     setWebServerPort(uint16_t port);
 
-            const CoreString& getSequenceLogServerIP() const;
-            uint16_t          getSequenceLogServerPort() const;
-            void              setSequenceLogServer(const CoreString& ip, uint16_t port);
+            uint16_t getSequenceLogServerPort() const;
+            void     setSequenceLogServerPort(uint16_t port);
 
 private:    virtual void onFind(const CoreString& path);
             virtual void onInitialized(   Thread* thread);
