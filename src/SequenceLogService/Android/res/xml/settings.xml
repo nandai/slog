@@ -58,13 +58,6 @@
 
     <PreferenceCategory android:title="@string/sequence_log_server_settings">
         <EditTextPreference
-            android:key="sequenceLogServerIp"
-            android:defaultValue="192.168.0.2"
-            android:title="@string/sequence_log_server_ip"
-            android:dialogTitle="@string/sequence_log_server_ip"
-            android:inputType="text" />
-
-        <EditTextPreference
             android:key="sequenceLogServerPort"
             android:defaultValue="8081"
             android:title="@string/sequence_log_server_port"

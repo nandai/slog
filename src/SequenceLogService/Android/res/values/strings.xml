@@ -13,7 +13,6 @@
     <string name="web_server_port">Sequence Log Service Web Server port</string>
 
     <string name="sequence_log_server_settings">Sequence Log Server Settings</string>
-    <string name="sequence_log_server_ip">Sequence Log Server IP</string>
     <string name="sequence_log_server_port">Sequence Log Server port</string>
 
     <string name="official_home_page">http://www.printf.jp/SequenceLog/</string>
