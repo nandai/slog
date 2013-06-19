@@ -21,6 +21,7 @@
  */
 #include "SequenceLogService.h"
 #include "SequenceLogServiceMain.h"
+#include "SharedFileContainer.h"
 
 #include "slog/Socket.h"
 #include "slog/Mutex.h"
@@ -190,7 +191,7 @@ SequenceLogService::SequenceLogService(HttpRequest* httpRequest) : WebServerResp
     mItemQueueManager = NULL;
     mStockItems =       NULL;
 
-    mFileInfo = NULL;
+    mSharedFileContainer = NULL;
 }
 
 /*!
@@ -221,23 +222,25 @@ bool SequenceLogService::init()
 
         // シーケンスログファイル名取得
         int32_t len = buffer->getInt();
-        mBaseFileName.copy(buffer->get(len), len);
+        String baseFileName(buffer->get(len), len);
 
         // バッファ削除
         delete buffer;
 
         // ファイル名チェック
-        if (mBaseFileName[len - 1] != '\0')
-        {
-            Exception e;
-            e.setMessage("SequenceLogService::init() / receive name is not null-terminated");
+//      if (baseFileName[len - 1] != '\0')
+//      {
+//          Exception e;
+//          e.setMessage("SequenceLogService::init() / receive name is not null-terminated");
+//
+//          throw e;
+//      }
 
-            throw e;
-        }
+        // 共有ファイルコンテナ取得
+        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+        mSharedFileContainer =  serviceMain->getSharedFileContainer(baseFileName);
 
 //      openSeqLogFile(mFile);
-
-        FixedString<MAX_PATH> shmName;
 
         mOutputList =       new ItemList;
         mItemQueueManager = new ItemQueueManager;
@@ -274,29 +277,35 @@ void SequenceLogService::writeMain()
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     SequenceLogItem* item = mOutputList->front();
 
+    // 共有ファイルコンテナをロック
+    ScopedLock lock(mSharedFileContainer->getMutex());
+
+    // シーケンスログ出力リストのログをすべて出力
     while (item && mOutputList->isEnd(item) == false)
     {
-        if (mFile.isOpen() == false)
+        File* file = mSharedFileContainer->getFile();
+
+        if (file->isOpen() == false)
         {
-            openSeqLogFile(mFile);
+            openSeqLogFile(*file);
             callLogFileChanged();
         }
 
         // 書き込み
         if (mBinaryLog)
-            writeSeqLogFile(    mFile, item);
+            writeSeqLogFile(    *file, item);
         else
-            writeSeqLogFileText(mFile, item);
+            writeSeqLogFileText(*file, item);
 
         // ローテーション
         uint32_t maxSize = serviceMain->getMaxFileSize();
-        uint64_t size = mFile.getSize();
+        uint64_t size = file->getSize();
 
         if (maxSize != 0 && maxSize < size)
         {
-            mFile.close();
+            file->close();
 
-            openSeqLogFile(mFile);
+            openSeqLogFile(*file);
             callLogFileChanged();
         }
 
@@ -312,7 +321,7 @@ void SequenceLogService::writeMain()
 }
 
 /*!
-    *  \brief  リスナーのonLogFileChanged()をコール
+*  \brief  リスナーのonLogFileChanged()をコール
  */
 void SequenceLogService::callLogFileChanged()
 {
@@ -365,11 +374,14 @@ void SequenceLogService::cleanUp()
 //  if (mSocket->isOpen())
 //      mSocket->close();
 
+    // ログバッファ削除
     delete mSHM;
-    mFile.close();
 
-    if (mFileInfo)
-        mFileInfo->update();
+    // シーケンスログ共有ファイルコンテナリリース
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    serviceMain->releaseSharedFileContainer(mSharedFileContainer);
+
+    mSharedFileContainer = NULL;
 }
 
 /*!
@@ -377,7 +389,10 @@ void SequenceLogService::cleanUp()
  */
 void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
 {
-    FixedString<MAX_PATH> fileName = mBaseFileName;
+    // ベースファイル名取得
+    FixedString<MAX_PATH> fileName = mSharedFileContainer->getBaseFileName()->getBuffer();
+
+    // 拡張子取得
     char* ext = (char*)strrchr(fileName.getBuffer(), '.');
     char defaultExt[] = "slog";
 
@@ -387,7 +402,9 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
         ext++;
     }
     else
+    {
         ext = defaultExt;
+    }
 
     mBinaryLog = (stricmp(ext, "slog") == 0);
 
@@ -415,27 +432,37 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
         dateTime.getMilliSecond(),
         ext);
 
-    if (mFileInfo)
+    // ファイル情報更新
+    FileInfo* fileInfo = mSharedFileContainer->getFileInfo();
+
+    if (fileInfo)
     {
-        mFileInfo->update();
+        fileInfo->update();
         // 下記でnewしているが、オブジェクトはSequenceLogServiceMainで
         // 管理しているのでメモリリークの心配はない（delete不要）
     }
 
-    mFileInfo = new FileInfo(str);
-    mFileInfo->setCreationTime(dateTime);
+    // 新たなファイル情報を生成
+    fileInfo = new FileInfo(str);
+    fileInfo->setCreationTime(dateTime);
 
+    // 共有ファイルコンテナにセット
+    mSharedFileContainer->setFileInfo(fileInfo);
+
+    // SequenceLogServiceMainにもセット
     ScopedLock lock(serviceMain->getMutex());
-    serviceMain->addFileInfo(mFileInfo);
+    serviceMain->addFileInfo(fileInfo);
 
-    const CoreString& canonicalPath = mFileInfo->getCanonicalPath();
+    // ファイル作成
+    const CoreString& canonicalPath = fileInfo->getCanonicalPath();
     TRACE("    openSeqLogFile(): '%s'\n", canonicalPath.getBuffer());
 
-    mFileInfo->mkdir();
+    fileInfo->mkdir();
     file.open(canonicalPath, File::WRITE);
 
-    mFileInfo->update(true);
-    mFileInfo->setLastWriteTime(DateTime());
+    // ファイル情報更新
+    fileInfo->update(true);
+    fileInfo->setLastWriteTime(DateTime());
 }
 
 /*!

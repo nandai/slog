@@ -32,11 +32,10 @@
 
 namespace slog
 {
-class Socket;
-class Mutex;
 class FileInfo;
 class ItemQueue;
 class ItemList;
+class SharedFileContainer;
 
 typedef std::map<uint32_t, ItemQueue*> ItemQueueManager;        // キーはスレッドID
 
@@ -57,18 +56,13 @@ private:    SLOG_SHM*               mSHM;                       //!< ログバ�
             ItemQueueManager*       mItemQueueManager;          //!< シーケンスログアイテムキューマネージャー
             SequenceLogItem*        mStockItems;                //!< 未使用シーケンスログアイテムのストック
 
-            File                    mFile;                      //!< シーケンスログファイル
-            FixedString<MAX_PATH>   mBaseFileName;              //!< シーケンスログベースファイル名
-            FileInfo*               mFileInfo;                  //!< シーケンスログファイル情報
+            SharedFileContainer*    mSharedFileContainer;       //!< シーケンスログ共有ファイルコンテナ
 
             // 初期化 / 破棄
 public:     SequenceLogService(HttpRequest* httpRequest);
             virtual ~SequenceLogService();
 
 private:    virtual bool init();
-
-            // 取得
-public:     FileInfo* getFileInfo() const {return mFileInfo;}   //!< シーケンスログファイル情報取得
 
             // シーケンスログスレッド
 private:    virtual void run();

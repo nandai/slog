@@ -22,11 +22,14 @@
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
 #include "SequenceLogServiceWebServerResponse.h"
+#include "SharedFileContainer.h"
 
 #include "slog/Mutex.h"
 #include "slog/TimeSpan.h"
 #include "slog/FileInfo.h"
 #include "slog/Util.h"
+
+#include <algorithm>
 
 namespace slog
 {
@@ -112,12 +115,14 @@ void SequenceLogServiceMain::deleteFileInfoArray()
  */
 void SequenceLogServiceMain::addFileInfo(FileInfo* info)
 {
-    TRACE("[S] SequenceLogServiceMain::addFileInfo()\n", 0);
+    // シーケンスログファイル情報登録
     mFileInfoArray.push_back(info);
 
+    // ログファイルの上限と現在のファイル数を取得
     int32_t maxCount = getMaxFileCount();
     int32_t size = (int32_t)mFileInfoArray.size();
 
+    // 古いファイルを削除
     FileInfoArray::iterator i = mFileInfoArray.begin();
 
     while (i != mFileInfoArray.end())
@@ -131,13 +136,20 @@ void SequenceLogServiceMain::addFileInfo(FileInfo* info)
 
             if (info->isUsing() == false)
             {
+                // 使用されていない（オープンされていない）場合
+
+                // ファイルを削除
                 File::unlink(info->getCanonicalPath());
 
+                // リストからファイル情報を除外
                 i = mFileInfoArray.erase(i);
+
+                // ファイル情報を削除
                 delete info;
             }
             else
             {
+                // 使用中
                 i++;
             }
         }
@@ -149,8 +161,6 @@ void SequenceLogServiceMain::addFileInfo(FileInfo* info)
 
         size--;
     }
-
-    TRACE("[E] SequenceLogServiceMain::addFileInfo()\n", 0);
 }
 
 /*!
@@ -263,6 +273,58 @@ void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 #if !defined(__ANDROID__) || defined(__EXEC__)
     onUpdateLog(text);
 #endif
+}
+
+/*!
+ *  \brief  共有ファイルコンテナ取得
+ */
+SharedFileContainer* SequenceLogServiceMain::getSharedFileContainer(const CoreString& baseFileName)
+{
+    SharedFileContainer* container;
+
+    for (SharedFileContainerArray::iterator i = mSharedFileContainerArray.begin(); i != mSharedFileContainerArray.end(); i++)
+    {
+        container = *i;
+
+        if (container->getBaseFileName()->equals(baseFileName))
+        {
+            // ベースファイル名が同じだったら既存の共有ファイルコンテナを返す
+            container->addReference();
+            return container;
+        }
+    }
+
+    // 該当する共有ファイルコンテナがなかったら新規作成
+    container = new SharedFileContainer();
+    container->getBaseFileName()->copy(baseFileName);
+
+    mSharedFileContainerArray.push_back(container);
+    return container;
+}
+
+/*!
+ *  \brief  共有ファイルコンテナリリース
+ */
+void SequenceLogServiceMain::releaseSharedFileContainer(SharedFileContainer* container)
+{
+    if (container->removeReference() == false)
+        return;
+
+    // 共有ファイルクローズ
+    container->getFile()->close();
+
+    // 共有ファイル情報更新
+    FileInfo* fileInfo = container->getFileInfo();
+
+    if (fileInfo)
+        fileInfo->update();
+
+    // リストから除外
+    SharedFileContainerArray::iterator i = std::find(mSharedFileContainerArray.begin(), mSharedFileContainerArray.end(), container);
+    mSharedFileContainerArray.erase(i);
+
+    // 共有ファイルコンテナ削除
+    delete container;
 }
 
 /*!

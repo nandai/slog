@@ -37,9 +37,11 @@ class Mutex;
 class WebServerResponseThread;
 class SequenceLogService;
 class SequenceLogServiceThreadListener;
+class SharedFileContainer;
 
-typedef std::list<Thread*>      SequenceLogServiceManager;
-typedef std::list<FileInfo*>    FileInfoArray;
+typedef std::list<Thread*>              SequenceLogServiceManager;
+typedef std::list<SharedFileContainer*> SharedFileContainerArray;
+typedef std::list<FileInfo*>            FileInfoArray;
 
 /*!
  *  \brief  シーケンスログサービスリスナークラス
@@ -58,57 +60,98 @@ class SequenceLogServiceMain :
     public FileFindListener,
     public SequenceLogServiceThreadListener
 {
-            FixedString<MAX_PATH>       mLogFolderName;         //!< シーケンスログフォルダ名
-            uint32_t                    mMaxFileSize;           //!< 最大ファイルサイズ
-            int32_t                     mMaxFileCount;          //!< 最大ファイル数
+            FixedString<MAX_PATH>       mLogFolderName;             //!< シーケンスログフォルダ名
+            uint32_t                    mMaxFileSize;               //!< 最大ファイルサイズ
+            int32_t                     mMaxFileCount;              //!< 最大ファイル数
 
-            SequenceLogServiceManager   mServiceManager;        //!< シーケンスログサービスマネージャー
-            FileInfoArray               mFileInfoArray;         //!< シーケンスログファイル情報
-            bool                        mCleanupFlag;
+            SequenceLogServiceManager   mServiceManager;            //!< シーケンスログサービスマネージャー
+            SharedFileContainerArray    mSharedFileContainerArray;  //!< 共有ファイルコンテナ情報
+            FileInfoArray               mFileInfoArray;             //!< シーケンスログファイル情報
+            bool                        mCleanupFlag;               //!< クリーンアップフラグ
 
-            Mutex*                      mMutex;
-            bool                        mStartRunTime;
-            bool                        mOutputScreen;          //!< ログを画面に表示するかどうか
+            Mutex*                      mMutex;                     //!< ミューテックス
+            bool                        mStartRunTime;              //!< 実行時にサービスを開始するかどうか
+            bool                        mOutputScreen;              //!< ログを画面に表示するかどうか
 
-            uint16_t                    mSequenceLogServerPort; //!< シーケンスログサーバーポート
+            uint16_t                    mSequenceLogServerPort;     //!< シーケンスログサーバーポート
 
+            /*!
+             * コンストラクタ／デストラクタ
+             */
 public:     SequenceLogServiceMain();
             virtual ~SequenceLogServiceMain();
 
+            /*!
+             * インスタンス取得
+             */
             static SequenceLogServiceMain* getInstance();
 
 private:    virtual void run();
             virtual void onResponseStart(WebServerResponseThread* response);
 public:     void cleanup();
 
-            // シーケンスログプリント関連
+            /*!
+             * シーケンスログプリント関連
+             */
             void printLog(const Buffer* text, int32_t len);
 
-            // その他
+            /*!
+             * 共有ファイルコンテナ情報
+             */
+            SharedFileContainer* getSharedFileContainer(const CoreString& baseFileName);
+            void releaseSharedFileContainer(SharedFileContainer* container);
+
+            /*!
+             * シーケンスログファイル情報
+             */
             FileInfoArray* getFileInfoArray() const;
             void        deleteFileInfoArray();
             void addFileInfo(FileInfo* info);
 
+            /*!
+             * ミューテックス取得
+             */
             Mutex* getMutex() const;
 
+            /*!
+             * 実行時にサービスを開始するかどうか
+             */
             bool  isStartRunTime() const;
             void setStartRunTime(bool startRunTime);
 
+            /*!
+             * ログを画面に表示するかどうか
+             */
             bool  isOutputScreen() const;
             void setOutputScreen(bool outputScreen);
 
+            /*!
+             * シーケンスログフォルダ名
+             */
             const CoreString& getLogFolderName() const;
             void setLogFolderName(const CoreString& name);
 
+            /*!
+             * 最大ファイルサイズ
+             */
             uint32_t getMaxFileSize() const;
             void     setMaxFileSize(uint32_t size);
 
+            /*!
+             * 最大ファイル数
+             */
             int32_t  getMaxFileCount() const;
             void     setMaxFileCount(int32_t count);
 
+            /*!
+             * 最大ファイル数
+             */
             uint16_t getWebServerPort() const;
             void     setWebServerPort(uint16_t port);
 
+            /*!
+             * シーケンスログWEBサーバーポート
+             */
             uint16_t getSequenceLogServerPort() const;
             void     setSequenceLogServerPort(uint16_t port);
 
