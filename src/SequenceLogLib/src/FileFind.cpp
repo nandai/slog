@@ -63,7 +63,7 @@ void FileFind::exec(
     if (handle == INVALID_HANDLE_VALUE)
         return;
 
-    while (FindNextFileA(handle, &fd))
+    do
     {
         if (strcmp(fd.cFileName, "..") == 0)
             continue;
@@ -71,6 +71,7 @@ void FileFind::exec(
         path.format("%.*s\\%s", len, p, fd.cFileName);
         mListener->onFind(path);
     }
+    while (FindNextFileA(handle, &fd));
 
     FindClose(handle);
 
