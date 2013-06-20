@@ -64,6 +64,9 @@ public:     SequenceLogService(HttpRequest* httpRequest);
 
 private:    virtual bool init();
 
+            // シーケンスログファイル情報取得
+public:     FileInfo* getFileInfo() const;
+
             // シーケンスログスレッド
 private:    virtual void run();
             void writeMain();

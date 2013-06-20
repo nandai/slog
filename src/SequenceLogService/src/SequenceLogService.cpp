@@ -262,6 +262,14 @@ bool SequenceLogService::init()
 }
 
 /*
+ *  \brief  シーケンスログファイル情報取得
+ */
+FileInfo* SequenceLogService::getFileInfo() const
+{
+    return mSharedFileContainer->getFileInfo();
+}
+
+/*
  *  \brief  シーケンスログサービススレッド
  */
 void SequenceLogService::run()
@@ -382,7 +390,7 @@ void SequenceLogService::cleanUp()
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     serviceMain->releaseSharedFileContainer(mSharedFileContainer);
 
-    mSharedFileContainer = NULL;
+//  mSharedFileContainer = NULL;
 }
 
 /*!
