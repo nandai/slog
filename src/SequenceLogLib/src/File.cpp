@@ -198,4 +198,23 @@ bool File::isEOF() const
 #endif
 }
 
+/*!
+ *  \brief  書き込み
+ */
+void File::write(const Buffer* buffer, int32_t position, int32_t count) const throw(Exception)
+{
+    buffer->validateOverFlow(position, count);
+    const char* p = buffer->getBuffer() + position;
+
+    if (mHandle != NULL)
+    {
+#if defined(_WINDOWS)
+        DWORD result = 0;
+        ::WriteFile(mHandle, p, count, &result, NULL);
+#else
+        fwrite(p, 1, count, mHandle);
+#endif
+    }
+}
+
 } // namespace slog

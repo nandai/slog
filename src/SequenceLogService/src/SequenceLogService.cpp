@@ -241,6 +241,7 @@ bool SequenceLogService::init()
         mSharedFileContainer =  serviceMain->getSharedFileContainer(baseFileName);
 
 //      openSeqLogFile(mFile);
+        initBinaryOrText(&baseFileName);
 
         mOutputList =       new ItemList;
         mItemQueueManager = new ItemQueueManager;
@@ -385,20 +386,17 @@ void SequenceLogService::cleanUp()
 }
 
 /*!
- *  \brief  シーケンスログファイルオープン
+ *  \brief  シーケンスログファイルがバイナリーかテキストか
  */
-void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
+const char* SequenceLogService::initBinaryOrText(CoreString* fileName)
 {
-    // ベースファイル名取得
-    FixedString<MAX_PATH> fileName = mSharedFileContainer->getBaseFileName()->getBuffer();
-
     // 拡張子取得
-    char* ext = (char*)strrchr(fileName.getBuffer(), '.');
-    char defaultExt[] = "slog";
+    const char* ext = strrchr(fileName->getBuffer(), '.');
+    static const char defaultExt[] = "slog";
 
     if (ext)
     {
-        *ext = '\0';
+        *(char*)ext = '\0';
         ext++;
     }
     else
@@ -407,6 +405,19 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
     }
 
     mBinaryLog = (stricmp(ext, "slog") == 0);
+    return ext;
+}
+
+/*!
+ *  \brief  シーケンスログファイルオープン
+ */
+void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
+{
+    // ベースファイル名取得
+    FixedString<MAX_PATH> fileName = mSharedFileContainer->getBaseFileName()->getBuffer();
+
+    // 拡張子取得
+    const char* ext = initBinaryOrText(&fileName);
 
     // 開始日時取得
     DateTime dateTime;

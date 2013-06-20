@@ -83,7 +83,9 @@ private:    void divideItems();
             SequenceLogItem* popStockItem();
 
             // シーケンスログファイル関連
-private:    void  openSeqLogFile(    File& file) throw(Exception);
+private:    const char* initBinaryOrText(CoreString* fileName);
+
+            void  openSeqLogFile(    File& file) throw(Exception);
             void writeSeqLogFile(    File& file, SequenceLogItem*);
             void writeSeqLogFileText(File& file, SequenceLogItem*);
 
