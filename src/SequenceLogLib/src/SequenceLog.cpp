@@ -32,10 +32,6 @@
 #include "slog/WebServerResponseThread.h"
 #include "slog/HttpResponse.h"
 
-#if !defined(MODERN_UI)
-#include "slog/SharedMemory.h"
-#endif
-
 /******************************************************************************
 *
 * C言語用
@@ -129,13 +125,26 @@ class SequenceLogClient
             Socket  mSocket;        //!< ソケット
             Mutex*  mSocketMutex;   //!< ソケット用ミューテックス
 
+            /*!
+             * コンストラクタ／デストラクタ
+             */
 public:      SequenceLogClient();
             ~SequenceLogClient();
 
+            /*!
+             * 初期化
+             */
             void init();
 
-public:     SLOG_ITEM_INFO* lock(uint32_t* seq);
-            void sendItem(SLOG_ITEM_INFO* info, uint32_t* seq);
+            /*!
+             * シーケンスログアイテム生成
+             */
+public:     SequenceLogItem* createItem();
+
+            /*!
+             * シーケンスログアイテム送信
+             */
+            void sendItem(SequenceLogItem* item, uint32_t* seq = NULL);
 };
 
 /*!
@@ -247,40 +256,51 @@ void SequenceLogClient::init()
 }
 
 /*!
- *  \brief  ロック
+ *  \brief  シーケンスログアイテム生成
  */
-SLOG_ITEM_INFO* SequenceLogClient::lock(uint32_t* seq)
+SequenceLogItem* SequenceLogClient::createItem()
 {
-    SLOG_ITEM_INFO* info = NULL;
-
     if (this == NULL)
+    {
+        // sClient（唯一の SequenceLogClient インスタンス）が存在しないうちに呼ばれたら NULL を返す
         return NULL;
+    }
 
     if (mSocket.isOpen() == false)
+    {
+        // ソケットが閉じられている場合はシーケンスログアイテムを生成する意味がないので（送信しないから）
+        // NULL を返す
         return NULL;
+    }
 
-    info = new SLOG_ITEM_INFO;
-    info->item.setCurrentDateTime();
-    info->item.mThreadId = Thread::getCurrentId();
+    // シーケンスログアイテム生成
+    SequenceLogItem* item = new SequenceLogItem;
 
-    return info;
+    item->setCurrentDateTime();
+    item->mThreadId = Thread::getCurrentId();
+
+    return item;
 }
 
 /*!
  *  \brief  シーケンスログアイテム送信
  */
-void SequenceLogClient::sendItem(SLOG_ITEM_INFO* info, uint32_t* seq)
+void SequenceLogClient::sendItem(
+    SequenceLogItem* item,  // 送信するシーケンスログアイテム
+    uint32_t* seq)          // シーケンス番号
+                            //     サーバーから返されたシーケンス番号を seq に格納する
+                            //     送信するシーケンスログアイテムのタイプが STEP_IN の場合は必須
 {
     try
     {
         ScopedLock lock(mSocketMutex);
 
         // シーケンスログアイテム送信
-        WebServerResponseThread::sendWebSocketHeader(&mSocket, sizeof(info->item), false, false);
-        mSocket.send((char*)&info->item, sizeof(info->item));
+        WebServerResponseThread::sendWebSocketHeader(&mSocket, sizeof(*item), false, false);
+        mSocket.send((char*)item, sizeof(*item));
 
         // STEP_INの場合はシーケンス番号を受信する
-        if (info->item.mType == SequenceLogItemCore::STEP_IN)
+        if (item->mType == SequenceLogItemCore::STEP_IN)
         {
             ByteBuffer buffer(sizeof(uint32_t));
 
@@ -290,11 +310,13 @@ void SequenceLogClient::sendItem(SLOG_ITEM_INFO* info, uint32_t* seq)
     }
     catch (Exception e)
     {
+        // 異常発生。ソケットを閉じる
         noticeLog("%s\n", e.getMessage());
         mSocket.close();
     }
 
-    delete info;
+    // 送信済みシーケンスログアイテムを削除
+    delete item;
 }
 
 /*!
@@ -327,19 +349,13 @@ SequenceLog::SequenceLog(
 {
     SequenceLogOutputFlag outputFlag = ROOT;
     init(outputFlag);
-    SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
+    SequenceLogItem* item = sClient->createItem();
 
-    if (info)
+    if (item)
     {
-        info->item.init(mSeqNo, mOutputFlag, className, funcName);
-        sClient->sendItem(info, &mSeqNo);
+        item->init(mSeqNo, mOutputFlag, className, funcName);
+        sClient->sendItem(item, &mSeqNo);
     }
-#if defined(_DEBUG)
-    else
-    {
-        TRACE("(flag:%d) %s::%s\n", mOutputFlag, className, funcName);
-    }
-#endif
 }
 
 /*!
@@ -349,7 +365,7 @@ SequenceLog::SequenceLog(
 //{
 //    SequenceLogOutputFlag outputFlag = ROOT;
 //    init(outputFlag);
-//    SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
+//    SLOG_ITEM_INFO* info = sClient->createItem();
 //
 //    if (info)
 //    {
@@ -372,7 +388,7 @@ SequenceLog::SequenceLog(
 //{
 //    SequenceLogOutputFlag outputFlag = ROOT;
 //    init(outputFlag);
-//    SLOG_ITEM_INFO* info = sClient->lock(&mSeqNo);
+//    SLOG_ITEM_INFO* info = sClient->createItem();
 //
 //    if (info)
 //    {
@@ -393,12 +409,12 @@ SequenceLog::SequenceLog(
  */
 SequenceLog::~SequenceLog()
 {
-    SLOG_ITEM_INFO* info = sClient->lock(NULL);
+    SequenceLogItem* item = sClient->createItem();
 
-    if (info)
+    if (item)
     {
-        info->item.init(mSeqNo, mOutputFlag);
-        sClient->sendItem(info, NULL);
+        item->init(mSeqNo, mOutputFlag);
+        sClient->sendItem(item);
     }
 }
 
@@ -435,16 +451,16 @@ void SequenceLog::message(SequenceLogLevel level, const char* format, ...)
  */
 void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list arg)
 {
-    SLOG_ITEM_INFO* info = sClient->lock(NULL);
+    SequenceLogItem* item = sClient->createItem();
 
-    if (info)
+    if (item)
     {
-        info->item.init(mSeqNo, mOutputFlag, level);
-        info->item.mMessageId = 0;
+        item->init(mSeqNo, mOutputFlag, level);
+        item->mMessageId = 0;
 
         try
         {
-            PointerString _Message = info->item.getMessage();
+            PointerString _Message = item->getMessage();
             _Message.formatV(format, arg);
         }
         catch (Exception /*e*/)
@@ -452,7 +468,7 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
             // 何もしない
         }
 
-        sClient->sendItem(info, NULL);
+        sClient->sendItem(item);
     }
 }
 
@@ -461,14 +477,14 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
  */
 //void SequenceLog::message(SequenceLogLevel level, uint32_t messageID)
 //{
-//    SLOG_ITEM_INFO* info = sClient->lock(NULL);
+//    SLOG_ITEM_INFO* info = sClient->createItem();
 //
 //    if (info)
 //    {
 //        info->item.init(mSeqNo, mOutputFlag, level);
 //        info->item.mMessageId = messageID;
 //        info->ready = true;
-//        sClient->sendItem(info, NULL);
+//        sClient->sendItem(info);
 //    }
 //}
 

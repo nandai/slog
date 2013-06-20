@@ -596,12 +596,10 @@ void SequenceLogService::divideItems()
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
 
-    SLOG_ITEM_INFO* info = &mSHM->info;
-
     // 振り分け処理
     do
     {
-        const SequenceLogItem& src = info->item;
+        const SequenceLogItem& src = mSHM->item;
 
         if (src.mType != SequenceLogItem::STEP_IN  &&
             src.mType != SequenceLogItem::STEP_OUT &&
@@ -882,7 +880,7 @@ void SequenceLogService::receiveMain()
                 socket->send(&seqNoBuf, sizeof(item->mSeqNo));
             }
 
-            mSHM->info.item = *item;
+            mSHM->item = *item;
 
             divideItems();
             writeMain();

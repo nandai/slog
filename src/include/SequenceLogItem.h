@@ -260,18 +260,10 @@ inline PointerString SequenceLogItem::getFuncName()  const {return PointerString
 inline PointerString SequenceLogItem::getMessage()   const {return PointerString((char*)mMessage,   sizeof(mMessage)   - 1);}
 
 #pragma pack(push, 4)
-/*!
- *  \brief  シーケンスログ共有データ
- */
-struct SLOG_ITEM_INFO
-{
-    SequenceLogItem item;       //!< シーケンスログアイテム
-};
-
 struct SLOG_SHM
 {
     uint32_t        seq;        //!< 次に取得するシーケンス番号
-    SLOG_ITEM_INFO  info;       //!< シーケンスログアイテム情報
+    SequenceLogItem item;       //!< シーケンスログアイテム
 };
 #pragma pack(pop)
 
