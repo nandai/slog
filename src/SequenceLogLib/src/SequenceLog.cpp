@@ -27,7 +27,7 @@
 #include "slog/TimeSpan.h"
 #include "slog/Process.h"
 #include "slog/FixedString.h"
-#include "slog/String.h"
+#include "slog/PointerString.h"
 
 #include "slog/WebServerResponseThread.h"
 #include "slog/HttpResponse.h"
@@ -295,9 +295,20 @@ void SequenceLogClient::sendItem(
     {
         ScopedLock lock(mSocketMutex);
 
+        // シーケンスログアイテムをバイトバッファに格納
+        uint32_t capacity =
+            sizeof(int16_t) +                                       // 全体のレコード長
+            sizeof(SequenceLogItemCore) +                           // シーケンスログアイテム基本データ
+            sizeof(int16_t) + item->getClassName()->getLength() +   // クラス名の長さ＋クラス名
+            sizeof(int16_t) + item->getFuncName()-> getLength() +   // 関数名の長さ＋関数名
+            sizeof(int16_t) + item->getMessage()->  getLength();    // メッセージの長さ＋メッセージ
+
+        SequenceLogByteBuffer buffer(capacity);
+        uint32_t size = buffer.putSequenceLogItem(item, true);
+
         // シーケンスログアイテム送信
-        WebServerResponseThread::sendWebSocketHeader(&mSocket, sizeof(*item), false, false);
-        mSocket.send((char*)item, sizeof(*item));
+        WebServerResponseThread::sendWebSocketHeader(&mSocket, size, false, false);
+        mSocket.send(&buffer, size);
 
         // STEP_INの場合はシーケンス番号を受信する
         if (item->mType == SequenceLogItemCore::STEP_IN)
@@ -460,8 +471,8 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
 
         try
         {
-            PointerString _Message = item->getMessage();
-            _Message.formatV(format, arg);
+            CoreString* message = item->getMessage();
+            message->formatV(format, arg);
         }
         catch (Exception /*e*/)
         {
@@ -487,6 +498,188 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
 //        sClient->sendItem(info);
 //    }
 //}
+
+/*!
+ *  \brief  シーケンスログアイテム取得
+ */
+void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item) throw(Exception)
+{
+    Exception e;
+    setPosition(0);
+
+    // レコード長
+    uint16_t size = getShort();
+
+    // シーケンス番号
+    uint32_t seq = getInt();
+    item->mSeqNo = seq;
+
+    // 日時
+    uint64_t datetime = getLong();
+    item->mDateTime.setValue(datetime);
+
+    // シーケンスログアイテム種別
+    SequenceLogItem::Type type = (SequenceLogItem::Type)get();
+    item->mType = type;
+
+    // ID
+    uint32_t threadId = getInt();
+    item->mThreadId = threadId;
+
+    switch (type)
+    {
+    case SequenceLogItem::STEP_IN:
+    {
+        // クラス名
+        uint32_t ID = getInt();
+        item->mClassId = ID;
+
+        if (ID == 0)
+        {
+            short classLen = getShort();
+            CoreString* className = item->getClassName();
+
+            className->copy(get(classLen), classLen);
+        }
+
+        // 関数名
+        ID = getInt();
+        item->mFuncId = ID;
+
+        if (ID == 0)
+        {
+            short funcLen = getShort();
+            CoreString* funcName = item->getFuncName();
+
+            funcName->copy(get(funcLen), funcLen);
+        }
+
+        break;
+    }
+
+    case SequenceLogItem::STEP_OUT:
+        break;
+
+    case SequenceLogItem::MESSAGE:
+    {
+        // メッセージ
+        SequenceLogLevel level = (SequenceLogLevel)get();
+        item->mLevel = level;
+
+        uint32_t ID = getInt();
+        item->mMessageId = ID;
+
+        if (ID == 0)
+        {
+            short msgLen = getShort();
+            CoreString* message = item->getMessage();
+
+            message->copy(get(msgLen), msgLen);
+        }
+
+        break;
+    }
+
+    default:
+        e.setMessage("シーケンスログアイテム種別(%d)が正しくありません。", type);
+        throw e;
+    }
+
+    item->mOutputFlag = getInt();
+
+    if (getPosition() != size)
+    {
+        e.setMessage("データが異常です(%d, %d)。シーケンスログアイテムを設定できませんでした。", getPosition(), size);
+        throw e;
+    }
+}
+
+/*!
+ *  \brief  シーケンスログアイテム書き込み
+ */
+uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, bool enableOutputFlag)
+{
+    unsigned short size;
+    int32_t len;
+
+    setPosition(sizeof(size));
+
+    // シーケンス番号
+    putInt(item->mSeqNo);
+
+    // 日時
+    putLong(item->mDateTime.getValue());
+
+    // シーケンスログアイテム種別
+    put(item->mType);
+
+    // スレッド ID
+    putInt(item->mThreadId);
+
+    switch (item->mType)
+    {
+    case SequenceLogItem::STEP_IN:
+        // クラス名
+        putInt(item->mClassId);
+
+        if (item->mClassId == 0)
+        {
+            CoreString* className = item->getClassName();
+            len = className->getLength();
+
+            putShort(len);
+            put(className, len);
+        }
+
+        // 関数名
+        putInt(item->mFuncId);
+
+        if (item->mFuncId == 0)
+        {
+            CoreString* funcName = item->getFuncName();
+            len = funcName->getLength();
+
+            putShort(len);
+            put(funcName, len);
+        }
+
+        break;
+
+    case SequenceLogItem::STEP_OUT:
+        break;
+
+    case SequenceLogItem::MESSAGE:
+    {
+        // メッセージ
+        put(item->mLevel);
+        putInt(item->mMessageId);
+
+        if (item->mMessageId == 0)
+        {
+            CoreString* message = item->getMessage();
+            len = message->getLength();
+
+            putShort(len);
+            put(message, len);
+        }
+        break;
+    }
+
+    default:
+        break;
+    }
+
+    if (enableOutputFlag)
+        putInt(item->mOutputFlag);
+
+    // 先頭にレコード長
+    size = getPosition();
+
+    setPosition(0);
+    putShort(size);
+
+    return size;
+}
 
 } // namespace slog
 

@@ -22,7 +22,7 @@
 #pragma once
 
 #include "slog/SequenceLog.h"
-#include "slog/PointerString.h"
+#include "slog/String.h"
 #include "slog/DateTime.h"
 #include "slog/ByteBuffer.h"
 #include "slog/Thread.h"
@@ -92,9 +92,9 @@ public:     void setCurrentDateTime();
 
 class SequenceLogItem : public SequenceLogItemCore
 {
-            char                        mClassName[256];    //!< クラス名
-            char                        mFuncName [256];    //!< メソッド名
-            char                        mMessage  [256];    //!< メッセージ
+            String                      mClassName;         //!< クラス名
+            String                      mFuncName;          //!< メソッド名
+            String                      mMessage;           //!< メッセージ
 
 //          SequenceLogItem*            mPrev;
 //          SequenceLogItem*            mNext;
@@ -109,9 +109,9 @@ public:     SequenceLogItem();
             void init(uint32_t seq, uint32_t outputFlag);
             void init(uint32_t seq, uint32_t outputFlag, SequenceLogLevel level);
 
-            PointerString getClassName() const;
-            PointerString getFuncName() const;
-            PointerString getMessage() const;
+            CoreString* getClassName() const;
+            CoreString* getFuncName() const;
+            CoreString* getMessage() const;
 };
 #pragma pack(pop)
 
@@ -132,10 +132,6 @@ inline SequenceLogItemCore::SequenceLogItemCore()
  */
 inline SequenceLogItem::SequenceLogItem() : SequenceLogItemCore()
 {
-    mClassName[0] = '\0';
-    mFuncName[0] = '\0';
-    mMessage[0] = '\0';
-
     mPrev = 0;
     mNext = 0;
 }
@@ -153,16 +149,13 @@ inline void SequenceLogItem::init(
     if (this == NULL)
         return;
 
-    PointerString _ClassName(mClassName, sizeof(mClassName) - 1);
-    PointerString _FuncName( mFuncName,  sizeof(mFuncName)  - 1);
-
     mSeqNo =      seq;
     mType =       STEP_IN;
 //  mThreadId =   Thread::getCurrentId();
     mClassId =    0;
-    _ClassName.copy(className);
+    mClassName.copy(className);
     mFuncId =     0;
-    _FuncName. copy(funcName);
+    mFuncName. copy(funcName);
     mOutputFlag = outputFlag;
 }
 
@@ -179,14 +172,12 @@ inline void SequenceLogItem::init(
     if (this == NULL)
         return;
 
-    PointerString _FuncName(mFuncName, sizeof(mFuncName) - 1);
-
     mSeqNo =      seq;
     mType =       STEP_IN;
 //  mThreadId =   Thread::getCurrentId();
     mClassId =    classID;
     mFuncId =     0;
-    _FuncName.copy(funcName);
+    mFuncName.copy(funcName);
     mOutputFlag = outputFlag;
 }
 
@@ -255,9 +246,9 @@ inline void SequenceLogItemCore::setCurrentDateTime()
     mDateTime.setCurrent();
 }
 
-inline PointerString SequenceLogItem::getClassName() const {return PointerString((char*)mClassName, sizeof(mClassName) - 1);}
-inline PointerString SequenceLogItem::getFuncName()  const {return PointerString((char*)mFuncName,  sizeof(mFuncName)  - 1);}
-inline PointerString SequenceLogItem::getMessage()   const {return PointerString((char*)mMessage,   sizeof(mMessage)   - 1);}
+inline CoreString* SequenceLogItem::getClassName() const {return (CoreString*)&mClassName;}
+inline CoreString* SequenceLogItem::getFuncName()  const {return (CoreString*)&mFuncName;}
+inline CoreString* SequenceLogItem::getMessage()   const {return (CoreString*)&mMessage;}
 
 #pragma pack(push, 4)
 struct SLOG_SHM
@@ -270,185 +261,18 @@ struct SLOG_SHM
 /*!
  *  \brief  シーケンスログバイトバッファクラス
  */
-class SequenceLogByteBuffer : public ByteBuffer
+class SLOG_API SequenceLogByteBuffer : public ByteBuffer
 {
-public:     SequenceLogByteBuffer(uint32_t capacity);
+            /*!
+             * コンストラクタ
+             */
+public:     SequenceLogByteBuffer(uint32_t capacity) : ByteBuffer(capacity) {}
 
-//          void     getSequenceLogItem(      SequenceLogItem* item);
-            uint32_t putSequenceLogItem(const SequenceLogItem* item);
+            /*!
+             * シーケンスログ読み込み／書き込み
+             */
+            void     getSequenceLogItem(      SequenceLogItem* item) throw(Exception);
+            uint32_t putSequenceLogItem(const SequenceLogItem* item, bool enableOutputFlag);
 };
-
-/*!
- *  \brief  コンストラクタ
- */
-inline SequenceLogByteBuffer::SequenceLogByteBuffer(uint32_t capacity) : ByteBuffer(capacity)
-{
-}
-
-/*!
- *  \brief  シーケンスログアイテム取得
- */
-//inline void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item)
-//{
-//  setPosition(0);
-//
-//  // シーケンス番号
-//  uint32_t seq = getInt();
-//  item->mSeqNo = seq;
-//
-//  // 日時
-//  uint64_t datetime = getLong();
-//  item->mDateTime.setValue(datetime);
-//
-//  // シーケンスログアイテム種別
-//  SequenceLogItem::Type type = (SequenceLogItem::Type)get();
-//  item->mType = type;
-//
-//  // ID
-//  uint32_t threadId = getInt();
-//  item->mThreadId = threadId;
-//
-//  switch (type)
-//  {
-//  case SequenceLogItem::STEP_IN:
-//  {
-//      // クラス名
-//      uint32_t ID = getInt();
-//      item->mClassId = ID;
-//
-//      if (ID == 0)
-//      {
-//          short classLen = getShort();
-//          PointerString _ClassName = item->getClassName();
-//
-//          _ClassName.copy(get(classLen), classLen);
-//      }
-//
-//      // 関数名
-//      ID = getInt();
-//      item->mFuncId = ID;
-//
-//      if (ID == 0)
-//      {
-//          short funcLen = getShort();
-//          PointerString _FuncName = item->getFuncName();
-//
-//          _FuncName.copy(get(funcLen), funcLen);
-//      }
-//
-//      break;
-//  }
-//
-//  case SequenceLogItem::STEP_OUT:
-//      break;
-//
-//  case SequenceLogItem::MESSAGE:
-//  {
-//      // メッセージ
-//      SequenceLogLevel level = (SequenceLogLevel)get();
-//      item->mLevel = level;
-//
-//      uint32_t ID = getInt();
-//      item->mMessageId = ID;
-//
-//      if (ID == 0)
-//      {
-//          short msgLen = getShort();
-//          PointerString _Message = item->getMessage();
-//
-//          _Message.copy(get(msgLen), msgLen);
-//      }
-//
-//      break;
-//  }
-//
-//  default:
-//      break;
-//  }
-//}
-
-/*!
- *  \brief  シーケンスログアイテム書き込み
- */
-inline uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item)
-{
-    unsigned short size;
-    int32_t len;
-
-    setPosition(sizeof(size));
-
-    // シーケンス番号
-    putInt(item->mSeqNo);
-
-    // 日時
-    putLong(item->mDateTime.getValue());
-
-    // シーケンスログアイテム種別
-    put(item->mType);
-
-    // スレッド ID
-    putInt(item->mThreadId);
-
-    switch (item->mType)
-    {
-    case SequenceLogItem::STEP_IN:
-        // クラス名
-        putInt(item->mClassId);
-
-        if (item->mClassId == 0)
-        {
-            PointerString _ClassName = item->getClassName();
-            len = _ClassName.getLength();
-
-            putShort(len);
-            put(&_ClassName, len);
-        }
-
-        // 関数名
-        putInt(item->mFuncId);
-
-        if (item->mFuncId == 0)
-        {
-            PointerString _FuncName = item->getFuncName();
-            len = _FuncName.getLength();
-
-            putShort(len);
-            put(&_FuncName, len);
-        }
-
-        break;
-
-    case SequenceLogItem::STEP_OUT:
-        break;
-
-    case SequenceLogItem::MESSAGE:
-    {
-        // メッセージ
-        put(item->mLevel);
-        putInt(item->mMessageId);
-
-        if (item->mMessageId == 0)
-        {
-            PointerString _Message = item->getMessage();
-            len = _Message.getLength();
-
-            putShort(len);
-            put(&_Message, len);
-        }
-        break;
-    }
-
-    default:
-        break;
-    }
-
-    // 先頭にレコード長
-    size = getPosition();
-
-    setPosition(0);
-    putShort(size);
-
-    return size;
-}
 
 } // namespace slog

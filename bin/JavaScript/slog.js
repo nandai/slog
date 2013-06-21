@@ -123,31 +123,48 @@
 
                 if (c <= 0x7F)
                 {
-                    dataView.setUint8(pos, c);
+                    if (dataView)
+                    {
+                        dataView.setUint8(pos, c);
+                    }
                     pos += 1;
                 }
+
                 else if (c <= 0x07FF)
                 {
-                    dataView.setUint8(pos + 0, 0xC0 | (c >>> 6));
-                    dataView.setUint8(pos + 1, 0x80 | (c & 0x3F));
+                    if (dataView)
+                    {
+                        dataView.setUint8(pos + 0, 0xC0 | (c >>> 6));
+                        dataView.setUint8(pos + 1, 0x80 | (c & 0x3F));
+                    }
                     pos += 2;
                 }
+
                 else if (c <= 0xFFFF)
                 {
-                    dataView.setUint8(pos + 0, 0xE0 |  (c >>> 12));
-                    dataView.setUint8(pos + 1, 0x80 | ((c >>>  6) & 0x3F));
-                    dataView.setUint8(pos + 2, 0x80 |  (c         & 0x3F));
+                    if (dataView)
+                    {
+                        dataView.setUint8(pos + 0, 0xE0 |  (c >>> 12));
+                        dataView.setUint8(pos + 1, 0x80 | ((c >>>  6) & 0x3F));
+                        dataView.setUint8(pos + 2, 0x80 |  (c         & 0x3F));
+                    }
                     pos += 3;
                 }
+
                 else
                 {
-                    dataView.setUint8(pos + 0, 0xF0 |  (c >>> 18));
-                    dataView.setUint8(pos + 1, 0x80 | ((c >>> 12) & 0x3F));
-                    dataView.setUint8(pos + 2, 0x80 | ((c >>>  6) & 0x3F));
-                    dataView.setUint8(pos + 3, 0x80 |  (c         & 0x3F));
+                    if (dataView)
+                    {
+                        dataView.setUint8(pos + 0, 0xF0 |  (c >>> 18));
+                        dataView.setUint8(pos + 1, 0x80 | ((c >>> 12) & 0x3F));
+                        dataView.setUint8(pos + 2, 0x80 | ((c >>>  6) & 0x3F));
+                        dataView.setUint8(pos + 3, 0x80 |  (c         & 0x3F));
+                    }
                     pos += 4;
                 }
             }
+
+            return (pos - offset);
         },
 
         sendItem: function(item)
@@ -161,38 +178,133 @@
             if (this.ws.readyState !== WebSocket.OPEN)
                 return;
 
-            var buffer = new ArrayBuffer(824);
-            var dataView = new DataView(buffer);
+            var dataView = null;
 
-            dataView.setUint32(  0,  item.seqNo, true);
-            dataView.setUint8(   4,  item.dateTime[0]);
-            dataView.setUint8(   5,  item.dateTime[1]);
-            dataView.setUint8(   6,  item.dateTime[2]);
-            dataView.setUint8(   7,  item.dateTime[3]);
-            dataView.setUint8(   8,  item.dateTime[4]);
-            dataView.setUint8(   9,  item.dateTime[5]);
-            dataView.setUint8(  10,  item.dateTime[6]);
-            dataView.setUint8(  11,  item.dateTime[7]);
-            dataView.setUint32( 12,  item.type, true);
-            dataView.setUint32( 16,  1, true);
+            for (var i = 0; i < 2; i++)
+            {
+                var pos = 0;
+                var posSave = 0;
+                var len = 0;
 
-            dataView.setUint32( 20,  0, true);
-            dataView.setUint32( 24,  0, true);
+                // レコード長
+                pos += 2;
 
-            dataView.setUint32( 28,  item.outputFlag, true);
+                // シーケンス番号
+                if (dataView) {
+                    dataView.setUint32(pos, item.seqNo);
+                }
+                pos += 4;
 
-            dataView.setUint32( 32,  item.level, true);
-            dataView.setUint32( 36,  0, true);
+                // 日時
+                if (dataView) {
+                    dataView.setUint8( pos + 0, item.dateTime[7]);
+                    dataView.setUint8( pos + 1, item.dateTime[6]);
+                    dataView.setUint8( pos + 2, item.dateTime[5]);
+                    dataView.setUint8( pos + 3, item.dateTime[4]);
+                    dataView.setUint8( pos + 4, item.dateTime[3]);
+                    dataView.setUint8( pos + 5, item.dateTime[2]);
+                    dataView.setUint8( pos + 6, item.dateTime[1]);
+                    dataView.setUint8( pos + 7, item.dateTime[0]);
+                }
+                pos += 8;
 
-            this.setStringToDataView(dataView,  40, item.className);
-            this.setStringToDataView(dataView, 296, item.funcName);
-            this.setStringToDataView(dataView, 552, item.message);
+                // シーケンスログアイテム種別
+                if (dataView) {
+                    dataView.setUint8(pos, item.type);
+                }
+                pos += 1;
 
-            dataView.setUint32(808,  0);
-            dataView.setUint32(812,  0);
-            dataView.setUint32(816,  0);
-            dataView.setUint32(820,  0);
+                // スレッド ID（1 固定）
+                if (dataView) {
+                    dataView.setUint32(pos, 1);
+                }
+                pos += 4;
 
+                switch (item.type)
+                {
+                case STEP_IN:
+                    // クラス名
+                    if (dataView) {
+                        // ID は 0 固定
+                        dataView.setUint32(pos, 0);
+                    }
+                    pos += 4;
+
+                    posSave = pos;
+                    pos += 2;       // クラス名の長さを格納する領域２バイト分空けておく）
+
+                    len = this.setStringToDataView(dataView, pos, item.className);
+                    pos += len;
+
+                    if (dataView)
+                        dataView.setUint16(posSave, len);
+
+                    // 関数名
+                    if (dataView) {
+                        // ID は 0 固定
+                        dataView.setUint32(pos, 0);
+                    }
+                    pos += 4;
+
+                    posSave = pos;
+                    pos += 2;       // 関数名の長さを格納する領域２バイト分空けておく）
+
+                    len = this.setStringToDataView(dataView, pos, item.funcName);
+                    pos += len;
+
+                    if (dataView)
+                        dataView.setUint16(posSave, len);
+
+                    break;
+
+                case STEP_OUT:
+                    break;
+
+                case MESSAGE:
+                    // メッセージ
+                    if (dataView) {
+                        // ログレベル
+                        dataView.setUint8(pos, item.level);
+                    }
+                    pos += 1;
+
+                    if (dataView) {
+                        // ID は 0 固定
+                        dataView.setUint32(pos, 0);
+                    }
+                    pos += 4;
+
+                    posSave = pos;
+                    pos += 2;       // 関数名の長さを格納する領域２バイト分空けておく）
+
+                    len = this.setStringToDataView(dataView, pos, item.message);
+                    pos += len;
+
+                    if (dataView)
+                        dataView.setUint16(posSave, len);
+
+                    break;
+                }
+
+                // 出力フラグ
+                if (dataView) {
+                    dataView.setUint32(pos,  item.outputFlag);
+                }
+                pos += 4;
+
+                // 先頭にレコード長
+                if (dataView) {
+                    dataView.setUint16(0, pos);
+                }
+
+                if (i == 0)
+                {
+                    var buffer = new ArrayBuffer(pos);
+                    dataView = new DataView(buffer);
+                }
+            }
+
+            // 送信
             this.ws.send(buffer);
         },
 
@@ -229,9 +341,6 @@
         this.className = '';    // クラス名                      40: char[256]
         this.funcName = '';     // メソッド名                   296: char[256]
         this.message = '';      // メッセージ                   552: char[256]
-
-//      this.prev;              // 前のシーケンスログアイテム   808: uint64_t
-//      this.next;              // 次のシーケンスログアイテム   816: uint64_t
 
         this.setCurrentDateTime();
     };

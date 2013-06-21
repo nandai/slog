@@ -489,7 +489,7 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
  */
 void SequenceLogService::writeSeqLogFile(File& file, SequenceLogItem* item)
 {
-    uint32_t size = mFileOutputBuffer.putSequenceLogItem(item);
+    uint32_t size = mFileOutputBuffer.putSequenceLogItem(item, false);
     file.write(&mFileOutputBuffer, size);
 
     // シーケンスログプリントにログを送信
@@ -523,7 +523,7 @@ void SequenceLogService::writeSeqLogFileText(File& file, SequenceLogItem* item)
                 "%c%d %s %d %d"
                 " 0 %s 0 %s\n",
                 lc, item->mSeqNo, strDateTime.getBuffer(), item->mType, item->mThreadId,
-                item->getClassName().getBuffer(), item->getFuncName().getBuffer());
+                item->getClassName()->getBuffer(), item->getFuncName()->getBuffer());
         }
 
         if (item->mClassId != 0 && item->mFuncId == 0)
@@ -532,7 +532,7 @@ void SequenceLogService::writeSeqLogFileText(File& file, SequenceLogItem* item)
                 "%c%d %s %d %d"
                 " 1 %d 0 %s\n",
                 lc, item->mSeqNo, strDateTime.getBuffer(), item->mType, item->mThreadId,
-                item->mClassId, item->getFuncName().getBuffer());
+                item->mClassId, item->getFuncName()->getBuffer());
         }
 
         if (item->mClassId != 0 && item->mFuncId != 0)
@@ -564,7 +564,7 @@ void SequenceLogService::writeSeqLogFileText(File& file, SequenceLogItem* item)
                 "%c%d %s %d %d"
                 " %d 0 %s\n",
                 lc, item->mSeqNo, strDateTime.getBuffer(), item->mType, item->mThreadId,
-                item->mLevel, item->getMessage().getBuffer());
+                item->mLevel, item->getMessage()->getBuffer());
         }
         else
         {
@@ -843,11 +843,6 @@ SequenceLogItem* SequenceLogService::createSequenceLogItem(
  */
 void SequenceLogService::receiveMain()
 {
-    SequenceLogItem* item;
-    ByteBuffer buffer(sizeof(*item));
-
-    item = (SequenceLogItem*)buffer.getBuffer();
-
     try
     {
         Socket* socket = mHttpRequest->getSocket();
@@ -863,36 +858,46 @@ void SequenceLogService::receiveMain()
                 continue;
 
             // シーケンスログアイテム受信
-            if (WebServerResponseThread::recvData(socket, &buffer) == NULL)
+            ByteBuffer* buffer = WebServerResponseThread::recvData(socket, NULL);
+
+            if (buffer == NULL)
                 continue;
 
-            uint32_t threadId = item->mThreadId;
+            // バッファからシーケンスログアイテムを設定
+            ((SequenceLogByteBuffer*)buffer)->getSequenceLogItem(&mSHM->item);
+            delete buffer;
 
-            if (item->mType == SequenceLogItem::STEP_IN)
+            // シーケンスログアイテムのタイプが STEP_IN の場合はシーケンス番号を返信する
+            if (mSHM->item.mType == SequenceLogItem::STEP_IN)
             {
-                item->mSeqNo = mSHM->seq;
+                mSHM->item.mSeqNo = mSHM->seq;
                 mSHM->seq++;
 
-                ByteBuffer seqNoBuf(sizeof(item->mSeqNo));
-                seqNoBuf.putInt(item->mSeqNo);
+                ByteBuffer seqNoBuf(sizeof(mSHM->item.mSeqNo));
+                seqNoBuf.putInt(mSHM->item.mSeqNo);
 
-                WebServerResponseThread::sendWebSocketHeader(socket, sizeof(item->mSeqNo), false);
-                socket->send(&seqNoBuf, sizeof(item->mSeqNo));
+                WebServerResponseThread::sendWebSocketHeader(socket, sizeof(mSHM->item.mSeqNo), false);
+                socket->send(&seqNoBuf, sizeof(mSHM->item.mSeqNo));
             }
-
-            mSHM->item = *item;
 
             divideItems();
             writeMain();
         }
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         noticeLog("receiveMain: %s", e.getMessage());
     }
 
-    divideItems();
-    writeMain();
+    try
+    {
+        divideItems();
+        writeMain();
+    }
+    catch (Exception& e)
+    {
+        noticeLog("receiveMain: %s", e.getMessage());
+    }
 }
 
 } // namespace slog
