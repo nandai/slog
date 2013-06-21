@@ -47,7 +47,7 @@ public:     TimeSpan();
 /*!
  *  \brief  コンストラクタ
  */
-TimeSpan::TimeSpan()
+inline TimeSpan::TimeSpan()
 {
 #if defined(_WINDOWS)
     LARGE_INTEGER freq;
@@ -65,7 +65,7 @@ TimeSpan::TimeSpan()
 /*!
  *  \brief  差を取得する
  */
-uint32_t TimeSpan::operator-(const TimeSpan& timeSpan) const
+inline uint32_t TimeSpan::operator-(const TimeSpan& timeSpan) const
 {
 #if !defined(_WINDOWS) && !defined(__x86_64)
     if (mMS < timeSpan.mMS)

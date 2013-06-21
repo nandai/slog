@@ -23,6 +23,7 @@
 #include "SequenceLogService.h"
 
 #include "slog/Util.h"
+#include "slog/PointerString.h"
 
 #if defined(__unix__)
     #include <pwd.h>
