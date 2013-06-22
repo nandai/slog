@@ -89,6 +89,7 @@ public:      Socket();
 
             int setReUseAddress(bool reUse);
             int setRecvTimeOut(int32_t msec);
+            int setNoDelay(bool noDelay);
 
             const CoreString& getInetAddress() const;
             const CoreString& getMyInetAddress() const;

@@ -104,6 +104,7 @@ void WebServerThread::run()
     Socket server;
     server.open();
     server.setReUseAddress(true);
+    server.setNoDelay(true);
     server.bind(mPort);
     server.listen();
 

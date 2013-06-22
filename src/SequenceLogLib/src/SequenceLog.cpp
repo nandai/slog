@@ -206,6 +206,7 @@ void SequenceLogClient::init()
 
             mSocket.open();
             mSocket.setRecvTimeOut(3000);
+            mSocket.setNoDelay(true);
             mSocket.connect(address, sSequenceLogServicePort);
         }
 

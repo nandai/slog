@@ -390,6 +390,21 @@ int Socket::setRecvTimeOut(int32_t msec)
 }
 
 /*!
+ *  \brief  Nagle アルゴリズム設定
+ */
+int Socket::setNoDelay(bool noDelay)
+{
+#if defined(MODERN_UI)
+    return 0;
+#else
+    int on = (noDelay ? 1 : 0);
+
+    int result = setsockopt(mSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&on, sizeof(on));
+    return result;
+#endif
+}
+
+/*!
  *  \brief  接続元／先IPアドレス取得
  *
  *  \return 接続元／先IPアドレス
