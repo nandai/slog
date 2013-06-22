@@ -168,7 +168,18 @@ void SequenceLogServiceMain::addFileInfo(FileInfo* info)
  */
 void SequenceLogServiceMain::run()
 {
-    SequenceLogServiceWebServerThread::run();
+    mWebServer[0].start();
+    mWebServer[1].start();
+
+    while (isInterrupted() == false)
+        sleep(2000);
+
+    mWebServer[0].interrupt();
+    mWebServer[1].interrupt();
+
+    mWebServer[0].join();
+    mWebServer[1].join();
+
     cleanup();
 }
 
@@ -210,59 +221,6 @@ void SequenceLogServiceMain::cleanup()
 SequenceLogServiceMain* SequenceLogServiceMain::getInstance()
 {
     return sServiceMain;
-}
-
-/*!
- *  \brief  接続スレッド
- */
-class ConnectThread : public Thread, public ThreadListener
-{
-            Socket* mSocket;        //!< ソケット
-            String  mIp;            //!< IPアドレス
-
-public:     ConnectThread(Socket* socket, const CoreString& ip);
-
-private:    virtual void run();
-            virtual void onTerminated( Thread* thread);
-};
-
-/*!
- *  \brief  コンストラクタ
- */
-ConnectThread::ConnectThread(Socket* socket, const CoreString& ip)
-{
-    mSocket = socket;
-    mIp.copy(ip);
-    setListener(this);
-}
-
-/*!
- *  \brief  実行
- */
-void ConnectThread::run()
-{
-    TRACE("[S] ConnectThread::run\n", 0);
-
-    try
-    {
-        mSocket->open(true, SOCK_DGRAM);
-        mSocket->connect(mIp, 59108);
-    }
-    catch (Exception e)
-    {
-        TRACE("    %s\n", e.getMessage());
-        mSocket->close();
-    }
-
-    TRACE("[E] ConnectThread::run\n", 0);
-}
-
-/*!
- *  \brief  スレッド終了通知
- */
-void ConnectThread::onTerminated( Thread* thread)
-{
-    delete this;
 }
 
 /*!
@@ -385,7 +343,7 @@ void SequenceLogServiceMain::setMaxFileCount(int32_t count)
  */
 uint16_t SequenceLogServiceMain::getWebServerPort() const
 {
-    return getPort();
+    return mWebServer[0].getPort();
 }
 
 /*!
@@ -393,7 +351,8 @@ uint16_t SequenceLogServiceMain::getWebServerPort() const
  */
 void SequenceLogServiceMain::setWebServerPort(uint16_t port)
 {
-    setPort(port);
+    mWebServer[0].setPort(port);
+    mWebServer[1].setPort(8443);
 }
 
 /*!

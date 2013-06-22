@@ -56,7 +56,7 @@ public:     virtual void onLogFileChanged(Thread* thread) {}
  *  \brief  シーケンスログサービスメインクラス
  */
 class SequenceLogServiceMain :
-    public SequenceLogServiceWebServerThread,
+    public Thread,
     public FileFindListener,
     public SequenceLogServiceThreadListener
 {
@@ -73,6 +73,7 @@ class SequenceLogServiceMain :
             bool                        mStartRunTime;              //!< 実行時にサービスを開始するかどうか
             bool                        mOutputScreen;              //!< ログを画面に表示するかどうか
 
+            SequenceLogServiceWebServerThread   mWebServer[2];
             uint16_t                    mSequenceLogServerPort;     //!< シーケンスログサーバーポート
 
             /*!
@@ -87,13 +88,13 @@ public:     SequenceLogServiceMain();
             static SequenceLogServiceMain* getInstance();
 
 private:    virtual void run();
-            virtual void onResponseStart(WebServerResponseThread* response);
-public:     void cleanup();
+public:     virtual void onResponseStart(WebServerResponseThread* response);
+private:    void cleanup();
 
             /*!
              * シーケンスログプリント関連
              */
-            void printLog(const Buffer* text, int32_t len);
+public:     void printLog(const Buffer* text, int32_t len);
 
             /*!
              * 共有ファイルコンテナ情報

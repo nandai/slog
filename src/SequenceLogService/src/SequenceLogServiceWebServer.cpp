@@ -51,4 +51,13 @@ void SequenceLogServiceWebServerThread::run()
     WebServerThread::run();
 }
 
+/*!
+ *  \brief  onResponseStart
+ */
+void SequenceLogServiceWebServerThread::onResponseStart(WebServerResponseThread* response)
+{
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    serviceMain->onResponseStart(response);
+}
+
 } // namespace slog

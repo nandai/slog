@@ -31,7 +31,8 @@ namespace slog
 class SequenceLogServiceWebServerThread : public WebServerThread
 {
             virtual const CREATE* getCreateList() const;
-protected:  virtual void run();
+private:    virtual void run();
+            virtual void onResponseStart(WebServerResponseThread* response);
 };
 
 } // namespace slog
