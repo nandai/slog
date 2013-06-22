@@ -26,6 +26,9 @@
 namespace slog
 {
 
+/*!
+ * 応答スレッド生成クラス
+ */
 class CreateResponseThread : public Thread
 {
             WebServerThread*    mWebServer;
@@ -37,28 +40,39 @@ public:     CreateResponseThread(WebServerThread* webServer, HttpRequest* httpRe
             virtual void run();
 };
 
+/*!
+ * コンストラクタ
+ */
 CreateResponseThread::CreateResponseThread(WebServerThread* webServer, HttpRequest* httpRequest)
 {
     mWebServer = webServer;
     mHttpRequest = httpRequest;
 }
 
+/*!
+ * デストラクタ
+ */
 CreateResponseThread::~CreateResponseThread()
 {
 }
 
+/*!
+ * スレッド実行
+ */
 void CreateResponseThread::run()
 {
     try
     {
         WebServerResponseThread* response = NULL;
 
+        // リクエスト解析
         if (mHttpRequest->analizeRequest())
         {
             noticeLog("request URL: /%s", mHttpRequest->getUrl().getBuffer());
             response = mWebServer->createResponse(mHttpRequest);
         }
 
+        // 応答スレッド実行
         if (response)
         {
             mWebServer->onResponseStart(response);
@@ -96,6 +110,15 @@ void WebServerThread::setPort(uint16_t port)
 }
 
 /*!
+ * SSL関連
+ */
+void WebServerThread::setSSLFileName(const CoreString& certificate, const CoreString& privateKey)
+{
+    mCertificate.copy(certificate);
+    mPrivateKey. copy(privateKey);
+}
+
+/*!
  *  \brief  実行
  */
 void WebServerThread::run()
@@ -123,9 +146,15 @@ void WebServerThread::run()
             if (isReceive == false)
                 continue;
 
+            // accept
             client = new Socket;
             client->accept(&server);
 
+            // SSL関連ファイルが設定されていたらSSL有効化
+            if (0 < mCertificate.getLength() && 0 < mPrivateKey.getLength())
+                client->useSSL(mCertificate, mPrivateKey);
+
+            // 応答スレッドを生成するスレッドを実行
             HttpRequest* httpRequest = new HttpRequest(client, mPort);
             CreateResponseThread* createResponseThread = new CreateResponseThread(this, httpRequest);
 
@@ -150,15 +179,21 @@ WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpReques
     const CREATE* createList = getCreateList();
     WebServerResponseThread* response = NULL;
 
+    // 条件に一致する応答スレッドを検索
     while (createList->method != HttpRequest::UNKNOWN)
     {
         String tmp = createList->url;
 
         if (createList->method == method && url.equals(tmp))
         {
+            // HTTPメソッドとURLが一致
             if (createList->replaceUrl[0] != '\0')
+            {
+                // URL置換
                 httpRequest->setUrl(createList->replaceUrl);
+            }
 
+            // 応答スレッド生成
             response = (*createList->proc)(httpRequest);
             break;
         }
@@ -166,6 +201,7 @@ WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpReques
         createList++;
     }
 
+    // 一致するものがなければデフォルトの応答スレッドを生成
     if (response == NULL && HttpRequest::GET == method)
         response = (*createList->proc)(httpRequest);
 
