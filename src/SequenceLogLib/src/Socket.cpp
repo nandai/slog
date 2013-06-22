@@ -23,6 +23,9 @@
 #include "slog/ByteBuffer.h"
 #include "slog/FixedString.h"
 
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
 #if defined(__unix__)
     #include <sys/un.h>
     #include <unistd.h>
@@ -58,8 +61,11 @@ namespace slog
 
 struct Socket::Data
 {
-    FixedString<16> mInetAddress;   //!< IPv4
-    FixedString<16> mMyInetAddress;
+    FixedString<16> mInetAddress;   //!< 接続元／先IPアドレス
+    FixedString<16> mMyInetAddress; //!< 自IPアドレス
+
+    SSL_CTX*        mCTX;           //!< SSLコンテキスト
+    SSL*            mSSL;           //!< SSL
 };
 
 /*!
@@ -68,11 +74,15 @@ struct Socket::Data
 Socket::Socket()
 {
     mData = new Data;
+    mData->mCTX = NULL;
+    mData->mSSL = NULL;
+
 #if defined(MODERN_UI)
     mSocket = nullptr;
 #else
     mSocket = -1;
 #endif
+
     mInet = true;
     mStream = true;
     mBuffer = new ByteBuffer(sizeof(int64_t));
@@ -132,6 +142,16 @@ void Socket::open(bool inet, int type) throw(Exception)
  */
 int Socket::close()
 {
+    if (mData->mSSL)
+    {
+        SSL_shutdown(mData->mSSL);
+        SSL_free(    mData->mSSL);
+        SSL_CTX_free(mData->mCTX);
+
+        mData->mCTX = NULL;
+        mData->mSSL = NULL;
+    }
+
 #if defined(MODERN_UI)
     if (mSocket == nullptr)
         return 0;
@@ -338,6 +358,48 @@ void Socket::connect(
 #endif
 
 /*!
+ * SSL使用
+ */
+void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
+{
+    mData->mCTX = SSL_CTX_new(SSLv23_server_method());
+    mData->mSSL = SSL_new(mData->mCTX);
+    SSL_set_fd(mData->mSSL, (int)mSocket);
+
+    int res;
+
+    do
+    {
+        res = SSL_use_certificate_file(mData->mSSL, certificate.getBuffer(), SSL_FILETYPE_PEM);
+
+        if (res != 1)
+            break;
+
+        res = SSL_use_PrivateKey_file( mData->mSSL, privateKey.getBuffer(), SSL_FILETYPE_PEM);
+
+        if (res != 1)
+            break;
+
+        res = SSL_accept(mData->mSSL);
+
+        if (res != 1)
+            break;
+    }
+    while (false);
+
+    if (res != 1)
+    {
+        Exception e;
+        char buffer[120];
+
+        ERR_error_string_n(ERR_get_error(), buffer, sizeof(buffer));
+
+        e.setMessage("%s", buffer);
+        throw e;
+    }
+}
+
+/*!
  *  \brief  オープンしているかどうか調べる
  */
 bool Socket::isOpen() const
@@ -519,10 +581,17 @@ void Socket::send(
         int flag = MSG_NOSIGNAL;
 #endif
 
-        result = (mStream
-            ? ::send(  mSocket, p, remains, flag)
-            : ::sendto(mSocket, p, remains, flag, (sockaddr*)&mAddr, sizeof(mAddr))
-        );
+        if (mData->mSSL == NULL)
+        {
+            result = (mStream
+                ? ::send(  mSocket, p, remains, flag)
+                : ::sendto(mSocket, p, remains, flag, (sockaddr*)&mAddr, sizeof(mAddr))
+            );
+        }
+        else
+        {
+            result = SSL_write(mData->mSSL, p, remains);
+        }
 
         if (result == -1)
             break;
@@ -609,7 +678,14 @@ void Socket::recv(
 #else
     while (remains > 0)
     {
-        result = ::recv(mSocket, p, remains, 0);
+        if (mData->mSSL == NULL)
+        {
+            result = ::recv(mSocket, p, remains, 0);
+        }
+        else
+        {
+            result = SSL_read(mData->mSSL, p, remains);
+        }
 
         if (result <= 0)
             break;
@@ -676,6 +752,10 @@ void Socket::startup()
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2,0), &wsaData);
 #endif
+
+    SSL_library_init();
+    SSL_load_error_strings();
+    ERR_load_crypto_strings();
 }
 
 /*!

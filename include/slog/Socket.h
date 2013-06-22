@@ -68,12 +68,21 @@ class SLOG_API Socket
             ByteBuffer*     mBuffer;        //!< 数値用送受信バッファ
             bool            mConnect;       //!< 接続しているかどうか
 
+            /*!
+             * コンストラクタ／デストラクタ
+             */
 public:      Socket();
             ~Socket();
 
+            /*!
+             * オープン／クローズ
+             */
             void open(bool inet = true, int type = SOCK_STREAM) throw(Exception);
             int close();
 
+            /*!
+             * 接続関連
+             */
             void bind(unsigned short port) throw(Exception);
             void listen(int backlog = 5) const throw(Exception);
             void accept(const Socket* servSocket) throw(Exception);
@@ -84,27 +93,57 @@ public:      Socket();
             void connect(const CoreString& path) throw(Exception);
 #endif
 
+            /*!
+             * SSL使用
+             */
+            void useSSL(const CoreString& certificate, const CoreString& privateKey);
+
+            /*!
+             * オープンしているか
+             */
             bool isOpen() const;
+
+            /*!
+             * 接続しているか
+             */
             bool isConnect() const;
 
+            /*!
+             * ソケットオプション設定
+             */
             int setReUseAddress(bool reUse);
             int setRecvTimeOut(int32_t msec);
             int setNoDelay(bool noDelay);
 
+            /*!
+             * IP 取得
+             */
             const CoreString& getInetAddress() const;
             const CoreString& getMyInetAddress() const;
 
+            /*!
+             * 送信
+             */
             void send(const  int32_t* value) const throw(Exception);
             void send(const uint32_t* value) const throw(Exception);
             void send(const Buffer* buffer, int32_t len) const throw(Exception);
             void send(const char*   buffer, int32_t len) const throw(Exception);
 
+            /*!
+             * 受信
+             */
             void recv( int32_t* value) const throw(Exception);
             void recv(uint32_t* value) const throw(Exception);
             void recv(Buffer* buffer, int32_t len) const throw(Exception);
 
+            /*!
+             * 受信データがあるか
+             */
             bool isReceiveData(int32_t timeoutMS = 0) const throw(Exception);
 
+            /*!
+             *  \brief  スタートアップ／クリーンアップ
+             */
 public:     static void startup();
             static void cleanup();
 };
