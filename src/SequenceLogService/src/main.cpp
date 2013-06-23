@@ -158,7 +158,10 @@ void Application::main(int argc, char** argv)
     int32_t count = 0;
     bool outputScreen = true;
     uint16_t webServerPort = 8080;
+    uint16_t webServerPortSSL = 8443;
     uint16_t sequenceLogServerPort = 8081;
+    String certificate;
+    String privateKey;
     String user;
     String group;
 
@@ -201,8 +204,17 @@ void Application::main(int argc, char** argv)
         if (key == "WEB_SERVER_PORT")
             webServerPort = value1;
 
+        if (key == "WEB_SERVER_PORT_SSL")
+            webServerPortSSL = value1;
+
         if (key == "SEQUENCE_LOG_SERVER_PORT")
             sequenceLogServerPort = value1;
+
+        if (key == "CERTIFICATE")
+            certificate.copy(value1);
+
+        if (key == "PRIVATE_KEY")
+            privateKey.copy(value1);
 
         if (key == "USER")
             user.copy(value1);
@@ -234,7 +246,9 @@ void Application::main(int argc, char** argv)
         serviceMain.setMaxFileSize(size);
         serviceMain.setMaxFileCount(count);
         serviceMain.setOutputScreen(outputScreen);
-        serviceMain.setWebServerPort(webServerPort);
+        serviceMain.setWebServerPort(false, webServerPort);
+        serviceMain.setWebServerPort(true,  webServerPortSSL);
+        serviceMain.setSSLFileName(certificate, privateKey);
         serviceMain.setSequenceLogServerPort(sequenceLogServerPort);
         serviceMain.start();
 

@@ -7,7 +7,7 @@ CFLAGS = \
 
 #CFLAGS += -D_DEBUG
 
-LDFLAGS = -lslog -lstdc++ -lrt
+LDFLAGS = -lslog -lstdc++ -lrt -lssl
 
 INSTALLDIR = /usr/bin
 
