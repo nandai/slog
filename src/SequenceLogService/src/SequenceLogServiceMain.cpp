@@ -341,22 +341,43 @@ void SequenceLogServiceMain::setMaxFileCount(int32_t count)
 /*!
  *  \brief  シーケンスログWEBサーバーポート取得
  */
-uint16_t SequenceLogServiceMain::getWebServerPort() const
+uint16_t SequenceLogServiceMain::getWebServerPort(bool secure) const
 {
-    return mWebServer[0].getPort();
+    int32_t index = (secure ? 1 : 0);
+    return mWebServer[index].getPort();
 }
 
 /*!
  *  \brief  シーケンスログWEBサーバーポート設定
  */
-void SequenceLogServiceMain::setWebServerPort(uint16_t port)
+void SequenceLogServiceMain::setWebServerPort(bool secure, uint16_t port)
 {
-    mWebServer[0].setPort(port);
-    mWebServer[1].setPort(8443);
+    int32_t index = (secure ? 1 : 0);
+    mWebServer[index].setPort(port);
+}
 
-    String certificate = "I:\\test.crt";
-    String privateKey =  "I:\\test.key";
+/*!
+ * SSL関連
+ */
+void SequenceLogServiceMain::setSSLFileName(const CoreString& certificate, const CoreString& privateKey)
+{
     mWebServer[1].setSSLFileName(certificate, privateKey);
+}
+
+/*!
+ * 証明書ファイル名取得
+ */
+const CoreString& SequenceLogServiceMain::getCertificateFileName() const
+{
+    return mWebServer[1].getCertificateFileName();
+}
+
+/*!
+ * プライベート機ファイル名取得
+ */
+const CoreString& SequenceLogServiceMain::getPrivateKeyFileName() const
+{
+    return mWebServer[1].getPrivateKeyFileName();
 }
 
 /*!

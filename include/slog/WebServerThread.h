@@ -61,6 +61,8 @@ public:     WebServerThread();
              * SSL関連
              */
             void setSSLFileName(const CoreString& certificate, const CoreString& privateKey);
+            const CoreString& getCertificateFileName() const {return mCertificate;}
+            const CoreString& getPrivateKeyFileName() const {return mPrivateKey;}
 
             /*!
              * スレッド実行

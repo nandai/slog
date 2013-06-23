@@ -145,10 +145,17 @@ public:     void printLog(const Buffer* text, int32_t len);
             void     setMaxFileCount(int32_t count);
 
             /*!
-             * 最大ファイル数
+             * シーケンスログWEBサーバーポート
              */
-            uint16_t getWebServerPort() const;
-            void     setWebServerPort(uint16_t port);
+            uint16_t getWebServerPort(bool secure) const;
+            void     setWebServerPort(bool secure, uint16_t port);
+
+            /*!
+             * SSL関連
+             */
+            void setSSLFileName(const CoreString& certificate, const CoreString& privateKey);
+            const CoreString& getCertificateFileName() const;
+            const CoreString& getPrivateKeyFileName() const;
 
             /*!
              * シーケンスログWEBサーバーポート
