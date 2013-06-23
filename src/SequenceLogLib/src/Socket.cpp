@@ -364,7 +364,9 @@ void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
 {
     mData->mCTX = SSL_CTX_new(SSLv23_server_method());
     mData->mSSL = SSL_new(mData->mCTX);
-    SSL_set_fd(mData->mSSL, (int)mSocket);
+
+    SSL_set_options(mData->mSSL, SSL_OP_NO_SSLv2);
+    SSL_set_fd(     mData->mSSL, (int)mSocket);
 
     int res;
 
@@ -394,7 +396,32 @@ void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
 
         ERR_error_string_n(ERR_get_error(), buffer, sizeof(buffer));
 
-        e.setMessage("%s", buffer);
+        e.setMessage("useSSL: %s", buffer);
+        throw e;
+    }
+}
+
+/*!
+ * SSL使用
+ */
+void Socket::useSSL()
+{
+    mData->mCTX = SSL_CTX_new(SSLv23_client_method());
+    mData->mSSL = SSL_new(mData->mCTX);
+
+    SSL_set_options(mData->mSSL, SSL_OP_NO_SSLv2);
+    SSL_set_fd(     mData->mSSL, (int)mSocket);
+
+    int res = SSL_connect(mData->mSSL);
+
+    if (res != 1)
+    {
+        Exception e;
+        char buffer[120];
+
+        ERR_error_string_n(ERR_get_error(), buffer, sizeof(buffer));
+
+        e.setMessage("useSSL: %s", buffer);
         throw e;
     }
 }

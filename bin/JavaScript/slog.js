@@ -39,7 +39,8 @@
         setServiceAddress: function(address, port)
         {
             var self = this;
-            this.ws = new WebSocket('ws://' + address + ':' + port + '/outputLog');
+//          this.ws = new WebSocket('ws://' + address + ':' + port + '/outputLog');
+            this.ws = new WebSocket(          address + ':' + port + '/outputLog');
             this.ws.binaryType = 'arraybuffer';
 
             this.ws.onopen = function()
@@ -64,10 +65,12 @@
 
             this.ws.onerror = function()
             {
+                console.error('error slog WebSocket');
             };
 
             this.ws.onclose = function()
             {
+                console.info('close slog WebSocket');
             };
         },
 

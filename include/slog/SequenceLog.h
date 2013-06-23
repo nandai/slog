@@ -125,7 +125,7 @@ SLOG_API void  _slog_message( void* p, int32_t          level, const char* forma
 //OG_API void  _slog_message2(void* p, int32_t          level, uint32_t messageID);
 
 SLOG_API void setSequenceLogFileName(const char* fileName);
-SLOG_API void setSequenceLogServiceAddress(const char* address, uint16_t port);
+SLOG_API void setSequenceLogServiceAddress(const char* address, uint16_t port, bool useSSL);
 //OG_API void setRootFlag(int32_t outputFlag);
 SLOG_API void enableOutput(int32_t enable);
 

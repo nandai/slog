@@ -97,6 +97,7 @@ public:      Socket();
              * SSL使用
              */
             void useSSL(const CoreString& certificate, const CoreString& privateKey);
+            void useSSL();
 
             /*!
              * オープンしているか

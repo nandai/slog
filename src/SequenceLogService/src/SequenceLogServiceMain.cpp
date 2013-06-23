@@ -353,6 +353,10 @@ void SequenceLogServiceMain::setWebServerPort(uint16_t port)
 {
     mWebServer[0].setPort(port);
     mWebServer[1].setPort(8443);
+
+    String certificate = "I:\\test.crt";
+    String privateKey =  "I:\\test.key";
+    mWebServer[1].setSSLFileName(certificate, privateKey);
 }
 
 /*!
