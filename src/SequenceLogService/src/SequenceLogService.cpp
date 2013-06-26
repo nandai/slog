@@ -252,7 +252,7 @@ bool SequenceLogService::init()
     }
     catch (Exception e)
     {
-        noticeLog("%s\n", e.getMessage());
+        noticeLog("SequenceLogService: %s\n", e.getMessage());
 
         cleanUp();
         result = false;

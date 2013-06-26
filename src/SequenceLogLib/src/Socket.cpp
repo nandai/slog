@@ -374,26 +374,48 @@ void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
 {
 #if !defined(__ANDROID__)
     mData->mCTX = SSL_CTX_new(SSLv23_server_method());
-    mData->mSSL = SSL_new(mData->mCTX);
+//  mData->mSSL = SSL_new(mData->mCTX);
+//
+//  SSL_set_options(mData->mSSL, SSL_OP_NO_SSLv2);
+//  SSL_set_fd(     mData->mSSL, (int)mSocket);
 
-    SSL_set_options(mData->mSSL, SSL_OP_NO_SSLv2);
-    SSL_set_fd(     mData->mSSL, (int)mSocket);
-
-    int res;
+    int res = 1;
+    int phase;
 
     do
     {
-        res = SSL_use_certificate_file(mData->mSSL, certificate.getBuffer(), SSL_FILETYPE_PEM);
+        // 証明書
+//      res =     SSL_use_certificate_file(mData->mSSL, certificate.getBuffer(), SSL_FILETYPE_PEM);
+        res = SSL_CTX_use_certificate_file(mData->mCTX, certificate.getBuffer(), SSL_FILETYPE_PEM);
+        phase = 1;
 
         if (res != 1)
             break;
 
-        res = SSL_use_PrivateKey_file( mData->mSSL, privateKey.getBuffer(), SSL_FILETYPE_PEM);
+        // 中間証明書
+//      res = SSL_CTX_use_certificate_chain_file(mData->mCTX, "");
+        phase = 2;
+
+//      if (res != 1)
+//          break;
+
+        // プライベートキー
+//      res =     SSL_use_PrivateKey_file(mData->mSSL, privateKey.getBuffer(), SSL_FILETYPE_PEM);
+        res = SSL_CTX_use_PrivateKey_file(mData->mCTX, privateKey.getBuffer(), SSL_FILETYPE_PEM);
+        phase = 3;
 
         if (res != 1)
             break;
 
+        // ここでSSLオブジェクト生成
+        mData->mSSL = SSL_new(mData->mCTX);
+
+        SSL_set_options(mData->mSSL, SSL_OP_NO_SSLv2);
+        SSL_set_fd(     mData->mSSL, (int)mSocket);
+
+        // SSL accept
         res = SSL_accept(mData->mSSL);
+        phase = 4;
 
         if (res != 1)
             break;
@@ -407,7 +429,7 @@ void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
 
         ERR_error_string_n(ERR_get_error(), buffer, sizeof(buffer));
 
-        e.setMessage("useSSL: %s", buffer);
+        e.setMessage("useSSL [%d]: %s", phase, buffer);
         throw e;
     }
 #endif

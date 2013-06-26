@@ -265,6 +265,9 @@ SharedFileContainer* SequenceLogServiceMain::getSharedFileContainer(const CoreSt
  */
 void SequenceLogServiceMain::releaseSharedFileContainer(SharedFileContainer* container)
 {
+    if (container == NULL)
+        return;
+
     if (container->removeReference() == false)
         return;
 

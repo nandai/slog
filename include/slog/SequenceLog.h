@@ -113,6 +113,8 @@ enum SequenceLogLevel
 ******************************************************************************/
 #if defined(__cplusplus)
 extern "C" {
+#else
+typedef int32_t bool;
 #endif
 
 //OG_API void* _slog_stepIn( const char* className, const char* funcName, SequenceLogOutputFlag outputFlag);

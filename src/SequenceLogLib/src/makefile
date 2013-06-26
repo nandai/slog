@@ -10,7 +10,7 @@ CFLAGS = \
 
 #CFLAGS += -D_DEBUG
 
-LDFLAGS = -lrt -shared
+LDFLAGS = -lrt -lssl -lstdc++ -shared
 
 INSTALLDIR = /usr/lib
 
