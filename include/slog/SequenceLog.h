@@ -49,7 +49,7 @@
 //  #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = _slog_stepIn3(classID,   funcID,   outputFlag)
 //  #define SLOG_STEPIN3(classID,   funcID)                 void* _slog = _slog_stepIn3(classID,   funcID)
     #define SLOG_STEPOUT                _slog_stepOut( _slog)
-    #define SMSGC( level, format, ...)  _slog_message( _slog, level, format, __VA_ARGS__)
+    #define SMSGC( level, format, ...)  _slog_message( _slog, level, format, ##__VA_ARGS__)
 //  #define SMSGC2(level, messageID)    _slog_message2(_slog, level, messageID)
 
 #else  // defined(__SLOG__) || defined(PHP_SLOG_H)
