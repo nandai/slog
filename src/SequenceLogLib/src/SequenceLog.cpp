@@ -23,14 +23,11 @@
 #include "SequenceLogItem.h"
 
 #include "slog/Mutex.h"
-#include "slog/Socket.h"
-#include "slog/TimeSpan.h"
+#include "slog/WebSocketClient.h"
 #include "slog/Process.h"
 #include "slog/FixedString.h"
-#include "slog/PointerString.h"
 
 #include "slog/WebServerResponseThread.h"
-#include "slog/HttpResponse.h"
 
 /******************************************************************************
 *
@@ -123,8 +120,8 @@ static bool                     sClientInitialized = false;     //!< 初期化�
  */
 class SequenceLogClient
 {
-            Socket  mSocket;        //!< ソケット
-            Mutex*  mSocketMutex;   //!< ソケット用ミューテックス
+            WebSocketClient mSocket;        //!< ソケット
+            Mutex*          mSocketMutex;   //!< ソケット用ミューテックス
 
             /*!
              * コンストラクタ／デストラクタ
@@ -186,51 +183,11 @@ void SequenceLogClient::init()
 
     try
     {
-        // 初期化処理のためのソケット作成
-#if defined(__ANDROID__) && 0
-        const char* SOCKET_SLOG = "/dev/socket/slog";
-        struct stat buf;
+        // ソケット作成
+        String url;
+        url.format("%s://%s/outputLog", (sUseSSL ? "wss" : "ws"), sSequenceLogServiceAddress);
 
-        bool success = (stat(SOCKET_SLOG, &buf) == 0);
-//      success = true;
-
-        if (success)
-        {
-            mSocket.open(false);
-            mSocket.setRecvTimeOut(3000);
-            mSocket.connect(FixedString<108>(SOCKET_SLOG));
-        }
-        else
-#endif
-        {
-            PointerString address = sSequenceLogServiceAddress;
-
-            mSocket.open();
-            mSocket.setRecvTimeOut(3000);
-            mSocket.setNoDelay(true);
-            mSocket.connect(address, sSequenceLogServicePort);
-        }
-
-        if (sUseSSL)
-            mSocket.useSSL();
-
-        // WebSocketアップグレード
-        String upgrade =
-            "GET /outputLog HTTP/1.1\r\n"
-            "Upgrade: websocket\r\n"
-            "Sec-WebSocket-Key: m31EnckktzJZ/3ZWkvwNHQ==\r\n"
-            "Sec-WebSocket-Version: 13\r\n"
-            "\r\n";
-
-        mSocket.send(&upgrade, upgrade.getLength());
-
-        // WebSocketアップグレードレスポンス受信
-        HttpResponse httpResponse(&mSocket);
-
-        if (httpResponse.analizeResponse() == false)
-        {
-            return;
-        }
+        mSocket.connect(url, sSequenceLogServicePort);
 
         // WebSocketヘッダー送信
         Process process;
@@ -239,7 +196,7 @@ void SequenceLogClient::init()
         FixedString<MAX_PATH> name = p;
         int32_t len = name.getLength() + 1;
 
-        WebServerResponseThread::sendWebSocketHeader(&mSocket,
+        mSocket.sendHeader(
             sizeof(pid) + sizeof(len) + len,
             false, false);
 
@@ -312,7 +269,7 @@ void SequenceLogClient::sendItem(
         uint32_t size = buffer.putSequenceLogItem(item, true);
 
         // シーケンスログアイテム送信
-        WebServerResponseThread::sendWebSocketHeader(&mSocket, size, false, false);
+        mSocket.sendHeader(size, false, false);
         mSocket.send(&buffer, size);
 
         // STEP_INの場合はシーケンス番号を受信する

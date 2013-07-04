@@ -86,7 +86,7 @@ public:      Socket();
             void bind(unsigned short port) throw(Exception);
             void listen(int backlog = 5) const throw(Exception);
             void accept(const Socket* servSocket) throw(Exception);
-            void connect(const CoreString& ipAddress, unsigned short port) throw(Exception);
+            virtual void connect(const CoreString& ipAddress, unsigned short port) throw(Exception);
 
 #if defined(__ANDROID__)
             void bind(   const CoreString& path) throw(Exception);
@@ -125,10 +125,10 @@ public:      Socket();
             /*!
              * 送信
              */
-            void send(const  int32_t* value) const throw(Exception);
-            void send(const uint32_t* value) const throw(Exception);
-            void send(const Buffer* buffer, int32_t len) const throw(Exception);
-            void send(const char*   buffer, int32_t len) const throw(Exception);
+            virtual void send(const  int32_t* value) const throw(Exception);
+            virtual void send(const uint32_t* value) const throw(Exception);
+            virtual void send(const Buffer* buffer, int32_t len) const throw(Exception);
+            virtual void send(const char*   buffer, int32_t len) const throw(Exception);
 
             /*!
              * 受信

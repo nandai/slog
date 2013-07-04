@@ -580,7 +580,7 @@ const CoreString& Socket::getMyInetAddress() const
  */
 void Socket::send(const int32_t* value) const throw(Exception)
 {
-    send((uint32_t*)value);
+    Socket::send((uint32_t*)value);
 }
 
 /*!
@@ -591,7 +591,7 @@ void Socket::send(const uint32_t* value) const throw(Exception)
     mBuffer->setPosition(0);
     mBuffer->putInt(*value);
 
-    send(mBuffer, sizeof(*value));
+    Socket::send(mBuffer, sizeof(*value));
 }
 
 /*!
@@ -605,7 +605,7 @@ void Socket::send(
     throw(Exception)
 {
     buffer->validateOverFlow(0, len);
-    send(buffer->getBuffer(), len);
+    Socket::send(buffer->getBuffer(), len);
 }
 
 /*!

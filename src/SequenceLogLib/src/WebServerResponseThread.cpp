@@ -25,6 +25,7 @@
 #include "slog/Util.h"
 #include "slog/File.h"
 #include "slog/ByteBuffer.h"
+#include "slog/WebSocketClient.h"
 
 #include "sha1.h"
 
@@ -286,54 +287,7 @@ void WebServerResponseThread::sendWebSocketHeader(uint64_t payloadLen, bool isTe
 
 void WebServerResponseThread::sendWebSocketHeader(Socket* socket, uint64_t payloadLen, bool isText, bool toClient)
 {
-    ByteBuffer buffer(2 + 8 + 4);
-    char opcode = 0x01;     // text frame
-    char mask =   0x00;     // no mask
-
-    if (isText == false)
-    {
-        // binary frame
-        opcode = 0x02;
-    }
-
-    if (toClient == false)
-    {
-        // client -> server
-        mask = (char)0x80;
-    }
-
-    // FIN & opcode
-    buffer.put((char)0x80 | opcode);
-
-    // MASK & Payload length
-    if (payloadLen < 126)
-    {
-        // 0 ～ 125 bytes
-        buffer.put(mask | (char)payloadLen);
-    }
-    else if (payloadLen <= 0xFFFF)
-    {
-        // 126 ～ 65535 bytes
-        buffer.put(mask | (char)126);
-        buffer.putShort((short)payloadLen);
-    }
-    else
-    {
-        // 65536 ～
-        buffer.put(mask | (char)127);
-        buffer.putLong(payloadLen);
-    }
-
-    // Masking-key
-    if (toClient == false)
-    {
-        buffer.put((char)0x00);
-        buffer.put((char)0x00);
-        buffer.put((char)0x00);
-        buffer.put((char)0x00);
-    }
-
-    socket->send(&buffer, buffer.getLength());
+    WebSocket::sendHeader(socket, payloadLen, isText, toClient);
 }
 
 /*!
