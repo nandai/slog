@@ -32,6 +32,8 @@ objs = \
 	Util.o \
 	WebServerThread.o \
 	WebServerResponseThread.o \
+	WebSocket.o \
+	WebSocketClient.o \
 	SequenceLog.o \
 	jp_printf_slog_Log.o \
         sha1.o

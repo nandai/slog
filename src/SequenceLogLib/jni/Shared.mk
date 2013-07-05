@@ -22,6 +22,8 @@ LOCAL_SRC_FILES := \
     ../src/Util.cpp \
     ../src/WebServerThread.cpp \
     ../src/WebServerResponseThread.cpp \
+    ../src/WebSocket.cpp \
+    ../src/WebSocketClient.cpp \
     ../src/SequenceLog.cpp \
     ../src/jp_printf_slog_Log.cpp \
     ../src/sha1.c
