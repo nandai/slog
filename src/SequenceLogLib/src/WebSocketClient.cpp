@@ -40,7 +40,7 @@ WebSocket::WebSocket(bool isServer)
 /*!
  * Web Socket ヘッダー送信
  */
-void WebSocket::sendHeader(uint64_t payloadLen, bool isText, bool toClient) throw(Exception)
+void WebSocket::sendHeader(uint64_t payloadLen, bool isText) throw(Exception)
 {
     if (mPayloadLen != 0)
     {
@@ -53,7 +53,7 @@ void WebSocket::sendHeader(uint64_t payloadLen, bool isText, bool toClient) thro
     mPayloadLen = payloadLen;
     mIsText = isText;
 
-    WebSocket::sendHeader(this, payloadLen, isText, toClient);
+    WebSocket::sendHeader(this, payloadLen, isText, mIsServer);
 }
 
 /*!
@@ -118,7 +118,7 @@ void WebSocket::check(uint64_t len) throw(Exception)
 {
     if (mPayloadLen == 0)
     {
-        sendHeader(len, false, mIsServer);
+        sendHeader(len, false);
     }
     else if (mIsText)
     {
@@ -178,13 +178,130 @@ void WebSocket::send(const char* buffer, int32_t len) const throw(Exception)
 /*!
  * テキスト送信
  */
+#if 0
 void WebSocket::send(const CoreString& str) const throw(Exception)
 {
     WebSocket* self = (WebSocket*)this;
     uint64_t len = str.getLength();
 
-    self->sendHeader(len, true, mIsServer);
+    self->sendHeader(len, true);
     self->mPayloadLen -= len;
+}
+#endif
+
+/*!
+ * 受信
+ */
+ByteBuffer* WebSocket::recv(ByteBuffer* dataBuffer)
+{
+    return recv(this, dataBuffer);
+}
+
+ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer)
+{
+    #define OPE_TEXT    0x01
+    #define OPE_BINARY  0x02
+    #define OPE_CLOSE   0x08
+    #define OPE_PONG    0x0A
+
+    ByteBuffer buffer(2 + 8 + 4);
+    const char* p = buffer.getBuffer();
+
+    socket->recv(&buffer, 2);
+
+    // opcode
+    char opcode = p[0] & 0x0F;
+
+    if (opcode != OPE_TEXT &&
+        opcode != OPE_BINARY &&
+        opcode != OPE_CLOSE &&
+        opcode != OPE_PONG)
+    {
+        noticeLog("unknown opcode=0x%02X", opcode);
+        return NULL;
+    }
+
+    // MASK & Payload length
+    bool mask = ((p[1] & 0x80) == 0x80);
+    uint64_t payloadLen = p[1] & 0x7F;
+
+    if (payloadLen == 126)
+    {
+        socket->recv(&buffer, 2);
+        payloadLen = buffer.getShort();
+    }
+    else if (payloadLen == 127)
+    {
+        socket->recv(&buffer, 8);
+        payloadLen = buffer.getLong();
+    }
+
+    // Masking-key
+    if (mask)
+        socket->recv(&buffer, 4);
+
+    // Payload Data
+    ByteBuffer* newDataBuffer = NULL;
+
+    if (dataBuffer)
+    {
+        if (opcode == OPE_TEXT || opcode == OPE_BINARY)
+        {
+            // 受信バッファが指定されていて、受信データ（テキスト／バイナリ）長が異なる場合は例外スロー
+            if (payloadLen != dataBuffer->getCapacity())
+            {
+                Exception e;
+                e.setMessage("opcode=0x%02X, payloadLen=%d, dataBufferLen=%d", opcode, payloadLen, dataBuffer->getCapacity());
+
+                throw e;
+            }
+        }
+        else
+        {
+            // 受信バッファが指定されていて、OPE_TEXTでもOPE_BINARYでもない場合は、
+            // 指定された受信バッファのサイズが受信データ長未満の可能性を考慮して
+            // 内部で確保するバッファを使用することとし、受信バッファは一旦NULLにする
+            dataBuffer = NULL;
+        }
+    }
+
+    if (dataBuffer == NULL)
+    {
+        if (payloadLen != 0)
+        {
+            newDataBuffer = new ByteBuffer((int32_t)payloadLen);
+            dataBuffer = newDataBuffer;
+        }
+    }
+
+    if (payloadLen != 0)
+    {
+//      socket->recv(dataBuffer, payloadLen);   どうするか検討
+        socket->recv(dataBuffer, (int32_t)payloadLen);
+
+        if (mask)
+        {
+            char* p2 = dataBuffer->getBuffer();
+
+            for (uint64_t i = 0; i < payloadLen; i++)
+            {
+//              noticeLog("%03u: %02X ^ %02X = %02X", i, (uint8_t)p2[i], (uint8_t)p[i % 4], (uint8_t)(p2[i] ^ p[i % 4]));
+                p2[i] ^= p[i % 4];
+            }
+        }
+    }
+
+    if (opcode != OPE_TEXT &&
+        opcode != OPE_BINARY)
+    {
+        noticeLog("opcode=0x%02X", opcode);
+
+        delete newDataBuffer;
+        newDataBuffer = NULL;
+        dataBuffer = NULL;
+    }
+
+    return dataBuffer;
 }
 
 /*!

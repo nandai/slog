@@ -42,8 +42,8 @@ public:     WebSocket(bool isServer);
             /*!
              * Web Socket ヘッダー送信
              */
-                   void sendHeader(                uint64_t payloadLen, bool isText, bool toClient) throw(Exception);
-            static void sendHeader(Socket* socket, uint64_t payloadLen, bool isText, bool toClient) throw(Exception);
+                   void sendHeader(                uint64_t payloadLen, bool isText = true) throw(Exception);
+            static void sendHeader(Socket* socket, uint64_t payloadLen, bool isText = true, bool toClient = true) throw(Exception);
 
             /*!
              * 送信前チェック
@@ -61,7 +61,13 @@ public:     virtual void send(const  int32_t* value) const throw(Exception);
             /*!
              * テキスト送信
              */
-            virtual void send(const CoreString& str) const throw(Exception);
+//          virtual void send(const CoreString& str) const throw(Exception);
+
+            /*!
+             * 受信
+             */
+                   ByteBuffer* recv(                ByteBuffer* dataBuffer);
+            static ByteBuffer* recv(Socket* socket, ByteBuffer* dataBuffer);
 };
 
 /*!

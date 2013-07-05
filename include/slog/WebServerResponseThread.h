@@ -66,11 +66,7 @@ protected:  bool getContents(String* content, const char* url);
 protected:  bool upgradeWebSocket();
 
             // WebSocketヘッダー送信
-                   void sendWebSocketHeader(                uint64_t payloadLen, bool isText = true, bool toClient = true) const;
-public:     static void sendWebSocketHeader(Socket* socket, uint64_t payloadLen, bool isText = true, bool toClient = true);
-
-                   ByteBuffer* recvData(                ByteBuffer* dataBuffer) const;
-            static ByteBuffer* recvData(Socket* socket, ByteBuffer* dataBuffer);
+            void sendWebSocketHeader(uint64_t payloadLen, bool isText = true, bool toClient = true) const;
 };
 
 } // namespace slog

@@ -23,7 +23,7 @@
 #include "SequenceLogServiceMain.h"
 #include "SharedFileContainer.h"
 
-#include "slog/Socket.h"
+#include "slog/WebSocketClient.h"
 #include "slog/Mutex.h"
 #include "slog/FileInfo.h"
 #include "slog/DateTimeFormat.h"
@@ -214,7 +214,7 @@ bool SequenceLogService::init()
     try
     {
         Socket* socket = mHttpRequest->getSocket();
-        ByteBuffer* buffer = WebServerResponseThread::recvData(socket, NULL);
+        ByteBuffer* buffer = WebSocket::recv(socket, NULL);
 
         // プロセスID取得
         uint32_t id = buffer->getInt();
@@ -858,7 +858,7 @@ void SequenceLogService::receiveMain()
                 continue;
 
             // シーケンスログアイテム受信
-            ByteBuffer* buffer = WebServerResponseThread::recvData(socket, NULL);
+            ByteBuffer* buffer = WebSocket::recv(socket, NULL);
 
             if (buffer == NULL)
                 continue;
@@ -876,7 +876,7 @@ void SequenceLogService::receiveMain()
                 ByteBuffer seqNoBuf(sizeof(mSHM->item.mSeqNo));
                 seqNoBuf.putInt(mSHM->item.mSeqNo);
 
-                WebServerResponseThread::sendWebSocketHeader(socket, sizeof(mSHM->item.mSeqNo), false);
+                WebSocket::sendHeader(socket, sizeof(mSHM->item.mSeqNo), false);
                 socket->send(&seqNoBuf, sizeof(mSHM->item.mSeqNo));
             }
 

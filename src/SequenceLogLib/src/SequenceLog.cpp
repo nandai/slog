@@ -198,7 +198,7 @@ void SequenceLogClient::init()
 
         mSocket.sendHeader(
             sizeof(pid) + sizeof(len) + len,
-            false, false);
+            false);
 
         // プロセスID送信
         mSocket.send(&pid);
@@ -269,7 +269,7 @@ void SequenceLogClient::sendItem(
         uint32_t size = buffer.putSequenceLogItem(item, true);
 
         // シーケンスログアイテム送信
-        mSocket.sendHeader(size, false, false);
+//      mSocket.sendHeader(size, false);
         mSocket.send(&buffer, size);
 
         // STEP_INの場合はシーケンス番号を受信する
@@ -277,7 +277,7 @@ void SequenceLogClient::sendItem(
         {
             ByteBuffer buffer(sizeof(uint32_t));
 
-            WebServerResponseThread::recvData(&mSocket, &buffer);
+            mSocket.recv(&buffer);
             *seq = buffer.getInt();
         }
     }

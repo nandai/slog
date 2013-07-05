@@ -25,6 +25,7 @@
 #include "slog/HttpRequest.h"
 #include "slog/ByteBuffer.h"
 #include "slog/File.h"
+#include "slog/WebSocketClient.h"
 
 namespace slog
 {
@@ -151,7 +152,7 @@ void GetLogResponse::run()
             if (isReceive == false)
                 continue;
 
-            ByteBuffer* buffer = recvData(socket, NULL);
+            ByteBuffer* buffer = WebSocket::recv(socket, NULL);
 
             if (buffer)
             {
@@ -237,7 +238,7 @@ void GetLogResponse::send(const char* commandNo, const Buffer* payloadData)
     {
         Socket* socket = mHttpRequest->getSocket();
 
-        sendWebSocketHeader(totalLen);
+        WebSocket::sendHeader(socket, totalLen);
         socket->send(commandNo, commandNoLen);
         socket->send(payloadData, payloadDataLen);
     }
