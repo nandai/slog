@@ -181,9 +181,9 @@ void SequenceLogClient::init()
     {
         // ソケット作成
         String url;
-        url.format("%s://%s/outputLog", (sUseSSL ? "wss" : "ws"), sSequenceLogServiceAddress);
+        url.format("%s://%s:%d/outputLog", (sUseSSL ? "wss" : "ws"), sSequenceLogServiceAddress, sSequenceLogServicePort);
 
-        mSocket.connect(url, sSequenceLogServicePort);
+        mSocket.connect(url);
 
         // WebSocketヘッダー送信
         Process process;

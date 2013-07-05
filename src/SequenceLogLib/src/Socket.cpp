@@ -319,10 +319,25 @@ void Socket::connect(
 
     result = waitForSocket(action);
 #else
+    hostent* host = gethostbyname(ipAddress.getBuffer());
+
     mAddr.sin_family = AF_INET;
     mAddr.sin_port = htons(port);
-//  mAddr.sin_addr.S_un.S_addr = inet_addr(ipAddress);
-    mAddr.sin_addr.s_addr =      inet_addr(ipAddress.getBuffer());
+
+    if (host == NULL)
+    {
+//      mAddr.sin_addr.S_un.S_addr = inet_addr(ipAddress);
+        mAddr.sin_addr.s_addr =      inet_addr(ipAddress.getBuffer());
+    }
+    else
+    {
+        memcpy(&mAddr.sin_addr.s_addr, host->h_addr, host->h_length);
+//      noticeLog("len:%d, %u.%u.%u.%u", host->h_length,
+//          (uint8_t)host->h_addr[0],
+//          (uint8_t)host->h_addr[1],
+//          (uint8_t)host->h_addr[2],
+//          (uint8_t)host->h_addr[3]);
+    }
 
     if (mStream)
         result = ::connect(mSocket, (sockaddr*)&mAddr, sizeof(mAddr));

@@ -29,9 +29,10 @@ namespace slog
 /*!
  *  \brief  接続
  */
-void WebSocketClient::connect(const CoreString& url, unsigned short port) throw(Exception)
+void WebSocketClient::connect(const CoreString& url) throw(Exception)
 {
     String address;
+    unsigned short port;
     String path;
     int32_t i;
     Exception e;
@@ -48,30 +49,51 @@ void WebSocketClient::connect(const CoreString& url, unsigned short port) throw(
         {"wss://", 443, true },
     };
 
-    // ドメイン、パス、ポート番号を取得
+    // ドメイン（or IPアドレス）、パス、ポート番号を取得
     for (i = 0; i < sizeof(candidate) / sizeof(candidate[0]); i++)
     {
         int32_t index = url.indexOf(candidate[i].protocol);
 
         if (index == 0)
         {
-            if (port == 0)
-                port = candidate[i].port;
-
             int32_t domainIndex = (int32_t)strlen(candidate[i].protocol);
+            int32_t portIndex = url.indexOf(":", domainIndex);
             int32_t pathIndex = url.indexOf("/", domainIndex);
 
             const char* p = url.getBuffer();
 
-            if (0 < pathIndex)
+            // ドメイン（or IPアドレス）
+            if (0 < portIndex)
+            {
+                address.copy(p + domainIndex, portIndex - domainIndex);
+            }
+            else if (0 < pathIndex)
             {
                 address.copy(p + domainIndex, pathIndex - domainIndex);
-                path.   copy(p + pathIndex);
             }
             else
             {
                 address.copy(p + domainIndex);
-                path.   copy("/");
+            }
+
+            // ポート番号
+            if (0 < portIndex)
+            {
+                port = atoi( p + portIndex + 1);
+            }
+            else
+            {
+                port = candidate[i].port;
+            }
+
+            // パス
+            if (0 < pathIndex)
+            {
+                path.copy(p + pathIndex);
+            }
+            else
+            {
+                path.copy("/");
             }
 
             break;
@@ -84,7 +106,7 @@ void WebSocketClient::connect(const CoreString& url, unsigned short port) throw(
         throw e;
     }
 
-//  noticeLog("%s:%d (%d)", address.getBuffer(), port, i);
+//  noticeLog("%s:%d '%s' (%d)", address.getBuffer(), port, path.getBuffer(), i);
 
     // 接続
     open();
