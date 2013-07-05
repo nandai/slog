@@ -31,6 +31,8 @@
 
 #include <algorithm>
 
+static const char* CLS_NAME = "SequenceLogServiceMain";
+
 namespace slog
 {
 static SequenceLogServiceMain* sServiceMain = NULL;
@@ -76,6 +78,8 @@ struct CompareFileInfo
  */
 SequenceLogServiceMain::SequenceLogServiceMain()
 {
+    SLOG(CLS_NAME, "SequenceLogServiceMain");
+
     sServiceMain = this;
 
     mMaxFileSize = 1024 * 4;
@@ -95,6 +99,8 @@ SequenceLogServiceMain::SequenceLogServiceMain()
  */
 SequenceLogServiceMain::~SequenceLogServiceMain()
 {
+    SLOG(CLS_NAME, "~SequenceLogServiceMain");
+
     deleteFileInfoArray();
     delete mMutex;
 }
@@ -168,6 +174,8 @@ void SequenceLogServiceMain::addFileInfo(FileInfo* info)
  */
 void SequenceLogServiceMain::run()
 {
+    SLOG(CLS_NAME, "run");
+
     mWebServer[0].start();
     mWebServer[1].start();
 
@@ -188,6 +196,8 @@ void SequenceLogServiceMain::run()
  */
 void SequenceLogServiceMain::onResponseStart(WebServerResponseThread* response)
 {
+    SLOG(CLS_NAME, "onResponseStart");
+
     mServiceManager.push_back(response);
     response->setListener(this);
 }
@@ -197,6 +207,7 @@ void SequenceLogServiceMain::onResponseStart(WebServerResponseThread* response)
  */
 void SequenceLogServiceMain::cleanup()
 {
+    SLOG(CLS_NAME, "cleanup");
     mCleanupFlag = true;
 
     for (SequenceLogServiceManager::iterator i = mServiceManager.begin(); i != mServiceManager.end(); i++)
@@ -420,6 +431,7 @@ void SequenceLogServiceMain::onFind(const CoreString& path)
  */
 void SequenceLogServiceMain::onInitialized(Thread* thread)
 {
+    SLOG(CLS_NAME, "onInitialized");
     SequenceLogService* response = dynamic_cast<SequenceLogService*>(thread);
 
     if (response == NULL)
@@ -441,6 +453,7 @@ void SequenceLogServiceMain::onInitialized(Thread* thread)
  */
 void SequenceLogServiceMain::onTerminated(Thread* thread)
 {
+    SLOG(CLS_NAME, "onTerminated");
     SequenceLogService* response = dynamic_cast<SequenceLogService*>(thread);
 
     if (response == NULL)
@@ -465,6 +478,7 @@ void SequenceLogServiceMain::onTerminated(Thread* thread)
  */
 void SequenceLogServiceMain::onLogFileChanged(Thread* thread)
 {
+    SLOG(CLS_NAME, "onLogFileChanged");
     ThreadListeners* listeners = getListeners();
 
     for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
@@ -481,6 +495,7 @@ void SequenceLogServiceMain::onLogFileChanged(Thread* thread)
  */
 void SequenceLogServiceMain::onUpdateLog(const Buffer* text)
 {
+//  SLOG(CLS_NAME, "onUpdateLog");
     ThreadListeners* listeners = getListeners();
 
     for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)

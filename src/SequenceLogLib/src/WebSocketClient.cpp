@@ -84,16 +84,18 @@ void WebSocketClient::connect(const CoreString& url, unsigned short port) throw(
         throw e;
     }
 
+//  noticeLog("%s:%d (%d)", address.getBuffer(), port, i);
+
     // 接続
     open();
     setRecvTimeOut(3000);
     setNoDelay(true);
     Socket::connect(address, port);
 
-    notifyOpen();
-
     if (candidate[i].useSSL)
         useSSL();
+
+    notifyOpen();
 
     // WebSocketアップグレード
     String upgrade;
