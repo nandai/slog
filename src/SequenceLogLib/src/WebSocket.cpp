@@ -23,9 +23,147 @@
 #include "slog/HttpResponse.h"
 #include "slog/String.h"
 #include "slog/ByteBuffer.h"
+#include "slog/Mutex.h"
 
 namespace slog
 {
+
+/*!
+ *  \brief  Web Socket 受信クラス
+ */
+class WebSocketReceiver : public Thread
+{
+            WebSocket*  mWebSocket;
+
+            /*!
+             * コンストラクタ／デストラクタ
+             */
+public:     WebSocketReceiver(WebSocket* webSocket)
+            {
+                mWebSocket = webSocket;
+            }
+
+            /*!
+             * スレッド実行
+             */
+private:    virtual void run();
+
+            /*!
+             * リスナーに通知
+             */
+public:     void notifyOpen();
+private:    void notifyError(const char* message);
+private:    void notifyMessage(const ByteBuffer& buffer);
+public:     void notifyClose();
+};
+
+/*!
+ * スレッド実行
+ */
+void WebSocketReceiver::run()
+{
+    Mutex* mutex = mWebSocket->getMutex();
+
+    try
+    {
+        while (true)
+        {
+            bool isReceive = mWebSocket->isReceiveData(3000);
+
+            if (isInterrupted())
+                break;
+
+            if (isReceive == false)
+                continue;
+
+            // ロック
+            ScopedLock lock(mutex);
+
+            // データ受信
+            ByteBuffer* buffer = mWebSocket->recv(NULL);
+
+            if (buffer == NULL)
+                continue;
+
+            // リスナーにメッセージ通知
+            notifyMessage(*buffer);
+
+            // データバッファ削除
+            delete buffer;
+        }
+    }
+    catch (Exception& e)
+    {
+        const char* message = e.getMessage();
+
+        noticeLog("WebSocket: %s", message);
+        notifyError(message);
+    }
+}
+
+/*!
+ * リスナーにオープン通知
+ */
+void WebSocketReceiver::notifyOpen()
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    {
+        WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
+
+        if (listener)
+            listener->onOpen();
+    }
+}
+
+/*!
+ * リスナーにエラー通知
+ */
+void WebSocketReceiver::notifyError(const char* message)
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    {
+        WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
+
+        if (listener)
+            listener->onError(message);
+    }
+}
+
+/*!
+ * リスナーにメッセージ通知
+ */
+void WebSocketReceiver::notifyMessage(const ByteBuffer& buffer)
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    {
+        WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
+
+        if (listener)
+            listener->onMessage(buffer);
+    }
+}
+
+/*!
+ * リスナーにクローズ通知
+ */
+void WebSocketReceiver::notifyClose()
+{
+    ThreadListeners* listeners = getListeners();
+
+    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    {
+        WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
+
+        if (listener)
+            listener->onClose();
+    }
+}
 
 /*!
  * コンストラクタ
@@ -35,6 +173,54 @@ WebSocket::WebSocket(bool isServer)
     mIsServer = isServer;
     mPayloadLen = 0;
     mIsText = false;
+    mMutex = NULL;
+    mReceiver = NULL;
+}
+
+/*!
+ * デストラクタ
+ */
+WebSocket::~WebSocket()
+{
+}
+
+/*!
+ * 初期化
+ */
+void WebSocket::init()
+{
+    mMutex = new Mutex();
+    mReceiver = new WebSocketReceiver(this);
+    mReceiver->start();
+}
+
+/*!
+ * クローズ
+ */
+int WebSocket::close()
+{
+    if (mMutex)
+    {
+        mReceiver->interrupt();
+        mReceiver->join();
+        mReceiver->notifyClose();
+
+        delete mReceiver;
+        mReceiver = NULL;
+
+        delete mMutex;
+        mMutex = NULL;
+    }
+
+    return Socket::close();
+}
+
+/*!
+ * リスナー設定
+ */
+void WebSocket::setListener(WebSocketListener* listener)
+{
+    mReceiver->setListener(listener);
 }
 
 /*!
@@ -192,12 +378,12 @@ void WebSocket::send(const CoreString& str) const throw(Exception)
 /*!
  * 受信
  */
-ByteBuffer* WebSocket::recv(ByteBuffer* dataBuffer)
+ByteBuffer* WebSocket::recv(ByteBuffer* dataBuffer) const throw(Exception)
 {
-    return recv(this, dataBuffer);
+    return recv((WebSocket*)this, dataBuffer);
 }
 
-ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer)
+ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Exception)
 {
     #define OPE_TEXT    0x01
     #define OPE_BINARY  0x02
@@ -302,6 +488,14 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer)
     }
 
     return dataBuffer;
+}
+
+/*!
+ * リスナーにオープン通知
+ */
+void WebSocket::notifyOpen()
+{
+    mReceiver->notifyOpen();
 }
 
 } // namespace slog

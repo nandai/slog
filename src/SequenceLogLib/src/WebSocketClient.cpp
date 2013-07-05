@@ -90,6 +90,8 @@ void WebSocketClient::connect(const CoreString& url, unsigned short port) throw(
     setNoDelay(true);
     Socket::connect(address, port);
 
+    notifyOpen();
+
     if (candidate[i].useSSL)
         useSSL();
 
@@ -113,6 +115,8 @@ void WebSocketClient::connect(const CoreString& url, unsigned short port) throw(
         e.setMessage("WebSocketへのアップグレードに失敗しました。");
         throw e;
     }
+
+    init();
 }
 
 } // namespace slog

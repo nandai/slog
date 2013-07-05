@@ -71,14 +71,14 @@ class SLOG_API Socket
             /*!
              * コンストラクタ／デストラクタ
              */
-public:      Socket();
-            ~Socket();
+public:     Socket();
+            virtual ~Socket();
 
             /*!
              * オープン／クローズ
              */
             void open(bool inet = true, int type = SOCK_STREAM) throw(Exception);
-            int close();
+            virtual int close();
 
             /*!
              * 接続関連

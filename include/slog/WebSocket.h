@@ -20,29 +20,52 @@
  *  \author Copyright 2013 printf.jp
  */
 #pragma once
+
 #include "slog/Socket.h"
+#include "slog/Thread.h"
 
 namespace slog
 {
+class Mutex;
+class WebSocketReceiver;
+class WebSocketListener;
 
 /*!
  *  \brief  Web Socket クラス
  */
 class SLOG_API WebSocket : public Socket
 {
-            bool        mIsServer;
-            uint64_t    mPayloadLen;
-            bool        mIsText;
+            bool                mIsServer;      //!< サーバー側ソケットかどうか
+            uint64_t            mPayloadLen;    //!< データ長
+            bool                mIsText;        //!< 送信データがテキストかどうか
+            Mutex*              mMutex;         //!< ミューテックス
+            WebSocketReceiver*  mReceiver;      //!< Web Socket 受信
 
             /*!
-             * コンストラクタ
+             * コンストラクタ／デストラクタ
              */
 public:     WebSocket(bool isServer);
+            virtual ~WebSocket();
+
+            /*!
+             * 初期化
+             */
+            void init();
+
+            /*!
+             * クローズ
+             */
+public:     virtual int close();
+
+            /*!
+             * リスナー設定
+             */
+            void setListener(WebSocketListener* listener);
 
             /*!
              * Web Socket ヘッダー送信
              */
-                   void sendHeader(                uint64_t payloadLen, bool isText = true) throw(Exception);
+public:            void sendHeader(                uint64_t payloadLen, bool isText = true)                       throw(Exception);
             static void sendHeader(Socket* socket, uint64_t payloadLen, bool isText = true, bool toClient = true) throw(Exception);
 
             /*!
@@ -66,8 +89,29 @@ public:     virtual void send(const  int32_t* value) const throw(Exception);
             /*!
              * 受信
              */
-                   ByteBuffer* recv(                ByteBuffer* dataBuffer);
-            static ByteBuffer* recv(Socket* socket, ByteBuffer* dataBuffer);
+                   ByteBuffer* recv(                ByteBuffer* dataBuffer) const throw(Exception);
+            static ByteBuffer* recv(Socket* socket, ByteBuffer* dataBuffer)       throw(Exception);
+
+            /*!
+             * ミューテックス
+             */
+            Mutex* getMutex() const {return (Mutex*)mMutex;}
+
+            /*!
+             * リスナーにオープン通知
+             */
+protected:  void notifyOpen();
+};
+
+/*!
+ *  \brief  Web Socket リスナークラス
+ */
+class SLOG_API WebSocketListener : public ThreadListener
+{
+public:     virtual void onOpen() {}
+            virtual void onError(const char* message) {}
+            virtual void onMessage(const ByteBuffer& buffer) {}
+            virtual void onClose() {}
 };
 
 } // namespace slog

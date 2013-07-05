@@ -120,8 +120,7 @@ static bool                     sClientInitialized = false;     //!< 初期化�
  */
 class SequenceLogClient
 {
-            WebSocketClient mSocket;        //!< ソケット
-            Mutex*          mSocketMutex;   //!< ソケット用ミューテックス
+            WebSocketClient mSocket;    //!< Web Socket
 
             /*!
              * コンストラクタ／デストラクタ
@@ -151,7 +150,6 @@ public:     SequenceLogItem* createItem();
 inline SequenceLogClient::SequenceLogClient()
 {
     Socket::startup();
-    mSocketMutex = NULL;
 }
 
 /*!
@@ -159,9 +157,7 @@ inline SequenceLogClient::SequenceLogClient()
  */
 inline SequenceLogClient::~SequenceLogClient()
 {
-    delete mSocketMutex;
     mSocket.close();
-
     Socket::cleanup();
 }
 
@@ -206,9 +202,6 @@ void SequenceLogClient::init()
         // シーケンスログファイル名送信
         mSocket.send(&len);
         mSocket.send(&name, len);
-
-        // ソケット用ミューテックス生成
-        mSocketMutex = new Mutex();
     }
     catch (Exception e)
     {
@@ -255,7 +248,7 @@ void SequenceLogClient::sendItem(
 {
     try
     {
-        ScopedLock lock(mSocketMutex);
+        ScopedLock lock(mSocket.getMutex());
 
         // シーケンスログアイテムをバイトバッファに格納
         uint32_t capacity =
