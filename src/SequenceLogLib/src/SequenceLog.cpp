@@ -262,7 +262,7 @@ void SequenceLogClient::sendItem(
         uint32_t size = buffer.putSequenceLogItem(item, true);
 
         // シーケンスログアイテム送信
-//      mSocket.sendHeader(size, false);
+        mSocket.sendHeader(size, false);
         mSocket.send(&buffer, size);
 
         // STEP_INの場合はシーケンス番号を受信する

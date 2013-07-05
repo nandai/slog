@@ -300,17 +300,18 @@ void WebSocket::sendHeader(Socket* socket, uint64_t payloadLen, bool isText, boo
 /*!
  *  \brief  送信前チェック
  */
-void WebSocket::check(uint64_t len) throw(Exception)
+void WebSocket::check(uint64_t len, bool isText) throw(Exception)
 {
-    if (mPayloadLen == 0)
-    {
-        sendHeader(len, false);
-    }
-    else if (mIsText)
+    if (mIsText != isText)
     {
         Exception e;
+        static const char* message[] =
+        {
+            "データタイプがバイナリに設定されている時に、テキストデータを送信しようとしました。",
+            "データタイプがテキストに設定されている時に、バイナリデータを送信しようとしました。",
+        };
 
-        e.setMessage("データタイプがテキストに設定されている時に、バイナリデータを送信しようとしました。");
+        e.setMessage(message[mIsText]);
         throw e;
     }
 
@@ -330,8 +331,20 @@ void WebSocket::check(uint64_t len) throw(Exception)
  */
 void WebSocket::send(const int32_t* value) const throw(Exception)
 {
-    ((WebSocket*)this)->check(sizeof(*value));
-    Socket::send(value);
+    WebSocket* self = (WebSocket*)this;
+    int32_t len = sizeof(*value);
+
+    if (mPayloadLen == 0)
+    {
+        ScopedLock lock(mMutex);
+        sendHeader(self, len, false);
+        Socket::send(value);
+    }
+    else
+    {
+        self->check(len, false);
+        Socket::send(value);
+    }
 }
 
 /*!
@@ -339,8 +352,20 @@ void WebSocket::send(const int32_t* value) const throw(Exception)
  */
 void WebSocket::send(const uint32_t* value) const throw(Exception)
 {
-    ((WebSocket*)this)->check(sizeof(*value));
-    Socket::send(value);
+    WebSocket* self = (WebSocket*)this;
+    int32_t len = sizeof(*value);
+
+    if (mPayloadLen == 0)
+    {
+        ScopedLock lock(mMutex);
+        sendHeader(self, len, false);
+        Socket::send(value);
+    }
+    else
+    {
+        self->check(len, false);
+        Socket::send(value);
+    }
 }
 
 /*!
@@ -348,8 +373,19 @@ void WebSocket::send(const uint32_t* value) const throw(Exception)
  */
 void WebSocket::send(const Buffer* buffer, int32_t len) const throw(Exception)
 {
-    ((WebSocket*)this)->check(len);
-    Socket::send(buffer, len);
+    WebSocket* self = (WebSocket*)this;
+
+    if (mPayloadLen == 0)
+    {
+        ScopedLock lock(mMutex);
+        sendHeader(self, len, false);
+        Socket::send(buffer, len);
+    }
+    else
+    {
+        self->check(len, false);
+        Socket::send(buffer, len);
+    }
 }
 
 /*!
@@ -357,23 +393,41 @@ void WebSocket::send(const Buffer* buffer, int32_t len) const throw(Exception)
  */
 void WebSocket::send(const char* buffer, int32_t len) const throw(Exception)
 {
-    ((WebSocket*)this)->check(len);
-    Socket::send(buffer, len);
+    WebSocket* self = (WebSocket*)this;
+
+    if (mPayloadLen == 0)
+    {
+        ScopedLock lock(mMutex);
+        sendHeader(self, len, false);
+        Socket::send(buffer, len);
+    }
+    else
+    {
+        self->check(len, false);
+        Socket::send(buffer, len);
+    }
 }
 
 /*!
  * テキスト送信
  */
-#if 0
 void WebSocket::send(const CoreString& str) const throw(Exception)
 {
     WebSocket* self = (WebSocket*)this;
-    uint64_t len = str.getLength();
+    int32_t len = str.getLength();
 
-    self->sendHeader(len, true);
-    self->mPayloadLen -= len;
+    if (mPayloadLen == 0)
+    {
+        ScopedLock lock(mMutex);
+        sendHeader(self, len, false);
+        Socket::send(&str, len);
+    }
+    else
+    {
+        self->check(len, true);
+        Socket::send(&str, len);
+    }
 }
-#endif
 
 /*!
  * 受信
@@ -495,6 +549,7 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
  */
 void WebSocket::notifyOpen()
 {
+    init();
     mReceiver->notifyOpen();
 }
 

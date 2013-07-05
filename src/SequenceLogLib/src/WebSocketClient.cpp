@@ -115,8 +115,6 @@ void WebSocketClient::connect(const CoreString& url, unsigned short port) throw(
         e.setMessage("WebSocketへのアップグレードに失敗しました。");
         throw e;
     }
-
-    init();
 }
 
 } // namespace slog

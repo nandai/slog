@@ -50,7 +50,7 @@ public:     WebSocket(bool isServer);
             /*!
              * 初期化
              */
-            void init();
+private:    void init();
 
             /*!
              * クローズ
@@ -71,7 +71,7 @@ public:            void sendHeader(                uint64_t payloadLen, bool isT
             /*!
              * 送信前チェック
              */
-private:    void check(uint64_t len) throw(Exception);
+private:    void check(uint64_t len, bool isText) throw(Exception);
 
             /*!
              * バイナリ送信
@@ -84,7 +84,7 @@ public:     virtual void send(const  int32_t* value) const throw(Exception);
             /*!
              * テキスト送信
              */
-//          virtual void send(const CoreString& str) const throw(Exception);
+            virtual void send(const CoreString& str) const throw(Exception);
 
             /*!
              * 受信
