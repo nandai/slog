@@ -21,7 +21,7 @@
  */
 #include "slog/WebServerResponseThread.h"
 #include "slog/HttpRequest.h"
-#include "slog/WebSocketClient.h"
+#include "slog/WebSocket.h"
 #include "slog/Util.h"
 #include "slog/File.h"
 #include "slog/ByteBuffer.h"

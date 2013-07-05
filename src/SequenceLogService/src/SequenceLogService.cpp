@@ -23,7 +23,7 @@
 #include "SequenceLogServiceMain.h"
 #include "SharedFileContainer.h"
 
-#include "slog/WebSocketClient.h"
+#include "slog/WebSocket.h"
 #include "slog/Mutex.h"
 #include "slog/FileInfo.h"
 #include "slog/DateTimeFormat.h"

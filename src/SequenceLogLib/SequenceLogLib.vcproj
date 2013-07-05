@@ -611,6 +611,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\src\WebSocket.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\slog\WebSocket.h"
+			>
+		</File>
+		<File
 			RelativePath=".\src\WebSocketClient.cpp"
 			>
 		</File>

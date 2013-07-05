@@ -20,55 +20,10 @@
  *  \author Copyright 2013 printf.jp
  */
 #pragma once
-#include "slog/Socket.h"
+#include "slog/WebSocket.h"
 
 namespace slog
 {
-
-/*!
- *  \brief  Web Socket クラス
- */
-class SLOG_API WebSocket : public Socket
-{
-            bool        mIsServer;
-            uint64_t    mPayloadLen;
-            bool        mIsText;
-
-            /*!
-             * コンストラクタ
-             */
-public:     WebSocket(bool isServer);
-
-            /*!
-             * Web Socket ヘッダー送信
-             */
-                   void sendHeader(                uint64_t payloadLen, bool isText = true) throw(Exception);
-            static void sendHeader(Socket* socket, uint64_t payloadLen, bool isText = true, bool toClient = true) throw(Exception);
-
-            /*!
-             * 送信前チェック
-             */
-private:    void check(uint64_t len) throw(Exception);
-
-            /*!
-             * バイナリ送信
-             */
-public:     virtual void send(const  int32_t* value) const throw(Exception);
-            virtual void send(const uint32_t* value) const throw(Exception);
-            virtual void send(const Buffer* buffer, int32_t len) const throw(Exception);
-            virtual void send(const char*   buffer, int32_t len) const throw(Exception);
-
-            /*!
-             * テキスト送信
-             */
-//          virtual void send(const CoreString& str) const throw(Exception);
-
-            /*!
-             * 受信
-             */
-                   ByteBuffer* recv(                ByteBuffer* dataBuffer);
-            static ByteBuffer* recv(Socket* socket, ByteBuffer* dataBuffer);
-};
 
 /*!
  *  \brief  Web Socket クライアントクラス

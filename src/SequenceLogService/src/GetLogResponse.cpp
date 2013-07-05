@@ -25,7 +25,7 @@
 #include "slog/HttpRequest.h"
 #include "slog/ByteBuffer.h"
 #include "slog/File.h"
-#include "slog/WebSocketClient.h"
+#include "slog/WebSocket.h"
 
 namespace slog
 {
