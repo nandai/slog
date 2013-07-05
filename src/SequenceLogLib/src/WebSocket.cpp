@@ -173,8 +173,8 @@ WebSocket::WebSocket(bool isServer)
     mIsServer = isServer;
     mPayloadLen = 0;
     mIsText = false;
-    mMutex = NULL;
-    mReceiver = NULL;
+    mMutex = new Mutex();
+    mReceiver = new WebSocketReceiver(this);
 }
 
 /*!
@@ -189,8 +189,6 @@ WebSocket::~WebSocket()
  */
 void WebSocket::init()
 {
-    mMutex = new Mutex();
-    mReceiver = new WebSocketReceiver(this);
     mReceiver->start();
 }
 
