@@ -337,7 +337,7 @@ void WebSocket::send(const int32_t* value) const throw(Exception)
     if (mPayloadLen == 0)
     {
         ScopedLock lock(mMutex);
-        sendHeader(self, len, false);
+        sendHeader(self, len, false, mIsServer);
         Socket::send(value);
     }
     else
@@ -358,7 +358,7 @@ void WebSocket::send(const uint32_t* value) const throw(Exception)
     if (mPayloadLen == 0)
     {
         ScopedLock lock(mMutex);
-        sendHeader(self, len, false);
+        sendHeader(self, len, false, mIsServer);
         Socket::send(value);
     }
     else
@@ -378,7 +378,7 @@ void WebSocket::send(const Buffer* buffer, int32_t len) const throw(Exception)
     if (mPayloadLen == 0)
     {
         ScopedLock lock(mMutex);
-        sendHeader(self, len, false);
+        sendHeader(self, len, false, mIsServer);
         Socket::send(buffer, len);
     }
     else
@@ -398,7 +398,7 @@ void WebSocket::send(const char* buffer, int32_t len) const throw(Exception)
     if (mPayloadLen == 0)
     {
         ScopedLock lock(mMutex);
-        sendHeader(self, len, false);
+        sendHeader(self, len, false, mIsServer);
         Socket::send(buffer, len);
     }
     else
@@ -419,7 +419,7 @@ void WebSocket::send(const CoreString& str) const throw(Exception)
     if (mPayloadLen == 0)
     {
         ScopedLock lock(mMutex);
-        sendHeader(self, len, false);
+        sendHeader(self, len, true, mIsServer);
         Socket::send(&str, len);
     }
     else
