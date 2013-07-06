@@ -36,11 +36,10 @@
             this.name = name;
         },
 
-        setServiceAddress: function(address, port)
+        setServiceAddress: function(address)
         {
             var self = this;
-//          this.ws = new WebSocket('ws://' + address + ':' + port + '/outputLog');
-            this.ws = new WebSocket(          address + ':' + port + '/outputLog');
+            this.ws = new WebSocket(address + '/outputLog');
             this.ws.binaryType = 'arraybuffer';
 
             this.ws.onopen = function()
@@ -437,7 +436,7 @@
         exports.slog = {};
 
     exports.slog.setFileName =       function(name)          {client.setFileName(name);},
-    exports.slog.setServiceAddress = function(address, port) {client.setServiceAddress(address, port);},
+    exports.slog.setServiceAddress = function(address)       {client.setServiceAddress(address);},
     exports.slog.enableOutput =      function(enable)        {client.enableOutput(enable);},
     exports.slog.stepIn =            function(className, funcName) {return new SequenceLog(className, funcName);}
 })(this);

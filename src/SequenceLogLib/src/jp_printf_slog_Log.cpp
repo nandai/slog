@@ -72,12 +72,12 @@ static void JNICALL setFileName(JNIEnv* env, jclass, jstring aFileName)
 /*
  * Class:     jp_printf_slog_Log
  * Method:    setServiceAddress
- * Signature: (Ljava/lang/String;IZ)V
+ * Signature: (Ljava/lang/String;)V
  */
-static void JNICALL setServiceAddress(JNIEnv* env, jclass, jstring aAddress, jint port, jboolean useSSL)
+static void JNICALL setServiceAddress(JNIEnv* env, jclass, jstring aAddress)
 {
     JavaString address(env, aAddress);
-    setSequenceLogServiceAddress(address.getBuffer(), (uint16_t)port, useSSL == 1);
+    setSequenceLogServiceAddress(address.getBuffer());
 }
 
 /*
@@ -213,7 +213,7 @@ static void JNICALL message3(JNIEnv* env, jclass, jint level, jstring aMessage, 
 static JNINativeMethodEx sMethods[] =
 {
     {"setFileName",       "(Ljava/lang/String;)V",                    (void*)setFileName      },
-    {"setServiceAddress", "(Ljava/lang/String;IZ)V",                  (void*)setServiceAddress},
+    {"setServiceAddress", "(Ljava/lang/String;)V",                    (void*)setServiceAddress},
 //  {"setRootFlag",       "(I)V",                                     (void*)setRootFlagJNI   },
     {"enableOutput",      "(Z)V",                                     (void*)enableOutputJNI  },
     {"stepIn",            "(Ljava/lang/String;Ljava/lang/String;)J",  (void*)stepIn1          },

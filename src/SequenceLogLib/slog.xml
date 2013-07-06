@@ -20,7 +20,7 @@ This is Sequence Log Library.
 
   <release>
     <version>1.2.5</version>
-    <date>2013-06-23</date>
+    <date>2013-07-06</date>
     <state>stable</state>
     <notes><?data
 - Initial release.
@@ -34,10 +34,12 @@ This is Sequence Log Library.
   </with>
 </deps>
 
+<!--
     <constant type="int" name="KEEP" value="0"></constant>
     <constant type="int" name="OUTPUT_ALL" value="1"></constant>
     <constant type="int" name="ALWAYS" value="2"></constant>
     <constant type="int" name="ROOT" value="3"></constant>
+-->
 
     <function name="slogSetFileName">
       <proto>void slogSetFileName(string name)</proto>
@@ -47,9 +49,9 @@ This is Sequence Log Library.
     </function>
 
     <function name="slogSetServiceAddress">
-      <proto>void slogSetServiceAddress(string address, int port, bool useSSL)</proto>
+      <proto>void slogSetServiceAddress(string address)</proto>
       <code>
-        setSequenceLogServiceAddress(address, (uint16_t)port, useSSL);
+        setSequenceLogServiceAddress(address);
       </code>
     </function>
 

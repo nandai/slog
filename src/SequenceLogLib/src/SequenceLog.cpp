@@ -105,15 +105,21 @@ extern "C"
 namespace slog
 {
 
-static char                     sSequenceLogFileName[MAX_PATH + 1] = "";            //!< シーケンスログファイル名
-static char                     sSequenceLogServiceAddress[255 + 1] = "127.0.0.1";  //!< シーケンスログサービスアドレス
-static uint16_t                 sSequenceLogServicePort = 8080;                     //!< シーケンスログサービスポート
-static bool                     sUseSSL = false;
-static SequenceLogOutputFlag    sRootFlag = ROOT;
+//!< シーケンスログファイル名
+static char sSequenceLogFileName[MAX_PATH + 1] = "";
 
+//!< シーケンスログサービスアドレス
+static char sSequenceLogServiceAddress[255 + 1] = "ws://127.0.0.1:8080";
+
+//!< 出力フラグ
+static SequenceLogOutputFlag sRootFlag = ROOT;
+
+//!< シーケンスログクライアントオブジェクト
 class  SequenceLogClient;
-static SequenceLogClient*       sClient = NULL;                 //!< シーケンスログクライアントオブジェクト
-static bool                     sClientInitialized = false;     //!< 初期化フラグ
+static SequenceLogClient* sClient = NULL;
+
+//!< 初期化フラグ
+static bool sClientInitialized = false;
 
 /*!
  *  \brief  シーケンスログクライアントクラス
@@ -181,7 +187,7 @@ void SequenceLogClient::init()
     {
         // ソケット作成
         String url;
-        url.format("%s://%s:%d/outputLog", (sUseSSL ? "wss" : "ws"), sSequenceLogServiceAddress, sSequenceLogServicePort);
+        url.format("%s/outputLog", sSequenceLogServiceAddress);
 
         mSocket.connect(url);
 
@@ -650,13 +656,11 @@ extern "C" void setSequenceLogFileName(const char* fileName)
 /*!
  *  \brief  シーケンスログサービスのアドレスを設定する
  */
-extern "C" void setSequenceLogServiceAddress(const char* address, uint16_t port, bool useSSL)
+extern "C" void setSequenceLogServiceAddress(const char* url)
 {
-    if (strlen(address) <= sizeof(slog::sSequenceLogServiceAddress) - 1)
+    if (strlen(url) <= sizeof(slog::sSequenceLogServiceAddress) - 1)
     {
-        strcpy(slog::sSequenceLogServiceAddress, address);
-        slog::sSequenceLogServicePort = port;
-        slog::sUseSSL = useSSL;
+        strcpy(slog::sSequenceLogServiceAddress, url);
     }
 }
 
