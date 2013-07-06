@@ -34,6 +34,8 @@
     #include <syslog.h>
 #endif
 
+static const char* CLS_SEQUENCE_LOG_SERVICE = "SequenceLogService";
+
 namespace slog
 {
 
@@ -843,6 +845,8 @@ SequenceLogItem* SequenceLogService::createSequenceLogItem(
  */
 void SequenceLogService::receiveMain()
 {
+    SLOG(CLS_SEQUENCE_LOG_SERVICE, "receiveMain");
+
     try
     {
         Socket* socket = mHttpRequest->getSocket();
@@ -870,14 +874,17 @@ void SequenceLogService::receiveMain()
             // シーケンスログアイテムのタイプが STEP_IN の場合はシーケンス番号を返信する
             if (mSHM->item.mType == SequenceLogItem::STEP_IN)
             {
-                mSHM->item.mSeqNo = mSHM->seq;
+                if (mSHM->item.mSeqNo != mSHM->seq)
+                    SMSG(slog::ERROR, "Illegal SeqNo (%d != %d)", mSHM->item.mSeqNo, mSHM->seq);
+
+//              mSHM->item.mSeqNo = mSHM->seq;
                 mSHM->seq++;
-
-                ByteBuffer seqNoBuf(sizeof(mSHM->item.mSeqNo));
-                seqNoBuf.putInt(mSHM->item.mSeqNo);
-
-                WebSocket::sendHeader(socket, sizeof(mSHM->item.mSeqNo), false);
-                socket->send(&seqNoBuf, sizeof(mSHM->item.mSeqNo));
+//
+//              ByteBuffer seqNoBuf(sizeof(mSHM->item.mSeqNo));
+//              seqNoBuf.putInt(mSHM->item.mSeqNo);
+//
+//              WebSocket::sendHeader(socket, sizeof(mSHM->item.mSeqNo), false);
+//              socket->send(&seqNoBuf, sizeof(mSHM->item.mSeqNo));
             }
 
             divideItems();

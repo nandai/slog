@@ -127,6 +127,7 @@ static bool sClientInitialized = false;
 class SequenceLogClient
 {
             WebSocketClient mSocket;    //!< Web Socket
+            uint32_t        mSeqNo;     //!< シーケンス番号
 
             /*!
              * コンストラクタ／デストラクタ
@@ -156,6 +157,7 @@ public:     SequenceLogItem* createItem();
 inline SequenceLogClient::SequenceLogClient()
 {
     Socket::startup();
+    mSeqNo = 1;
 }
 
 /*!
@@ -264,6 +266,13 @@ void SequenceLogClient::sendItem(
             sizeof(int16_t) + item->getFuncName()-> getLength() +   // 関数名の長さ＋関数名
             sizeof(int16_t) + item->getMessage()->  getLength();    // メッセージの長さ＋メッセージ
 
+        // STEP_INの場合はシーケンス番号を更新する
+        if (item->mType == SequenceLogItemCore::STEP_IN)
+        {
+            item->mSeqNo = mSeqNo;
+            *seq = mSeqNo++;
+        }
+
         SequenceLogByteBuffer buffer(capacity);
         uint32_t size = buffer.putSequenceLogItem(item, true);
 
@@ -272,13 +281,13 @@ void SequenceLogClient::sendItem(
         mSocket.send(&buffer, size);
 
         // STEP_INの場合はシーケンス番号を受信する
-        if (item->mType == SequenceLogItemCore::STEP_IN)
-        {
-            ByteBuffer buffer(sizeof(uint32_t));
-
-            mSocket.recv(&buffer);
-            *seq = buffer.getInt();
-        }
+//      if (item->mType == SequenceLogItemCore::STEP_IN)
+//      {
+//          ByteBuffer buffer(sizeof(uint32_t));
+//
+//          mSocket.recv(&buffer);
+//          *seq = buffer.getInt();
+//      }
     }
     catch (Exception e)
     {
