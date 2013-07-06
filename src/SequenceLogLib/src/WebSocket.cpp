@@ -76,8 +76,11 @@ void WebSocketReceiver::run()
             if (isReceive == false)
                 continue;
 
-            // ロック
+            // ロックしてから再度チェック
             ScopedLock lock(mutex);
+
+            if (mWebSocket->isReceiveData(0) == false)
+                continue;
 
             // データ受信
             ByteBuffer* buffer = mWebSocket->recv(NULL);

@@ -26,10 +26,10 @@ JNIEXPORT void JNICALL Java_jp_printf_slog_Log_setFileName
 /*
  * Class:     jp_printf_slog_Log
  * Method:    setServiceAddress
- * Signature: (Ljava/lang/String;IZ)V
+ * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_jp_printf_slog_Log_setServiceAddress
-  (JNIEnv *, jclass, jstring, jint, jboolean);
+  (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     jp_printf_slog_Log

@@ -23,6 +23,10 @@
 #include "slog/HttpResponse.h"
 #include "slog/String.h"
 
+#if defined(__unix__)
+    #include <stdlib.h>
+#endif
+
 namespace slog
 {
 

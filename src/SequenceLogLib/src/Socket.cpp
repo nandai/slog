@@ -32,6 +32,7 @@
     #include <sys/un.h>
     #include <netinet/tcp.h>
     #include <unistd.h>
+    #include <netdb.h>
 #endif
 
 #if defined(MODERN_UI)
