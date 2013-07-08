@@ -21,12 +21,20 @@
  */
 #include "slog/SequenceLog.h"
 #include "slog/JavaString.h"
+#include "slog/WebSocketClient.h"
+#include "slog/ByteBuffer.h"
 
 #if defined(__ANDROID__)
     #include <android/log.h>
 #endif
 
 using namespace slog;
+
+static JavaVM* JVM = NULL;
+static jint JNI_VERSION = JNI_VERSION_1_6;
+
+struct _jmethodID {};   // warning LINK4248 対策
+struct _jfieldID  {};   // 〃
 
 // gccの警告「warning: deprecated conversion from string constant to 'char*'」に対処するため、
 // const char*版JNINativeMethodを定義する
@@ -58,6 +66,23 @@ static bool registerNatives(JNIEnv* env, const char* className, const JNINativeM
     return result;
 }
 
+/*!
+ *  \brief  JNIEnv取得
+ */
+static JNIEnv* getJNIEnv()
+{
+    JNIEnv* env = NULL;
+    jint version = JNI_VERSION;
+
+    if (JVM->GetEnv((void**)&env, version) == JNI_OK)
+        return env;
+
+    if (JVM->AttachCurrentThread((void**)&env, NULL) == JNI_OK)
+		return env;
+
+    return NULL;
+}
+
 /*
  * Class:     jp_printf_slog_Log
  * Method:    setFileName
@@ -79,16 +104,6 @@ static void JNICALL setServiceAddress(JNIEnv* env, jclass, jstring aAddress)
     JavaString address(env, aAddress);
     setSequenceLogServiceAddress(address.getBuffer());
 }
-
-/*
- * Class:     jp_printf_slog_Log
- * Method:    setRootFlag
- * Signature: (I)V
- */
-//static void JNICALL setRootFlagJNI(JNIEnv* env, jclass, jint outputFlag)
-//{
-//    setRootFlag(outputFlag);
-//}
 
 /*
  * Class:     jp_printf_slog_Log
@@ -209,8 +224,179 @@ static void JNICALL message3(JNIEnv* env, jclass, jint level, jstring aMessage, 
 #endif
 }
 
+/*!
+ * Java用WebSocketClientクラス
+ */
+class JavaWebSocketClient : public WebSocketClient, public WebSocketListener
+{
+public:     static jfieldID     mNativeObj;
+private:    static jmethodID    mOnOpen;
+            static jmethodID    mOnError;
+            static jmethodID    mOnMessage;
+            static jmethodID    mOnClose;
+
+            jobject             mJavaObj;
+
+            /*!
+             * コンストラクタ／デストラクタ
+             */
+public:     JavaWebSocketClient(JNIEnv* env, jobject javaObj);
+            virtual ~JavaWebSocketClient();
+
+            /*!
+             * ハンドラ
+             */
+public:     virtual void onOpen();
+            virtual void onError(const char* message);
+            virtual void onMessage(const ByteBuffer& buffer);
+            virtual void onClose();
+};
+
+/*!
+ * コンストラクタ
+ */
+JavaWebSocketClient::JavaWebSocketClient(JNIEnv* env, jobject javaObj) : WebSocketClient()
+{
+    jclass clazz = env->GetObjectClass(javaObj);
+
+    mNativeObj = env->GetFieldID( clazz, "mNativeObj", "J");
+    mOnOpen =    env->GetMethodID(clazz, "onOpen",     "()V");
+    mOnError =   env->GetMethodID(clazz, "onError",    "(Ljava/lang/String;)V");
+    mOnMessage = env->GetMethodID(clazz, "onMessage",  "(Ljava/nio/ByteBuffer;)V");
+    mOnClose =   env->GetMethodID(clazz, "onClose",    "()V");
+
+    mJavaObj = env->NewGlobalRef(javaObj);
+    setListener(this);
+
+    env->SetLongField(mJavaObj, mNativeObj, (jlong)this);
+}
+
+/*!
+ * デストラクタ
+ */
+JavaWebSocketClient::~JavaWebSocketClient()
+{
+    JNIEnv* env = getJNIEnv();
+    env->SetLongField(mJavaObj, mNativeObj, NULL);
+}
+
+/*!
+ * onOpen
+ */
+void JavaWebSocketClient::onOpen()
+{
+    JNIEnv* env = getJNIEnv();
+    env->CallVoidMethod(mJavaObj, mOnOpen);
+}
+
+/*!
+ * onError
+ */
+void JavaWebSocketClient::onError(const char* message)
+{
+    JNIEnv* env = getJNIEnv();
+
+    if (env == NULL)
+        return;
+
+#if defined(_WINDOWS)
+    UTF16LE utf16le;
+    utf16le.conv(message, 1);
+#else
+    UTF16LE utf16le;
+    utf16le.conv(message, 0);
+#endif
+
+//  jstring str = env->NewStringUTF(message);
+    jstring str = env->NewString((jchar*)utf16le.getBuffer(), utf16le.getChars());
+
+    env->CallVoidMethod(mJavaObj, mOnError, str);
+    env->ReleaseStringUTFChars(str, message);
+}
+
+/*!
+ * onMessage
+ */
+void JavaWebSocketClient::onMessage(const ByteBuffer& buffer)
+{
+    JNIEnv* env = getJNIEnv();
+
+    if (env == NULL)
+        return;
+
+    jobject buf = env->NewDirectByteBuffer(buffer.getBuffer(), buffer.getLength());
+    buf = env->NewGlobalRef(buf);
+
+    env->CallVoidMethod(mJavaObj, mOnMessage, buf);
+    env->DeleteGlobalRef(buf);
+}
+
+/*!
+ * onClose
+ */
+void JavaWebSocketClient::onClose()
+{
+    JNIEnv* env = getJNIEnv();
+    env->CallVoidMethod(mJavaObj, mOnClose);
+}
+
+/*!
+ * スタティック変数初期化
+ */
+jfieldID  JavaWebSocketClient::mNativeObj = NULL;
+jmethodID JavaWebSocketClient::mOnOpen =    NULL;
+jmethodID JavaWebSocketClient::mOnError =   NULL;
+jmethodID JavaWebSocketClient::mOnMessage = NULL;
+jmethodID JavaWebSocketClient::mOnClose =   NULL;
+
+/*!
+ * JavaWebSocketClient取得
+ */
+static JavaWebSocketClient* getClient(JNIEnv* env, jobject thiz)
+{
+    JavaWebSocketClient* client = (JavaWebSocketClient*)env->GetLongField(thiz, JavaWebSocketClient::mNativeObj);
+    return client;
+}
+
+/*!
+ *  \brief  接続
+ */
+static void JNICALL ws_open(JNIEnv* env, jobject thiz, jstring aURL)
+{
+    JavaWebSocketClient* client = new JavaWebSocketClient(env, thiz);
+    JavaString url(env, aURL);
+
+    try
+    {
+        client->connect(url);
+    }
+    catch (Exception e)
+    {
+        client->onError(e.getMessage());
+    }
+}
+
+/*!
+ *  \brief  切断
+ */
+static void JNICALL ws_close(JNIEnv* env, jobject thiz)
+{
+    JavaWebSocketClient* client = getClient(env, thiz);
+    client->close();
+}
+
+/*!
+ *  \brief  テキスト送信
+ */
+static void JNICALL ws_send(JNIEnv* env, jobject thiz, jstring astr)
+{
+    JavaWebSocketClient* client = getClient(env, thiz);
+    JavaString str(env, astr);
+    client->send(str);
+}
+
 // JNIメソッド配列
-static JNINativeMethodEx sMethods[] =
+static JNINativeMethodEx sSlogMethods[] =
 {
     {"setFileName",       "(Ljava/lang/String;)V",                    (void*)setFileName      },
     {"setServiceAddress", "(Ljava/lang/String;)V",                    (void*)setServiceAddress},
@@ -226,27 +412,41 @@ static JNINativeMethodEx sMethods[] =
     {"message",           "(ILjava/lang/String;Ljava/lang/String;)V", (void*)message3         },
 };
 
+// JNIメソッド配列
+static JNINativeMethod sWebSocketMethods[] =
+{
+    {"open",  "(Ljava/lang/String;)V", (void*)ws_open },
+    {"close", "()V",                   (void*)ws_close},
+    {"send",  "(Ljava/lang/String;)V", (void*)ws_send },
+};
+
 /*!
  *  \brief  Java Native Interface OnLoad
  */
 extern "C" jint slog_JNI_OnLoad(JavaVM* vm, void* reserved)
 {
-    JNIEnv* env = NULL;
-    jint version = JNI_VERSION_1_6;
+    JVM = vm;
+    JNIEnv* env = getJNIEnv();
 
-    if (vm->GetEnv((void**)&env, version) != JNI_OK)
+    if (env == NULL)
     {
-        noticeLog("vm->GetEnv() failed.");
+        noticeLog("cannot get JNIEnv.");
         return -1;
     }
 
-    if (registerNatives(env, "jp/printf/slog/Log", (JNINativeMethod*)sMethods, sizeof(sMethods) / sizeof(sMethods[0])) == false)
+    if (registerNatives(env, "jp/printf/slog/Log", (JNINativeMethod*)sSlogMethods, sizeof(sSlogMethods) / sizeof(sSlogMethods[0])) == false)
     {
-        noticeLog("registerNatives() failed.");
+        noticeLog("jp/printf/slog/Log regist failed.");
         return -1;
     }
 
-    return version;
+    if (registerNatives(env, "jp/printf/WebSocketClient", (JNINativeMethod*)sWebSocketMethods, sizeof(sWebSocketMethods) / sizeof(sWebSocketMethods[0])) == false)
+    {
+        noticeLog("jp/printf/WebSocketClient regist failed.");
+        return -1;
+    }
+
+    return JNI_VERSION;
 }
 
 //#if defined(_WINDLL) || defined(__SHARED_LIBRARY__)

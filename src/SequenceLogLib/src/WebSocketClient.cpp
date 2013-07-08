@@ -115,6 +115,7 @@ void WebSocketClient::connect(const CoreString& url) throw(Exception)
     // 接続
     open();
     setRecvTimeOut(3000);
+    setReUseAddress(true);
     setNoDelay(true);
     Socket::connect(address, port);
 
