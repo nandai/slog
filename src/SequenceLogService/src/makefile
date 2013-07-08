@@ -6,6 +6,7 @@ CFLAGS = \
 	-I/usr/lib/jvm/java-6-openjdk/include
 
 #CFLAGS += -D_DEBUG
+#CFLAGS += -D__SLOG__
 
 LDFLAGS = -lslog -lstdc++ -lrt -lssl
 

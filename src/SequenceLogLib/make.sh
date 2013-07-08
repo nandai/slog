@@ -1,9 +1,18 @@
 #!/bin/sh
 
 javac -verbose -encoding utf8 jp/printf/slog/Log.java
-jar cvf slog.jar              jp/printf/slog/Log.class
-javah -verbose -classpath .   jp.printf.slog.Log
+javac -verbose -encoding utf8 jp/printf/WebSocketClient.java
 
-rm jp/printf/slog/Log.class
-mv jp_printf_slog_Log.h src/
+jar cvf slog.jar              jp/printf/slog/Log.class \
+                              jp/printf/WebSocketClient.class
+
+javah -verbose -classpath .   jp.printf.slog.Log
+javah -verbose -classpath .   jp.printf.WebSocketClient
+
+rm jp/printf/slog/Log.class \
+   jp/printf/WebSocketClient.class
+
+mv jp_printf_slog_Log.h \
+   jp_printf_WebSocketClient.h \
+   src/
 mv slog.jar ../../bin/Java/

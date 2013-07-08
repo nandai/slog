@@ -77,8 +77,13 @@ static JNIEnv* getJNIEnv()
     if (JVM->GetEnv((void**)&env, version) == JNI_OK)
         return env;
 
+#if defined(__ANDROID__)
+    if (JVM->AttachCurrentThread(        &env, NULL) == JNI_OK)
+        return env;
+#else
     if (JVM->AttachCurrentThread((void**)&env, NULL) == JNI_OK)
-		return env;
+        return env;
+#endif
 
     return NULL;
 }
@@ -277,7 +282,7 @@ JavaWebSocketClient::JavaWebSocketClient(JNIEnv* env, jobject javaObj) : WebSock
 JavaWebSocketClient::~JavaWebSocketClient()
 {
     JNIEnv* env = getJNIEnv();
-    env->SetLongField(mJavaObj, mNativeObj, NULL);
+    env->SetLongField(mJavaObj, mNativeObj, (jlong)NULL);
 }
 
 /*!
@@ -302,13 +307,10 @@ void JavaWebSocketClient::onError(const char* message)
 #if defined(_WINDOWS)
     UTF16LE utf16le;
     utf16le.conv(message, 1);
-#else
-    UTF16LE utf16le;
-    utf16le.conv(message, 0);
-#endif
-
-//  jstring str = env->NewStringUTF(message);
     jstring str = env->NewString((jchar*)utf16le.getBuffer(), utf16le.getChars());
+#else
+    jstring str = env->NewStringUTF(message);
+#endif
 
     env->CallVoidMethod(mJavaObj, mOnError, str);
     env->ReleaseStringUTFChars(str, message);
@@ -413,7 +415,7 @@ static JNINativeMethodEx sSlogMethods[] =
 };
 
 // JNIメソッド配列
-static JNINativeMethod sWebSocketMethods[] =
+static JNINativeMethodEx sWebSocketMethods[] =
 {
     {"open",  "(Ljava/lang/String;)V", (void*)ws_open },
     {"close", "()V",                   (void*)ws_close},

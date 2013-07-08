@@ -386,6 +386,11 @@ int main(int argc, char** argv)
 {
     noticeLog("SequenceLogService " VERSION " is starting");
 
+//  setSequenceLogFileName("SequenceLogService.slog");
+//  setSequenceLogServiceAddress("wss://192.168.0.2:8443");
+//  enableOutput(false);
+//  SLOG("main.cpp", "main");
+
 #if defined(__unix__)
     signal(SIGINT,  onSignal);
 //  signal(SIGTERM, onSignal);
