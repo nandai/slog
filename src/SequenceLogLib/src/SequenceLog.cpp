@@ -196,7 +196,7 @@ void SequenceLogClient::init()
     url.format("%s/outputLog", sSequenceLogServiceAddress);
 
     mSocket.setListener(this);
-    mSocket.connect(url);
+    mSocket.open(url);
 }
 
 /*!

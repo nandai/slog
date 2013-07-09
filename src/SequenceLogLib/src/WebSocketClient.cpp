@@ -33,7 +33,7 @@ namespace slog
 /*!
  *  \brief  接続
  */
-void WebSocketClient::connect(const CoreString& url) throw(Exception)
+void WebSocketClient::open(const CoreString& url) throw(Exception)
 {
     String address;
     unsigned short port;
@@ -115,11 +115,11 @@ void WebSocketClient::connect(const CoreString& url) throw(Exception)
     try
     {
         // 接続
-        open();
+        Socket::open();
         setRecvTimeOut(3000);
         setReUseAddress(true);
         setNoDelay(true);
-        Socket::connect(address, port);
+        connect(address, port);
 
         if (candidate[i].useSSL)
             useSSL();

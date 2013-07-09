@@ -38,7 +38,7 @@ public:     WebSocketClient() : WebSocket(false) {}
             /*!
              * 接続
              */
-            virtual void connect(const CoreString& url) throw(Exception);
+            void open(const CoreString& url) throw(Exception);
 };
 
 } // namespace slog
