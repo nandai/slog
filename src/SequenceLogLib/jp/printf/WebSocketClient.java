@@ -19,29 +19,39 @@ import java.nio.ByteBuffer;
 
 public class WebSocketClient
 {
-    long    mNativeObj;
+    WebSocketListener   mListener = null;
+    long                mNativeObj;
 
-    public    native void open(String url);
-    public    native void close();
-    public    native void send(String str);
+    public void setListener(WebSocketListener listener)
+    {
+        mListener = listener;
+    }
+
+    public native void open(String url);
+    public native void close();
+    public native void send(String str);
 
     private void onOpen()
     {
+        if (mListener != null)
+            mListener.onOpen();
     }
 
     private void onError(String message)
     {
+        if (mListener != null)
+            mListener.onError(message);
     }
 
     private void onMessage(ByteBuffer buffer)
     {
-//      int capa = buffer.capacity();
-//      byte[] buf = new byte[capa];
-//      buffer.get(buf);
-//      String s = new String(buf);
+        if (mListener != null)
+            mListener.onMessage(buffer);
     }
 
     private void onClose()
     {
+        if (mListener != null)
+            mListener.onClose();
     }
 }
