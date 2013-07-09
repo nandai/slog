@@ -313,7 +313,7 @@ void JavaWebSocketClient::onError(const char* message)
 #endif
 
     env->CallVoidMethod(mJavaObj, mOnError, str);
-    env->ReleaseStringUTFChars(str, message);
+//  env->ReleaseStringUTFChars(str, message);
 }
 
 /*!
@@ -368,14 +368,7 @@ static void JNICALL ws_open(JNIEnv* env, jobject thiz, jstring aURL)
     JavaWebSocketClient* client = new JavaWebSocketClient(env, thiz);
     JavaString url(env, aURL);
 
-    try
-    {
-        client->connect(url);
-    }
-    catch (Exception e)
-    {
-        client->onError(e.getMessage());
-    }
+    client->connect(url);
 }
 
 /*!

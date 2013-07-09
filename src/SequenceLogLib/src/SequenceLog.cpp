@@ -124,7 +124,7 @@ static bool sClientInitialized = false;
 /*!
  *  \brief  シーケンスログクライアントクラス
  */
-class SequenceLogClient
+class SequenceLogClient : public WebSocketListener
 {
             WebSocketClient mSocket;    //!< Web Socket
             uint32_t        mSeqNo;     //!< シーケンス番号
@@ -138,7 +138,13 @@ public:      SequenceLogClient();
             /*!
              * 初期化
              */
-            void init();
+public:     void init();
+
+            /*!
+             * Web Socket ハンドラ
+             */
+public:     virtual void onOpen();
+            virtual void onError(const char* message);
 
             /*!
              * シーケンスログアイテム生成
@@ -148,7 +154,7 @@ public:     SequenceLogItem* createItem();
             /*!
              * シーケンスログアイテム送信
              */
-            void sendItem(SequenceLogItem* item, uint32_t* seq = NULL);
+public:     void sendItem(SequenceLogItem* item, uint32_t* seq = NULL);
 };
 
 /*!
@@ -185,37 +191,46 @@ void SequenceLogClient::init()
         return;
     }
 
-    try
-    {
-        // ソケット作成
-        String url;
-        url.format("%s/outputLog", sSequenceLogServiceAddress);
+    // ソケット作成
+    String url;
+    url.format("%s/outputLog", sSequenceLogServiceAddress);
 
-        mSocket.connect(url);
+    mSocket.setListener(this);
+    mSocket.connect(url);
+}
 
-        // WebSocketヘッダー送信
-        Process process;
-        uint32_t pid = process.getId();
+/*!
+ * Web Socket onOpen
+ */
+void SequenceLogClient::onOpen()
+{
+    const char* p = sSequenceLogFileName;
 
-        FixedString<MAX_PATH> name = p;
-        int32_t len = name.getLength() + 1;
+    // WebSocketヘッダー送信
+    Process process;
+    uint32_t pid = process.getId();
 
-        mSocket.sendHeader(
-            sizeof(pid) + sizeof(len) + len,
-            false);
+    FixedString<MAX_PATH> name = p;
+    int32_t len = name.getLength() + 1;
 
-        // プロセスID送信
-        mSocket.send(&pid);
+    mSocket.sendHeader(
+        sizeof(pid) + sizeof(len) + len,
+        false);
 
-        // シーケンスログファイル名送信
-        mSocket.send(&len);
-        mSocket.send(&name, len);
-    }
-    catch (Exception e)
-    {
-        noticeLog("%s\n", e.getMessage());
-        mSocket.close();
-    }
+    // プロセスID送信
+    mSocket.send(&pid);
+
+    // シーケンスログファイル名送信
+    mSocket.send(&len);
+    mSocket.send(&name, len);
+}
+
+/*!
+ * Web Socket onError
+ */
+void SequenceLogClient::onError(const char* message)
+{
+    noticeLog("onError: %s\n", message);
 }
 
 /*!

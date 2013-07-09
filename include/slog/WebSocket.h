@@ -98,9 +98,10 @@ public:     virtual void send(const  int32_t* value) const throw(Exception);
             Mutex* getMutex() const {return (Mutex*)mMutex;}
 
             /*!
-             * リスナーにオープン通知
+             * リスナーに通知
              */
 protected:  void notifyOpen();
+            void notifyError(const char* message);
 };
 
 /*!

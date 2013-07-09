@@ -52,7 +52,7 @@ private:    virtual void run();
              * リスナーに通知
              */
 public:     void notifyOpen();
-private:    void notifyError(const char* message);
+            void notifyError(const char* message);
 private:    void notifyMessage(const ByteBuffer& buffer);
 public:     void notifyClose();
 };
@@ -553,6 +553,14 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
 void WebSocket::notifyOpen()
 {
     mReceiver->notifyOpen();
+}
+
+/*!
+ * リスナーにエラー通知
+ */
+void WebSocket::notifyError(const char* message)
+{
+    mReceiver->notifyError(message);
 }
 
 } // namespace slog

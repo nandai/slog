@@ -112,40 +112,48 @@ void WebSocketClient::connect(const CoreString& url) throw(Exception)
 
 //  noticeLog("%s:%d '%s' (%d)", address.getBuffer(), port, path.getBuffer(), i);
 
-    // 接続
-    open();
-    setRecvTimeOut(3000);
-    setReUseAddress(true);
-    setNoDelay(true);
-    Socket::connect(address, port);
-
-    if (candidate[i].useSSL)
-        useSSL();
-
-    init();
-
-    // WebSocketアップグレード
-    String upgrade;
-    upgrade.format(
-        "GET %s HTTP/1.1\r\n"
-        "Upgrade: websocket\r\n"
-        "Sec-WebSocket-Key: m31EnckktzJZ/3ZWkvwNHQ==\r\n"
-        "Sec-WebSocket-Version: 13\r\n"
-        "\r\n",
-        path.getBuffer());
-
-    Socket::send(&upgrade, upgrade.getLength());
-
-    // WebSocketアップグレードレスポンス受信
-    HttpResponse httpResponse(this);
-
-    if (httpResponse.analizeResponse() == false)
+    try
     {
-        e.setMessage("WebSocketへのアップグレードに失敗しました。");
-        throw e;
-    }
+        // 接続
+        open();
+        setRecvTimeOut(3000);
+        setReUseAddress(true);
+        setNoDelay(true);
+        Socket::connect(address, port);
 
-    notifyOpen();
+        if (candidate[i].useSSL)
+            useSSL();
+
+        init();
+
+        // WebSocketアップグレード
+        String upgrade;
+        upgrade.format(
+            "GET %s HTTP/1.1\r\n"
+            "Upgrade: websocket\r\n"
+            "Sec-WebSocket-Key: m31EnckktzJZ/3ZWkvwNHQ==\r\n"
+            "Sec-WebSocket-Version: 13\r\n"
+            "\r\n",
+            path.getBuffer());
+
+        Socket::send(&upgrade, upgrade.getLength());
+
+        // WebSocketアップグレードレスポンス受信
+        HttpResponse httpResponse(this);
+
+        if (httpResponse.analizeResponse() == false)
+        {
+            e.setMessage("WebSocketへのアップグレードに失敗しました。");
+            throw e;
+        }
+
+        notifyOpen();
+    }
+    catch (Exception e)
+    {
+        notifyError(e.getMessage());
+        close();
+    }
 }
 
 } // namespace slog
