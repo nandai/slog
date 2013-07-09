@@ -383,11 +383,23 @@ static void JNICALL ws_close(JNIEnv* env, jobject thiz)
 /*!
  *  \brief  テキスト送信
  */
-static void JNICALL ws_send(JNIEnv* env, jobject thiz, jstring astr)
+static void JNICALL ws_sendText(JNIEnv* env, jobject thiz, jstring aStr)
 {
     JavaWebSocketClient* client = getClient(env, thiz);
-    JavaString str(env, astr);
+    JavaString str(env, aStr);
     client->send(str);
+}
+
+/*!
+ *  \brief  バイナリ送信
+ */
+static void JNICALL ws_sendBinary(JNIEnv* env, jobject thiz, jobject data)
+{
+    JavaWebSocketClient* client = getClient(env, thiz);
+    const char* buffer = (const char*)env->GetDirectBufferAddress( data);
+    int32_t len =                     env->GetDirectBufferCapacity(data);
+
+    client->send(buffer, len);
 }
 
 // JNIメソッド配列
@@ -410,9 +422,10 @@ static JNINativeMethodEx sSlogMethods[] =
 // JNIメソッド配列
 static JNINativeMethodEx sWebSocketMethods[] =
 {
-    {"open",  "(Ljava/lang/String;)V", (void*)ws_open },
-    {"close", "()V",                   (void*)ws_close},
-    {"send",  "(Ljava/lang/String;)V", (void*)ws_send },
+    {"open",  "(Ljava/lang/String;)V",    (void*)ws_open       },
+    {"close", "()V",                      (void*)ws_close      },
+    {"send",  "(Ljava/lang/String;)V",    (void*)ws_sendText   },
+    {"send",  "(Ljava/nio/ByteBuffer;)V", (void*)ws_sendBinary },
 };
 
 /*!

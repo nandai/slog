@@ -30,6 +30,7 @@ public class WebSocketClient
     public native void open(String url);
     public native void close();
     public native void send(String str);
+    public native void send(ByteBuffer buffer);
 
     private void onOpen()
     {

@@ -28,8 +28,16 @@ JNIEXPORT void JNICALL Java_jp_printf_WebSocketClient_close
  * Method:    send
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_jp_printf_WebSocketClient_send
+JNIEXPORT void JNICALL Java_jp_printf_WebSocketClient_send__Ljava_lang_String_2
   (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     jp_printf_WebSocketClient
+ * Method:    send
+ * Signature: (Ljava/nio/ByteBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_jp_printf_WebSocketClient_send__Ljava_nio_ByteBuffer_2
+  (JNIEnv *, jobject, jobject);
 
 #ifdef __cplusplus
 }
