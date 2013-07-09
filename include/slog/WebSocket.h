@@ -50,7 +50,7 @@ public:     WebSocket(bool isServer);
             /*!
              * 初期化
              */
-private:    void init();
+protected:  void init();
 
             /*!
              * クローズ

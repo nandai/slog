@@ -122,7 +122,7 @@ void WebSocketClient::connect(const CoreString& url) throw(Exception)
     if (candidate[i].useSSL)
         useSSL();
 
-    notifyOpen();
+    init();
 
     // WebSocketアップグレード
     String upgrade;
@@ -144,6 +144,8 @@ void WebSocketClient::connect(const CoreString& url) throw(Exception)
         e.setMessage("WebSocketへのアップグレードに失敗しました。");
         throw e;
     }
+
+    notifyOpen();
 }
 
 } // namespace slog

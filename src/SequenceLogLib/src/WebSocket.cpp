@@ -552,7 +552,6 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
  */
 void WebSocket::notifyOpen()
 {
-    init();
     mReceiver->notifyOpen();
 }
 
