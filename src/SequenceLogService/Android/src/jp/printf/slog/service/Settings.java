@@ -271,7 +271,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         // Sequence Log Service の開始
         App app = (App)activity.getApplication();
 
-        if (app.isRunning() == false && mSP.getBoolean(KEY_START_STOP, false))
+        if (app.getServiceStatus() == app.SERVICE_STOPPED && mSP.getBoolean(KEY_START_STOP, false))
             start();
     }
 
@@ -319,7 +319,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
             if (mStarting)
                 return;
 
-            if (app.isRunning() == false)
+            if (app.getServiceStatus() == app.SERVICE_STOPPED)
             {
                 start();
             }

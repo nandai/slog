@@ -15,14 +15,15 @@
  */
 package jp.printf.slog.service;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,7 +33,11 @@ import android.util.Log;
 @SuppressLint("DefaultLocale")
 public class App extends android.app.Application
 {
-    private boolean mServiceRunning = false;
+    public final int SERVICE_STOPPED =  0;
+    public final int SERVICE_RUNNING =  1;
+    public final int SERVICE_STOPPING = 2;
+
+    private int     mServiceStatus = SERVICE_STOPPED;
 
     public String   mLogOutputDir;          // ログ出力ディレクトリ
     public int      mMaxFileSize;           // 最大ファイルサイズ
@@ -46,8 +51,10 @@ public class App extends android.app.Application
 
     private boolean             mSuperUser = false;
     private Process             mShell = null;          // shプロセス
-    private DataInputStream     mInputStream = null;    // 標準入力
+    private BufferedReader      mInputStream = null;    // 標準入力
     private DataOutputStream    mOutputStream = null;   // 標準出力
+
+    private InputStreamThread   mInputStreamThread = null;
 
     @Override
     public void onCreate() 
@@ -60,8 +67,8 @@ public class App extends android.app.Application
         try
         {
             mShell = Runtime.getRuntime().exec("sh");
-            mInputStream =  new DataInputStream( mShell.getInputStream());
-            mOutputStream = new DataOutputStream(mShell.getOutputStream());
+            mInputStream =  new BufferedReader(new InputStreamReader(mShell.getInputStream()));
+            mOutputStream = new DataOutputStream(                    mShell.getOutputStream());
         }
         catch (IOException e)
         {
@@ -76,16 +83,16 @@ public class App extends android.app.Application
         install("web/SequenceLogService.js",  "SequenceLogService.js",  "644");
     }
 
-    // Sequence Log Service が開始されているかどうか
-    public boolean isRunning()
+    // Sequence Log Service のステータスを取得
+    public int getServiceStatus()
     {
-        return mServiceRunning;
+        return mServiceStatus;
     }
 
-    // Sequence Log Service の動作状態設定
-    public void running(boolean running)
+    // Sequence Log Service のステータスを設定
+    public void setServiceStatus(int status)
     {
-        mServiceRunning = running;
+        mServiceStatus = status;
     }
 
     // スーパーユーザー設定
@@ -120,11 +127,7 @@ public class App extends android.app.Application
         {
             if (mInputStream != null)
             {
-                byte[] buffer = new byte[64];
-                int size = mInputStream.read(buffer);
-
-                if (0 < size)
-                    res = new String(buffer, 0, size - 1);
+                res = mInputStream.readLine();
             }
         }
         catch (IOException e)
@@ -217,7 +220,10 @@ public class App extends android.app.Application
 
             if (result == 0)
             {
-                running(true);
+                setServiceStatus(SERVICE_RUNNING);
+
+                mInputStreamThread = new InputStreamThread(mInputStream);
+                mInputStreamThread.start();
             }
             else
             {
@@ -241,13 +247,19 @@ public class App extends android.app.Application
     public void stop()
     {
         writeStream("\n");
-        String res = readStream();
+        setServiceStatus(SERVICE_STOPPING);
 
-        if (res.equals("EXIT") == true)
+        try
         {
+            mInputStreamThread.interrupt();
+            mInputStreamThread.join();
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
         }
 
-        running(false);
+        setServiceStatus(SERVICE_STOPPED);
     }
 
     /**
@@ -283,6 +295,42 @@ public class App extends android.app.Application
         catch (IOException e)
         {
             e.printStackTrace();
+        }
+    }
+}
+
+/**
+ * 標準入力読み出しスレッド
+ */
+class InputStreamThread extends Thread
+{
+    private BufferedReader mInputStream;
+
+    public InputStreamThread(BufferedReader inputStream)
+    {
+        mInputStream = inputStream;
+    }
+
+    public void run()
+    {
+        String str;
+
+        while (true)
+        {
+            try
+            {
+                str = mInputStream.readLine();
+
+                if (isInterrupted())
+                {
+                    if (str.equals("EXIT"))
+                        break;
+                }
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 }
