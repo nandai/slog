@@ -397,7 +397,7 @@ static void JNICALL ws_sendBinary(JNIEnv* env, jobject thiz, jobject data)
 {
     JavaWebSocketClient* client = getClient(env, thiz);
     const char* buffer = (const char*)env->GetDirectBufferAddress( data);
-    int32_t len =                     env->GetDirectBufferCapacity(data);
+    int32_t len =            (int32_t)env->GetDirectBufferCapacity(data);
 
     client->send(buffer, len);
 }
