@@ -44,6 +44,7 @@ public class App extends android.app.Application
     public String   mMaxFileSizeUnit;       // 最大ファイルサイズ単位
     public int      mMaxFileCount;          // 最大ファイル数
     public int      mWebServerPort;         // Webサーバーポート
+    public int      mWebServerPortSSL;      // Webサーバーポート (SSL)
     public int      mSequenceLogServerPort; // Sequence Log Server ポート
 
     private String              mExecPath;              // 実行ファイルパス
@@ -199,12 +200,15 @@ public class App extends android.app.Application
                 "MAX_FILE_COUNT           %d\n" +
                 "OUTPUT_SCREEN            true\n" +
                 "WEB_SERVER_PORT          %d\n" +
+//              "WEB_SERVER_PORT_SSL      %d\n" +
                 "SEQUENCE_LOG_SERVER_PORT %d\n",
 
                 mLogOutputDir,
                 mMaxFileSize, mMaxFileSizeUnit,
                 mMaxFileCount,
+
                 mWebServerPort,
+//              mWebServerPortSSL,
                 mSequenceLogServerPort);
 
             writer.write(config);

@@ -24,8 +24,11 @@ LOCAL_CPPFLAGS   := -fexceptions --rtti -D__EXEC__
 
 LOCAL_LDLIBS := \
 	-L$(ANDROID_NDK_ROOT)/sources/cxx-stl/stlport/libs/armeabi \
+	-L../../../bin/Android \
 	-llog \
 	-lstlport \
+	-lssl \
+	-lcrypto \
 	../../../bin/Android/libslog.a
 
 include $(BUILD_EXECUTABLE)

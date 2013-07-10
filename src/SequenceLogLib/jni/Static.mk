@@ -30,6 +30,7 @@ LOCAL_SRC_FILES := \
 
 LOCAL_C_INCLUDES += \
     $(ANDROID_NDK_ROOT)/sources/cxx-stl/stlport/stlport \
+    . \
     ../../include \
     ../../../include
 
@@ -38,7 +39,10 @@ LOCAL_CPPFLAGS   := -D__SLOG__ -D__STATIC_LIBRARY__ -fexceptions --rtti
 
 LOCAL_LDLIBS := \
     -L$(ANDROID_NDK_ROOT)/sources/cxx-stl/stlport/libs/armeabi \
+    -L../../../bin/Android \
     -llog \
-    -lstlport
+    -lstlport \
+    -lssl \
+    -lcrypto
 
 include $(BUILD_STATIC_LIBRARY)

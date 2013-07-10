@@ -177,16 +177,22 @@ void SequenceLogServiceMain::run()
     SLOG(CLS_NAME, "run");
 
     mWebServer[0].start();
+#if !defined(__ANDROID__)
     mWebServer[1].start();
+#endif
 
     while (isInterrupted() == false)
         sleep(2000);
 
     mWebServer[0].interrupt();
+#if !defined(__ANDROID__)
     mWebServer[1].interrupt();
+#endif
 
     mWebServer[0].join();
+#if !defined(__ANDROID__)
     mWebServer[1].join();
+#endif
 
     cleanup();
 }

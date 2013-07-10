@@ -23,10 +23,8 @@
 #include "slog/ByteBuffer.h"
 #include "slog/FixedString.h"
 
-#if !defined(__ANDROID__)
-    #include <openssl/ssl.h>
-    #include <openssl/err.h>
-#endif
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 #if defined(__unix__)
     #include <sys/un.h>
@@ -68,10 +66,8 @@ struct Socket::Data
     FixedString<16> mInetAddress;   //!< 接続元／先IPアドレス
     FixedString<16> mMyInetAddress; //!< 自IPアドレス
 
-#if !defined(__ANDROID__)
     SSL_CTX*        mCTX;           //!< SSLコンテキスト
     SSL*            mSSL;           //!< SSL
-#endif
 };
 
 /*!
@@ -81,10 +77,8 @@ Socket::Socket()
 {
     mData = new Data;
 
-#if !defined(__ANDROID__)
     mData->mCTX = NULL;
     mData->mSSL = NULL;
-#endif
 
 #if defined(MODERN_UI)
     mSocket = nullptr;
@@ -151,7 +145,6 @@ void Socket::open(bool inet, int type) throw(Exception)
  */
 int Socket::close()
 {
-#if !defined(__ANDROID__)
     if (mData->mSSL)
     {
         SSL_shutdown(mData->mSSL);
@@ -161,7 +154,6 @@ int Socket::close()
         mData->mCTX = NULL;
         mData->mSSL = NULL;
     }
-#endif
 
 #if defined(MODERN_UI)
     if (mSocket == nullptr)
@@ -388,7 +380,6 @@ void Socket::connect(
  */
 void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
 {
-#if !defined(__ANDROID__)
     mData->mCTX = SSL_CTX_new(SSLv23_server_method());
 //  mData->mSSL = SSL_new(mData->mCTX);
 //
@@ -448,7 +439,6 @@ void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
         e.setMessage("useSSL [%d]: %s", phase, buffer);
         throw e;
     }
-#endif
 }
 
 /*!
@@ -456,7 +446,6 @@ void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
  */
 void Socket::useSSL()
 {
-#if !defined(__ANDROID__)
     mData->mCTX = SSL_CTX_new(SSLv23_client_method());
     mData->mSSL = SSL_new(mData->mCTX);
 
@@ -475,7 +464,6 @@ void Socket::useSSL()
         e.setMessage("useSSL: %s", buffer);
         throw e;
     }
-#endif
 }
 
 /*!
@@ -660,13 +648,11 @@ void Socket::send(
         int flag = MSG_NOSIGNAL;
     #endif
 
-    #if !defined(__ANDROID__)
         if (mData->mSSL)
         {
             result = SSL_write(mData->mSSL, p, remains);
         }
         else
-    #endif
         {
             result = (mStream
                 ? ::send(  mSocket, p, remains, flag)
@@ -759,13 +745,11 @@ void Socket::recv(
 #else
     while (remains > 0)
     {
-    #if !defined(__ANDROID__)
         if (mData->mSSL)
         {
             result = SSL_read(mData->mSSL, p, remains);
         }
         else
-    #endif
         {
             result = ::recv(mSocket, p, remains, 0);
         }
@@ -836,11 +820,9 @@ void Socket::startup()
     WSAStartup(MAKEWORD(2,0), &wsaData);
 #endif
 
-#if !defined(__ANDROID__)
     SSL_library_init();
     SSL_load_error_strings();
     ERR_load_crypto_strings();
-#endif
 }
 
 /*!

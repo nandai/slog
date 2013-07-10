@@ -46,7 +46,7 @@
             android:defaultValue="false"
             android:title="@string/change_super_user" />
     </PreferenceCategory>
-        
+
     <PreferenceCategory android:title="@string/web_server_settings">
         <EditTextPreference
             android:key="webServerPort"
@@ -54,7 +54,16 @@
             android:title="@string/web_server_port"
             android:dialogTitle="@string/web_server_port"
             android:inputType="number" />
-    </PreferenceCategory>
+
+<!--
+        <EditTextPreference
+            android:key="webServerPortSSL"
+            android:defaultValue="8443"
+            android:title="@string/web_server_port_ssl"
+            android:dialogTitle="@string/web_server_port_ssl"
+            android:inputType="number" />
+-->
+        </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/sequence_log_server_settings">
         <EditTextPreference

@@ -44,6 +44,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
     private final String        KEY_MAX_FILE_COUNT =           "maxFileCount";
     private final String        KEY_CHANGE_SUPER_USER =        "superUser";
     private final String        KEY_WEB_SERVER_PORT =          "webServerPort";
+//  private final String        KEY_WEB_SERVER_PORT_SSL =      "webServerPortSSL";
     private final String        KEY_SEQUENCE_LOG_SERVER_PORT = "sequenceLogServerPort";
 
     private boolean             mStarting = false;
@@ -107,6 +108,10 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         // Sequence Log Service Web Server ポート
         value = updateSummary(KEY_WEB_SERVER_PORT, (isRunning == false));
         app.mWebServerPort = Integer.parseInt(value);
+
+        // Sequence Log Service Web Server ポート (SSL)
+//      value = updateSummary(KEY_WEB_SERVER_PORT_SSL, (isRunning == false));
+//      app.mWebServerPortSSL = Integer.parseInt(value);
 
         // Sequence Log Server ポート
         value = updateSummary(KEY_SEQUENCE_LOG_SERVER_PORT, (isRunning == false));

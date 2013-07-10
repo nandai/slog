@@ -11,6 +11,7 @@
 
     <string name="web_server_settings">Sequence Log Service Web Server Settings</string>
     <string name="web_server_port">Sequence Log Service Web Server port</string>
+    <string name="web_server_port_ssl">Sequence Log Service Web Server port (SSL)</string>
 
     <string name="sequence_log_server_settings">Sequence Log Server Settings</string>
     <string name="sequence_log_server_port">Sequence Log Server port</string>
