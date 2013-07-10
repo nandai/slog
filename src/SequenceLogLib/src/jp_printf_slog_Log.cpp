@@ -326,11 +326,12 @@ void JavaWebSocketClient::onMessage(const ByteBuffer& buffer)
     if (env == NULL)
         return;
 
-    jobject buf = env->NewDirectByteBuffer(buffer.getBuffer(), buffer.getLength());
-    buf = env->NewGlobalRef(buf);
+    jobject localBuf = env->NewDirectByteBuffer(buffer.getBuffer(), buffer.getLength());
+    jobject buf =      env->NewGlobalRef(localBuf);
 
     env->CallVoidMethod(mJavaObj, mOnMessage, buf);
     env->DeleteGlobalRef(buf);
+    env->DeleteLocalRef(localBuf);
 }
 
 /*!
