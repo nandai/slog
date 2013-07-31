@@ -299,7 +299,7 @@ void UTF16LE::conv(const char* text, int32_t sjis)
  */
 void UTF16LE::realloc(int32_t chars)
 {
-    if (mChars >= chars)
+    if (mChars > chars)
         return;
 
     delete [] mBuffer;
