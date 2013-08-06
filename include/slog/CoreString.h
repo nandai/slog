@@ -67,6 +67,9 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             // 挿入
 			void insert(int32_t pos, const char* text, int32_t len = -1) throw(Exception);
 
+            // 最後の１文字を削除
+            void deleteLast();
+
             // １文字取得
             char operator[](int32_t index) const;
 

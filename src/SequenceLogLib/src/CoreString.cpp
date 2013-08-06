@@ -149,6 +149,23 @@ void CoreString::insert(int32_t pos, const char* text, int32_t len) throw(Except
 }
 
 /*!
+ * 最後の１文字を削除
+ */
+void CoreString::deleteLast()
+{
+    char* p = getBuffer();
+    int32_t len = getLength();
+
+    if (0 < len)
+    {
+        int32_t num = getPrevCharBytes(p + len);
+
+        len -= num;
+        setLength(len);
+    }
+}
+
+/*!
  *  \brief  フォーマット
  */
 void CoreString::formatV(const char* format, va_list arg) throw(Exception)
