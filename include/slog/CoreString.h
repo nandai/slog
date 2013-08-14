@@ -97,6 +97,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
 
             // 文字数取得
             int32_t getCharacters() const;
+            int32_t getNextCharBytes(int32_t pos) const;
 
 #if defined(_WINDOWS)
             // UTF-16LEをSJIS、またはUTF-8に変換する

@@ -267,15 +267,24 @@ int32_t CoreString::lastIndexOf(const char* find, int32_t index) const
 int32_t CoreString::getCharacters() const
 {
     const char* text = getBuffer();
-	int32_t num = 0;
+    int32_t num = 0;
 
-	while (*text)
-	{
-		text += getNextCharBytes(text);
-		num++;
-	}
+    while (*text)
+    {
+        text += slog::getNextCharBytes(text);
+        num++;
+    }
 
-	return num;
+    return num;
+}
+
+/*!
+ * 次の文字へのバイト数を取得する
+ */
+int32_t CoreString::getNextCharBytes(int32_t pos) const
+{
+    const char* text = getBuffer();
+    return slog::getNextCharBytes(text + pos);
 }
 
 #if defined(_WINDOWS)
