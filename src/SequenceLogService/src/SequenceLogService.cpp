@@ -476,7 +476,7 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
 
     // ファイル作成
     const CoreString& canonicalPath = fileInfo->getCanonicalPath();
-    TRACE("    openSeqLogFile(): '%s'\n", canonicalPath.getBuffer());
+//  noticeLog("    openSeqLogFile(): '%s'\n", canonicalPath.getBuffer());
 
     fileInfo->mkdir();
     file.open(canonicalPath, File::WRITE);

@@ -54,8 +54,11 @@ void FileFind::exec(
     const char* p =   canonicalPath.getBuffer();
 
 #if defined(_WINDOWS)
-    WIN32_FIND_DATAA fd;
-    HANDLE handle = FindFirstFileExA(p, FindExInfoStandard, &fd, FindExSearchNameMatch, NULL, 0);
+    UTF16LE utf16le;
+    utf16le.conv(canonicalPath);
+
+    WIN32_FIND_DATAW fd;
+    HANDLE handle = FindFirstFileExW(utf16le.getBuffer(), FindExInfoStandard, &fd, FindExSearchNameMatch, NULL, 0);
 
     int32_t len = (int32_t)(strrchr(p, '\\') - p);
     FixedString<MAX_PATH> path;
@@ -65,13 +68,16 @@ void FileFind::exec(
 
     do
     {
-        if (strcmp(fd.cFileName, "..") == 0)
+        if (lstrcmpW(fd.cFileName, L"..") == 0)
             continue;
 
-        path.format("%.*s\\%s", len, p, fd.cFileName);
+        String fileName;
+        fileName.conv(fd.cFileName);
+
+        path.format("%.*s\\%s", len, p, fileName.getBuffer());
         mListener->onFind(path);
     }
-    while (FindNextFileA(handle, &fd));
+    while (FindNextFileW(handle, &fd));
 
     FindClose(handle);
 

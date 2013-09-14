@@ -34,13 +34,19 @@ namespace slog
  */
 void Util::getProcessPath(String* path)
 {
-    char buffer[MAX_PATH];
-
 #if defined(_WINDOWS)
-    GetModuleFileNameA(NULL, buffer, sizeof(buffer));
+    wchar_t fullName[MAX_PATH];
+    GetModuleFileNameW(NULL, fullName, sizeof(fullName));
+
+    String str;
+    str.conv(fullName);
+
+    char* buffer = str.getBuffer();
 #else
     String linkPath;
     linkPath.format("/proc/%d/exe", getpid());
+
+    char buffer[MAX_PATH];
     readlink(linkPath.getBuffer(), buffer, sizeof(buffer));
 #endif
 

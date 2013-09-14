@@ -1,0 +1,17 @@
+ImageRuntimeVersion: v4.0.30319
+Assembly slog, Version=0.0.*, Culture=ロケールに依存しない言語 (ロケールに依存しない国): 
+	hash=SHA1, flags=PublicKey
+Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Class Slog.Log: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  Methods:
+    SetFileName(String): PrivateScope, Public, Static, HideBySig
+    SetServiceAddress(String): PrivateScope, Public, Static, HideBySig
+    EnableOutput(Boolean(HasFieldMarshal)): PrivateScope, Public, Static, HideBySig
+    StepIn(String, String): PrivateScope, Public, Static, HideBySig
+    StepOut(Int64): PrivateScope, Public, Static, HideBySig
+    V(Int64, String): PrivateScope, Public, Static, HideBySig
+    D(Int64, String): PrivateScope, Public, Static, HideBySig
+    I(Int64, String): PrivateScope, Public, Static, HideBySig
+    W(Int64, String): PrivateScope, Public, Static, HideBySig
+    E(Int64, String): PrivateScope, Public, Static, HideBySig

@@ -9,6 +9,8 @@ GTAGS
 *.pdb
 *.pri
 *.exp
+*.sdf
+*.opensdf
 SequenceLog.exe
 SequenceLogd.exe
 depend.inc

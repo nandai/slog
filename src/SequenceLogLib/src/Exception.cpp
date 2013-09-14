@@ -20,6 +20,7 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/Exception.h"
+#include "slog/String.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -64,17 +65,21 @@ void Exception::setMessage(const char* format, ...)
 
     // APIエラーのメッセージ取得
 #if defined(_WINDOWS)
-//  char* buffer;
-    char  buffer[512];
+    wchar_t apiError[512];
 
     DWORD flags =
 //      FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS;
 
-//  FormatMessageA(flags, NULL, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0,              NULL);
-    FormatMessageA(flags, NULL, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),         buffer, sizeof(buffer), NULL);
-    buffer[strlen(buffer) - 2] = '\0';      // 改行除去
+    FormatMessageW(flags, NULL, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), apiError, sizeof(apiError), NULL);
+    apiError[lstrlenW(apiError) - 2] = '\0';    // 改行除去
+
+    String str;
+    str.setSJIS(0);
+    str.conv(apiError);
+
+    char* buffer = str.getBuffer();
 #else
     char* buffer = strerror(mErrorNo);
 #endif
@@ -82,14 +87,10 @@ void Exception::setMessage(const char* format, ...)
     if (len)
         len = snprintf(mMessage + len, capacity - len, " / %s(%d)", buffer, mErrorNo);
     else
-        len = snprintf(mMessage + len, capacity - len, "%s",        buffer);
+        len = snprintf(mMessage + len, capacity - len,    "%s(%d)", buffer, mErrorNo);
 
     if (len == -1)
         mMessage[capacity] = '\0';
-
-#if defined(_WINDOWS)
-//  LocalFree(buffer);
-#endif
 }
 
 }

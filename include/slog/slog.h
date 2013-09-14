@@ -64,14 +64,6 @@
     #pragma warning(disable : 4793)
 #endif
 
-#if defined(_DEBUG)
-    #undef  TRACE
-    #define TRACE(format, ...)  _printDebug(format, __VA_ARGS__)
-#else
-    #undef  TRACE
-    #define TRACE
-#endif
-
 #if defined(_WINDOWS)
     #define PATH_DELIMITER  '\\'
 #else
@@ -84,8 +76,7 @@
 extern "C" {
 #endif
 
-SLOG_API void _printDebug(const char* format, ...);
-SLOG_API void noticeLog(  const char* format, ...);
+SLOG_API void noticeLog(const char* format, ...);
 
 #if defined(__cplusplus)
 }

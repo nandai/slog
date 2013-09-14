@@ -161,7 +161,8 @@ void SequenceLogServiceMain::addFileInfo(FileInfo* info)
         }
         catch (Exception e)
         {
-            TRACE("    %s\n", e.getMessage());
+            e;
+//          noticeLog("    %s\n", e.getMessage());
             i++;
         }
 

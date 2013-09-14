@@ -33,35 +33,6 @@
 using namespace slog;
 
 /*!
- *  \brief  デバッグ出力
- */
-extern "C" void _printDebug(const char* format, ...)
-{
-    va_list arg;
-    va_start(arg, format);
-
-    FixedString<255> str;
-
-    try
-    {
-        str.formatV(format, arg);
-    }
-    catch (Exception /*e*/)
-    {
-    }
-
-    const char* p = str.getBuffer();
-
-#if defined(_WINDOWS)
-    OutputDebugStringA(p);
-#elif defined(__ANDROID__)
-    __android_log_write(ANDROID_LOG_DEBUG, "slog", p);
-#else
-    printf("%s", p);
-#endif
-}
-
-/*!
  *  \brief  通知
  */
 extern "C" void noticeLog(const char* format, ...)
@@ -79,17 +50,19 @@ extern "C" void noticeLog(const char* format, ...)
     {
     }
 
-    const char* p = str.getBuffer();
-
 #if defined(_WINDOWS)
-    OutputDebugStringA(p);
+    UTF16LE utf16le;
+    utf16le.conv(str);
+    const wchar_t* p = utf16le.getBuffer();
 
-    if (p[str.getLength() - 1] != '\n')
-        OutputDebugStringA("\n");
+    OutputDebugStringW(p);
+
+    if (p[utf16le.getChars() - 1] != '\n')
+        OutputDebugStringW(L"\n");
 
 #elif defined(__ANDROID__)
-    __android_log_write(ANDROID_LOG_INFO, "slog", p);
+    __android_log_write(ANDROID_LOG_INFO, "slog", str.getBuffer());
 #else
-    syslog(LOG_NOTICE, "%s", p);
+    syslog(LOG_NOTICE, "%s", str.getBuffer());
 #endif
 }

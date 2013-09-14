@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug-dll|Win32">
+      <Configuration>Debug-dll</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-dll|x64">
+      <Configuration>Debug-dll</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-dll|Win32">
+      <Configuration>Release-dll</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-dll|x64">
+      <Configuration>Release-dll</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}</ProjectGuid>
+    <RootNamespace>SequenceLogLib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-dll|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-dll|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-dll|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-dll|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-dll|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-dll|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.20617.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-dll|Win32'">
+    <OutDir>..\..\bin\Windows\x86\</OutDir>
+    <IntDir>..\obj\$(ProjectName)\x86-$(Configuration)\</IntDir>
+    <TargetName>slog</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'">
+    <OutDir>..\..\bin\Windows\x64\</OutDir>
+    <IntDir>..\obj\$(ProjectName)\x64-$(Configuration)\</IntDir>
+    <TargetName>slog</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-dll|Win32'">
+    <OutDir>..\..\bin\Windows\x86\</OutDir>
+    <IntDir>..\obj\$(ProjectName)\x86-$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>slog</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-dll|x64'">
+    <OutDir>..\..\bin\Windows\x64\</OutDir>
+    <IntDir>..\obj\$(ProjectName)\x64-$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>slog</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-dll|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\include;..\include;G:\Program Files\Java\jdk1.7.0_25\include;G:\Program Files\Java\jdk1.7.0_25\include\win32;G:\OpenSSL-Win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_LIB;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>winmm.lib;ssleay32MT.lib;libeay32MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)slog.dll</OutputFile>
+      <AdditionalLibraryDirectories>G:\OpenSSL-Win32\lib\VC\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+    </Link>
+    <PostBuildEvent>
+      <Command>del ..\..\bin\Windows\x86\$(TargetName).exp
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\include;..\include;G:\Program Files\Java\jdk1.7.0_25\include;G:\Program Files\Java\jdk1.7.0_25\include\win32;G:\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_LIB;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>winmm.lib;ssleay32MT.lib;libeay32MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)slog.dll</OutputFile>
+      <AdditionalLibraryDirectories>G:\OpenSSL-Win64\lib\VC\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+    </Link>
+    <PostBuildEvent>
+      <Command>del ..\..\bin\Windows\x64\$(TargetName).exp
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-dll|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\include;..\include;G:\Program Files\Java\jdk1.7.0_10\include;G:\Program Files\Java\jdk1.7.0_10\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_LIB;_DEBUG;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)vc90.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)slogd.dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>del ..\..\bin\Windows\x86\$(TargetName).exp
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-dll|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\include;..\include;G:\Program Files\Java\jdk1.7.0_10\include;G:\Program Files\Java\jdk1.7.0_10\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_LIB;_DEBUG;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <ProgramDataBaseFileName>$(IntDir)vc90.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)slogd.dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>del ..\..\bin\Windows\x64\$(TargetName).exp
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Buffer.cpp" />
+    <ClCompile Include="src\ByteBuffer.cpp" />
+    <ClCompile Include="src\CoreString.cpp" />
+    <ClCompile Include="src\Exception.cpp" />
+    <ClCompile Include="src\File.cpp" />
+    <ClCompile Include="src\FileFind.cpp" />
+    <ClCompile Include="src\FileInfo.cpp" />
+    <ClCompile Include="src\HttpRequest.cpp" />
+    <ClCompile Include="src\HttpResponse.cpp" />
+    <ClCompile Include="src\jp_printf_slog_Log.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'">..\..\include;..\include;C:\Program Files\Java\jdk1.7.0_25\include;C:\Program Files\Java\jdk1.7.0_25\include\win32;G:\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release-dll|Win32'">..\..\include;..\include;C:\Program Files\Java\jdk1.7.0_25\include;C:\Program Files\Java\jdk1.7.0_25\include\win32;G:\OpenSSL-Win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="src\Json.cpp" />
+    <ClCompile Include="src\Log.cpp">
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='Debug-dll|x64'">false</StringPooling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug-dll|x64'">Async</ExceptionHandling>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'">false</StringPooling>
+    </ClCompile>
+    <ClCompile Include="src\SequenceLog.cpp" />
+    <ClCompile Include="src\sha1.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release-dll|Win32'">CompileAsCpp</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'">CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="src\slog.cpp" />
+    <ClCompile Include="src\Socket.cpp" />
+    <ClCompile Include="src\Thread.cpp" />
+    <ClCompile Include="src\Tokenizer.cpp" />
+    <ClCompile Include="src\Util.cpp" />
+    <ClCompile Include="src\WebServerResponseThread.cpp" />
+    <ClCompile Include="src\WebServerThread.cpp" />
+    <ClCompile Include="src\WebSocket.cpp" />
+    <ClCompile Include="src\WebSocketClient.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\slog\Buffer.h" />
+    <ClInclude Include="..\..\include\slog\ByteBuffer.h" />
+    <ClInclude Include="..\..\include\slog\CoreString.h" />
+    <ClInclude Include="..\..\include\slog\CSharpString.h" />
+    <ClInclude Include="..\..\include\slog\DateTime.h" />
+    <ClInclude Include="..\..\include\slog\DateTimeFormat.h" />
+    <ClInclude Include="..\..\include\slog\Exception.h" />
+    <ClInclude Include="..\..\include\slog\File.h" />
+    <ClInclude Include="..\..\include\slog\FileFind.h" />
+    <ClInclude Include="..\..\include\slog\FileInfo.h" />
+    <ClInclude Include="..\..\include\slog\FixedString.h" />
+    <ClInclude Include="..\..\include\slog\HttpRequest.h" />
+    <ClInclude Include="..\..\include\slog\HttpResponse.h" />
+    <ClInclude Include="..\..\include\slog\JavaString.h" />
+    <ClInclude Include="..\..\include\slog\Json.h" />
+    <CustomBuild Include="src\Log.h" />
+    <ClInclude Include="..\..\include\slog\Mutex.h" />
+    <ClInclude Include="..\..\include\slog\PointerString.h" />
+    <ClInclude Include="..\..\include\slog\Process.h" />
+    <ClInclude Include="..\..\include\slog\SequenceLog.h" />
+    <ClInclude Include="..\include\SequenceLogItem.h" />
+    <ClInclude Include="src\sha1.h" />
+    <ClInclude Include="..\..\include\slog\SharedMemory.h" />
+    <ClInclude Include="..\..\include\slog\slog.h" />
+    <ClInclude Include="..\..\include\slog\Socket.h" />
+    <ClInclude Include="..\..\include\slog\stdint.h" />
+    <ClInclude Include="..\..\include\slog\String.h" />
+    <ClInclude Include="..\..\include\slog\Thread.h" />
+    <ClInclude Include="..\..\include\slog\TimeSpan.h" />
+    <ClInclude Include="..\..\include\slog\Tokenizer.h" />
+    <ClInclude Include="..\..\include\slog\Util.h" />
+    <ClInclude Include="..\..\include\slog\WebServerResponseThread.h" />
+    <ClInclude Include="..\..\include\slog\WebServerThread.h" />
+    <ClInclude Include="..\..\include\slog\WebSocket.h" />
+    <ClInclude Include="..\..\include\slog\WebSocketClient.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

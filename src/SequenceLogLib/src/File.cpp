@@ -25,22 +25,29 @@
 namespace slog
 {
 
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY & 0x00000002/*WINAPI_PARTITION_APP*/)
-inline HANDLE CreateFileA(
-    const char* fileName,
-    DWORD desiredAccess,
-    DWORD shareMode,
-    LPSECURITY_ATTRIBUTES securityAttributes,
-    DWORD creationDisposition,
-    DWORD flagsAndAttributes,
-    HANDLE templateFile)
+/*!
+ *  \brief  コンストラクタ
+ */
+File::File()
 {
-    UTF16LE utf16le;
-    utf16le.conv(fileName);
-
-    return CreateFile2(utf16le.getBuffer(), desiredAccess, shareMode, creationDisposition, nullptr);
+    mHandle = NULL;
 }
-#endif
+
+/*!
+ *  \brief  デストラクタ
+ */
+File::~File()
+{
+    close();
+}
+
+/*!
+ *  \brief  オープンしているか調べる
+ */
+bool File::isOpen() const
+{
+    return (mHandle != NULL);
+}
 
 /*!
  *  \brief  オープン
@@ -51,47 +58,40 @@ void File::open(
 
     throw(Exception)
 {
-#if defined(_WINDOWS)
-    UTF16LE utf16le;
-    utf16le.conv(fileName);
-
-    String _fileName;
-    _fileName.conv(utf16le.getBuffer());
-
-    const char* p = _fileName.getBuffer();
-#else
-    const char* p =  fileName.getBuffer();
-#endif
-
     Exception e;
 
     if (mHandle != NULL)
     {
-        e.setMessage("File::open(\"%s\") : already opened.", p);
+        e.setMessage("File::open(\"%s\") : already opened.", fileName.getBuffer());
         throw e;
     }
 
 #if defined(_WINDOWS)
+    UTF16LE utf16le;
+    utf16le.conv(fileName);
+
+    const wchar_t* p = utf16le.getBuffer();
     HANDLE handle;
 
     if (mode == READ)
     {
         // 書込み中のファイルを読めるようにFILE_SHARE_WRITEを付ける
-//      handle = CreateFileA(p, GENERIC_READ,  FILE_SHARE_READ,                    NULL, OPEN_EXISTING, 0, NULL);
-        handle = CreateFileA(p, GENERIC_READ,  FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+//      handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ,                    NULL, OPEN_EXISTING, 0, NULL);
+        handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     }
     else
     {
-//      handle = CreateFileA(p, GENERIC_WRITE, 0,               NULL, CREATE_ALWAYS, 0, NULL);
-        handle = CreateFileA(p, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
+//      handle = CreateFileW(p, GENERIC_WRITE, 0,               NULL, CREATE_ALWAYS, 0, NULL);
+        handle = CreateFileW(p, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
     }
 
     if (handle == INVALID_HANDLE_VALUE)
     {
-        e.setMessage("File::open(\"%s\")", p);
+        e.setMessage("File::open(\"%s\")", fileName.getBuffer());
         throw e;
     }
 #else
+    const char* p =  fileName.getBuffer();
     const char* _mode = (mode == READ ? "r" : "w");
     FILE* handle = fopen(p, _mode);
 
@@ -103,6 +103,23 @@ void File::open(
 #endif
 
     mHandle = handle;
+}
+
+/*!
+ *  \brief  クローズ
+ */
+void File::close()
+{
+    if (mHandle == NULL)
+        return;
+
+#if defined(_WINDOWS)
+    ::CloseHandle(mHandle);
+#else
+    fclose(mHandle);
+#endif
+
+    mHandle = NULL;
 }
 
 /*!
@@ -186,16 +203,35 @@ bool File::read(
     return true;
 }
 
-bool File::isEOF() const
+/*!
+ *  \brief  読み込み
+ */
+inline int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
 {
-#if defined(_WINDOWS)
-	unsigned long cur = ::SetFilePointer(mHandle, 0,   NULL, FILE_CURRENT);
-	unsigned long len = ::SetFilePointer(mHandle, 0,   NULL, FILE_END);
-						::SetFilePointer(mHandle, cur, NULL, FILE_BEGIN);
+	int32_t result = 0;
+    int32_t position = 0;
 
-	return (cur >= len);
+    buffer->validateOverFlow(position, count);
+    char* p = buffer->getBuffer() + position;
+
+    if (mHandle != NULL)
+    {
+#if defined(_WINDOWS)
+        ::ReadFile(mHandle, p, count, (DWORD*)&result, NULL);
 #else
+        result = fread(p, 1, count, mHandle);
 #endif
+    }
+
+    return result;
+}
+
+/*!
+ *  \brief  書き込み
+ */
+inline void File::write(const Buffer* buffer, int32_t count) const throw(Exception)
+{
+    write(buffer, 0, count);
 }
 
 /*!
@@ -215,6 +251,98 @@ void File::write(const Buffer* buffer, int32_t position, int32_t count) const th
         fwrite(p, 1, count, mHandle);
 #endif
     }
+}
+
+/*!
+ *  \brief  ファイル削除
+ */
+void File::unlink(const CoreString& fileName) throw(Exception)
+{
+    const char* p = fileName.getBuffer();
+
+#if defined(_WINDOWS)
+    UTF16LE utf16le;
+    utf16le.conv(fileName);
+
+    bool result = (::DeleteFileW(utf16le.getBuffer()) == TRUE);
+#else
+    bool result = (::unlink(p) == 0);
+#endif
+
+    if (result == false)
+    {
+        Exception e;
+        e.setMessage("File::unlink(\"%s\")", p);
+
+        throw e;
+    }
+}
+
+//inline void File::flush()
+//{
+//  if (mHandle != NULL)
+//  {
+//#if defined(_WINDOWS)
+//      ::FlushFileBuffers(mHandle);
+//#else
+//      fflush(mHandle);
+//#endif
+//  }
+//}
+
+/*!
+ *  \brief  ファイルサイズ取得
+ */
+inline int64_t File::getSize() const
+{
+#if defined(_WINDOWS)
+    LARGE_INTEGER move = {0, 0};
+    LARGE_INTEGER pos;
+    LARGE_INTEGER size;
+
+    ::SetFilePointerEx(mHandle, move, &pos,  FILE_CURRENT);
+    ::SetFilePointerEx(mHandle, move, &size, FILE_END);
+    ::SetFilePointerEx(mHandle, pos,  NULL,  FILE_BEGIN);
+
+    return size.QuadPart;
+#else
+    int64_t pos = ftell(mHandle);
+    fseek(mHandle, 0, SEEK_END);
+
+    int64_t size = ftell(mHandle);
+    fseek(mHandle, pos, SEEK_SET);
+
+    return size;
+#endif
+}
+
+/*!
+ *  \brief  ファイルポインタの現在位置取得
+ */
+inline int64_t File::getPosition() const
+{
+#if defined(_WINDOWS)
+    LARGE_INTEGER move = {0, 0};
+    LARGE_INTEGER pos;
+
+    ::SetFilePointerEx(mHandle, move, &pos, FILE_CURRENT);
+    return pos.QuadPart;
+#else
+    int64_t pos = ftell(mHandle);
+    return pos;
+#endif
+}
+
+bool File::isEOF() const
+{
+#if defined(_WINDOWS)
+	unsigned long cur = ::SetFilePointer(mHandle, 0,   NULL, FILE_CURRENT);
+	unsigned long len = ::SetFilePointer(mHandle, 0,   NULL, FILE_END);
+						::SetFilePointer(mHandle, cur, NULL, FILE_BEGIN);
+
+	return (cur >= len);
+#else
+#endif
 }
 
 } // namespace slog

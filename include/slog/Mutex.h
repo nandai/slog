@@ -30,21 +30,6 @@ namespace slog
 {
 class ScopedLock;
 
-#if defined(MODERN_UI)
-inline HANDLE CreateMutexA(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCSTR lpName)
-{
-    return CreateMutexExA(lpMutexAttributes, lpName, (bInitialOwner ? CREATE_MUTEX_INITIAL_OWNER : 0), 0);
-}
-
-inline HANDLE OpenMutexA(DWORD dwDesiredAccess, BOOL bInheritHandle, LPCSTR lpName)
-{
-    UTF16LE utf16le;
-    utf16le.conv(lpName);
-
-    return OpenMutexW(dwDesiredAccess, bInheritHandle, utf16le.getBuffer());
-}
-#endif
-
 /*!
  *  \brief  ミューテックスクラス
  */
@@ -80,8 +65,8 @@ private:    void lock();
 inline Mutex::Mutex() throw(Exception)
 {
 #if defined(_WINDOWS)
-//  mHandle = CreateMutexA(NULL, TRUE,  NULL);
-    mHandle = CreateMutexA(NULL, FALSE, NULL);
+//  mHandle = CreateMutexW(NULL, TRUE,  NULL);
+    mHandle = CreateMutexW(NULL, FALSE, NULL);
 
     if (mHandle == NULL)
     {
@@ -107,15 +92,18 @@ inline Mutex::Mutex(
 
     throw(Exception)
 {
+    UTF16LE utf16le;
+    utf16le.conv(name);
+
     if (create)
-        mHandle = CreateMutexA(NULL, TRUE, name.getBuffer());
+        mHandle = CreateMutexW(NULL, TRUE, utf16le.getBuffer());
     else
-        mHandle = OpenMutexA(MUTEX_ALL_ACCESS, FALSE, name.getBuffer());
+        mHandle = OpenMutexW(MUTEX_ALL_ACCESS, FALSE, utf16le.getBuffer());
 
     if (mHandle == NULL)
     {
         Exception e;
-        e.setMessage("Mutex::Mutex(create:%s, \"%s\")", (create ? "true" : "false"), name);
+        e.setMessage("Mutex::Mutex(create:%s, \"%s\")", (create ? "true" : "false"), name.getBuffer());
 
         throw e;
     }

@@ -111,7 +111,10 @@ inline void SharedMemory<T>::create(const CoreString& name, uint32_t size) throw
     const char* p = name.getBuffer();
 
 #if defined(_WINDOWS)
-    HANDLE handle = CreateFileMappingA((HANDLE)-1, NULL, PAGE_READWRITE, 0, size, p);
+    UTF16LE utf16le;
+    utf16le.conv(name);
+
+    HANDLE handle = CreateFileMappingW((HANDLE)-1, NULL, PAGE_READWRITE, 0, size, utf16le.getBuffer());
 
     if (handle == NULL)
     {
@@ -178,7 +181,10 @@ inline void SharedMemory<T>::open(const CoreString& name) throw(Exception)
     const char* p = name.getBuffer();
 
 #if defined(_WINDOWS)
-    mHandle = OpenFileMappingA(FILE_MAP_WRITE, FALSE, p);
+    UTF16LE utf16le;
+    utf16le.conv(name);
+
+    mHandle = OpenFileMappingW(FILE_MAP_WRITE, FALSE, utf16le.getBuffer());
 
     if (mHandle == NULL)
     {

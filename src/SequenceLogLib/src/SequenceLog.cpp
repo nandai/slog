@@ -187,7 +187,7 @@ void SequenceLogClient::init()
 
     if (p == NULL || p[0] == '\0')
     {
-        TRACE("[E] SequenceLogClient::init() - failed\n", 0);
+        noticeLog("SequenceLogClient::init() - failed\n");
         return;
     }
 
@@ -372,7 +372,7 @@ SequenceLog::SequenceLog(
 //#if defined(_DEBUG)
 //    else
 //    {
-//        TRACE("(flag:%d) %d::%s\n", mOutputFlag, classID, funcName);
+//        noticeLog("(flag:%d) %d::%s\n", mOutputFlag, classID, funcName);
 //    }
 //#endif
 //}
@@ -395,7 +395,7 @@ SequenceLog::SequenceLog(
 //#if defined(_DEBUG)
 //    else
 //    {
-//        TRACE("(flag:%d) %d::%d\n", mOutputFlag, classID, funcID);
+//        noticeLog("(flag:%d) %d::%d\n", mOutputFlag, classID, funcID);
 //    }
 //#endif
 //}

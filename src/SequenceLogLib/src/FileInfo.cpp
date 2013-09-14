@@ -73,8 +73,15 @@ FileInfo::FileInfo(
     mData = new Data;
 
     String absolutePath;
-    char work[MAX_PATH];
     const char* pszPath = path.getBuffer();
+
+#if defined(_WINDOWS)
+    char* work = NULL;
+    wchar_t unicode[MAX_PATH];
+    String str;
+#else
+    char  work[MAX_PATH];
+#endif
 
     // ホームディレクトリ取得
     if (pszPath[0] == '~')
@@ -85,10 +92,13 @@ FileInfo::FileInfo(
 
         SHGetMalloc(&pMalloc);
         SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl);
-        SHGetPathFromIDList(pidl, work);
+        SHGetPathFromIDListW(pidl, unicode);
 
         pMalloc->Free(pidl);
         pMalloc->Release();
+
+        str.conv(unicode);
+        work = str.getBuffer();
 #else
         char* home = getenv("HOME");
         strcpy(work, (home ? home : "/"));
@@ -101,7 +111,10 @@ FileInfo::FileInfo(
 #if defined(_WINDOWS)
     else if (pszPath[1] != ':')
     {
-        GetCurrentDirectoryA(MAX_PATH, work);
+        GetCurrentDirectoryW(MAX_PATH, unicode);
+
+        str.conv(unicode);
+        work = str.getBuffer();
 #else
     else if (pszPath[0] != '/')
     {
@@ -225,7 +238,10 @@ void FileInfo::mkdir() const
 #if defined(_WINDOWS)
         if (0 < index)  // Windowsの場合、index 0 はドライブなのでスキップ
         {
-            bool success = (CreateDirectoryA(path.getBuffer(), NULL) == TRUE);
+            UTF16LE utf16le;
+            utf16le.conv(path);
+
+            bool success = (CreateDirectoryW(utf16le.getBuffer(), NULL) == TRUE);
             DWORD err = GetLastError();
 
             if (success == false && err == ERROR_ALREADY_EXISTS)
