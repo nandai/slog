@@ -184,8 +184,16 @@ FileInfo::~FileInfo()
  */
 void FileInfo::update(bool aUsing)
 {
+#if defined(_WINDOWS)
+    UTF16LE utf16le;
+    utf16le.conv(mData->mCanonicalPath);
+
+    struct _stati64 buf;
+    int32_t result = _wstati64(utf16le.getBuffer(), &buf);
+#else
     struct stat buf;
     int32_t result = stat(mData->mCanonicalPath.getBuffer(), &buf);
+#endif
 
     if (result == 0)
     {

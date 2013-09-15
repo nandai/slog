@@ -17,14 +17,12 @@
 /*!
  *  \file   CoreString.cpp
  *  \brief  コア文字列クラス
- *  \author Copyright 2011-2012 printf.jp
+ *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/CoreString.h"
 
 namespace slog
 {
-
-bool CoreString::sSJIS = true;
 
 /*!
  *  \brief  次の文字へのバイト数を取得する
@@ -289,11 +287,11 @@ int32_t CoreString::getNextCharBytes(int32_t pos) const
 
 #if defined(_WINDOWS)
 /*!
- *  \brief  UTF-16LEをSJIS、またはUTF-8に変換する
+ *  \brief  UTF-16LEをUTF-8に変換する
  */
 void CoreString::conv(const wchar_t* text)
 {
-    UINT codePage = (isSJIS() ? CP_ACP : CP_UTF8);
+    UINT codePage = CP_UTF8;
     int32_t len = (int32_t)wcslen(text);
 
 	long size =
@@ -306,12 +304,11 @@ void CoreString::conv(const wchar_t* text)
 }
 
 /*!
- *  \brief  SJIS、またはUTF-8をUTF-16LEに変換する
+ *  \brief  UTF-8をUTF-16LEに変換する
  */
-void UTF16LE::conv(const char* text, int32_t sjis)
+void UTF16LE::conv(const char* text)
 {
-    bool isSJIS = (sjis == -1 ? CoreString::isCommonSJIS() : (sjis == 1));
-    UINT codePage = (isSJIS ? CP_ACP : CP_UTF8);
+    UINT codePage = CP_UTF8;
 
     int32_t chars = 
     MultiByteToWideChar(codePage, 0, text, -1, NULL, 0) - 1;
@@ -321,7 +318,7 @@ void UTF16LE::conv(const char* text, int32_t sjis)
 }
 
 /*!
- *  \brief  SJIS、またはUTF-8をUTF-16LEに変換する
+ *  \brief  バッファを再確保する
  */
 void UTF16LE::realloc(int32_t chars)
 {

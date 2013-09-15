@@ -37,10 +37,7 @@ int32_t SLOG_API getPrevCharBytes(const char* text);
  */
 class SLOG_API CoreString : public Buffer
 {
-            static bool sSJIS;  // 共通設定                 false: UTF-8, true: SJIS
-            int32_t     mSJIS;  // 個別設定 -1: sJISに依存,     0: UTF-8,    1: SJIS
-
-public:     CoreString() {mSJIS = -1;}
+public:     CoreString() {}
 
             // 代入
 private:    const CoreString& operator=(const char*);
@@ -56,7 +53,6 @@ protected:  const CoreString& operator=(const CoreString& str)
 public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             void copy(const CoreString& str) throw(Exception)
             {
-                mSJIS = str.mSJIS;
                 copy(str.getBuffer(), str.getLength());
             }
 
@@ -88,19 +84,12 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             int32_t indexOf(    const char* find, int32_t index = 0) const;
             int32_t lastIndexOf(const char* find, int32_t index = -1) const;
 
-            // 文字コード関連（SJIS / UTF-8）
-    		static bool  isCommonSJIS()   {return sSJIS;}
-			static void setCommonSJIS(bool sjis) {sSJIS = sjis;}
-
-            bool  isSJIS() const {return (mSJIS == -1 ? isCommonSJIS() : (mSJIS == 1));}
-            void setSJIS(int32_t sjis) {mSJIS = sjis;}
-
             // 文字数取得
             int32_t getCharacters() const;
             int32_t getNextCharBytes(int32_t pos) const;
 
 #if defined(_WINDOWS)
-            // UTF-16LEをSJIS、またはUTF-8に変換する
+            // UTF-16LEをUTF-8に変換する
             void conv(const wchar_t* text);
 #endif
 };
@@ -165,8 +154,8 @@ public:     UTF16LE()
             wchar_t* getBuffer() const {return mBuffer;}
             int32_t getChars() const {return mChars;}
 
-            void conv(const char* text, int32_t sjis = -1);
-            void conv(const CoreString& str) {conv(str.getBuffer(), str.isSJIS());}
+            void conv(const char* text);
+            void conv(const CoreString& str) {conv(str.getBuffer());}
 
 private:    void realloc(int32_t chars);
 };

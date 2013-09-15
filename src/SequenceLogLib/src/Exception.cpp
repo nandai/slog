@@ -76,7 +76,6 @@ void Exception::setMessage(const char* format, ...)
     apiError[lstrlenW(apiError) - 2] = '\0';    // 改行除去
 
     String str;
-    str.setSJIS(0);
     str.conv(apiError);
 
     char* buffer = str.getBuffer();

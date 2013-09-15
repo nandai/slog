@@ -306,7 +306,7 @@ void JavaWebSocketClient::onError(const char* message)
 
 #if defined(_WINDOWS)
     UTF16LE utf16le;
-    utf16le.conv(message, 1);
+    utf16le.conv(message);
     jstring str = env->NewString((jchar*)utf16le.getBuffer(), utf16le.getChars());
 #else
     jstring str = env->NewStringUTF(message);

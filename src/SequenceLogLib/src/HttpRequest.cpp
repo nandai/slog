@@ -289,7 +289,6 @@ void HttpRequest::analizePostParams(ByteBuffer* params)
         }
 
         String value;
-        value.setSJIS(0);
         value.copy(p3, (int32_t)(p4 - p3));
 
         p1 = p2 + 1;

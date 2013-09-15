@@ -875,7 +875,7 @@ void SequenceLogService::receiveMain()
             if (mSHM->item.mType == SequenceLogItem::STEP_IN)
             {
                 if (mSHM->item.mSeqNo != mSHM->seq)
-                    SMSG(slog::ERROR, "Illegal SeqNo (%d != %d)", mSHM->item.mSeqNo, mSHM->seq);
+                    noticeLog("Illegal SeqNo (%d != %d)", mSHM->item.mSeqNo, mSHM->seq);
 
 //              mSHM->item.mSeqNo = mSHM->seq;
                 mSHM->seq++;
