@@ -19,6 +19,10 @@
  *  \brief  シーケンスログクラス
  *  \author Copyright 2011-2013 printf.jp
  */
+#if defined(_WINDOWS)
+#pragma execution_character_set("utf-8")
+#endif
+
 //nclude "SequenceLog.h"
 #include "SequenceLogItem.h"
 

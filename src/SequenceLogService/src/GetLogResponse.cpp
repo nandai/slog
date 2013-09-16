@@ -19,6 +19,10 @@
  *  \brief  取得ログ送信クラス
  *  \author Copyright 2013 printf.jp
  */
+#if defined(_WINDOWS)
+#pragma execution_character_set("utf-8")
+#endif
+
 #include "GetLogResponse.h"
 #include "getSequenceLogListJson.h"
 

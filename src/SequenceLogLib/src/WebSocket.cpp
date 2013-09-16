@@ -19,6 +19,10 @@
  *  \brief  Web Socket クライアントクラス
  *  \author Copyright 2013 printf.jp
  */
+#if defined(_WINDOWS)
+#pragma execution_character_set("utf-8")
+#endif
+
 #include "slog/WebSocket.h"
 #include "slog/HttpResponse.h"
 #include "slog/String.h"
