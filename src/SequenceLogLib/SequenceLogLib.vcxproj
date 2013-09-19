@@ -203,6 +203,7 @@
     <ClCompile Include="src\Buffer.cpp" />
     <ClCompile Include="src\ByteBuffer.cpp" />
     <ClCompile Include="src\CoreString.cpp" />
+    <ClCompile Include="src\Dir.cpp" />
     <ClCompile Include="src\Exception.cpp" />
     <ClCompile Include="src\File.cpp" />
     <ClCompile Include="src\FileFind.cpp" />
@@ -241,6 +242,7 @@
     <ClInclude Include="..\..\include\slog\CSharpString.h" />
     <ClInclude Include="..\..\include\slog\DateTime.h" />
     <ClInclude Include="..\..\include\slog\DateTimeFormat.h" />
+    <ClInclude Include="..\..\include\slog\Dir.h" />
     <ClInclude Include="..\..\include\slog\Exception.h" />
     <ClInclude Include="..\..\include\slog\File.h" />
     <ClInclude Include="..\..\include\slog\FileFind.h" />

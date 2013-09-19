@@ -22,6 +22,8 @@
 #include "slog/FileInfo.h"
 #include "slog/File.h"
 #include "slog/Tokenizer.h"
+#include "slog/FixedString.h"
+#include "slog/Dir.h"
 
 #include <list>
 #include <sys/stat.h>
@@ -111,16 +113,12 @@ FileInfo::FileInfo(
 #if defined(_WINDOWS)
     else if (pszPath[1] != ':')
     {
-        GetCurrentDirectoryW(MAX_PATH, unicode);
-
-        str.conv(unicode);
-        work = str.getBuffer();
 #else
     else if (pszPath[0] != '/')
     {
-        getcwd(work, sizeof(work));
 #endif
-        absolutePath.format("%s%c%s", work, PATH_DELIMITER, pszPath);
+        Dir::getCurrent(&str);
+        absolutePath.format("%s%c%s", str.getBuffer(), PATH_DELIMITER, pszPath);
     }
 
     // 絶対パス
@@ -246,10 +244,7 @@ void FileInfo::mkdir() const
 #if defined(_WINDOWS)
         if (0 < index)  // Windowsの場合、index 0 はドライブなのでスキップ
         {
-            UTF16LE utf16le;
-            utf16le.conv(path);
-
-            bool success = (CreateDirectoryW(utf16le.getBuffer(), NULL) == TRUE);
+            bool success = Dir::create(&path);
             DWORD err = GetLastError();
 
             if (success == false && err == ERROR_ALREADY_EXISTS)
@@ -257,7 +252,7 @@ void FileInfo::mkdir() const
 #else
         {
             errno = 0;
-            bool success = (::mkdir(path.getBuffer(), 0755) == 0);
+            bool success = Dir::create(&path);
 
             if (errno == EEXIST)
                 success = true;

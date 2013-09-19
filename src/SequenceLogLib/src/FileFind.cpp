@@ -21,6 +21,7 @@
  */
 #include "slog/FileFind.h"
 #include "slog/FileInfo.h"
+#include "slog/String.h"
 #include "slog/FixedString.h"
 #include "slog/PointerString.h"
 
@@ -68,8 +69,11 @@ void FileFind::exec(
 
     do
     {
-        if (lstrcmpW(fd.cFileName, L"..") == 0)
+        if (lstrcmpW(fd.cFileName, L".") == 0 ||
+            lstrcmpW(fd.cFileName, L"..") == 0)
+        {
             continue;
+        }
 
         String fileName;
         fileName.conv(fd.cFileName);

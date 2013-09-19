@@ -21,8 +21,7 @@
  */
 #pragma once
 
-#include "slog/String.h"
-#include "slog/FixedString.h"
+#include "slog/CoreString.h"
 #include "slog/DateTime.h"
 
 namespace slog
@@ -42,27 +41,57 @@ class SLOG_API FileInfo
             uint64_t                mSize;              //!< ファイルサイズ
             bool                    mUsing;             //!< 使用中かどうか
 
+            /*!
+             * コンストラクタ／デストラクタ
+             */
 public:      FileInfo(const CoreString& path) throw(Exception);
             ~FileInfo();
 
+            /*!
+             * ファイル情報更新
+             */
             void update(bool aUsing = false);
 
+            /*!
+             * 正規のパス取得
+             */
             const CoreString& getCanonicalPath() const;
 
+            /*!
+             * 作成日時
+             */
             void setCreationTime(const DateTime& dateTime);
             const DateTime& getCreationTime() const;
 
+            /*!
+             * 最終書込日時
+             */
             void setLastWriteTime(const DateTime& dateTime);
             const DateTime& getLastWriteTime() const;
 
+            /*!
+             * ファイルかどうか調べる
+             */
             bool isFile() const;
 
+            /*!
+             * ファイルサイズ取得
+             */
             uint64_t getSize() const;
 
+            /*!
+             * 使用中かどうか調べる
+             */
             bool isUsing() const;
 
+            /*!
+             * メッセージ取得
+             */
             const CoreString& getMessage() const;
 
+            /*!
+             * ディレクトリ作成
+             */
             void mkdir() const throw(Exception);
 };
 
