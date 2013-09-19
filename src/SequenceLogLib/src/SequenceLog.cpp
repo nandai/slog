@@ -311,7 +311,7 @@ void SequenceLogClient::sendItem(
     catch (Exception e)
     {
         // 異常発生。ソケットを閉じる
-        noticeLog("%s\n", e.getMessage());
+        noticeLog("sendItem: %s\n", e.getMessage());
         mSocket.close();
     }
 

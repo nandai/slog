@@ -191,6 +191,11 @@ WebSocket::WebSocket(bool isServer)
  */
 WebSocket::~WebSocket()
 {
+    delete mReceiver;
+    mReceiver = NULL;
+
+    delete mMutex;
+    mMutex = NULL;
 }
 
 /*!
@@ -206,17 +211,13 @@ void WebSocket::init()
  */
 int WebSocket::close()
 {
-    if (mMutex)
+    ScopedLock lock(mMutex);
+
+    if (mReceiver->isAlive())
     {
         mReceiver->interrupt();
         mReceiver->join();
         mReceiver->notifyClose();
-
-        delete mReceiver;
-        mReceiver = NULL;
-
-        delete mMutex;
-        mMutex = NULL;
     }
 
     return Socket::close();
