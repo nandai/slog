@@ -20,11 +20,9 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
-#include "slog/String.h"
 
-#if defined(__linux__)
-    #include <stdlib.h>
-#endif
+#include "slog/String.h"
+#include <stdlib.h>
 
 namespace slog
 {

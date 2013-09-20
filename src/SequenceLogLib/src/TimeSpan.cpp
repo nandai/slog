@@ -15,43 +15,48 @@
  */
 
 /*!
- *  \file   Process.h
- *  \brief  プロセスクラス
+ *  \file   TimeSpan.cpp
+ *  \brief  経過時間クラス
  *  \author Copyright 2011-2013 printf.jp
  */
-#pragma once
-#include "slog/slog.h"
+#include "slog/TimeSpan.h"
 
-#if defined(__unix__)
-    #include <stdio.h>
-    #include <unistd.h>
-    #include <sys/stat.h>
+#if defined(_WINDOWS)
+    #include <windows.h>
 #endif
 
 namespace slog
 {
 
 /*!
- *  \brief  プロセスクラス
+ *  \brief  コンストラクタ
  */
-class SLOG_API Process
+TimeSpan::TimeSpan()
 {
 #if defined(_WINDOWS)
-            int64_t     mHandle;                                //!< プロセスハンドル
+    LARGE_INTEGER freq;
+    QueryPerformanceFrequency(&freq);
+
+    LARGE_INTEGER now;
+    QueryPerformanceCounter(&now);
+
+    mMS = now.QuadPart * 1000 / freq.QuadPart;
 #else
-            char        mHandle[sizeof("/proc/-2147483648")];   //!< プロセスハンドル
+    mMS = clock() / (CLOCKS_PER_SEC / 1000);
 #endif
-            uint32_t    mId;                                    //!< プロセスID
+}
 
-public:      Process();
-            ~Process();
-
-            uint32_t getId() const;
-
-#if !defined(MODERN_UI)
-            void setId(uint32_t id);
-            bool isAlive() const;
+/*!
+ *  \brief  差を取得する
+ */
+uint32_t TimeSpan::operator-(const TimeSpan& timeSpan) const
+{
+#if !defined(_WINDOWS) && !defined(__x86_64)
+    if (mMS < timeSpan.mMS)
+        return ((0xFFFFFFFF - timeSpan.mMS + 1) + mMS);
 #endif
-};
+
+    return (uint32_t)(mMS - timeSpan.mMS);
+}
 
 } // namespace slog

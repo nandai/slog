@@ -28,7 +28,7 @@ namespace slog
 /*!
  *  \brief  経過時間クラス
  */
-class TimeSpan
+class SLOG_API TimeSpan
 {
 #if defined(_WINDOWS)
             uint64_t    mMS;
@@ -43,36 +43,5 @@ class TimeSpan
 public:     TimeSpan();
             uint32_t operator-(const TimeSpan& timeSpan) const;
 };
-
-/*!
- *  \brief  コンストラクタ
- */
-inline TimeSpan::TimeSpan()
-{
-#if defined(_WINDOWS)
-    LARGE_INTEGER freq;
-    QueryPerformanceFrequency(&freq);
-
-    LARGE_INTEGER now;
-    QueryPerformanceCounter(&now);
-
-    mMS = now.QuadPart * 1000 / freq.QuadPart;
-#else
-    mMS = clock() / (CLOCKS_PER_SEC / 1000);
-#endif
-}
-
-/*!
- *  \brief  差を取得する
- */
-inline uint32_t TimeSpan::operator-(const TimeSpan& timeSpan) const
-{
-#if !defined(_WINDOWS) && !defined(__x86_64)
-    if (mMS < timeSpan.mMS)
-        return ((0xFFFFFFFF - timeSpan.mMS + 1) + mMS);
-#endif
-
-    return (uint32_t)(mMS - timeSpan.mMS);
-}
 
 } // namespace slog

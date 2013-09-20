@@ -9,6 +9,8 @@ LOCAL_SRC_FILES := \
     ../src/Buffer.cpp \
     ../src/ByteBuffer.cpp \
     ../src/CoreString.cpp \
+    ../src/DateTime.cpp \
+    ../src/Dir.cpp \
     ../src/Exception.cpp \
     ../src/File.cpp \
     ../src/FileFind.cpp \
@@ -16,6 +18,8 @@ LOCAL_SRC_FILES := \
     ../src/HttpRequest.cpp \
     ../src/HttpResponse.cpp \
     ../src/Json.cpp \
+    ../src/Mutex.cpp \
+    ../src/Process.cpp \
     ../src/Socket.cpp \
     ../src/Thread.cpp \
     ../src/Tokenizer.cpp \

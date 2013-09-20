@@ -19,6 +19,8 @@
  *  \brief  Web Socket クライアントクラス
  *  \author Copyright 2013 printf.jp
  */
+#include "slog/slog.h"
+
 #if defined(_WINDOWS)
 #pragma execution_character_set("utf-8")
 #endif

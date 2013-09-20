@@ -22,6 +22,10 @@
 #include "slog/File.h"
 #include "slog/String.h"
 
+#if defined(_WINDOWS)
+    #include <windows.h>
+#endif
+
 namespace slog
 {
 
@@ -90,6 +94,8 @@ void File::open(
         e.setMessage("File::open(\"%s\")", fileName.getBuffer());
         throw e;
     }
+
+    mHandle = (int64_t)handle;
 #else
     const char* p =  fileName.getBuffer();
     const char* _mode = (mode == READ ? "r" : "w");
@@ -100,9 +106,9 @@ void File::open(
         e.setMessage("File::open(\"%s\")", p);
         throw e;
     }
-#endif
 
     mHandle = handle;
+#endif
 }
 
 /*!
@@ -114,7 +120,7 @@ void File::close()
         return;
 
 #if defined(_WINDOWS)
-    ::CloseHandle(mHandle);
+    ::CloseHandle((HANDLE)mHandle);
 #else
     fclose(mHandle);
 #endif
@@ -140,10 +146,14 @@ bool File::read(
 
     str->setLength(0);
 
+#if defined(_WINDOWS)
+    HANDLE handle = (HANDLE)mHandle;
+#endif
+
     do
     {
 #if defined(_WINDOWS)
-        ::ReadFile(mHandle, p, count, (DWORD*)&result, NULL);
+        ::ReadFile(handle, p, count, (DWORD*)&result, NULL);
 #else
         result = fread(p, 1, count, mHandle);
 #endif
@@ -176,17 +186,17 @@ bool File::read(
     LARGE_INTEGER move;
     move.QuadPart = index - result + 1;
 
-    ::SetFilePointerEx(mHandle, move, NULL, FILE_CURRENT);
+    ::SetFilePointerEx(handle, move, NULL, FILE_CURRENT);
 
     if (p[index] == '\n')
         return true;
 
-    ::ReadFile(mHandle, p, 1, (DWORD*)&result, NULL);
+    ::ReadFile(handle, p, 1, (DWORD*)&result, NULL);
 
     if (p[0] != '\n')
     {
         move.QuadPart = -1;
-        ::SetFilePointerEx(mHandle, move, NULL, FILE_CURRENT);
+        ::SetFilePointerEx(handle, move, NULL, FILE_CURRENT);
     }
 #else
     fseek(mHandle, index - result + 1, SEEK_CUR);
@@ -217,7 +227,7 @@ int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
     if (mHandle != NULL)
     {
 #if defined(_WINDOWS)
-        ::ReadFile(mHandle, p, count, (DWORD*)&result, NULL);
+        ::ReadFile((HANDLE)mHandle, p, count, (DWORD*)&result, NULL);
 #else
         result = fread(p, 1, count, mHandle);
 #endif
@@ -246,7 +256,7 @@ void File::write(const Buffer* buffer, int32_t position, int32_t count) const th
     {
 #if defined(_WINDOWS)
         DWORD result = 0;
-        ::WriteFile(mHandle, p, count, &result, NULL);
+        ::WriteFile((HANDLE)mHandle, p, count, &result, NULL);
 #else
         fwrite(p, 1, count, mHandle);
 #endif
@@ -293,16 +303,17 @@ void File::unlink(const CoreString& fileName) throw(Exception)
 /*!
  *  \brief  ファイルサイズ取得
  */
-inline int64_t File::getSize() const
+int64_t File::getSize() const
 {
 #if defined(_WINDOWS)
+    HANDLE handle = (HANDLE)mHandle;
     LARGE_INTEGER move = {0, 0};
     LARGE_INTEGER pos;
     LARGE_INTEGER size;
 
-    ::SetFilePointerEx(mHandle, move, &pos,  FILE_CURRENT);
-    ::SetFilePointerEx(mHandle, move, &size, FILE_END);
-    ::SetFilePointerEx(mHandle, pos,  NULL,  FILE_BEGIN);
+    ::SetFilePointerEx(handle, move, &pos,  FILE_CURRENT);
+    ::SetFilePointerEx(handle, move, &size, FILE_END);
+    ::SetFilePointerEx(handle, pos,  NULL,  FILE_BEGIN);
 
     return size.QuadPart;
 #else
@@ -325,7 +336,7 @@ int64_t File::getPosition() const
     LARGE_INTEGER move = {0, 0};
     LARGE_INTEGER pos;
 
-    ::SetFilePointerEx(mHandle, move, &pos, FILE_CURRENT);
+    ::SetFilePointerEx((HANDLE)mHandle, move, &pos, FILE_CURRENT);
     return pos.QuadPart;
 #else
     int64_t pos = ftell(mHandle);
@@ -339,9 +350,11 @@ int64_t File::getPosition() const
 bool File::isEOF() const
 {
 #if defined(_WINDOWS)
-	unsigned long cur = ::SetFilePointer(mHandle, 0,   NULL, FILE_CURRENT);
-	unsigned long len = ::SetFilePointer(mHandle, 0,   NULL, FILE_END);
-						::SetFilePointer(mHandle, cur, NULL, FILE_BEGIN);
+    HANDLE handle = (HANDLE)mHandle;
+
+    unsigned long cur = ::SetFilePointer(handle, 0,   NULL, FILE_CURRENT);
+	unsigned long len = ::SetFilePointer(handle, 0,   NULL, FILE_END);
+						::SetFilePointer(handle, cur, NULL, FILE_BEGIN);
 
 	return (cur >= len);
 #else

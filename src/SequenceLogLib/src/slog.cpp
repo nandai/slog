@@ -22,6 +22,10 @@
 #include "slog/slog.h"
 #include "slog/FixedString.h"
 
+#if defined(_WINDOWS)
+    #include <windows.h>
+#endif
+
 #if defined(__ANDROID__)
     #include <android/log.h>
 #endif

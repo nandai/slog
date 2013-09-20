@@ -28,25 +28,28 @@
 
 namespace slog
 {
+class CoreString;
 class ScopedLock;
 
 /*!
  *  \brief  ミューテックスクラス
  */
-class Mutex
+class SLOG_API Mutex
 {
             friend class ScopedLock;
 
 #if defined(_WINDOWS)
-            HANDLE              mHandle;    //!< ミューテックスハンドル
+            int64_t             mHandle;    //!< ミューテックスハンドル
 #else
             pthread_mutex_t     mPrivate;   //!< プロセス内ミューテックス
             pthread_mutex_t*    mHandle;    //!< ミューテックスの実体
             bool                mCreate;    //!< 作成フラグ
 #endif
 
-public:
-            Mutex() throw(Exception);
+            /*!
+             * コンストラクタ／デストラクタ
+             */
+public:     Mutex() throw(Exception);
 
 #if defined(_WINDOWS)
             Mutex(bool create, const CoreString& name) throw(Exception);
@@ -55,160 +58,30 @@ public:
 #endif
             ~Mutex();
 
+            /*!
+             * ロック／アンロック
+             */
 private:    void lock();
             void unlock();
 };
 
 /*!
- *  \brief  コンストラクタ
- */
-inline Mutex::Mutex() throw(Exception)
-{
-#if defined(_WINDOWS)
-//  mHandle = CreateMutexW(NULL, TRUE,  NULL);
-    mHandle = CreateMutexW(NULL, FALSE, NULL);
-
-    if (mHandle == NULL)
-    {
-        Exception e;
-        e.setMessage("Mutex::Mutex()");
-
-        throw e;
-    }
-#else
-    mHandle = &mPrivate;
-    mCreate = true;
-    pthread_mutex_init(mHandle, NULL);
-#endif
-}
-
-#if defined(_WINDOWS)
-/*!
- *  \brief  コンストラクタ
- */
-inline Mutex::Mutex(
-    bool create,                //!< 作成フラグ
-    const CoreString& name)     //!< ミューテックス名
-
-    throw(Exception)
-{
-    UTF16LE utf16le;
-    utf16le.conv(name);
-
-    if (create)
-        mHandle = CreateMutexW(NULL, TRUE, utf16le.getBuffer());
-    else
-        mHandle = OpenMutexW(MUTEX_ALL_ACCESS, FALSE, utf16le.getBuffer());
-
-    if (mHandle == NULL)
-    {
-        Exception e;
-        e.setMessage("Mutex::Mutex(create:%s, \"%s\")", (create ? "true" : "false"), name.getBuffer());
-
-        throw e;
-    }
-}
-#else
-/*!
- *  \brief  コンストラクタ
- */
-inline Mutex::Mutex(
-    bool create,                //!< 作成フラグ
-    pthread_mutex_t* mutex)     //!< ミューテックスの実体
-{
-    mHandle = mutex;
-    mCreate = create;
-
-    if (mCreate)
-    {
-        pthread_mutexattr_t attr;
-        pthread_mutexattr_init(&attr);
-        pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
-
-        pthread_mutex_init(mHandle, &attr);
-    }
-}
-#endif
-
-/*!
- *  \brief  デストラクタ
- */
-inline Mutex::~Mutex()
-{
-#if defined(_WINDOWS)
-    CloseHandle(mHandle);
-#else
-    if (mCreate)
-        pthread_mutex_destroy(mHandle);
-#endif
-}
-
-/*!
- *  \brief  ロック
- */
-inline void Mutex::lock()
-{
-#if defined(_WINDOWS)
-    WaitForSingleObjectEx(mHandle, INFINITE, FALSE);
-#else
-    pthread_mutex_lock(mHandle);
-#endif
-}
-
-/*!
- *  \brief  アンロック
- */
-inline void Mutex::unlock()
-{
-    if (this == NULL)
-        return;
-
-#if defined(_WINDOWS)
-    ReleaseMutex(mHandle);
-#else
-    pthread_mutex_unlock(mHandle);
-#endif
-}
-
-/*!
  *  \brief  スコープドロッククラス
  */
-class ScopedLock
+class SLOG_API ScopedLock
 {
             Mutex*  mMutex;
 
+            /*!
+             * コンストラクタ／デストラクタ
+             */
 public:      ScopedLock(Mutex* mutex, bool callLock = true);
             ~ScopedLock();
 
+            /*!
+             * リリース
+             */
             void release();
 };
-
-/*!
- *  \brief  コンストラクタ
- */
-inline ScopedLock::ScopedLock(Mutex* mutex, bool callLock)
-{
-    mMutex = mutex;
-
-    if (mMutex && callLock)
-        mMutex->lock();
-}
-
-/*!
- *  \brief  デストラクタ
- */
-inline ScopedLock::~ScopedLock()
-{
-    if (mMutex)
-        mMutex->unlock();
-}
-
-/*!
- *  \brief  リリース
- */
-inline void ScopedLock::release()
-{
-    mMutex = NULL;
-}
 
 } // namespace slog

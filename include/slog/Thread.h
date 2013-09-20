@@ -54,7 +54,7 @@ public:     virtual void onInitialized(Thread* thread) {}   //!< スレッド初
 class SLOG_API Thread
 {
 #if defined(_WINDOWS)
-            HANDLE          mHandle;            //!< スレッドハンドル
+            int64_t         mHandle;            //!< スレッドハンドル
 #else
             pthread_t       mHandle;            //!< スレッドハンドル
 #endif
@@ -65,6 +65,9 @@ class SLOG_API Thread
             ThreadListener  mDefaultListener;   //!< デフォルトリスナー
             ThreadListeners mListeners;         //!< リスナーリスト
 
+            /*!
+             * コンストラクタ／デストラクタ
+             */
 public:     Thread();
             virtual ~Thread();
 
@@ -78,6 +81,9 @@ public:     virtual void interrupt();
             bool isInterrupted() const;
             bool isAlive() const;
 
+            /*!
+             * リスナー
+             */
             ThreadListener* getListener() const;
             void setListener(ThreadListener* listener);
 
@@ -137,37 +143,6 @@ inline void Thread::setListener(ThreadListener* listener)
 inline ThreadListeners* Thread::getListeners() const
 {
     return (ThreadListeners*)&mListeners;
-}
-
-/*!
- *  \brief  カレントスレッドID取得
- */
-inline uint32_t Thread::getCurrentId()
-{
-#if defined(_WINDOWS)
-    return (uint32_t)GetCurrentThreadId();
-#elif defined(__ANDROID__)
-    return (uint32_t)gettid();
-#else
-//  return (uint32_t)syscall(224);
-    return (uint32_t)syscall(SYS_gettid);
-#endif
-}
-
-/*!
- *  \brief  スリープ
- */
-inline void Thread::sleep(uint32_t ms)
-{
-#if defined(_WINDOWS)
-    WaitForSingleObjectEx(GetCurrentThread(), ms, FALSE);
-#else
-    timespec req;
-    req.tv_sec =   ms / 1000;
-    req.tv_nsec = (ms % 1000) * 1000 * 1000;
-
-    nanosleep(&req, NULL);
-#endif
 }
 
 } // namespace slog

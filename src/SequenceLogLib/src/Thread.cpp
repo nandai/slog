@@ -22,6 +22,7 @@
 #include "slog/Thread.h"
 
 #if defined(_WINDOWS)
+    #include <windows.h>
     #include <process.h>
 #endif
 
@@ -54,7 +55,7 @@ void Thread::start()
 {
 #if defined(_WINDOWS)
     #if !defined(MODERN_UI)
-    mHandle = (HANDLE)_beginthreadex(NULL, 0, main, this, 0, NULL);
+    mHandle = (int64_t)_beginthreadex(NULL, 0, main, this, 0, NULL);
     #endif
 #else
     pthread_create(&mHandle, 0/*NULL*/, main, this);
@@ -68,8 +69,10 @@ void Thread::join()
 {
 #if defined(_WINDOWS)
     #if !defined(MODERN_UI)
-    WaitForSingleObject(mHandle, INFINITE);
-    CloseHandle(mHandle);
+    HANDLE handle = (HANDLE)mHandle;
+
+    WaitForSingleObject(handle, INFINITE);
+    CloseHandle(handle);
     #endif
 #else
     pthread_join(mHandle, 0/*NULL*/);
@@ -159,6 +162,37 @@ void* Thread::main(void* param)
 #endif
 
     return 0;
+}
+
+/*!
+ *  \brief  カレントスレッドID取得
+ */
+uint32_t Thread::getCurrentId()
+{
+#if defined(_WINDOWS)
+    return (uint32_t)GetCurrentThreadId();
+#elif defined(__ANDROID__)
+    return (uint32_t)gettid();
+#else
+//  return (uint32_t)syscall(224);
+    return (uint32_t)syscall(SYS_gettid);
+#endif
+}
+
+/*!
+ *  \brief  スリープ
+ */
+void Thread::sleep(uint32_t ms)
+{
+#if defined(_WINDOWS)
+    WaitForSingleObjectEx(GetCurrentThread(), ms, FALSE);
+#else
+    timespec req;
+    req.tv_sec =   ms / 1000;
+    req.tv_nsec = (ms % 1000) * 1000 * 1000;
+
+    nanosleep(&req, NULL);
+#endif
 }
 
 } // namespace slog

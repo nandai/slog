@@ -43,7 +43,8 @@ class CoreString;
  */
 class SLOG_API Socket
 {
-            struct Data;
+public:     static const int STREAM;
+private:    struct Data;
 
 #if defined(_WINDOWS)
     #if defined(MODERN_UI)
@@ -52,7 +53,7 @@ class SLOG_API Socket
             Windows::Storage::Streams::DataWriter^          mWriter;
             Windows::Storage::Streams::DataReader^          mReader;
     #else
-            SOCKET          mSocket;        //!< ソケット
+            int64_t         mSocket;        //!< ソケット
     #endif
 #else
             int             mSocket;        //!< ソケット
@@ -61,10 +62,6 @@ class SLOG_API Socket
             Data*           mData;
             bool            mInet;          //!< true:AF_INET、false:AF_UNIX
             bool            mStream;        //!< true:SOCK_STREAM, false:SOCK_DGRAM
-#if defined(MODERN_UI)
-#else
-            sockaddr_in     mAddr;          //!< ソケット情報
-#endif
             ByteBuffer*     mBuffer;        //!< 数値用送受信バッファ
             bool            mConnect;       //!< 接続しているかどうか
 
@@ -77,7 +74,7 @@ public:     Socket();
             /*!
              * オープン／クローズ
              */
-            void open(bool inet = true, int type = SOCK_STREAM) throw(Exception);
+            void open(bool inet = true, int type = STREAM) throw(Exception);
             virtual int close();
 
             /*!

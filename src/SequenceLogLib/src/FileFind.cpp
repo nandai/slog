@@ -26,7 +26,7 @@
 #include "slog/PointerString.h"
 
 #if defined(_WINDOWS)
-// no implement
+    #include <windows.h>
 #elif defined(__linux__) && !defined(__ANDROID__)
     #include <glob.h>
 #else

@@ -21,6 +21,10 @@
  */
 #include "slog/CoreString.h"
 
+#if defined(_WINDOWS)
+    #include <windows.h>
+#endif
+
 namespace slog
 {
 

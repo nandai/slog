@@ -22,8 +22,13 @@
 #include "slog/Util.h"
 #include "slog/String.h"
 
+#if defined(_WINDOWS)
+    #include <windows.h>
+#endif
+
 #if defined(__linux__)
-#include <unistd.h>
+    #include <limits.h>
+    #include <unistd.h>
 #endif
 
 namespace slog

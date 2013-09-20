@@ -20,10 +20,7 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/ByteBuffer.h"
-
-#if defined(__unix__)
-    #include <string.h>
-#endif
+#include <string.h>
 
 namespace slog
 {

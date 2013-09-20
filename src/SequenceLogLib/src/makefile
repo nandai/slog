@@ -19,6 +19,8 @@ objs = \
 	Buffer.o \
 	ByteBuffer.o \
 	CoreString.o \
+	DateTime.o \
+	Dir.o \
 	Exception.o \
 	File.o \
 	FileFind.o \
@@ -26,6 +28,8 @@ objs = \
 	HttpRequest.o \
 	HttpResponse.o \
 	Json.o \
+	Mutex.o \
+	Process.o \
 	Socket.o \
 	Thread.o \
 	Tokenizer.o \

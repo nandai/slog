@@ -44,7 +44,7 @@ public:     enum Mode
 
 private:
 #if defined(_WINDOWS)
-            HANDLE  mHandle;    //!< ファイルハンドル
+            int64_t mHandle;    //!< ファイルハンドル
 #else
             FILE*   mHandle;    //!< ファイルハンドル
 #endif

@@ -203,6 +203,7 @@
     <ClCompile Include="src\Buffer.cpp" />
     <ClCompile Include="src\ByteBuffer.cpp" />
     <ClCompile Include="src\CoreString.cpp" />
+    <ClCompile Include="src\DateTime.cpp" />
     <ClCompile Include="src\Dir.cpp" />
     <ClCompile Include="src\Exception.cpp" />
     <ClCompile Include="src\File.cpp" />
@@ -220,6 +221,8 @@
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug-dll|x64'">Async</ExceptionHandling>
       <StringPooling Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'">false</StringPooling>
     </ClCompile>
+    <ClCompile Include="src\Mutex.cpp" />
+    <ClCompile Include="src\Process.cpp" />
     <ClCompile Include="src\SequenceLog.cpp" />
     <ClCompile Include="src\sha1.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release-dll|Win32'">CompileAsCpp</CompileAs>
@@ -228,6 +231,7 @@
     <ClCompile Include="src\slog.cpp" />
     <ClCompile Include="src\Socket.cpp" />
     <ClCompile Include="src\Thread.cpp" />
+    <ClCompile Include="src\TimeSpan.cpp" />
     <ClCompile Include="src\Tokenizer.cpp" />
     <ClCompile Include="src\Util.cpp" />
     <ClCompile Include="src\WebServerResponseThread.cpp" />

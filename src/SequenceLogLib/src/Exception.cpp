@@ -27,7 +27,8 @@
 #include <stdarg.h>
 
 #if defined(_WINDOWS)
-#define snprintf    _snprintf
+    #include <windows.h>
+    #define snprintf _snprintf
 #endif
 
 namespace slog

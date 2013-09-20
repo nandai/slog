@@ -60,11 +60,14 @@
 
 namespace slog
 {
+const int Socket::STREAM = SOCK_STREAM;
 
 struct Socket::Data
 {
     FixedString<16> mInetAddress;   //!< 接続元／先IPアドレス
     FixedString<16> mMyInetAddress; //!< 自IPアドレス
+
+    sockaddr_in     mAddr;          //!< ソケット情報
 
     SSL_CTX*        mCTX;           //!< SSLコンテキスト
     SSL*            mSSL;           //!< SSL
@@ -168,7 +171,7 @@ int Socket::close()
         return 0;
 
 #if defined(_WINDOWS)
-    int result = closesocket(mSocket);
+    int result = closesocket((SOCKET)mSocket);
 #else
     int result = ::close(mSocket);
 #endif
@@ -190,12 +193,18 @@ void Socket::bind(
 {
 #if defined(MODERN_UI)
 #else
-    mAddr.sin_family = AF_INET;
-    mAddr.sin_port = htons(port);
-//  mAddr.sin_addr.S_un.S_addr = INADDR_ANY;
-    mAddr.sin_addr.s_addr =      INADDR_ANY;
+    sockaddr_in* addr = &mData->mAddr;
 
-    int result = ::bind(mSocket, (sockaddr*)&mAddr, sizeof(mAddr));
+    addr->sin_family = AF_INET;
+    addr->sin_port = htons(port);
+//  addr->sin_addr.S_un.S_addr = INADDR_ANY;
+    addr->sin_addr.s_addr =      INADDR_ANY;
+
+#if defined(_WINDOWS)
+    int result = ::bind((SOCKET)mSocket, (sockaddr*)addr, sizeof(*addr));
+#else
+    int result = ::bind(        mSocket, (sockaddr*)addr, sizeof(*addr));
+#endif
 
     if (result != 0)
     {
@@ -243,7 +252,11 @@ void Socket::listen(
 {
 #if defined(MODERN_UI)
 #else
-    int result = ::listen(mSocket, backlog);
+#if defined(_WINDOWS)
+    int result = ::listen((SOCKET)mSocket, backlog);
+#else
+    int result = ::listen(        mSocket, backlog);
+#endif
 
     if (result != 0)
     {
@@ -267,13 +280,15 @@ void Socket::accept(
 #else
     if (mInet)
     {
-#if defined(_WINDOWS)
-        int len = sizeof(mAddr);
-#else
-        socklen_t len = sizeof(mAddr);
-#endif
+        sockaddr_in* addr = &mData->mAddr;
 
-        mSocket = ::accept(servSocket->mSocket, (sockaddr*)&mAddr, &len);
+#if defined(_WINDOWS)
+        int       len = sizeof(*addr);
+        mSocket = ::accept((SOCKET)servSocket->mSocket, (sockaddr*)addr, &len);
+#else
+        socklen_t len = sizeof(*addr);
+        mSocket = ::accept(        servSocket->mSocket, (sockaddr*)addr, &len);
+#endif
     }
 #if defined(__ANDROID__)
     else
@@ -313,18 +328,19 @@ void Socket::connect(
     result = waitForSocket(action);
 #else
     hostent* host = gethostbyname(ipAddress.getBuffer());
+    sockaddr_in* addr = &mData->mAddr;
 
-    mAddr.sin_family = AF_INET;
-    mAddr.sin_port = htons(port);
+    addr->sin_family = AF_INET;
+    addr->sin_port = htons(port);
 
     if (host == NULL)
     {
-//      mAddr.sin_addr.S_un.S_addr = inet_addr(ipAddress);
-        mAddr.sin_addr.s_addr =      inet_addr(ipAddress.getBuffer());
+//      addr->sin_addr.S_un.S_addr = inet_addr(ipAddress);
+        addr->sin_addr.s_addr =      inet_addr(ipAddress.getBuffer());
     }
     else
     {
-        memcpy(&mAddr.sin_addr.s_addr, host->h_addr, host->h_length);
+        memcpy(&addr->sin_addr.s_addr, host->h_addr, host->h_length);
 //      noticeLog("len:%d, %u.%u.%u.%u", host->h_length,
 //          (uint8_t)host->h_addr[0],
 //          (uint8_t)host->h_addr[1],
@@ -333,7 +349,13 @@ void Socket::connect(
     }
 
     if (mStream)
-        result = ::connect(mSocket, (sockaddr*)&mAddr, sizeof(mAddr));
+    {
+#if defined(_WINDOWS)
+        result = ::connect((SOCKET)mSocket, (sockaddr*)addr, sizeof(*addr));
+#else
+        result = ::connect(        mSocket, (sockaddr*)addr, sizeof(*addr));
+#endif
+    }
 #endif
 
     if (result != 0)
@@ -496,7 +518,12 @@ int Socket::setReUseAddress(bool reUse)
 #else
     int on = (reUse ? 1 : 0);   // アドレス再利用有効化（bind()のtime waitによるEADDRINUSE回避のため）
 
-    int result = setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
+#if defined(_WINDOWS)
+    int result = setsockopt((SOCKET)mSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
+#else
+    int result = setsockopt(        mSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
+#endif
+
     return result;
 #endif
 }
@@ -513,7 +540,12 @@ int Socket::setRecvTimeOut(int32_t msec)
     tm.tv_sec = msec;
     tm.tv_usec = 0;
 
-    int result = setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tm, sizeof(timeval));
+#if defined(_WINDOWS)
+    int result = setsockopt((SOCKET)mSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tm, sizeof(timeval));
+#else
+    int result = setsockopt(        mSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tm, sizeof(timeval));
+#endif
+
     return result;
 #endif
 }
@@ -528,7 +560,12 @@ int Socket::setNoDelay(bool noDelay)
 #else
     int on = (noDelay ? 1 : 0);
 
-    int result = setsockopt(mSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&on, sizeof(on));
+#if defined(_WINDOWS)
+    int result = setsockopt((SOCKET)mSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&on, sizeof(on));
+#else
+    int result = setsockopt(        mSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&on, sizeof(on));
+#endif
+
     return result;
 #endif
 }
@@ -547,7 +584,7 @@ const CoreString& Socket::getInetAddress() const
     if (isOpen() == false)
         inetAddress.setLength(0);
     else
-        inetAddress.copy(inet_ntoa(mAddr.sin_addr));
+        inetAddress.copy(inet_ntoa(mData->mAddr.sin_addr));
 #endif
 
     return inetAddress;
@@ -564,12 +601,12 @@ const CoreString& Socket::getMyInetAddress() const
     sockaddr_in addr;
 
 #if defined(_WINDOWS)
-        int len = sizeof(addr);
+    int       len = sizeof(addr);
+    getsockname((SOCKET)mSocket, (sockaddr*)&addr, &len);
 #else
-        socklen_t len = sizeof(addr);
+    socklen_t len = sizeof(addr);
+    getsockname(        mSocket, (sockaddr*)&addr, &len);
 #endif
-
-    getsockname(mSocket, (sockaddr*)&addr, &len);
 
     if (isOpen() == false)
         inetAddress.setLength(0);
@@ -654,9 +691,16 @@ void Socket::send(
         }
         else
         {
+            sockaddr_in* addr = &mData->mAddr;
+
             result = (mStream
-                ? ::send(  mSocket, p, remains, flag)
-                : ::sendto(mSocket, p, remains, flag, (sockaddr*)&mAddr, sizeof(mAddr))
+#if defined(_WINDOWS)
+                ? ::send(  (SOCKET)mSocket, p, remains, flag)
+                : ::sendto((SOCKET)mSocket, p, remains, flag, (sockaddr*)addr, sizeof(*addr))
+#else
+                ? ::send(          mSocket, p, remains, flag)
+                : ::sendto(        mSocket, p, remains, flag, (sockaddr*)addr, sizeof(*addr))
+#endif
             );
         }
 
@@ -751,7 +795,11 @@ void Socket::recv(
         }
         else
         {
-            result = ::recv(mSocket, p, remains, 0);
+#if defined(_WINDOWS)
+            result = ::recv((SOCKET)mSocket, p, remains, 0);
+#else
+            result = ::recv(        mSocket, p, remains, 0);
+#endif
         }
 
         if (result <= 0)
@@ -795,7 +843,11 @@ bool Socket::isReceiveData(int32_t timeoutMS)
     fd_set fds;
 
     FD_ZERO(&fds);
-    FD_SET(mSocket, &fds);
+#if defined(_WINDOWS)
+    FD_SET((SOCKET)mSocket, &fds);
+#else
+    FD_SET(        mSocket, &fds);
+#endif
 
     int n = select((int)mSocket + 1, &fds, NULL, NULL, &timeout);
 

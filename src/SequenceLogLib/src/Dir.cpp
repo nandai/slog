@@ -22,6 +22,13 @@
 #include "slog/Dir.h"
 #include "slog/CoreString.h"
 
+#if defined(_WINDOWS)
+    #include <windows.h>
+#else
+    #include <sys/stat.h>
+    #include <unistd.h>
+#endif
+
 namespace slog
 {
 

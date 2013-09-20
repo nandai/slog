@@ -23,9 +23,10 @@
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
 
+#include <ctype.h>
+
 #if defined(__linux__)
     #include <stdlib.h>
-    #include <ctype.h>
 #endif
 
 using namespace std;

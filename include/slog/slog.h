@@ -31,8 +31,6 @@
     #undef  _WINDOWS
     #define _WINDOWS
 
-    #include <windows.h>
-
     #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == 0x00000002/*WINAPI_PARTITION_APP*/)
         #define MODERN_UI
     #endif
@@ -67,10 +65,10 @@
 #if defined(_WINDOWS)
     #define PATH_DELIMITER  '\\'
 #else
-    #include <limits.h>
-    #define  MAX_PATH PATH_MAX
     #define PATH_DELIMITER  '/'
 #endif
+
+#define MAX_PATH 260
 
 #if defined(__cplusplus)
 extern "C" {
