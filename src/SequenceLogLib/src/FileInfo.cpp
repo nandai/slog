@@ -76,14 +76,7 @@ FileInfo::FileInfo(
 
     String absolutePath;
     const char* pszPath = path.getBuffer();
-
-#if defined(_WINDOWS)
-    char* work = NULL;
-    wchar_t unicode[MAX_PATH];
     String str;
-#else
-    char  work[MAX_PATH];
-#endif
 
     // ホームディレクトリ取得
     if (pszPath[0] == '~')
@@ -91,6 +84,7 @@ FileInfo::FileInfo(
 #if defined(_WINDOWS)
         LPITEMIDLIST pidl;
         IMalloc* pMalloc;
+    wchar_t unicode[MAX_PATH];
 
         SHGetMalloc(&pMalloc);
         SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl);
@@ -100,13 +94,12 @@ FileInfo::FileInfo(
         pMalloc->Release();
 
         str.conv(unicode);
-        work = str.getBuffer();
 #else
         char* home = getenv("HOME");
-        strcpy(work, (home ? home : "/"));
+        str.copy(home ? home : "/");
 #endif
 
-        absolutePath.format("%s%s", work, pszPath + 1);
+        absolutePath.format("%s%s", str.getBuffer(), pszPath + 1);
     }
 
     // カレントディレクトリ取得

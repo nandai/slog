@@ -49,6 +49,9 @@ private:
             FILE*   mHandle;    //!< ファイルハンドル
 #endif
 
+            /*!
+             * コンストラクタ／デストラクタ
+             */
 public:      File();
             ~File();
 
@@ -70,6 +73,16 @@ public:      File();
             static void unlink(const CoreString& fileName) throw(Exception);
 
             bool isEOF() const;
+
+            /*!
+             * ファイルコピー
+             */
+            static bool copy(const CoreString* aSrc, const CoreString* aDst);
+
+            /*!
+             * ファイル移動
+             */
+            static bool move(const CoreString* aSrc, const CoreString* aDst);
 };
 
 } // namespace slog

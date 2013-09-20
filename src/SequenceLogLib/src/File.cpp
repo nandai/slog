@@ -206,7 +206,7 @@ bool File::read(
 /*!
  *  \brief  読み込み
  */
-inline int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
+int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
 {
 	int32_t result = 0;
     int32_t position = 0;
@@ -229,7 +229,7 @@ inline int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
 /*!
  *  \brief  書き込み
  */
-inline void File::write(const Buffer* buffer, int32_t count) const throw(Exception)
+void File::write(const Buffer* buffer, int32_t count) const throw(Exception)
 {
     write(buffer, 0, count);
 }
@@ -278,7 +278,7 @@ void File::unlink(const CoreString& fileName) throw(Exception)
     }
 }
 
-//inline void File::flush()
+//void File::flush()
 //{
 //  if (mHandle != NULL)
 //  {
@@ -319,7 +319,7 @@ inline int64_t File::getSize() const
 /*!
  *  \brief  ファイルポインタの現在位置取得
  */
-inline int64_t File::getPosition() const
+int64_t File::getPosition() const
 {
 #if defined(_WINDOWS)
     LARGE_INTEGER move = {0, 0};
@@ -333,6 +333,9 @@ inline int64_t File::getPosition() const
 #endif
 }
 
+/*!
+ * 
+ */
 bool File::isEOF() const
 {
 #if defined(_WINDOWS)
@@ -341,6 +344,40 @@ bool File::isEOF() const
 						::SetFilePointer(mHandle, cur, NULL, FILE_BEGIN);
 
 	return (cur >= len);
+#else
+#endif
+}
+
+/*!
+ * \brief   ファイルコピー
+ */
+bool File::copy(const CoreString* aSrc, const CoreString* aDst)
+{
+#if defined(_WINDOWS)
+    UTF16LE src;
+    src.conv(*aSrc);
+
+    UTF16LE dst;
+    dst.conv(*aDst);
+
+    return (CopyFileW(src.getBuffer(), dst.getBuffer(), FALSE) == TRUE);
+#else
+#endif
+}
+
+/*!
+ * ファイル移動
+ */
+bool File::move(const CoreString* aSrc, const CoreString* aDst)
+{
+#if defined(_WINDOWS)
+    UTF16LE src;
+    src.conv(*aSrc);
+
+    UTF16LE dst;
+    dst.conv(*aDst);
+
+    return (MoveFileExW(src.getBuffer(), dst.getBuffer(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED) == TRUE);
 #else
 #endif
 }
