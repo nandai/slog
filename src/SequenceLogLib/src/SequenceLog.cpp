@@ -26,6 +26,10 @@
 #include <windows.h>
 #endif
 
+#if defined(__unix__)
+#include <string.h>
+#endif
+
 //nclude "SequenceLog.h"
 #include "SequenceLogItem.h"
 

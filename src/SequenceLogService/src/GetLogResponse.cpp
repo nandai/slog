@@ -31,6 +31,10 @@
 #include "slog/File.h"
 #include "slog/WebSocket.h"
 
+#if defined(__unix__)
+    #include <string.h>
+#endif
+
 namespace slog
 {
 

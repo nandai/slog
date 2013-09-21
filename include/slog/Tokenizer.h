@@ -20,9 +20,7 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
-
 #include "slog/String.h"
-#include <stdlib.h>
 
 namespace slog
 {
@@ -30,7 +28,7 @@ namespace slog
 /*!
  *  \brief  バリアントクラス
  */
-class Variant
+class SLOG_API Variant
 {
 public:     String  mStr;
 
@@ -39,7 +37,7 @@ public:     String  mStr;
 //              mStr = variant.mStr;
 //          }
 
-public:     operator int32_t() const {return atol(mStr.getBuffer());}
+public:     operator int32_t() const;
             operator const CoreString&() const {return mStr;}
 };
 

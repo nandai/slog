@@ -29,8 +29,13 @@
 #include "slog/DateTimeFormat.h"
 #include "slog/HttpRequest.h"
 
+#if defined(_WINDOWS)
+    #pragma warning(disable:4996)
+#endif
+
 #if defined(__unix__)
     #define stricmp strcasecmp
+    #include <string.h>
     #include <syslog.h>
 #endif
 

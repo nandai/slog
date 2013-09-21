@@ -26,6 +26,10 @@
 #include "slog/PointerString.h"
 
 #if defined(__unix__)
+    #include <stdio.h>
+    #include <string.h>
+    #include <errno.h>
+    #include <unistd.h>
     #include <pwd.h>
     #include <grp.h>
 #endif

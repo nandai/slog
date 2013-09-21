@@ -25,6 +25,12 @@
     #include <windows.h>
 #endif
 
+#if defined(__unix__)
+    #include <stdio.h>
+    #include <unistd.h>
+    #include <sys/stat.h>
+#endif
+
 namespace slog
 {
 

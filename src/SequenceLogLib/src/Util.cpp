@@ -27,6 +27,7 @@
 #endif
 
 #if defined(__linux__)
+    #include <string.h>
     #include <limits.h>
     #include <unistd.h>
 #endif
@@ -114,5 +115,27 @@ void Util::encodeBase64(String* dest, const char* src, int32_t srcLen)
     dest->copy(buffer, destLen);
     delete [] buffer;
 }
+
+#if defined(_WINDOWS)
+/*!
+ * UnicodeをUTF-8に変換
+ */
+int32_t Util::toUTF8(char* utf8, int32_t size, const wchar_t* unicode)
+{
+    int32_t len = (int32_t)wcslen(unicode);
+
+    int32_t bytes = WideCharToMultiByte(CP_UTF8, 0, unicode, len + 1, utf8, size, NULL, NULL);
+    return (bytes - 1/* 末尾の'\0'分を引く */);
+}
+
+/*!
+ * UTF-8をUnicodeに変換
+ */
+int32_t Util::toUnicode(wchar_t* unicode, int32_t size, const char* utf8)
+{
+    int32_t chars = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, unicode, size);
+    return (chars - 1/* 末尾の'\0'分を引く */);
+}
+#endif
 
 } // namespace slog

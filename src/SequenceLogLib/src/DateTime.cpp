@@ -20,9 +20,10 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/DateTime.h"
+#include <time.h>
 
 #if defined(_WINDOWS)
-    #include <Windows.h>
+    #include <windows.h>
 #endif
 
 namespace slog

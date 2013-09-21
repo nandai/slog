@@ -24,10 +24,6 @@
 #include "slog/CoreString.h"
 #include "slog/Exception.h"
 
-#if defined(__unix__)
-    #include <unistd.h>
-#endif
-
 namespace slog
 {
 
@@ -42,12 +38,7 @@ public:     enum Mode
                 WRITE,
             };
 
-private:
-#if defined(_WINDOWS)
-            int64_t mHandle;    //!< ファイルハンドル
-#else
-            FILE*   mHandle;    //!< ファイルハンドル
-#endif
+private:    int64_t mHandle;    //!< ファイルハンドル
 
             /*!
              * コンストラクタ／デストラクタ

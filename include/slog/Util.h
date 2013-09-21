@@ -34,6 +34,18 @@ class SLOG_API Util
 public:     static void getProcessPath(String* path);
             static int64_t getBitsValue(const char* p, int32_t len, int32_t bitPos, int32_t count);
             static void encodeBase64(String* dest, const char* src, int32_t srcLen);
+
+#if defined(_WINDOWS)
+            /*!
+             * Unicode‚ðUTF-8‚É•ÏŠ·
+             */
+            static int32_t toUTF8(char* utf8, int32_t size, const wchar_t* unicode);
+
+            /*!
+             * UTF-8‚ðUnicode‚É•ÏŠ·
+             */
+            static int32_t toUnicode(wchar_t* unicode, int32_t size, const char* utf8);
+#endif
 };
 
 } // namespace slog

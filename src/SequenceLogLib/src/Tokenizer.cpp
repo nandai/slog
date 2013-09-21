@@ -21,8 +21,13 @@
  */
 #include "slog/Tokenizer.h"
 
+#include <stdlib.h>
 #include <vector>
 #include <map>
+
+#if defined(__linux__)
+    #include <string.h>
+#endif
 
 namespace slog
 {
@@ -90,6 +95,14 @@ struct Tokenizer::Data
     Keys        mKeys;          //!< キー
     Elements    mElements;      //!< 要素
 };
+
+/*!
+ * \brief   Variantをint32_tで取得
+ */
+Variant::operator int32_t() const
+{
+    return atol(mStr.getBuffer());
+}
 
 /*!
  *  \brief  コンストラクタ

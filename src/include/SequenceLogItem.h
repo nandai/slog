@@ -27,13 +27,6 @@
 #include "slog/ByteBuffer.h"
 #include "slog/Thread.h"
 
-#include <stdio.h>
-
-#if defined(_WINDOWS)
-    #undef UNICODE
-    #pragma warning(disable:4996)
-#endif
-
 namespace slog
 {
 

@@ -22,9 +22,6 @@
 #pragma once
 
 #include "slog/Buffer.h"
-
-#include <stdio.h>
-#include <string.h>
 #include <stdarg.h>
 
 namespace slog
@@ -77,7 +74,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             void formatV(const char* format, va_list arg) throw(Exception);
 
             // 比較
-            bool equals(const CoreString& str) const {return (strcmp(getBuffer(), str.getBuffer()) == 0);}
+            bool equals(const CoreString& str) const;
 
             // 検索
             int32_t find(char c) const;
@@ -115,24 +112,9 @@ inline void CoreString::setLength(int32_t len) throw(Exception)
 }
 
 /*!
- *  \brief  フォーマット
- */
-inline void CoreString::format(const char* format, ...) throw(Exception)
-{
-    va_list arg;
-    va_start(arg, format);
-
-    formatV(format, arg);
-    va_end(arg);
-}
-
-/*!
  *  \brief  文字列比較
  */
-inline bool operator==(const CoreString& str1, const char* str2)
-{
-    return (strcmp(str1.getBuffer(), str2) == 0);
-}
+bool SLOG_API operator==(const CoreString& str1, const char* str2);
 
 #if defined(_WINDOWS)
 class SLOG_API UTF16LE
@@ -140,12 +122,10 @@ class SLOG_API UTF16LE
             wchar_t*    mBuffer;
             int32_t     mChars;
 
-public:     UTF16LE()
-            {
-                mBuffer = NULL;
-                mChars = 0;
-            }
-
+            /*!
+             * コンストラクタ／デストラクタ
+             */
+public:      UTF16LE();
             ~UTF16LE()
             {
                 delete [] mBuffer;

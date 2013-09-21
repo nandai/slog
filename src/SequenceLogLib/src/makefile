@@ -29,8 +29,10 @@ objs = \
 	HttpResponse.o \
 	Json.o \
 	Mutex.o \
+	PointerString.o \
 	Process.o \
 	Socket.o \
+	String.o \
 	Thread.o \
 	Tokenizer.o \
 	Util.o \

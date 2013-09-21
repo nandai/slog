@@ -222,6 +222,7 @@
       <StringPooling Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'">false</StringPooling>
     </ClCompile>
     <ClCompile Include="src\Mutex.cpp" />
+    <ClCompile Include="src\PointerString.cpp" />
     <ClCompile Include="src\Process.cpp" />
     <ClCompile Include="src\SequenceLog.cpp" />
     <ClCompile Include="src\sha1.c">
@@ -230,6 +231,7 @@
     </ClCompile>
     <ClCompile Include="src\slog.cpp" />
     <ClCompile Include="src\Socket.cpp" />
+    <ClCompile Include="src\String.cpp" />
     <ClCompile Include="src\Thread.cpp" />
     <ClCompile Include="src\TimeSpan.cpp" />
     <ClCompile Include="src\Tokenizer.cpp" />

@@ -28,6 +28,11 @@
 
 #include "sha1.h"
 
+#if defined(__linux__)
+    #include <string.h>
+    #include <strings.h>
+#endif
+
 namespace slog
 {
 

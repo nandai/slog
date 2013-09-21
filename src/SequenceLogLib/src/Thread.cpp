@@ -26,6 +26,11 @@
     #include <process.h>
 #endif
 
+#if defined(__unix__)
+    #include <unistd.h>
+    #include <sys/syscall.h>
+#endif
+
 namespace slog
 {
 

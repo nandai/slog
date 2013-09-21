@@ -31,6 +31,10 @@
     #define snprintf _snprintf
 #endif
 
+#if defined(__unix__)
+    #include <errno.h>
+#endif
+
 namespace slog
 {
 

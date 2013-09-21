@@ -26,6 +26,7 @@
 #include <ctype.h>
 
 #if defined(__linux__)
+    #include <string.h>
     #include <stdlib.h>
 #endif
 

@@ -15,54 +15,36 @@
  */
 
 /*!
- *  \file   Exception.h
- *  \brief  例外クラス
+ *  \file   PointerString.cpp
+ *  \brief  ポインタ文字列クラス
  *  \author Copyright 2011-2013 printf.jp
  */
-#pragma once
-#include "slog/slog.h"
+#include "slog/PointerString.h"
+#include <string.h>
 
 namespace slog
 {
 
 /*!
- *  \brief  例外クラス
- */
-class SLOG_API Exception
-{
-            int32_t     mErrorNo;           //!< エラー番号
-            char        mMessage[255 + 1];  //!< メッセージ
-
-public:     Exception();
-
-            int32_t getErrorNo() const;
-            const char* getMessage() const;
-
-public:     void setMessage(const char* format, ...);
-};
-
-/*!
  *  \brief  コンストラクタ
  */
-inline Exception::Exception()
+PointerString::PointerString()
 {
-    mErrorNo = 0;
+    mCapacity = 0;
+    mBuffer = NULL;
 }
 
 /*!
- *  \brief  エラー番号取得
+ *  \brief  初期化
  */
-inline int32_t Exception::getErrorNo() const
+void PointerString::init(char* buffer, int32_t capacity)
 {
-    return mErrorNo;
-}
+    int32_t len = (int32_t)strlen(buffer);
 
-/*!
- *  \brief  メッセージ取得
- */
-inline const char* Exception::getMessage() const
-{
-    return mMessage;
+    mCapacity = (capacity != -1 ? capacity : len);
+    mBuffer = buffer;
+
+    setLength(len);
 }
 
 } // namespace slog

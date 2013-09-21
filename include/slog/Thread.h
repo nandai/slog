@@ -28,8 +28,6 @@
 
 #if defined(__unix__)
     #include <pthread.h>
-    #include <unistd.h>
-    #include <sys/syscall.h>
 #endif
 
 namespace slog

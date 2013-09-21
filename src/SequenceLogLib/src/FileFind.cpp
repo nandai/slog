@@ -27,10 +27,13 @@
 
 #if defined(_WINDOWS)
     #include <windows.h>
-#elif defined(__linux__) && !defined(__ANDROID__)
-    #include <glob.h>
-#else
-    #include <dirent.h>
+#elif defined(__linux__)
+    #include <stddef.h>
+    #if !defined(__ANDROID__)
+        #include <glob.h>
+    #else
+        #include <dirent.h>
+    #endif
 #endif
 
 namespace slog

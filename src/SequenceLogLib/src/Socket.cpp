@@ -27,6 +27,8 @@
 #include <openssl/err.h>
 
 #if defined(__unix__)
+    #include <arpa/inet.h>
+    #include <sys/socket.h>
     #include <sys/un.h>
     #include <netinet/tcp.h>
     #include <unistd.h>

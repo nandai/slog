@@ -26,6 +26,11 @@
     #include <windows.h>
 #endif
 
+#if defined(__unix__)
+    #include <stdio.h>
+    #include <unistd.h>
+#endif
+
 namespace slog
 {
 
@@ -34,7 +39,7 @@ namespace slog
  */
 File::File()
 {
-    mHandle = NULL;
+    mHandle = 0;
 }
 
 /*!
@@ -50,7 +55,7 @@ File::~File()
  */
 bool File::isOpen() const
 {
-    return (mHandle != NULL);
+    return (mHandle != 0);
 }
 
 /*!
@@ -64,7 +69,7 @@ void File::open(
 {
     Exception e;
 
-    if (mHandle != NULL)
+    if (mHandle != 0)
     {
         e.setMessage("File::open(\"%s\") : already opened.", fileName.getBuffer());
         throw e;
@@ -94,8 +99,6 @@ void File::open(
         e.setMessage("File::open(\"%s\")", fileName.getBuffer());
         throw e;
     }
-
-    mHandle = (int64_t)handle;
 #else
     const char* p =  fileName.getBuffer();
     const char* _mode = (mode == READ ? "r" : "w");
@@ -106,9 +109,9 @@ void File::open(
         e.setMessage("File::open(\"%s\")", p);
         throw e;
     }
-
-    mHandle = handle;
 #endif
+
+    mHandle = (int64_t)handle;
 }
 
 /*!
@@ -116,16 +119,16 @@ void File::open(
  */
 void File::close()
 {
-    if (mHandle == NULL)
+    if (mHandle == 0)
         return;
 
 #if defined(_WINDOWS)
     ::CloseHandle((HANDLE)mHandle);
 #else
-    fclose(mHandle);
+    fclose((FILE*)mHandle);
 #endif
 
-    mHandle = NULL;
+    mHandle = 0;
 }
 
 /*!
@@ -155,7 +158,7 @@ bool File::read(
 #if defined(_WINDOWS)
         ::ReadFile(handle, p, count, (DWORD*)&result, NULL);
 #else
-        result = fread(p, 1, count, mHandle);
+        result = fread(p, 1, count, (FILE*)mHandle);
 #endif
 
 //      if (first && result == 0)
@@ -199,15 +202,16 @@ bool File::read(
         ::SetFilePointerEx(handle, move, NULL, FILE_CURRENT);
     }
 #else
-    fseek(mHandle, index - result + 1, SEEK_CUR);
+    FILE* handle = (FILE*)mHandle;
+    fseek(handle, index - result + 1, SEEK_CUR);
 
     if (p[index] == '\n')
         return true;
 
-    result = fread(p, 1, 1, mHandle);
+    result = fread(p, 1, 1, handle);
 
     if (p[0] != '\n')
-        fseek(mHandle, -1, SEEK_CUR);
+        fseek(handle, -1, SEEK_CUR);
 #endif
 
     return true;
@@ -224,12 +228,12 @@ int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
     buffer->validateOverFlow(position, count);
     char* p = buffer->getBuffer() + position;
 
-    if (mHandle != NULL)
+    if (mHandle != 0)
     {
 #if defined(_WINDOWS)
         ::ReadFile((HANDLE)mHandle, p, count, (DWORD*)&result, NULL);
 #else
-        result = fread(p, 1, count, mHandle);
+        result = fread(p, 1, count, (FILE*)mHandle);
 #endif
     }
 
@@ -252,13 +256,13 @@ void File::write(const Buffer* buffer, int32_t position, int32_t count) const th
     buffer->validateOverFlow(position, count);
     const char* p = buffer->getBuffer() + position;
 
-    if (mHandle != NULL)
+    if (mHandle != 0)
     {
 #if defined(_WINDOWS)
         DWORD result = 0;
         ::WriteFile((HANDLE)mHandle, p, count, &result, NULL);
 #else
-        fwrite(p, 1, count, mHandle);
+        fwrite(p, 1, count, (FILE*)mHandle);
 #endif
     }
 }
@@ -317,11 +321,13 @@ int64_t File::getSize() const
 
     return size.QuadPart;
 #else
-    int64_t pos = ftell(mHandle);
-    fseek(mHandle, 0, SEEK_END);
+    FILE* handle = (FILE*)mHandle;
 
-    int64_t size = ftell(mHandle);
-    fseek(mHandle, pos, SEEK_SET);
+    int64_t pos = ftell(handle);
+    fseek(handle, 0, SEEK_END);
+
+    int64_t size = ftell(handle);
+    fseek(handle, pos, SEEK_SET);
 
     return size;
 #endif
@@ -339,7 +345,7 @@ int64_t File::getPosition() const
     ::SetFilePointerEx((HANDLE)mHandle, move, &pos, FILE_CURRENT);
     return pos.QuadPart;
 #else
-    int64_t pos = ftell(mHandle);
+    int64_t pos = ftell((FILE*)mHandle);
     return pos;
 #endif
 }

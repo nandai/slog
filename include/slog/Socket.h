@@ -27,9 +27,6 @@
     #if !defined(MODERN_UI)
         #pragma comment(lib, "ws2_32.lib")
     #endif
-#else
-    #include <arpa/inet.h>
-    #include <sys/socket.h>
 #endif
 
 namespace slog

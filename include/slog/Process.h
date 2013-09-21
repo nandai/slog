@@ -22,12 +22,6 @@
 #pragma once
 #include "slog/slog.h"
 
-#if defined(__unix__)
-    #include <stdio.h>
-    #include <unistd.h>
-    #include <sys/stat.h>
-#endif
-
 namespace slog
 {
 

@@ -19,8 +19,10 @@ LOCAL_SRC_FILES := \
     ../src/HttpResponse.cpp \
     ../src/Json.cpp \
     ../src/Mutex.cpp \
+    ../src/PointerString.cpp \
     ../src/Process.cpp \
     ../src/Socket.cpp \
+    ../src/String.cpp \
     ../src/Thread.cpp \
     ../src/Tokenizer.cpp \
     ../src/Util.cpp \

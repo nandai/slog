@@ -20,10 +20,10 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/CoreString.h"
+#include "slog/Util.h"
 
-#if defined(_WINDOWS)
-    #include <windows.h>
-#endif
+#include <stdio.h>
+#include <string.h>
 
 namespace slog
 {
@@ -170,6 +170,18 @@ void CoreString::deleteLast()
 /*!
  *  \brief  フォーマット
  */
+void CoreString::format(const char* format, ...) throw(Exception)
+{
+    va_list arg;
+    va_start(arg, format);
+
+    formatV(format, arg);
+    va_end(arg);
+}
+
+/*!
+ *  \brief  フォーマット
+ */
 void CoreString::formatV(const char* format, va_list arg) throw(Exception)
 {
     int32_t len;
@@ -206,6 +218,14 @@ void CoreString::formatV(const char* format, va_list arg) throw(Exception)
     while (true);
 
     setLength(len);
+}
+
+/*!
+ * \brief   比較
+ */
+bool CoreString::equals(const CoreString& str) const
+{
+    return (strcmp(getBuffer(), str.getBuffer()) == 0);
 }
 
 /*!
@@ -295,16 +315,21 @@ int32_t CoreString::getNextCharBytes(int32_t pos) const
  */
 void CoreString::conv(const wchar_t* text)
 {
-    UINT codePage = CP_UTF8;
-    int32_t len = (int32_t)wcslen(text);
+    int32_t len = Util::toUTF8(NULL, 0, text);
 
-	long size =
-	WideCharToMultiByte(codePage, 0, text, len + 1, NULL, NULL, NULL, NULL);
+    setCapacity(len);
+    Util::toUTF8(getBuffer(), len + 1, text);
 
-    setCapacity(size - 1/*sizeof('\0')*/);
-	WideCharToMultiByte(codePage, 0, text, len + 1, getBuffer(), size, NULL, NULL);
+    setLength(len);
+}
 
-    setLength(size - 1);
+/*!
+ * \brief   コンストラクタ
+ */
+UTF16LE::UTF16LE()
+{
+    mBuffer = NULL;
+    mChars = 0;
 }
 
 /*!
@@ -312,13 +337,10 @@ void CoreString::conv(const wchar_t* text)
  */
 void UTF16LE::conv(const char* text)
 {
-    UINT codePage = CP_UTF8;
-
-    int32_t chars = 
-    MultiByteToWideChar(codePage, 0, text, -1, NULL, 0) - 1;
+    int32_t chars = Util::toUnicode(NULL, 0, text);
 
     realloc(chars);
-    MultiByteToWideChar(codePage, 0, text, -1, mBuffer, chars + 1);
+    Util::toUnicode(mBuffer, chars + 1, text);
 }
 
 /*!
@@ -334,5 +356,13 @@ void UTF16LE::realloc(int32_t chars)
     mChars = chars;
 }
 #endif
+
+/*!
+ *  \brief  文字列比較
+ */
+bool operator==(const CoreString& str1, const char* str2)
+{
+    return (strcmp(str1.getBuffer(), str2) == 0);
+}
 
 } // namespace slog

@@ -31,6 +31,10 @@
 
 #include <algorithm>
 
+#if defined(__unix__)
+    #include <string.h>
+#endif
+
 static const char* CLS_NAME = "SequenceLogServiceMain";
 
 namespace slog

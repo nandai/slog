@@ -37,14 +37,17 @@ private:    const String& operator=(const char*);
 //          const String& operator=(const String&);
 public:     const String& operator=(const String&);
 
+            /*!
+             * コンストラクタ／デストラクタ
+             */
 public:     String();
             String(const String& str);
             String(const char* text);
-            String(const char* text, short len);
+            String(const char* text, int16_t len);
 
             virtual ~String();
 
-private:    void init(const char* text, short len);
+private:    void init(const char* text, int16_t len);
 
 public:     virtual char* getBuffer() const;
 
@@ -91,15 +94,7 @@ inline String::String(const String& str) : CoreString(str)
 /*!
  *  \brief  コンストラクタ
  */
-inline String::String(const char* text)
-{
-    init(text, (int32_t)strlen(text));
-}
-
-/*!
- *  \brief  コンストラクタ
- */
-inline String::String(const char* text, short len)
+inline String::String(const char* text, int16_t len)
 {
     init(text, len);
 }
@@ -110,18 +105,6 @@ inline String::String(const char* text, short len)
 inline String::~String()
 {
     delete [] mBuffer;
-}
-
-/*!
- *  \brief  初期化
- */
-inline void String::init(const char* text, short len)
-{
-    mBuffer = new char[len + 1];
-    mCapacity = len;
-
-    memcpy(mBuffer, text, len);
-    setLength(len);
 }
 
 /*!
@@ -141,29 +124,8 @@ inline int32_t String::getCapacity() const
 }
 
 /*!
- *  \brief  バッファサイズ設定
- */
-inline void String::setCapacity(int32_t capacity) throw(Exception)
-{
-    char* oldBuffer = mBuffer;
-    int32_t oldLen = getLength();
-
-    mBuffer = new char[capacity + 1];
-    mCapacity = capacity;
-
-    int32_t len = (mCapacity < oldLen ? mCapacity : oldLen);
-    memcpy(mBuffer, oldBuffer, len);
-
-    delete [] oldBuffer;
-    setLength(len);
-}
-
-/*!
  *  \brief  文字列比較
  */
-inline bool operator<(const String& str1, const String& str2)
-{
-    return (strcmp(str1.getBuffer(), str2.getBuffer()) < 0);
-}
+bool operator<(const String& str1, const String& str2);
 
 } // namespace slog

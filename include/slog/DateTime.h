@@ -22,7 +22,7 @@
 #pragma once
 
 #include "slog/slog.h"
-#include <time.h>
+struct tm;
 
 #if defined(__unix__)
     #include <sys/time.h>

@@ -33,6 +33,7 @@
 #else
     #include <stdlib.h>
     #include <unistd.h>
+    #include <errno.h>
 #endif
 
 namespace slog

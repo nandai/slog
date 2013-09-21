@@ -30,6 +30,10 @@
 #include "slog/DateTimeFormat.h"
 #include "slog/Mutex.h"
 
+#if defined(__unix__)
+    #include <string.h>
+#endif
+
 namespace slog
 {
 

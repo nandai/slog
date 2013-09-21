@@ -30,6 +30,7 @@
 #include "slog/String.h"
 
 #if defined(__unix__)
+    #include <string.h>
     #include <stdlib.h>
 #endif
 

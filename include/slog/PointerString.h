@@ -28,7 +28,7 @@ namespace slog
 /*!
  *  \brief  ポインタ文字列クラス
  */
-class PointerString : public CoreString
+class SLOG_API PointerString : public CoreString
 {
             int32_t     mCapacity;      //!< 容量
             char*       mBuffer;        //!< バッファ
@@ -49,15 +49,6 @@ public:     virtual char*   getBuffer() const;
 /*!
  *  \brief  コンストラクタ
  */
-inline PointerString::PointerString()
-{
-    mCapacity = 0;
-    mBuffer = NULL;
-}
-
-/*!
- *  \brief  コンストラクタ
- */
 inline PointerString::PointerString(char* buffer)
 {
     init(buffer);
@@ -69,19 +60,6 @@ inline PointerString::PointerString(char* buffer)
 inline PointerString::PointerString(char* buffer, int32_t capacity)
 {
     init(buffer, capacity);
-}
-
-/*!
- *  \brief  初期化
- */
-inline void PointerString::init(char* buffer, int32_t capacity)
-{
-    int32_t len = (int32_t)strlen(buffer);
-
-    mCapacity = (capacity != -1 ? capacity : len);
-    mBuffer = buffer;
-
-    setLength(len);
 }
 
 /*!
