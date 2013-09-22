@@ -32,6 +32,7 @@
     #if !defined(__ANDROID__)
         #include <glob.h>
     #else
+        #include <string.h>
         #include <dirent.h>
     #endif
 #endif
