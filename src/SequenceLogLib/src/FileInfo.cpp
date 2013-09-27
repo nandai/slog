@@ -156,7 +156,7 @@ FileInfo::FileInfo(
         }
     }
 
-    for (std::list<String>::iterator i = mData->mNames.begin(); i != mData->mNames.end(); i++)
+    for (auto i = mData->mNames.begin(); i != mData->mNames.end(); i++)
         appendPath(&mData->mCanonicalPath, *i);
 
     // ファイル情報更新
@@ -228,7 +228,7 @@ void FileInfo::mkdir() const
     int32_t index = 0;
     FixedString<MAX_PATH> path;
 
-    for (std::list<String>::const_iterator i = mData->mNames.begin(); i != mData->mNames.end(); i++)
+    for (auto i = mData->mNames.begin(); i != mData->mNames.end(); i++)
     {
         if (index == mData->mNames.size() - 1)
             break;

@@ -101,7 +101,7 @@ void Thread::removeListener(ThreadListener* listener)
 {
     ThreadListeners* listeners = getListeners();
 
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    for (auto i = listeners->begin(); i != listeners->end(); i++)
     {
         if (*i == listener)
         {
@@ -129,7 +129,7 @@ void* Thread::main(void* param)
     {
         ThreadListeners* listeners = thread->getListeners();
 
-        for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+        for (auto i = listeners->begin(); i != listeners->end(); i++)
             (*i)->onInitialized(thread);
 
         thread->run();
@@ -142,7 +142,7 @@ void* Thread::main(void* param)
         ThreadListener* threadIsListener = dynamic_cast<ThreadListener*>(thread);
         ThreadListener* self = nullptr;
 
-        for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+        for (auto i = listeners->begin(); i != listeners->end(); i++)
         {
             if (*i ==  threadIsListener)
                 self = threadIsListener;

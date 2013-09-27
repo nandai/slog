@@ -169,7 +169,7 @@ Tokenizer::~Tokenizer()
  */
 void Tokenizer::cleanUp()
 {
-    for (Elements::iterator i = mData->mElements.begin(); i != mData->mElements.end(); i++)
+    for (auto i = mData->mElements.begin(); i != mData->mElements.end(); i++)
     {
         Elements::value_type p = *i;
         delete p.second;
@@ -203,13 +203,13 @@ int32_t Tokenizer::execNamed(
 {
     const char* p1 = str.getBuffer();
 
-    for (Elements::iterator i = mData->mElements.begin(); i != mData->mElements.end(); i++)
+    for (auto i = mData->mElements.begin(); i != mData->mElements.end(); i++)
     {
         Elements::value_type p = *i;
         p.second->variant.mStr.setLength(0);
     }
 
-    for (Keys::iterator i = mData->mKeys.begin(); i != mData->mKeys.end(); i++)
+    for (auto i = mData->mKeys.begin(); i != mData->mKeys.end(); i++)
     {
         if (p1 == nullptr)
             return -1;
@@ -260,7 +260,7 @@ int32_t Tokenizer::execIndexed(
  */
 const Variant& Tokenizer::getValue(const char* key) const
 {
-    Elements::const_iterator i = mData->mElements.find(key);
+    auto i = mData->mElements.find(key);
 
     if (i == mData->mElements.end())
         return mEmpty;

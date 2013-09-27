@@ -119,7 +119,7 @@ void WebSocketReceiver::notifyOpen()
 {
     ThreadListeners* listeners = getListeners();
 
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    for (auto i = listeners->begin(); i != listeners->end(); i++)
     {
         WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
 
@@ -135,7 +135,7 @@ void WebSocketReceiver::notifyError(const char* message)
 {
     ThreadListeners* listeners = getListeners();
 
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    for (auto i = listeners->begin(); i != listeners->end(); i++)
     {
         WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
 
@@ -151,7 +151,7 @@ void WebSocketReceiver::notifyMessage(const ByteBuffer& buffer)
 {
     ThreadListeners* listeners = getListeners();
 
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    for (auto i = listeners->begin(); i != listeners->end(); i++)
     {
         WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
 
@@ -167,7 +167,7 @@ void WebSocketReceiver::notifyClose()
 {
     ThreadListeners* listeners = getListeners();
 
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
+    for (auto i = listeners->begin(); i != listeners->end(); i++)
     {
         WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
 

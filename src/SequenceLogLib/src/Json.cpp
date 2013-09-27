@@ -112,7 +112,7 @@ Json::Json(const char* name) : JsonAbstract(name)
  */
 Json::~Json()
 {
-    for (list<JsonAbstract*>::iterator i = mList.begin(); i != mList.end(); i++)
+    for (auto i = mList.begin(); i != mList.end(); i++)
         delete *i;
 }
 
@@ -157,7 +157,7 @@ void Json::serialize(String* content) const
     String tmp;
     char sep = ' ';
 
-    for (list<JsonAbstract*>::const_iterator i = mList.begin(); i != mList.end(); i++)
+    for (auto i = mList.begin(); i != mList.end(); i++)
     {
         tmp.setLength(0);
         (*i)->serialize(&tmp);
