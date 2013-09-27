@@ -33,6 +33,14 @@ namespace slog
  */
 TimeSpan::TimeSpan()
 {
+    now();
+}
+
+/*!
+ * \brief   現在時間設定
+ */
+void TimeSpan::now()
+{
 #if defined(_WINDOWS)
     LARGE_INTEGER freq;
     QueryPerformanceFrequency(&freq);
@@ -47,16 +55,27 @@ TimeSpan::TimeSpan()
 }
 
 /*!
- *  \brief  差を取得する
+ * 時間設定
  */
-uint32_t TimeSpan::operator-(const TimeSpan& timeSpan) const
+void TimeSpan::set(int64_t ms)
 {
-#if !defined(_WINDOWS) && !defined(__x86_64)
-    if (mMS < timeSpan.mMS)
-        return ((0xFFFFFFFF - timeSpan.mMS + 1) + mMS);
-#endif
+    mMS = ms;
+}
 
-    return (uint32_t)(mMS - timeSpan.mMS);
+/*!
+ * 加算
+ */
+void TimeSpan::add(int64_t value)
+{
+    mMS += value;
+}
+
+/*!
+ *  \brief  時間差を取得する
+ */
+int64_t TimeSpan::operator-(const TimeSpan& timeSpan) const
+{
+    return (mMS - timeSpan.mMS);
 }
 
 } // namespace slog

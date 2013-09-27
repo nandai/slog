@@ -30,18 +30,32 @@ namespace slog
  */
 class SLOG_API TimeSpan
 {
-#if defined(_WINDOWS)
-            uint64_t    mMS;
-#else
-#if defined(__x86_64)
-            uint64_t    mMS;    //!< ミリ秒
-#else
-            uint32_t    mMS;    //!< ミリ秒
-#endif
-#endif // _WINDOWS
+            int64_t mMS;    //!< ミリ秒
 
+            /*!
+             * コンストラクタ
+             */
 public:     TimeSpan();
-            uint32_t operator-(const TimeSpan& timeSpan) const;
+
+            /*!
+             * 現在時間設定
+             */
+            void now();
+
+            /*!
+             * 時間設定
+             */
+            void set(int64_t ms);
+
+            /*!
+             * 加算
+             */
+            void add(int64_t value);
+
+            /*!
+             * 時間差を取得する
+             */
+            int64_t operator-(const TimeSpan& timeSpan) const;
 };
 
 } // namespace slog
