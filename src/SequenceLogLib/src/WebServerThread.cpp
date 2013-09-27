@@ -63,7 +63,7 @@ void CreateResponseThread::run()
 {
     try
     {
-        WebServerResponseThread* response = NULL;
+        WebServerResponseThread* response = nullptr;
 
         // リクエスト解析
         if (mHttpRequest->analizeRequest())
@@ -134,7 +134,7 @@ void WebServerThread::run()
     // 要求待ち
     while (true)
     {
-        Socket* client = NULL;
+        Socket* client = nullptr;
 
         try
         {
@@ -177,7 +177,7 @@ WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpReques
     const CoreString& url =      httpRequest->getUrl();
 
     const CREATE* createList = getCreateList();
-    WebServerResponseThread* response = NULL;
+    WebServerResponseThread* response = nullptr;
 
     // 条件に一致する応答スレッドを検索
     while (createList->method != HttpRequest::UNKNOWN)
@@ -202,7 +202,7 @@ WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpReques
     }
 
     // 一致するものがなければデフォルトの応答スレッドを生成
-    if (response == NULL && HttpRequest::GET == method)
+    if (response == nullptr && HttpRequest::GET == method)
         response = (*createList->proc)(httpRequest);
 
     return response;

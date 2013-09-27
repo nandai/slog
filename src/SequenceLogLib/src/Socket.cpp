@@ -82,8 +82,8 @@ Socket::Socket()
 {
     mData = new Data;
 
-    mData->mCTX = NULL;
-    mData->mSSL = NULL;
+    mData->mCTX = nullptr;
+    mData->mSSL = nullptr;
 
 #if defined(MODERN_UI)
     mSocket = nullptr;
@@ -156,8 +156,8 @@ int Socket::close()
         SSL_free(    mData->mSSL);
         SSL_CTX_free(mData->mCTX);
 
-        mData->mCTX = NULL;
-        mData->mSSL = NULL;
+        mData->mCTX = nullptr;
+        mData->mSSL = nullptr;
     }
 
 #if defined(MODERN_UI)
@@ -335,7 +335,7 @@ void Socket::connect(
     addr->sin_family = AF_INET;
     addr->sin_port = htons(port);
 
-    if (host == NULL)
+    if (host == nullptr)
     {
 //      addr->sin_addr.S_un.S_addr = inet_addr(ipAddress);
         addr->sin_addr.s_addr =      inet_addr(ipAddress.getBuffer());
@@ -851,7 +851,7 @@ bool Socket::isReceiveData(int32_t timeoutMS)
     FD_SET(        mSocket, &fds);
 #endif
 
-    int n = select((int)mSocket + 1, &fds, NULL, NULL, &timeout);
+    int n = select((int)mSocket + 1, &fds, nullptr, nullptr, &timeout);
 
     if (n < 0)
     {

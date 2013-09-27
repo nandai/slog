@@ -35,10 +35,10 @@ namespace slog
 Mutex::Mutex() throw(Exception)
 {
 #if defined(_WINDOWS)
-//  mHandle = (int64_t)CreateMutexW(NULL, TRUE,  NULL);
-    mHandle = (int64_t)CreateMutexW(NULL, FALSE, NULL);
+//  mHandle = (int64_t)CreateMutexW(nullptr, TRUE,  nullptr);
+    mHandle = (int64_t)CreateMutexW(nullptr, FALSE, nullptr);
 
-    if (mHandle == NULL)
+    if (mHandle == 0)
     {
         Exception e;
         e.setMessage("Mutex::Mutex()");
@@ -48,7 +48,7 @@ Mutex::Mutex() throw(Exception)
 #else
     mHandle = &mPrivate;
     mCreate = true;
-    pthread_mutex_init(mHandle, NULL);
+    pthread_mutex_init(mHandle, nullptr);
 #endif
 }
 
@@ -66,11 +66,11 @@ Mutex::Mutex(
     utf16le.conv(name);
 
     if (create)
-        mHandle = (int64_t)CreateMutexW(NULL, TRUE, utf16le.getBuffer());
+        mHandle = (int64_t)CreateMutexW(nullptr, TRUE, utf16le.getBuffer());
     else
         mHandle = (int64_t)OpenMutexW(MUTEX_ALL_ACCESS, FALSE, utf16le.getBuffer());
 
-    if (mHandle == NULL)
+    if (mHandle == 0)
     {
         Exception e;
         e.setMessage("Mutex::Mutex(create:%s, \"%s\")", (create ? "true" : "false"), name.getBuffer());
@@ -130,7 +130,7 @@ void Mutex::lock()
  */
 void Mutex::unlock()
 {
-    if (this == NULL)
+    if (this == nullptr)
         return;
 
 #if defined(_WINDOWS)
@@ -165,7 +165,7 @@ ScopedLock::~ScopedLock()
  */
 void ScopedLock::release()
 {
-    mMutex = NULL;
+    mMutex = nullptr;
 }
 
 } // namespace slog

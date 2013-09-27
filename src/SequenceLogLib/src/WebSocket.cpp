@@ -91,9 +91,9 @@ void WebSocketReceiver::run()
 //              continue;
 
             // データ受信
-            ByteBuffer* buffer = mWebSocket->recv(NULL);
+            ByteBuffer* buffer = mWebSocket->recv(nullptr);
 
-            if (buffer == NULL)
+            if (buffer == nullptr)
                 continue;
 
             // リスナーにメッセージ通知
@@ -194,10 +194,10 @@ WebSocket::WebSocket(bool isServer)
 WebSocket::~WebSocket()
 {
     delete mReceiver;
-    mReceiver = NULL;
+    mReceiver = nullptr;
 
     delete mMutex;
-    mMutex = NULL;
+    mMutex = nullptr;
 }
 
 /*!
@@ -468,7 +468,7 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
         opcode != OPE_PONG)
     {
         noticeLog("unknown opcode=0x%02X", opcode);
-        return NULL;
+        return nullptr;
     }
 
     // MASK & Payload length
@@ -491,7 +491,7 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
         socket->recv(&buffer, 4);
 
     // Payload Data
-    ByteBuffer* newDataBuffer = NULL;
+    ByteBuffer* newDataBuffer = nullptr;
 
     if (dataBuffer)
     {
@@ -510,12 +510,12 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
         {
             // 受信バッファが指定されていて、OPE_TEXTでもOPE_BINARYでもない場合は、
             // 指定された受信バッファのサイズが受信データ長未満の可能性を考慮して
-            // 内部で確保するバッファを使用することとし、受信バッファは一旦NULLにする
-            dataBuffer = NULL;
+            // 内部で確保するバッファを使用することとし、受信バッファは一旦nullptrにする
+            dataBuffer = nullptr;
         }
     }
 
-    if (dataBuffer == NULL)
+    if (dataBuffer == nullptr)
     {
         if (payloadLen != 0)
         {
@@ -547,8 +547,8 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
         noticeLog("opcode=0x%02X", opcode);
 
         delete newDataBuffer;
-        newDataBuffer = NULL;
-        dataBuffer = NULL;
+        newDataBuffer = nullptr;
+        dataBuffer = nullptr;
     }
 
     return dataBuffer;

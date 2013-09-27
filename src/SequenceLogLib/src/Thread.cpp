@@ -39,11 +39,11 @@ namespace slog
  */
 Thread::Thread()
 {
-    mHandle = 0/*NULL*/;
+    mHandle = 0/*nullptr*/;
     mInterrupted = false;
     mAlive = false;
 
-    setListener(NULL);
+    setListener(nullptr);
 }
 
 /*!
@@ -60,10 +60,10 @@ void Thread::start()
 {
 #if defined(_WINDOWS)
     #if !defined(MODERN_UI)
-    mHandle = (int64_t)_beginthreadex(NULL, 0, main, this, 0, NULL);
+    mHandle = (int64_t)_beginthreadex(nullptr, 0, main, this, 0, nullptr);
     #endif
 #else
-    pthread_create(&mHandle, 0/*NULL*/, main, this);
+    pthread_create(&mHandle, 0/*nullptr*/, main, this);
 #endif
 }
 
@@ -80,10 +80,10 @@ void Thread::join()
     CloseHandle(handle);
     #endif
 #else
-    pthread_join(mHandle, 0/*NULL*/);
+    pthread_join(mHandle, 0/*nullptr*/);
 #endif
 
-    mHandle = 0/*NULL*/;
+    mHandle = 0/*nullptr*/;
 }
 
 /*!
@@ -140,7 +140,7 @@ void* Thread::main(void* param)
     {
         ThreadListeners* listeners = thread->getListeners();
         ThreadListener* threadIsListener = dynamic_cast<ThreadListener*>(thread);
-        ThreadListener* self = NULL;
+        ThreadListener* self = nullptr;
 
         for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
         {
@@ -196,7 +196,7 @@ void Thread::sleep(uint32_t ms)
     req.tv_sec =   ms / 1000;
     req.tv_nsec = (ms % 1000) * 1000 * 1000;
 
-    nanosleep(&req, NULL);
+    nanosleep(&req, nullptr);
 #endif
 }
 

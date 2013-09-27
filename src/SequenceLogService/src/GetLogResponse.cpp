@@ -148,7 +148,7 @@ void GetLogResponse::run()
         serviceMain->setListener(this);
 
         Socket* socket = mHttpRequest->getSocket();
-        onLogFileChanged(NULL);
+        onLogFileChanged(nullptr);
 
         while (true)
         {
@@ -160,7 +160,7 @@ void GetLogResponse::run()
             if (isReceive == false)
                 continue;
 
-            ByteBuffer* buffer = WebSocket::recv(socket, NULL);
+            ByteBuffer* buffer = WebSocket::recv(socket, nullptr);
 
             if (buffer)
             {

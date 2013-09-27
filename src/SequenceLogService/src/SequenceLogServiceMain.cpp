@@ -25,21 +25,18 @@
 #include "SharedFileContainer.h"
 
 #include "slog/Mutex.h"
-#include "slog/TimeSpan.h"
 #include "slog/FileInfo.h"
-#include "slog/Util.h"
-
-#include <algorithm>
 
 #if defined(__unix__)
     #include <string.h>
+    #include <algorithm>
 #endif
 
 static const char* CLS_NAME = "SequenceLogServiceMain";
 
 namespace slog
 {
-static SequenceLogServiceMain* sServiceMain = NULL;
+static SequenceLogServiceMain* sServiceMain = nullptr;
 
 /*!
  *  \brief  シーケンスログファイル情報比較
@@ -287,7 +284,7 @@ SharedFileContainer* SequenceLogServiceMain::getSharedFileContainer(const CoreSt
  */
 void SequenceLogServiceMain::releaseSharedFileContainer(SharedFileContainer* container)
 {
-    if (container == NULL)
+    if (container == nullptr)
         return;
 
     if (container->removeReference() == false)
@@ -445,7 +442,7 @@ void SequenceLogServiceMain::onInitialized(Thread* thread)
     SLOG(CLS_NAME, "onInitialized");
     SequenceLogService* response = dynamic_cast<SequenceLogService*>(thread);
 
-    if (response == NULL)
+    if (response == nullptr)
         return;
 
     ThreadListeners* listeners = getListeners();
@@ -467,7 +464,7 @@ void SequenceLogServiceMain::onTerminated(Thread* thread)
     SLOG(CLS_NAME, "onTerminated");
     SequenceLogService* response = dynamic_cast<SequenceLogService*>(thread);
 
-    if (response == NULL)
+    if (response == nullptr)
         return;
 
     if (mCleanupFlag)

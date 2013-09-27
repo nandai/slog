@@ -127,7 +127,7 @@ static SequenceLogOutputFlag sRootFlag = ROOT;
 
 //!< シーケンスログクライアントオブジェクト
 class  SequenceLogClient;
-static SequenceLogClient* sClient = NULL;
+static SequenceLogClient* sClient = nullptr;
 
 //!< 初期化フラグ
 static bool sClientInitialized = false;
@@ -165,7 +165,7 @@ public:     SequenceLogItem* createItem();
             /*!
              * シーケンスログアイテム送信
              */
-public:     void sendItem(SequenceLogItem* item, uint32_t* seq = NULL);
+public:     void sendItem(SequenceLogItem* item, uint32_t* seq = nullptr);
 };
 
 /*!
@@ -196,7 +196,7 @@ void SequenceLogClient::init()
     // シーケンスログファイル名取得
     const char* p = sSequenceLogFileName;
 
-    if (p == NULL || p[0] == '\0')
+    if (p == nullptr || p[0] == '\0')
     {
         noticeLog("SequenceLogClient::init() - failed\n");
         return;
@@ -249,17 +249,17 @@ void SequenceLogClient::onError(const char* message)
  */
 SequenceLogItem* SequenceLogClient::createItem()
 {
-    if (this == NULL)
+    if (this == nullptr)
     {
-        // sClient（唯一の SequenceLogClient インスタンス）が存在しないうちに呼ばれたら NULL を返す
-        return NULL;
+        // sClient（唯一の SequenceLogClient インスタンス）が存在しないうちに呼ばれたら nullptr を返す
+        return nullptr;
     }
 
     if (mSocket.isOpen() == false)
     {
         // ソケットが閉じられている場合はシーケンスログアイテムを生成する意味がないので（送信しないから）
-        // NULL を返す
-        return NULL;
+        // nullptr を返す
+        return nullptr;
     }
 
     // シーケンスログアイテム生成
@@ -334,7 +334,7 @@ class SequenceLogClientDeleter
 public:     ~SequenceLogClientDeleter()
             {
                 delete sClient;
-                sClient = NULL;
+                sClient = nullptr;
             }
 };
 

@@ -236,7 +236,7 @@ int32_t CoreString::find(char c) const
     const char* buffer = getBuffer();
     const char* p = strchr(buffer, c);
 
-    if (p == NULL)
+    if (p == nullptr)
         return -1;
 
     return (int32_t)(p - buffer);
@@ -253,7 +253,7 @@ int32_t CoreString::indexOf(const char* find, int32_t index) const
     const char* buffer = getBuffer();
     const char* p = strstr(buffer + index, find);
 
-    if (p == NULL)
+    if (p == nullptr)
         return -1;
 
     return (int32_t)(p - buffer);
@@ -315,7 +315,7 @@ int32_t CoreString::getNextCharBytes(int32_t pos) const
  */
 void CoreString::conv(const wchar_t* text)
 {
-    int32_t len = Util::toUTF8(NULL, 0, text);
+    int32_t len = Util::toUTF8(nullptr, 0, text);
 
     setCapacity(len);
     Util::toUTF8(getBuffer(), len + 1, text);
@@ -328,7 +328,7 @@ void CoreString::conv(const wchar_t* text)
  */
 UTF16LE::UTF16LE()
 {
-    mBuffer = NULL;
+    mBuffer = nullptr;
     mChars = 0;
 }
 
@@ -337,7 +337,7 @@ UTF16LE::UTF16LE()
  */
 void UTF16LE::conv(const char* text)
 {
-    int32_t chars = Util::toUnicode(NULL, 0, text);
+    int32_t chars = Util::toUnicode(nullptr, 0, text);
 
     realloc(chars);
     Util::toUnicode(mBuffer, chars + 1, text);

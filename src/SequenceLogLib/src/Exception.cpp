@@ -77,7 +77,7 @@ void Exception::setMessage(const char* format, ...)
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS;
 
-    FormatMessageW(flags, NULL, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), apiError, sizeof(apiError), NULL);
+    FormatMessageW(flags, nullptr, mErrorNo, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), apiError, sizeof(apiError), nullptr);
     apiError[lstrlenW(apiError) - 2] = '\0';    // 改行除去
 
     String str;

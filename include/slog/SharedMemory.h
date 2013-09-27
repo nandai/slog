@@ -114,9 +114,9 @@ inline void SharedMemory<T>::create(const CoreString& name, uint32_t size) throw
     UTF16LE utf16le;
     utf16le.conv(name);
 
-    HANDLE handle = CreateFileMappingW((HANDLE)-1, NULL, PAGE_READWRITE, 0, size, utf16le.getBuffer());
+    HANDLE handle = CreateFileMappingW((HANDLE)-1, nullptr, PAGE_READWRITE, 0, size, utf16le.getBuffer());
 
-    if (handle == NULL)
+    if (handle == nullptr)
     {
         e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
         throw e;
@@ -124,7 +124,7 @@ inline void SharedMemory<T>::create(const CoreString& name, uint32_t size) throw
 
     T pointer = (T)MapViewOfFile(handle, FILE_MAP_WRITE, 0, 0, 0);
 
-    if (pointer == NULL)
+    if (pointer == nullptr)
     {
         e.setMessage("SharedMemory<T>::create(\"%s\", %u)", p, size);
         CloseHandle(handle);
@@ -152,7 +152,7 @@ inline void SharedMemory<T>::create(const CoreString& name, uint32_t size) throw
         throw e;
     }
 
-    T pointer = (T)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, handle, 0);
+    T pointer = (T)mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, handle, 0);
 
     if (pointer == MAP_FAILED)
     {
@@ -186,7 +186,7 @@ inline void SharedMemory<T>::open(const CoreString& name) throw(Exception)
 
     mHandle = OpenFileMappingW(FILE_MAP_WRITE, FALSE, utf16le.getBuffer());
 
-    if (mHandle == NULL)
+    if (mHandle == nullptr)
     {
         e.setMessage("SharedMemory<T>::open(\"%s\")", p);
         throw e;
@@ -211,7 +211,7 @@ inline void SharedMemory<T>::open(const CoreString& name) throw(Exception)
     fstat(handle, &statbuf);
 
     mHandle = handle;
-    mPointer = (T)mmap(NULL, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, mHandle, 0);
+    mPointer = (T)mmap(nullptr, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, mHandle, 0);
 
     mCreate = false;
     mSize = statbuf.st_size;
@@ -250,7 +250,7 @@ inline void SharedMemory<T>::close()
 template <class T>
 inline bool SharedMemory<T>::isOpen() const
 {
-    return (mHandle != 0/*NULL*/);
+    return (mHandle != 0/*nullptr*/);
 }
 
 /*!
@@ -268,8 +268,8 @@ inline uint32_t SharedMemory<T>::getSize() const
 template <class T>
 inline void SharedMemory<T>::init()
 {
-    mHandle = 0/*NULL*/;
-    mPointer = NULL;
+    mHandle = 0/*nullptr*/;
+    mPointer = nullptr;
     mSize = 0;
 }
 

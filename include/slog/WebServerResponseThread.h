@@ -42,10 +42,10 @@ public:     WebServerResponseThread(HttpRequest* httpRequest);
             virtual ~WebServerResponseThread();
 
             // ドメイン取得
-private:    virtual const char* getDomain() const {return NULL;}
+private:    virtual const char* getDomain() const {return nullptr;}
 
             // ルートディレクトリ取得
-            virtual const char* getRootDir() const {return NULL;}
+            virtual const char* getRootDir() const {return nullptr;}
 
             // 送信
 protected:  void send(const CoreString& content) const;

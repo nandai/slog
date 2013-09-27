@@ -85,13 +85,13 @@ void File::open(
     if (mode == READ)
     {
         // 書込み中のファイルを読めるようにFILE_SHARE_WRITEを付ける
-//      handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ,                    NULL, OPEN_EXISTING, 0, NULL);
-        handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+//      handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ,                    nullptr, OPEN_EXISTING, 0, nullptr);
+        handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
     }
     else
     {
-//      handle = CreateFileW(p, GENERIC_WRITE, 0,               NULL, CREATE_ALWAYS, 0, NULL);
-        handle = CreateFileW(p, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
+//      handle = CreateFileW(p, GENERIC_WRITE, 0,               nullptr, CREATE_ALWAYS, 0, nullptr);
+        handle = CreateFileW(p, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, 0, nullptr);
     }
 
     if (handle == INVALID_HANDLE_VALUE)
@@ -104,7 +104,7 @@ void File::open(
     const char* _mode = (mode == READ ? "r" : "w");
     FILE* handle = fopen(p, _mode);
 
-    if (handle == NULL)
+    if (handle == nullptr)
     {
         e.setMessage("File::open(\"%s\")", p);
         throw e;
@@ -156,7 +156,7 @@ bool File::read(
     do
     {
 #if defined(_WINDOWS)
-        ::ReadFile(handle, p, count, (DWORD*)&result, NULL);
+        ::ReadFile(handle, p, count, (DWORD*)&result, nullptr);
 #else
         result = fread(p, 1, count, (FILE*)mHandle);
 #endif
@@ -189,17 +189,17 @@ bool File::read(
     LARGE_INTEGER move;
     move.QuadPart = index - result + 1;
 
-    ::SetFilePointerEx(handle, move, NULL, FILE_CURRENT);
+    ::SetFilePointerEx(handle, move, nullptr, FILE_CURRENT);
 
     if (p[index] == '\n')
         return true;
 
-    ::ReadFile(handle, p, 1, (DWORD*)&result, NULL);
+    ::ReadFile(handle, p, 1, (DWORD*)&result, nullptr);
 
     if (p[0] != '\n')
     {
         move.QuadPart = -1;
-        ::SetFilePointerEx(handle, move, NULL, FILE_CURRENT);
+        ::SetFilePointerEx(handle, move, nullptr, FILE_CURRENT);
     }
 #else
     FILE* handle = (FILE*)mHandle;
@@ -231,7 +231,7 @@ int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
     if (mHandle != 0)
     {
 #if defined(_WINDOWS)
-        ::ReadFile((HANDLE)mHandle, p, count, (DWORD*)&result, NULL);
+        ::ReadFile((HANDLE)mHandle, p, count, (DWORD*)&result, nullptr);
 #else
         result = fread(p, 1, count, (FILE*)mHandle);
 #endif
@@ -260,7 +260,7 @@ void File::write(const Buffer* buffer, int32_t position, int32_t count) const th
     {
 #if defined(_WINDOWS)
         DWORD result = 0;
-        ::WriteFile((HANDLE)mHandle, p, count, &result, NULL);
+        ::WriteFile((HANDLE)mHandle, p, count, &result, nullptr);
 #else
         fwrite(p, 1, count, (FILE*)mHandle);
 #endif
@@ -294,7 +294,7 @@ void File::unlink(const CoreString& fileName) throw(Exception)
 
 //void File::flush()
 //{
-//  if (mHandle != NULL)
+//  if (mHandle != nullptr)
 //  {
 //#if defined(_WINDOWS)
 //      ::FlushFileBuffers(mHandle);
@@ -315,9 +315,9 @@ int64_t File::getSize() const
     LARGE_INTEGER pos;
     LARGE_INTEGER size;
 
-    ::SetFilePointerEx(handle, move, &pos,  FILE_CURRENT);
-    ::SetFilePointerEx(handle, move, &size, FILE_END);
-    ::SetFilePointerEx(handle, pos,  NULL,  FILE_BEGIN);
+    ::SetFilePointerEx(handle, move, &pos,    FILE_CURRENT);
+    ::SetFilePointerEx(handle, move, &size,   FILE_END);
+    ::SetFilePointerEx(handle, pos,  nullptr, FILE_BEGIN);
 
     return size.QuadPart;
 #else
@@ -358,11 +358,11 @@ bool File::isEOF() const
 #if defined(_WINDOWS)
     HANDLE handle = (HANDLE)mHandle;
 
-    unsigned long cur = ::SetFilePointer(handle, 0,   NULL, FILE_CURRENT);
-	unsigned long len = ::SetFilePointer(handle, 0,   NULL, FILE_END);
-						::SetFilePointer(handle, cur, NULL, FILE_BEGIN);
+    unsigned long cur = ::SetFilePointer(handle, 0,   nullptr, FILE_CURRENT);
+    unsigned long len = ::SetFilePointer(handle, 0,   nullptr, FILE_END);
+                        ::SetFilePointer(handle, cur, nullptr, FILE_BEGIN);
 
-	return (cur >= len);
+    return (cur >= len);
 #else
 #endif
 }

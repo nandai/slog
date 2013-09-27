@@ -43,7 +43,7 @@ bool Dir::create(const CoreString* aDirName)
     UTF16LE dirName;
     dirName.conv(*aDirName);
 
-    res = (CreateDirectoryW(dirName.getBuffer(), NULL) == TRUE);
+    res = (CreateDirectoryW(dirName.getBuffer(), nullptr) == TRUE);
 #else
     res = (mkdir(aDirName->getBuffer(), 0755) == 0);
 #endif

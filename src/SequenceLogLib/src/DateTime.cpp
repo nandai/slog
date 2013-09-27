@@ -59,7 +59,7 @@ void DateTime::setCurrent()
 #if 0
     timeval tv;
 
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, nullptr);
     setTime_t(tv.tv_sec, (uint64_t)tv.tv_usec / 1000);
 #else   
     timespec tv;
@@ -82,7 +82,7 @@ void DateTime::toLocal()
     int32_t bias = -timeZone.Bias / 60;
 #else
     struct timezone tz;
-    gettimeofday(NULL, &tz);
+    gettimeofday(nullptr, &tz);
 
     int32_t bias = -tz.tz_minuteswest / 60;
 #endif
@@ -125,7 +125,7 @@ void DateTime::setValue(uint64_t value)
  */
 void DateTime::toValue(tm* tm, uint32_t milliSecond)
 {
-    if (tm == NULL)
+    if (tm == nullptr)
         return;
 
     mValue =

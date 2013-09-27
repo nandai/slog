@@ -31,7 +31,7 @@ namespace slog
 PointerString::PointerString()
 {
     mCapacity = 0;
-    mBuffer = NULL;
+    mBuffer = nullptr;
 }
 
 /*!

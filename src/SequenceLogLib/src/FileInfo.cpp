@@ -88,7 +88,7 @@ FileInfo::FileInfo(
     wchar_t unicode[MAX_PATH];
 
         SHGetMalloc(&pMalloc);
-        SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl);
+        SHGetSpecialFolderLocation(nullptr, CSIDL_PERSONAL, &pidl);
         SHGetPathFromIDListW(pidl, unicode);
 
         pMalloc->Free(pidl);

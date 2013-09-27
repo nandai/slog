@@ -42,7 +42,7 @@ void Util::getProcessPath(String* path)
 {
 #if defined(_WINDOWS)
     wchar_t fullName[MAX_PATH];
-    GetModuleFileNameW(NULL, fullName, sizeof(fullName));
+    GetModuleFileNameW(nullptr, fullName, sizeof(fullName));
 
     String str;
     str.conv(fullName);
@@ -124,7 +124,7 @@ int32_t Util::toUTF8(char* utf8, int32_t size, const wchar_t* unicode)
 {
     int32_t len = (int32_t)wcslen(unicode);
 
-    int32_t bytes = WideCharToMultiByte(CP_UTF8, 0, unicode, len + 1, utf8, size, NULL, NULL);
+    int32_t bytes = WideCharToMultiByte(CP_UTF8, 0, unicode, len + 1, utf8, size, nullptr, nullptr);
     return (bytes - 1/* 末尾の'\0'分を引く */);
 }
 

@@ -74,7 +74,7 @@ static const char* tokenize(
     else
     {
         len = (int32_t)strlen(p1);
-        p1 = NULL;
+        p1 = nullptr;
     }
 
     str->copy(p3, len);
@@ -122,7 +122,7 @@ Tokenizer::Tokenizer(
         const char* p2 = strchr(p1, '[');
         const char* p3 = strchr(p1, ']');
 
-        if (p2 == NULL || p3 == NULL)
+        if (p2 == nullptr || p3 == nullptr)
             break;
 
         String name(p2 + 1, (short)(p3 - p2 - 1));
@@ -211,14 +211,14 @@ int32_t Tokenizer::execNamed(
 
     for (Keys::iterator i = mData->mKeys.begin(); i != mData->mKeys.end(); i++)
     {
-        if (p1 == NULL)
+        if (p1 == nullptr)
             return -1;
 
         Element* element = mData->mElements[*i];
         p1 = tokenize(&element->variant.mStr, p1, element->delimiter);
     }
 
-    if (p1 == NULL)
+    if (p1 == nullptr)
         return str.getLength();
 
     return (int32_t)(p1 - str.getBuffer());
@@ -238,7 +238,7 @@ int32_t Tokenizer::execIndexed(
 
     while (true)
     {
-        if (p1 == NULL)
+        if (p1 == nullptr)
             break;
 
         name.format("%d", num);

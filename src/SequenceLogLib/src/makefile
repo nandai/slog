@@ -6,7 +6,8 @@ CFLAGS = \
 	-I../../include \
 	-I$(JAVA_HOME)/include \
 	-I$(JAVA_HOME)/include/linux \
-	-fPIC
+	-fPIC \
+	-std=c++0x
 
 #CFLAGS += -D_DEBUG
 
@@ -42,7 +43,7 @@ objs = \
 	WebSocketClient.o \
 	SequenceLog.o \
 	jp_printf_slog_Log.o \
-        sha1.o
+	sha1.o
 
 #all: depend libslog.so
 

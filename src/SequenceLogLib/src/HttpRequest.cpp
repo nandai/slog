@@ -220,7 +220,7 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
         const char* p1 = request + compareLen;
         const char* p2 = strchr(p1, ' ');
 
-        if (p2 == NULL)
+        if (p2 == nullptr)
             return -1;
 
         p1++;
@@ -245,7 +245,7 @@ void HttpRequest::analizePostParams(ByteBuffer* params)
         // 一対のパラメータを取り出す
         const char* p2 = strchr(p1, '&');
 
-        if (p2 == NULL)
+        if (p2 == nullptr)
         {
             p2 = p1 + params->getLength();
             end = true;
@@ -254,7 +254,7 @@ void HttpRequest::analizePostParams(ByteBuffer* params)
         // パラメータ名と値に分ける
         const char* p3 = strchr(p1, '=');
 
-        if (p3 == NULL)
+        if (p3 == nullptr)
             break;
 
         // パラメータからキーを取得

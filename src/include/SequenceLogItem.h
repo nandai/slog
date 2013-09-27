@@ -139,7 +139,7 @@ inline void SequenceLogItem::init(
     const char* className,              //!< クラス名
     const char* funcName)               //!< メソッド名
 {
-    if (this == NULL)
+    if (this == nullptr)
         return;
 
     mSeqNo =      seq;
@@ -162,7 +162,7 @@ inline void SequenceLogItem::init(
     uint32_t classID,                   //!< クラスID
     const char* funcName)               //!< メソッド名
 {
-    if (this == NULL)
+    if (this == nullptr)
         return;
 
     mSeqNo =      seq;
@@ -184,7 +184,7 @@ inline void SequenceLogItem::init(
     uint32_t classID,                   //!< クラスID
     uint32_t funcID)                    //!< メソッドID
 {
-    if (this == NULL)
+    if (this == nullptr)
         return;
 
     mSeqNo =      seq;
@@ -203,7 +203,7 @@ inline void SequenceLogItem::init(
 //  SequenceLogOutputFlag outputFlag)
     uint32_t              outputFlag)   //!< 出力フラグ
 {
-    if (this == NULL)
+    if (this == nullptr)
         return;
 
     mSeqNo =      seq;
@@ -221,7 +221,7 @@ inline void SequenceLogItem::init(
     uint32_t              outputFlag,   //!< 出力フラグ
     SequenceLogLevel level)             //!< ログレベル
 {
-    if (this == NULL)
+    if (this == nullptr)
         return;
 
     mSeqNo =      seq;

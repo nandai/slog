@@ -3,7 +3,8 @@ CC = gcc
 CFLAGS = \
 	-I../../../include \
 	-I../../include \
-	-I/usr/lib/jvm/java-6-openjdk/include
+	-I/usr/lib/jvm/java-6-openjdk/include \
+	-std=c++0x
 
 #CFLAGS += -D_DEBUG
 #CFLAGS += -D__SLOG__

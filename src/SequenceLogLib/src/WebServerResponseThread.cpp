@@ -77,14 +77,14 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
     }
     static mimeArray[] =
     {
-        {"css",  "css"},
-        {"js",   "javascript"},
-        {NULL,   "html"},
+        {"css",   "css"},
+        {"js",    "javascript"},
+        {nullptr, "html"},
     };
 
     const CoreString& url = mHttpRequest->getUrl();
     int32_t extPos = url.lastIndexOf(".");
-    const char* mimeType = NULL;
+    const char* mimeType = nullptr;
 
     const char* p = url.getBuffer();
     const char* ext = p + extPos + 1;

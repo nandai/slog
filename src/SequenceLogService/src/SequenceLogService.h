@@ -110,7 +110,7 @@ inline void SequenceLogService::pushStockItem(SequenceLogItem* item)
  */
 inline SequenceLogItem* SequenceLogService::popStockItem()
 {
-    if (mStockItems == NULL)
+    if (mStockItems == nullptr)
         mStockItems = new SequenceLogItem;
 
     SequenceLogItem* result = mStockItems;

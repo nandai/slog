@@ -40,7 +40,7 @@ namespace slog
 Process::Process()
 {
 #if defined(_WINDOWS)
-    mHandle = NULL;
+    mHandle = 0;
     mId = (uint32_t)GetCurrentProcessId();
 #else
     mHandle[0] = '\0';

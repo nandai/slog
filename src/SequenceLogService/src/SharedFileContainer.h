@@ -42,7 +42,7 @@ class SharedFileContainer
              */
 public:     SharedFileContainer()
             {
-                mFileInfo = NULL;
+                mFileInfo = nullptr;
                 mReferenceCount = 1;
             }
 

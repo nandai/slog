@@ -47,7 +47,7 @@ inline JavaString::JavaString(JNIEnv* env, jstring str)
     mEnv = env;
     mStr = str;
 
-    char* p = (char*)mEnv->GetStringUTFChars(mStr, NULL);
+    char* p = (char*)mEnv->GetStringUTFChars(mStr, nullptr);
     init(p);
 }
 

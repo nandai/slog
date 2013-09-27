@@ -30,7 +30,7 @@
 
 using namespace slog;
 
-static JavaVM* JVM = NULL;
+static JavaVM* JVM = nullptr;
 static jint JNI_VERSION = JNI_VERSION_1_6;
 
 struct _jmethodID {};   // warning LINK4248 対策
@@ -53,7 +53,7 @@ static bool registerNatives(JNIEnv* env, const char* className, const JNINativeM
     jclass clazz = env->FindClass(className);
     bool result = false;
 
-    if (clazz == NULL)
+    if (clazz == nullptr)
     {
         noticeLog("env->FindClass() failed.");
         return false;
@@ -71,21 +71,21 @@ static bool registerNatives(JNIEnv* env, const char* className, const JNINativeM
  */
 static JNIEnv* getJNIEnv()
 {
-    JNIEnv* env = NULL;
+    JNIEnv* env = nullptr;
     jint version = JNI_VERSION;
 
     if (JVM->GetEnv((void**)&env, version) == JNI_OK)
         return env;
 
 #if defined(__ANDROID__)
-    if (JVM->AttachCurrentThread(        &env, NULL) == JNI_OK)
+    if (JVM->AttachCurrentThread(        &env, nullptr) == JNI_OK)
         return env;
 #else
-    if (JVM->AttachCurrentThread((void**)&env, NULL) == JNI_OK)
+    if (JVM->AttachCurrentThread((void**)&env, nullptr) == JNI_OK)
         return env;
 #endif
 
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -282,7 +282,7 @@ JavaWebSocketClient::JavaWebSocketClient(JNIEnv* env, jobject javaObj) : WebSock
 JavaWebSocketClient::~JavaWebSocketClient()
 {
     JNIEnv* env = getJNIEnv();
-    env->SetLongField(mJavaObj, mNativeObj, (jlong)NULL);
+    env->SetLongField(mJavaObj, mNativeObj, 0);
 }
 
 /*!
@@ -301,7 +301,7 @@ void JavaWebSocketClient::onError(const char* message)
 {
     JNIEnv* env = getJNIEnv();
 
-    if (env == NULL)
+    if (env == nullptr)
         return;
 
 #if defined(_WINDOWS)
@@ -323,7 +323,7 @@ void JavaWebSocketClient::onMessage(const ByteBuffer& buffer)
 {
     JNIEnv* env = getJNIEnv();
 
-    if (env == NULL)
+    if (env == nullptr)
         return;
 
     jobject localBuf = env->NewDirectByteBuffer(buffer.getBuffer(), buffer.getLength());
@@ -346,11 +346,11 @@ void JavaWebSocketClient::onClose()
 /*!
  * スタティック変数初期化
  */
-jfieldID  JavaWebSocketClient::mNativeObj = NULL;
-jmethodID JavaWebSocketClient::mOnOpen =    NULL;
-jmethodID JavaWebSocketClient::mOnError =   NULL;
-jmethodID JavaWebSocketClient::mOnMessage = NULL;
-jmethodID JavaWebSocketClient::mOnClose =   NULL;
+jfieldID  JavaWebSocketClient::mNativeObj = nullptr;
+jmethodID JavaWebSocketClient::mOnOpen =    nullptr;
+jmethodID JavaWebSocketClient::mOnError =   nullptr;
+jmethodID JavaWebSocketClient::mOnMessage = nullptr;
+jmethodID JavaWebSocketClient::mOnClose =   nullptr;
 
 /*!
  * JavaWebSocketClient取得
@@ -437,7 +437,7 @@ extern "C" jint slog_JNI_OnLoad(JavaVM* vm, void* reserved)
     JVM = vm;
     JNIEnv* env = getJNIEnv();
 
-    if (env == NULL)
+    if (env == nullptr)
     {
         noticeLog("cannot get JNIEnv.");
         return -1;

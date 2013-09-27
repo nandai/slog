@@ -45,7 +45,7 @@ namespace slog
  */
 FileFind::FileFind()
 {
-    setListener(NULL);
+    setListener(nullptr);
 }
 
 /*!
@@ -63,7 +63,7 @@ void FileFind::exec(
     utf16le.conv(canonicalPath);
 
     WIN32_FIND_DATAW fd;
-    HANDLE handle = FindFirstFileExW(utf16le.getBuffer(), FindExInfoStandard, &fd, FindExSearchNameMatch, NULL, 0);
+    HANDLE handle = FindFirstFileExW(utf16le.getBuffer(), FindExInfoStandard, &fd, FindExSearchNameMatch, nullptr, 0);
 
     int32_t len = (int32_t)(strrchr(p, '\\') - p);
     FixedString<MAX_PATH> path;
@@ -91,7 +91,7 @@ void FileFind::exec(
 
 #elif defined(__linux__) && !defined(__ANDROID__)
     glob_t globbuf;
-    int32_t result = glob(p, GLOB_NOSORT, NULL, &globbuf);
+    int32_t result = glob(p, GLOB_NOSORT, nullptr, &globbuf);
 
     if (result != 0)
         return;
@@ -115,7 +115,7 @@ void FileFind::exec(
     // 拡張子取得
     char* ext = strchr(searchFileName, '.');
 
-    if (ext == NULL)
+    if (ext == nullptr)
         return;
 
     bool any = (strcmp(ext, ".*") == 0);
@@ -124,12 +124,12 @@ void FileFind::exec(
     DIR* dir = opendir(p);
     dirent* ent;
 
-    if (dir == NULL)
+    if (dir == nullptr)
         return;
 
     FixedString<MAX_PATH> path;
 
-    while ((ent = readdir(dir)) != NULL)
+    while ((ent = readdir(dir)) != nullptr)
     {
         if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
             continue;
@@ -138,7 +138,7 @@ void FileFind::exec(
         {
             char* entExt = strchr(ent->d_name, '.');
 
-            if (entExt == NULL)
+            if (entExt == nullptr)
                 continue;
 
             if (strcmp(ext, entExt) != 0)

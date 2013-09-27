@@ -78,7 +78,7 @@ ItemList::ItemList()
 inline SequenceLogItem* ItemList::front() const
 {
     if (empty())
-        return NULL;
+        return nullptr;
 
     return (SequenceLogItem*)mHeader.mNext;
 }
@@ -89,7 +89,7 @@ inline SequenceLogItem* ItemList::front() const
 inline SequenceLogItem* ItemList::back() const
 {
     if (empty())
-        return NULL;
+        return nullptr;
 
     return (SequenceLogItem*)mHeader.mPrev;
 }
@@ -192,13 +192,13 @@ public:     long        mAlwaysCount;       //!< 常出力カウンタ（1以上
 SequenceLogService::SequenceLogService(HttpRequest* httpRequest) : WebServerResponseThread(httpRequest),
     mFileOutputBuffer(1024 * 2)
 {
-    mSHM = NULL;
+    mSHM = nullptr;
 
-    mOutputList =       NULL;
-    mItemQueueManager = NULL;
-    mStockItems =       NULL;
+    mOutputList =       nullptr;
+    mItemQueueManager = nullptr;
+    mStockItems =       nullptr;
 
-    mSharedFileContainer = NULL;
+    mSharedFileContainer = nullptr;
 }
 
 /*!
@@ -221,7 +221,7 @@ bool SequenceLogService::init()
     try
     {
         Socket* socket = mHttpRequest->getSocket();
-        ByteBuffer* buffer = WebSocket::recv(socket, NULL);
+        ByteBuffer* buffer = WebSocket::recv(socket, nullptr);
 
         // プロセスID取得
         uint32_t id = buffer->getInt();
@@ -368,16 +368,16 @@ void SequenceLogService::cleanUp()
 
         mItemQueueManager->clear();
         delete mItemQueueManager;
-        mItemQueueManager = NULL;
+        mItemQueueManager = nullptr;
     }
 
     // シーケンスログ出力リスト削除
     delete mOutputList;
-    mOutputList = NULL;
+    mOutputList = nullptr;
 
     // シーケンスログアイテムのストックを削除
     SequenceLogItem* item = mStockItems;
-    mStockItems = NULL;
+    mStockItems = nullptr;
 
     while (item)
     {
@@ -397,7 +397,7 @@ void SequenceLogService::cleanUp()
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     serviceMain->releaseSharedFileContainer(mSharedFileContainer);
 
-//  mSharedFileContainer = NULL;
+//  mSharedFileContainer = nullptr;
 }
 
 /*!
@@ -621,7 +621,7 @@ void SequenceLogService::divideItems()
         SequenceLogItem* item = createSequenceLogItem(queue, src);
         bool isKeep = false;
 
-        if (item == NULL)
+        if (item == nullptr)
             continue;
 
         if (item->mOutputFlag == slog::ROOT)
@@ -664,7 +664,7 @@ void SequenceLogService::divideItems()
 
             mOutputList->merge(queue->mList);
 
-            while ((item = queue->mStepOutList.back()) != NULL)
+            while ((item = queue->mStepOutList.back()) != nullptr)
             {
                 queue->mStepOutList.pop_back();
 
@@ -785,7 +785,7 @@ ItemQueue* SequenceLogService::getItemQueue(const SequenceLogItem& item) const
     uint32_t threadId = item.mThreadId;
     ItemQueue* queue = (*mItemQueueManager)[threadId];
 
-    if (queue == NULL)
+    if (queue == nullptr)
     {
         queue = new ItemQueue;
         (*mItemQueueManager)[threadId] = queue;
@@ -814,11 +814,11 @@ SequenceLogItem* SequenceLogService::createSequenceLogItem(
     {
         item = queue->mStepOutList.back();
 
-        if (item == NULL)
+        if (item == nullptr)
         {
             // あらかじめ作成してあるはずのアイテムがない（fork()を使っているとここに来る）
-//          TRACE("    queue->mStepOutList.back() is NULL! (did fork?) src.mSeqNo=%d\n", src.mSeqNo);
-            return NULL;
+//          TRACE("    queue->mStepOutList.back() is nullptr! (did fork?) src.mSeqNo=%d\n", src.mSeqNo);
+            return nullptr;
         }
 
         if (item->mSeqNo == src.mSeqNo)
@@ -867,9 +867,9 @@ void SequenceLogService::receiveMain()
                 continue;
 
             // シーケンスログアイテム受信
-            ByteBuffer* buffer = WebSocket::recv(socket, NULL);
+            ByteBuffer* buffer = WebSocket::recv(socket, nullptr);
 
-            if (buffer == NULL)
+            if (buffer == nullptr)
                 continue;
 
             // バッファからシーケンスログアイテムを設定
