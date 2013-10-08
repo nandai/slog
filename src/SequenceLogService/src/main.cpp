@@ -290,8 +290,8 @@ void Application::onInitialized(Thread* thread)
     DateTime dateTime = fileInfo->getCreationTime();
     dateTime.toLocal();
 
-    FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
-    DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
+    FixedString<(int32_t)DateTimeFormat::Length::YYYYMMDDHHMISS> str;
+    DateTimeFormat::toString(&str, dateTime, DateTimeFormat::Format::YYYYMMDDHHMISS);
 
     noticeLog("start %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
 }
@@ -319,8 +319,8 @@ void Application::onTerminated(Thread* thread)
     {
         dateTime.toLocal();
 
-        FixedString<DateTimeFormat::DATE_TIME_MS_LEN> str;
-        DateTimeFormat::toString(&str, dateTime, DateTimeFormat::DATE_TIME);
+        FixedString<(int32_t)DateTimeFormat::Length::YYYYMMDDHHMISS> str;
+        DateTimeFormat::toString(&str, dateTime, DateTimeFormat::Format::YYYYMMDDHHMISS);
 
         noticeLog("end   %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
     }

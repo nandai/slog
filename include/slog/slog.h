@@ -68,6 +68,10 @@
     #define PATH_DELIMITER  '/'
 #endif
 
+#if defined(__ANDROID__)
+    #define nullptr 0
+#endif
+
 #define MAX_PATH 260
 
 #if defined(__cplusplus)

@@ -40,7 +40,7 @@ LOCAL_C_INCLUDES += \
     ../../include \
     ../../../include
 
-LOCAL_CPPFLAGS   := -D__SLOG__ -D__SHARED_LIBRARY__ -fexceptions --rtti
+LOCAL_CPPFLAGS   := -D__SLOG__ -D__SHARED_LIBRARY__ -fexceptions --rtti -std=gnu++0x
 #OCAL_CPPFLAGS   += -D_DEBUG
 
 LOCAL_LDLIBS := \

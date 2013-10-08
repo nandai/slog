@@ -19,7 +19,7 @@ LOCAL_C_INCLUDES += \
 	../../../include
 
 #OCAL_CPPFLAGS   := -fexceptions
-LOCAL_CPPFLAGS   := -fexceptions --rtti -D__EXEC__
+LOCAL_CPPFLAGS   := -fexceptions --rtti -D__EXEC__ -std=gnu++0x
 #OCAL_CPPFLAGS   += -D_DEBUG
 
 LOCAL_LDLIBS := \
