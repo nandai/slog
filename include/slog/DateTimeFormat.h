@@ -32,16 +32,24 @@ namespace slog
  */
 class DateTimeFormat
 {
-public:     enum Format
+public:     enum class Format : int32_t
             {
-                DATE_TIME,
-                DATE_TIME_MS,
+                YYYYMMDDHHMISSMS,
+                YYYYMMDDHHMISS,
+                YYYYMMDDHHMI,
+                YYYYMMDD,
+                MMDD,
+                HHMI,
             };
 
-            enum Length
+            enum class Length : int32_t
             {
-                DATE_TIME_LEN =    sizeof("YYYY/MM/DD HH:MI:SS")     - 1,
-                DATE_TIME_MS_LEN = sizeof("YYYY/MM/DD HH:MI:SS.999") - 1,
+                YYYYMMDDHHMISSMS = sizeof("YYYY/MM/DD HH:MI:SS.999") - 1,
+                YYYYMMDDHHMISS =   sizeof("YYYY/MM/DD HH:MI:SS")     - 1,
+                YYYYMMDDHHMI   =   sizeof("YYYY/MM/DD HH:MI")        - 1,
+                YYYYMMDD =         sizeof("YYYY/MM/DD")              - 1,
+                MMDD =             sizeof("MM/DD")                   - 1,
+                HHMI =             sizeof("HH:MI")                   - 1,
             };
 
 public:     static void toString(CoreString* str, const DateTime& dateTime, Format format);
@@ -55,16 +63,43 @@ inline void DateTimeFormat::toString(
     const DateTime& dateTime,   //!< 日付時間
     Format format)              //!< フォーマット
 {
-    static const char* szFormat[] =
+    class FormatInfo
     {
-        "%04u/%02u/%02u %02u:%02u:%02u",
-        "%04u/%02u/%02u %02u:%02u:%02u.%03u",
+    public:     const char* szFormat;
+                int32_t     indexes[7];
+    };
+
+    static const FormatInfo infoArray[] =
+    {
+        {"%04u/%02u/%02u %02u:%02u:%02u.%03u", {0, 1, 2, 3, 4, 5, 6}},
+        {"%04u/%02u/%02u %02u:%02u:%02u",      {0, 1, 2 ,3, 4, 5, 0}},
+        {"%04u/%02u/%02u %02u:%02u",           {0, 1, 2 ,3, 4, 0, 0}},
+        {"%04u/%02u/%02u",                     {0, 1, 2, 0, 0, 0, 0}},
+        {"%02u/%02u",                          {1, 2, 0, 0, 0, 0, 0}},
+        {"%02u:%02u",                          {3, 4, 0, 0, 0, 0, 0}},
+    };
+
+    const FormatInfo* info = &infoArray[(int32_t)format];
+    uint32_t values[] =
+    {
+        dateTime.getYear(),             // 0
+        dateTime.getMonth(),            // 1
+        dateTime.getDay(),              // 2
+        dateTime.getHour(),             // 3
+        dateTime.getMinute(),           // 4
+        dateTime.getSecond(),           // 5
+        dateTime.getMilliSecond()       // 6
     };
 
     str->format(
-        szFormat[format],
-        dateTime.getYear(), dateTime.getMonth(),  dateTime.getDay(),
-        dateTime.getHour(), dateTime.getMinute(), dateTime.getSecond(), dateTime.getMilliSecond());
+        info->szFormat,
+        values[info->indexes[0]],
+        values[info->indexes[1]],
+        values[info->indexes[2]],
+        values[info->indexes[3]],
+        values[info->indexes[4]],
+        values[info->indexes[5]],
+        values[info->indexes[6]]);
 }
 
 } // namespace slog

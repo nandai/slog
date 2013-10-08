@@ -91,7 +91,7 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
     if (dateTime.getValue())
     {
         dateTime.toLocal();
-        DateTimeFormat::toString(&strLastWriteTime, dateTime, DateTimeFormat::DATE_TIME);
+        DateTimeFormat::toString(&strLastWriteTime, dateTime, DateTimeFormat::Format::YYYYMMDDHHMISS);
     }
 
     // ログファイル名
