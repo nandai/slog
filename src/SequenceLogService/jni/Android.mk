@@ -14,7 +14,6 @@ LOCAL_SRC_FILES	:= \
 	../src/SequenceLogServiceWebServerResponse.cpp
 
 LOCAL_C_INCLUDES += \
-	$(ANDROID_NDK_ROOT)/sources/cxx-stl/stlport/stlport \
 	../../include \
 	../../../include
 
@@ -23,10 +22,8 @@ LOCAL_CPPFLAGS   := -fexceptions --rtti -D__EXEC__ -std=gnu++0x
 #OCAL_CPPFLAGS   += -D_DEBUG
 
 LOCAL_LDLIBS := \
-	-L$(ANDROID_NDK_ROOT)/sources/cxx-stl/stlport/libs/armeabi \
 	-L../../../bin/Android \
 	-llog \
-	-lstlport \
 	-lssl \
 	-lcrypto \
 	../../../bin/Android/libslog.a

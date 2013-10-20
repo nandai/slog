@@ -8,8 +8,8 @@ if [ $# -gt 0 ]; then
 fi
 
 # copy stlport
-cp ../../../bin/Android/libstlport.so \
-   $ANDROID_NDK_ROOT/sources/cxx-stl/stlport/libs/armeabi/
+#cp ../../../bin/Android/libstlport.so \
+#   $ANDROID_NDK_ROOT/sources/cxx-stl/stlport/libs/armeabi/
 
 #
 # make shared library
@@ -56,7 +56,7 @@ fi
 #
 # copy libraries
 #
-for ver in 3 4 5 8 9
+for ver in 3 4 5 8 9 14 18
 do
     LIB_DIR=platforms/android-$ver/arch-arm/usr/lib
 
