@@ -97,7 +97,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\include;..\include;G:\Program Files\Java\jdk1.7.0_25\include;G:\Program Files\Java\jdk1.7.0_25\include\win32;G:\OpenSSL-Win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\include;C:\Program Files\Java\jdk1.7.0_25\include;C:\Program Files\Java\jdk1.7.0_25\include\win32;I:\OpenSSL-Win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_LIB;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -109,7 +109,7 @@
     <Link>
       <AdditionalDependencies>winmm.lib;ssleay32MT.lib;libeay32MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)slog.dll</OutputFile>
-      <AdditionalLibraryDirectories>G:\OpenSSL-Win32\lib\VC\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>I:\OpenSSL-Win32\lib\VC\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
@@ -124,7 +124,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\include;..\include;G:\Program Files\Java\jdk1.7.0_25\include;G:\Program Files\Java\jdk1.7.0_25\include\win32;G:\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\include;C:\Program Files\Java\jdk1.7.0_25\include;C:\Program Files\Java\jdk1.7.0_25\include\win32;I:\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_LIB;__SLOG__;SLOG_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -136,7 +136,7 @@
     <Link>
       <AdditionalDependencies>winmm.lib;ssleay32MT.lib;libeay32MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)slog.dll</OutputFile>
-      <AdditionalLibraryDirectories>G:\OpenSSL-Win64\lib\VC\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>I:\OpenSSL-Win64\lib\VC\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
@@ -221,6 +221,7 @@
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug-dll|x64'">Async</ExceptionHandling>
       <StringPooling Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'">false</StringPooling>
     </ClCompile>
+    <ClCompile Include="src\MimeType.cpp" />
     <ClCompile Include="src\Mutex.cpp" />
     <ClCompile Include="src\PointerString.cpp" />
     <ClCompile Include="src\Process.cpp" />
@@ -259,6 +260,7 @@
     <ClInclude Include="..\..\include\slog\JavaString.h" />
     <ClInclude Include="..\..\include\slog\Json.h" />
     <CustomBuild Include="src\Log.h" />
+    <ClInclude Include="..\..\include\slog\MimeType.h" />
     <ClInclude Include="..\..\include\slog\Mutex.h" />
     <ClInclude Include="..\..\include\slog\PointerString.h" />
     <ClInclude Include="..\..\include\slog\Process.h" />

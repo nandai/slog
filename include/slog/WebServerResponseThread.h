@@ -28,7 +28,7 @@ class HttpRequest;
 class CoreString;
 class String;
 class Socket;
-class ByteBuffer;
+class Buffer;
 
 /*!
  *  \brief  WEBサーバー応答スレッドクラス
@@ -48,16 +48,16 @@ private:    virtual const char* getDomain() const {return nullptr;}
             virtual const char* getRootDir() const {return nullptr;}
 
             // 送信
-protected:  void send(const CoreString& content) const;
+protected:  void send(const Buffer* content) const;
 
             // HTTPヘッダー送信（＆切断）
             void sendHttpHeader(int32_t contentLen) const;
 
             // 応答内容送信＆切断
-            void sendContent(const CoreString& content) const;
+            void sendContent(const Buffer* content) const;
 
             // 実行
-private:    virtual void run();
+            virtual void run();
 
             // コンテンツ取得
 protected:  bool getContents(String* content, const char* url);

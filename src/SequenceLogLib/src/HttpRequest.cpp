@@ -84,6 +84,7 @@ HttpRequest::HttpRequest(Socket* socket, uint16_t port)
     mSocket = socket;
     mPort = port;
     mMethod = UNKNOWN;
+    mAjax = false;
 }
 
 /*!
@@ -128,6 +129,7 @@ bool HttpRequest::analizeRequest()
         }
 
         request[i] = '\0';
+//      noticeLog("%s", request);
 
         // '\n'捨て
         buffer.setLength(0);
@@ -144,7 +146,7 @@ bool HttpRequest::analizeRequest()
                 ByteBuffer params(contentLen);
 
                 mSocket->recv(&params, contentLen);
-                analizePostParams(&params);
+                analizeParams(params.getBuffer(), params.getLength());
             }
 //          noticeLog("analizeRequest ended");
 
@@ -175,6 +177,29 @@ bool HttpRequest::analizeRequest()
                     contentLen = atoi(request + compareLen);
                 }
 
+                // Accept
+                compare = "Accept: ";
+                compareLen = (int32_t)strlen(compare);
+
+                if (strncmp(request, compare, compareLen) == 0)
+                {
+                    char* p = strchr(request, ',');
+
+                    if (p)
+                        p[0] = '\0';
+
+                    mMimeType.setText(request + compareLen);
+                }
+
+                // X-Requested-With
+                compare = "X-Requested-With: XMLHttpRequest";
+                compareLen = (int32_t)strlen(compare);
+
+                if (strncmp(request, compare, compareLen) == 0)
+                {
+                    mAjax = true;
+                }
+
                 // Sec-WebSocket-Key
                 compare = "Sec-WebSocket-Key: ";
                 compareLen = (int32_t)strlen(compare);
@@ -188,6 +213,9 @@ bool HttpRequest::analizeRequest()
 
         i = 0;
     }
+
+    if (mAjax == false)
+        mMimeType.analize(&mUrl);
 
     return true;
 }
@@ -223,8 +251,20 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
         if (p2 == nullptr)
             return -1;
 
-        p1++;
-        mUrl.copy(p1, (int32_t)(p2 - p1));
+        if (method == GET)
+        {
+            const char* p3 = strchr(p1, '?');
+
+            if (p3)
+            {
+                analizeParams(p3 + 1, p2 - (p3 + 1));
+                p2 = p3;
+            }
+        }
+
+        p1++;   // '/'をスキップ
+
+        decode(&mUrl, (char*)p1, p2);
         mMethod = method;
         return 0;
     }
@@ -233,11 +273,11 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 }
 
 /*!
- *  \brief  POSTパラメータ解析
+ *  \brief  パラメータ解析
  */
-void HttpRequest::analizePostParams(ByteBuffer* params)
+void HttpRequest::analizeParams(const char* buffer, int32_t len)
 {
-    const char* p1 = params->getBuffer();
+    const char* p1 = buffer;
     bool end = false;
 
     while (end == false)
@@ -247,7 +287,7 @@ void HttpRequest::analizePostParams(ByteBuffer* params)
 
         if (p2 == nullptr)
         {
-            p2 = p1 + params->getLength();
+            p2 = buffer + len;
             end = true;
         }
 
@@ -261,43 +301,50 @@ void HttpRequest::analizePostParams(ByteBuffer* params)
         String key(p1, (int32_t)(p3 - p1));
 
         // パラメータから値を取得
-        p3++;
-        p1 = p3;
-        char* p4 = (char*)p3;
-
-        while (p1 < p2)
-        {
-            char c = *p1;
-
-            switch (c)
-            {
-            case '%':
-            {
-                p1 = hexToValue(p1 + 1, &c);
-                break;
-            }
-
-            case '+':
-                c =  ' ';
-//              break;
-
-            default:
-                p1++;
-                break;
-            }
-
-            *p4 = c;
-             p4++;
-        }
-
-        String value;
-        value.copy(p3, (int32_t)(p4 - p3));
-
-        p1 = p2 + 1;
+        String  value;
+        decode(&value, (char*)p3 + 1, p2);
 
         // パラメータリストに追加
-        mPostParams.insert(pair<String, String>(key, value));
+        mParams.insert(pair<String, String>(key, value));
+
+        p1 = p2 + 1;
     }
+}
+
+/*!
+ * パーセントデコード
+ */
+void HttpRequest::decode(slog::CoreString* str, char* start, const char* end)
+{
+    const char* cursor = start;
+    char* decodeCursor = start;
+
+    while (cursor < end)
+    {
+        char c = *cursor;
+
+        switch (c)
+        {
+        case '%':
+        {
+            cursor = hexToValue(cursor + 1, &c);
+            break;
+        }
+
+        case '+':
+            c =  ' ';
+//          break;
+
+        default:
+            cursor++;
+            break;
+        }
+
+        *decodeCursor = c;
+         decodeCursor++;
+    }
+
+    str->copy(start, (int32_t)(decodeCursor - start));
 }
 
 /*!
@@ -338,22 +385,42 @@ const CoreString& HttpRequest::getUrl() const
 void HttpRequest::setUrl(const char* url)
 {
     mUrl.copy(url);
+
+    if (mAjax == false)
+        mMimeType.analize(&mUrl);
+}
+
+/*!
+ *  \brief  mime-type取得
+ */
+const MimeType* HttpRequest::getMimeType()
+{
+    return &mMimeType;
 }
 
 /*!
  *  \brief  POSTパラメータ取得
  */
-void HttpRequest::getParam(const char* name, CoreString* param)
+const CoreString* HttpRequest::getParam(const char* name, CoreString* param)
 {
-    param->copy(mPostParams[name]);
+    param->copy(mParams[name]);
+    return param;
+}
+
+/*!
+ *  \brief  Ajaxかどうか調べる
+ */
+bool HttpRequest::isAjax() const
+{
+    return mAjax;
 }
 
 /*!
  *  \brief  Sec-WebSocket-Key取得
  */
-const CoreString& HttpRequest::getWebSocketKey() const
+const CoreString* HttpRequest::getWebSocketKey() const
 {
-    return mWebSocketKey;
+    return &mWebSocketKey;
 }
 
 } // namespace slog

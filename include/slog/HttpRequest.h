@@ -22,6 +22,8 @@
 #pragma once
 
 #include "slog/String.h"
+#include "slog/MimeType.h"
+
 #include <map>
 
 #pragma warning(disable:4251)
@@ -47,7 +49,9 @@ private:    Socket*                     mSocket;
             uint16_t                    mPort;
             METHOD                      mMethod;        // 要求メソッド
             String                      mUrl;           // 要求URL
-            std::map<String, String>    mPostParams;    // POSTパラメータ
+            MimeType                    mMimeType;      // mime-type
+            std::map<String, String>    mParams;        // パラメータ
+            bool                        mAjax;          // Ajaxかどうか
             String                      mWebSocketKey;  // Sec-WebSocket-Key
 
 public:      HttpRequest(Socket* socket, uint16_t port);
@@ -55,15 +59,19 @@ public:      HttpRequest(Socket* socket, uint16_t port);
 
 public:     bool    analizeRequest();
 private:    int32_t analizeUrl(const char* request, int32_t len, METHOD method);
-            void    analizePostParams(ByteBuffer* params);
+            void    analizeParams(const char* buffer, int32_t len);
+
+            void decode(slog::CoreString* str, char* start, const char* end);
 
 public:     Socket* getSocket() const;
             uint16_t getPort() const;
             METHOD getMethod() const;
             const CoreString& getUrl() const;
             void setUrl(const char* url);
-            void getParam(const char* name, CoreString* param);
-            const CoreString& getWebSocketKey() const;
+            const MimeType* getMimeType();
+            const CoreString* getParam(const char* name, CoreString* param);
+            bool isAjax() const;
+            const CoreString* getWebSocketKey() const;
 };
 
 } // namespace slog

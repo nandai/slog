@@ -24,7 +24,6 @@
 #include "slog/WebSocket.h"
 #include "slog/Util.h"
 #include "slog/File.h"
-#include "slog/ByteBuffer.h"
 
 #include "sha1.h"
 
@@ -55,10 +54,10 @@ WebServerResponseThread::~WebServerResponseThread()
 /*!
  *  \brief  送信
  */
-void WebServerResponseThread::send(const CoreString& content) const
+void WebServerResponseThread::send(const Buffer* content) const
 {
     // HTTPヘッダー送信
-    int32_t contentLen = content.getLength();
+    int32_t contentLen = content->getLength();
     sendHttpHeader(contentLen);
 
     // コンテンツ送信
@@ -70,49 +69,13 @@ void WebServerResponseThread::send(const CoreString& content) const
  */
 void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 {
-    struct
-    {
-        const char* ext;
-        const char* type;
-    }
-    static mimeArray[] =
-    {
-        {"css",   "css"},
-        {"js",    "javascript"},
-        {nullptr, "html"},
-    };
-
-    const CoreString& url = mHttpRequest->getUrl();
-    int32_t extPos = url.lastIndexOf(".");
-    const char* mimeType = nullptr;
-
-    const char* p = url.getBuffer();
-    const char* ext = p + extPos + 1;
-
-    int32_t mimeCount = sizeof(mimeArray) / sizeof(mimeArray[0]);
-    mimeArray[mimeCount - 1].ext = ext;
-
-    for (int32_t i = 0; i < mimeCount; i++)
-    {
-#if defined(_WINDOWS)
-        if (_stricmp(
-#else
-        if (strcasecmp(
-#endif
-            ext, mimeArray[i].ext) == 0)
-        {
-            mimeType = mimeArray[i].type;
-            break;
-        }
-    }
-
     String str;
     str.format(
-        "HTTP/1.1 200 OK\n"
-        "Content-type: text/%s; charset=UTF-8\n"
-        "Content-length: %d\n"
-        "\n",
-        mimeType,
+        "HTTP/1.1 200 OK\r\n"
+        "Content-type: %s; charset=UTF-8\r\n"
+        "Content-length: %d\r\n"
+        "\r\n",
+        mHttpRequest->getMimeType()->text.getBuffer(),
         contentLen);
 
     Socket* socket = mHttpRequest->getSocket();
@@ -125,11 +88,11 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 /*!
  *  \brief  応答内容送信＆切断
  */
-void WebServerResponseThread::sendContent(const CoreString& content) const
+void WebServerResponseThread::sendContent(const Buffer* content) const
 {
     Socket* socket = mHttpRequest->getSocket();
 
-    socket->send(&content, content.getLength());
+    socket->send(content, content->getLength());
     socket->close();
 }
 
@@ -160,7 +123,7 @@ void WebServerResponseThread::run()
         while (false);
 
         // 送信
-        send(content);
+        send(&content);
     }
     catch (Exception& e)
     {
@@ -231,7 +194,7 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
                 break;
             }
 
-            content->append("\n");
+            content->append("\r\n");
         }
     }
     catch (Exception& e)
@@ -248,13 +211,13 @@ bool WebServerResponseThread::getContents(String* content, const char* url)
  */
 bool WebServerResponseThread::upgradeWebSocket()
 {
-    const CoreString& webSocketKey = mHttpRequest->getWebSocketKey();
+    const CoreString* webSocketKey = mHttpRequest->getWebSocketKey();
 
-    if (webSocketKey.getLength() == 0)
+    if (webSocketKey->getLength() == 0)
         return false;
 
     String mes;
-    mes.format("%s%s", webSocketKey.getBuffer(), "258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
+    mes.format("%s%s", webSocketKey->getBuffer(), "258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
 
     uint8_t digest[SHA1HashSize];
 

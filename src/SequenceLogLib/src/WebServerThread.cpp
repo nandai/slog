@@ -202,7 +202,8 @@ WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpReques
     }
 
     // 一致するものがなければデフォルトの応答スレッドを生成
-    if (response == nullptr && HttpRequest::GET == method)
+//  if (response == nullptr && HttpRequest::GET == method)
+    if (response == nullptr)
         response = (*createList->proc)(httpRequest);
 
     return response;
