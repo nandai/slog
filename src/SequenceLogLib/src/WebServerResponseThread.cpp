@@ -51,8 +51,8 @@ WebServerResponseThread::~WebServerResponseThread()
 {
     delete mHttpRequest;
 
-    for (auto  variable : mVariables)
-        delete variable;
+    for (VariableList::iterator i = mVariables.begin(); i != mVariables.end(); i++)
+        delete *i;
 }
 
 /*!

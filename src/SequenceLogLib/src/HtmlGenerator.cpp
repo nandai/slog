@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   HtmlGenerator.cpp
- *  \brief  html¶¬ƒNƒ‰ƒX
+ *  \brief  htmlç”Ÿæˆã‚¯ãƒ©ã‚¹
  *  \author Copyright 2013 printf.jp
  */
 #include "slog/HtmlGenerator.h"
@@ -28,59 +28,63 @@ namespace slog
 {
 
 /*!
- * ¶¬Àsƒpƒ‰ƒ[ƒ^ƒNƒ‰ƒX
+ * ç”Ÿæˆå®Ÿè¡Œãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚¯ãƒ©ã‚¹
  */
 class HtmlGenerator::Param
 {
             /*!
-             * “Ç‚İ‚ñ‚¾ƒtƒ@ƒCƒ‹‚Ì“à—e
+             * èª­ã¿è¾¼ã‚“ã ãƒ•ã‚¡ã‚¤ãƒ«ã®å†…å®¹
              */
 public:     slog::String buffer;
 
             /*!
-             * ƒfƒtƒHƒ‹ƒg•Ï”ƒŠƒXƒg
+             * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå¤‰æ•°ãƒªã‚¹ãƒˆ
              */
             VariableList defaultVariableList;
 
             /*!
-             * •Ï”ƒŠƒXƒg
+             * å¤‰æ•°ãƒªã‚¹ãƒˆ
              */
-            const VariableList* variableList = &defaultVariableList;
+            const VariableList* variableList;
 
             /*!
-             * ‰ğÍI—¹ˆÊ’u
+             * è§£æçµ‚äº†ä½ç½®
              */
-            int32_t endPosition = 0;
+            int32_t endPosition;
 
             /*!
-             * ’uŠ·Œ‹‰Ê
+             * ç½®æ›çµæœ
              */
-            bool replaceResult = false;
+            bool replaceResult;
 
             /*!
-             * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+             * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
              */
 public:     Param(const VariableList* variableList);
 
             /*!
-             * ƒfƒtƒHƒ‹ƒg‚Ì•Ï”ƒŠƒXƒg‚©’²‚×‚é
+             * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®å¤‰æ•°ãƒªã‚¹ãƒˆã‹èª¿ã¹ã‚‹
              */
             bool isDefaultVariableList() const;
 };
 
 /*!
- * \brief   ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+ * \brief   ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  *
- * \param [in]  variableList    •Ï”ƒŠƒXƒg
+ * \param [in]  variableList    å¤‰æ•°ãƒªã‚¹ãƒˆ
  */
 HtmlGenerator::Param::Param(const VariableList* variableList)
 {
-    if (variableList != nullptr)
-        this->variableList = variableList;
+    this->variableList = (variableList != nullptr
+        ? variableList
+        : &defaultVariableList);
+
+    this->endPosition = 0;
+    this->replaceResult = false;
 }
 
 /*!
- * ƒfƒtƒHƒ‹ƒg‚Ì•Ï”ƒŠƒXƒg‚©’²‚×‚é
+ * ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®å¤‰æ•°ãƒªã‚¹ãƒˆã‹èª¿ã¹ã‚‹
  */
 bool HtmlGenerator::Param::isDefaultVariableList() const
 {
@@ -88,13 +92,13 @@ bool HtmlGenerator::Param::isDefaultVariableList() const
 }
 
 /*!
- * \brief   ƒ^ƒO‚ğƒXƒLƒbƒv‚·‚é
+ * \brief   ã‚¿ã‚°ã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹
  *
- * \param [in]  readHtml    “Ç‚İ‚ñ‚¾html
- * \param [in]  pos         ƒXƒLƒbƒvŠJnˆÊ’u
- * \param [in]  depth       ƒXƒLƒbƒvŠJnˆÊ’u‚©‚ç‚Ì‰ğÍ[“xB0‚Å‰ğÍ‚ğI—¹‚·‚éB
+ * \param [in]  readHtml    èª­ã¿è¾¼ã‚“ã html
+ * \param [in]  pos         ã‚¹ã‚­ãƒƒãƒ—é–‹å§‹ä½ç½®
+ * \param [in]  depth       ã‚¹ã‚­ãƒƒãƒ—é–‹å§‹ä½ç½®ã‹ã‚‰ã®è§£ææ·±åº¦ã€‚0ã§è§£æã‚’çµ‚äº†ã™ã‚‹ã€‚
  *
- * \return  ƒXƒLƒbƒvI—¹ˆÊ’uiƒXƒLƒbƒv‚µ‚½ÅŒã‚Ìƒ^ƒO‚Ì">"‚ÌˆÊ’uj
+ * \return  ã‚¹ã‚­ãƒƒãƒ—çµ‚äº†ä½ç½®ï¼ˆã‚¹ã‚­ãƒƒãƒ—ã—ãŸæœ€å¾Œã®ã‚¿ã‚°ã®">"ã®ä½ç½®ï¼‰
  */
 int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos, int32_t depth)
 {
@@ -116,7 +120,7 @@ int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos, i
 
         if (tag[0] == '/')
         {
-            // I—¹ƒ^ƒO‚È‚çƒ‹[ƒv‚ğ”²‚¯‚é
+            // çµ‚äº†ã‚¿ã‚°ãªã‚‰ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
             break;
         }
 
@@ -125,7 +129,7 @@ int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos, i
 
         if (depth == 0)
         {
-            // [“x0‚È‚çƒ‹[ƒv‚ğ”²‚¯‚é
+            // æ·±åº¦0ãªã‚‰ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
             break;
         }
 
@@ -136,12 +140,12 @@ int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos, i
 }
 
 /*!
- * \brief   ƒ^ƒO‚ğƒXƒLƒbƒv‚·‚é
+ * \brief   ã‚¿ã‚°ã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹
  *
- * \param [in]  readHtml    “Ç‚İ‚ñ‚¾html
- * \param [in]  pos         ƒXƒLƒbƒvŠJnˆÊ’u
+ * \param [in]  readHtml    èª­ã¿è¾¼ã‚“ã html
+ * \param [in]  pos         ã‚¹ã‚­ãƒƒãƒ—é–‹å§‹ä½ç½®
  *
- * \return  ƒXƒLƒbƒvI—¹ˆÊ’uiƒXƒLƒbƒv‚µ‚½ÅŒã‚Ìƒ^ƒO‚Ì">"‚ÌˆÊ’uj
+ * \return  ã‚¹ã‚­ãƒƒãƒ—çµ‚äº†ä½ç½®ï¼ˆã‚¹ã‚­ãƒƒãƒ—ã—ãŸæœ€å¾Œã®ã‚¿ã‚°ã®">"ã®ä½ç½®ï¼‰
  */
 int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos)
 {
@@ -149,17 +153,17 @@ int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos)
 }
 
 /*!
- * \brief   •Ï”‚ğ’l‚É’uŠ·‚·‚é
+ * \brief   å¤‰æ•°ã‚’å€¤ã«ç½®æ›ã™ã‚‹
  *
- * \param [in,out]  param   ¶¬Àsƒpƒ‰ƒ[ƒ^
- * \param [in]      var     •Ï”–¼
+ * \param [in,out]  param   ç”Ÿæˆå®Ÿè¡Œãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+ * \param [in]      var     å¤‰æ•°å
  *
- * \retval  true    ’uŠ·‚Å‚«‚½ê‡B“ª•¶š‚ª‘å•¶š‚Ìê‡‚Í’uŠ·‚Å‚«‚È‚­‚Ä‚àtrue‚ğ•Ô‚·B
- * \retval  false   ’uŠ·‚Å‚«‚È‚©‚Á‚½ê‡
+ * \retval  true    ç½®æ›ã§ããŸå ´åˆã€‚é ­æ–‡å­—ãŒå¤§æ–‡å­—ã®å ´åˆã¯ç½®æ›ã§ããªãã¦ã‚‚trueã‚’è¿”ã™ã€‚
+ * \retval  false   ç½®æ›ã§ããªã‹ã£ãŸå ´åˆ
  */
 bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
 {
-    // ƒfƒtƒHƒ‹ƒg’l‚ª‚ ‚ê‚Î“o˜^‚·‚é
+    // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ãŒã‚ã‚Œã°ç™»éŒ²ã™ã‚‹
     int32_t pos = var->indexOf(":");
 
     if (pos != -1)
@@ -174,16 +178,18 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
         return true;
     }
 
-    // •Ï”‚ğ’l‚É’uŠ·
+    // å¤‰æ•°ã‚’å€¤ã«ç½®æ›
     const VariableList* variableList = param->variableList;
 
     for (int32_t index = 0; index < 2; index++)
     {
-        for (auto variable : *variableList)
+        for (VariableList::const_iterator i = variableList->begin(); i != variableList->end(); i++)
         {
+            auto variable = *i;
+
             if (var->equals(variable->name))
             {
-                // •Ï”‚Ì’l‚ğappend‚·‚é
+                // å¤‰æ•°ã®å€¤ã‚’appendã™ã‚‹
                 mHtml.append(variable->value);
                 return true;
             }
@@ -195,12 +201,12 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
         variableList = &param->defaultVariableList;
     }
 
-    // •Ï”‚ğ’l‚É’uŠ·‚Å‚«‚È‚©‚Á‚½ê‡
+    // å¤‰æ•°ã‚’å€¤ã«ç½®æ›ã§ããªã‹ã£ãŸå ´åˆ
     char c = (*var)[0];
 
     if ('A' <= c && c <= 'Z')
     {
-        // “ª•¶š‚ª‘å•¶š‚È‚ç¬Œ÷‚Æ‚·‚é
+        // é ­æ–‡å­—ãŒå¤§æ–‡å­—ãªã‚‰æˆåŠŸã¨ã™ã‚‹
         return true;
     }
 
@@ -208,12 +214,12 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
 }
 
 /*!
- * \brief   ’uŠ·‚·‚é
+ * \brief   ç½®æ›ã™ã‚‹
  *
- * \param [in,out]  param   ¶¬Àsƒpƒ‰ƒ[ƒ^
- * \param [in]      var     •Ï”–¼
+ * \param [in,out]  param   ç”Ÿæˆå®Ÿè¡Œãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+ * \param [in]      var     å¤‰æ•°å
  *
- * \return  ‚È‚µ
+ * \return  ãªã—
  */
 void HtmlGenerator::replace(Param* param, const slog::CoreString* var)
 {
@@ -225,25 +231,25 @@ void HtmlGenerator::replace(Param* param, const slog::CoreString* var)
 
         if (param->isDefaultVariableList() == false)
         {
-            // "[sample]"”z‰º‚Ìƒ^ƒO‚ğ‘S‚ÄƒXƒLƒbƒv‚·‚é
+            // "[sample]"é…ä¸‹ã®ã‚¿ã‚°ã‚’å…¨ã¦ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹
             param->endPosition = skipTags(&param->buffer, param->endPosition + 1);
         }
     }
     else
     {
-        // •Ï”‚ğ’l‚É’uŠ·‚·‚é
+        // å¤‰æ•°ã‚’å€¤ã«ç½®æ›ã™ã‚‹
         param->replaceResult = replaceVariable(param, var);
     }
 }
 
 /*!
- * \brief   html‚ğ“Ç‚İ‚Ş
+ * \brief   htmlã‚’èª­ã¿è¾¼ã‚€
  *
- * \param [out] readHtml    ƒtƒ@ƒCƒ‹‚Ì“à—e‚ğ•Ô‚·
- * \param [in]  fileName    ƒtƒ@ƒCƒ‹–¼
+ * \param [out] readHtml    ãƒ•ã‚¡ã‚¤ãƒ«ã®å†…å®¹ã‚’è¿”ã™
+ * \param [in]  fileName    ãƒ•ã‚¡ã‚¤ãƒ«å
  *
- * \retval  true    “Ç‚İ‚İ‚É¬Œ÷‚µ‚½ê‡
- * \retval  false   “Ç‚İ‚İ‚É¸”s‚µ‚½ê‡
+ * \retval  true    èª­ã¿è¾¼ã¿ã«æˆåŠŸã—ãŸå ´åˆ
+ * \retval  false   èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ãŸå ´åˆ
  */
 bool HtmlGenerator::readHtml(slog::CoreString* readHtml, const slog::CoreString* fileName)
 {
@@ -267,13 +273,13 @@ bool HtmlGenerator::readHtml(slog::CoreString* readHtml, const slog::CoreString*
 }
 
 /*!
- * \brief   html¶¬‚ğÀs‚·‚é
+ * \brief   htmlç”Ÿæˆã‚’å®Ÿè¡Œã™ã‚‹
  *
- * \param [in]  fileName        ƒtƒ@ƒCƒ‹–¼
- * \param [in]  variableList    •Ï”ƒŠƒXƒg
+ * \param [in]  fileName        ãƒ•ã‚¡ã‚¤ãƒ«å
+ * \param [in]  variableList    å¤‰æ•°ãƒªã‚¹ãƒˆ
  *
- * \retval  true    ¶¬‚É¬Œ÷‚µ‚½ê‡
- * \retval  false   ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚½ê‡
+ * \retval  true    ç”Ÿæˆã«æˆåŠŸã—ãŸå ´åˆ
+ * \retval  false   ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ãŸå ´åˆ
  */
 bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList* variableList)
 {
@@ -281,14 +287,14 @@ bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList
 }
 
 /*!
- * \brief   html¶¬‚ğÀs‚·‚é
+ * \brief   htmlç”Ÿæˆã‚’å®Ÿè¡Œã™ã‚‹
  *
- * \param [in]  fileName        ƒtƒ@ƒCƒ‹–¼
- * \param [in]  variableList    •Ï”ƒŠƒXƒg
- * \param [in]  depth           ƒCƒ“ƒNƒ‹[ƒh[“x
+ * \param [in]  fileName        ãƒ•ã‚¡ã‚¤ãƒ«å
+ * \param [in]  variableList    å¤‰æ•°ãƒªã‚¹ãƒˆ
+ * \param [in]  depth           ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰æ·±åº¦
  *
- * \retval  true    ¶¬‚É¬Œ÷‚µ‚½ê‡
- * \retval  false   ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚½ê‡
+ * \retval  true    ç”Ÿæˆã«æˆåŠŸã—ãŸå ´åˆ
+ * \retval  false   ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ãŸå ´åˆ
  */
 bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList* variableList, int32_t depth)
 {
@@ -322,17 +328,17 @@ bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList
 
         if (pos == -1)
         {
-            // c‚è‚ğ‘S‚Äappend‚µƒ‹[ƒv‚ğ”²‚¯‚é
+            // æ®‹ã‚Šã‚’å…¨ã¦appendã—ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
             mHtml.append(param.buffer.getBuffer() + index);
             break;
         }
 
-        // "@"‚Ü‚Å‚Ìhtml‚ğappend‚·‚é
+        // "@"ã¾ã§ã®htmlã‚’appendã™ã‚‹
         mHtml.append(param.buffer.getBuffer() + index, pos - index);
 
         if (param.buffer[pos + 1] == '@')
         {
-            // "@@"‚ğ"@"‚Æ‚µ‚Äappend‚·‚é
+            // "@@"ã‚’"@"ã¨ã—ã¦appendã™ã‚‹
             mHtml.append("@");
             param.endPosition = pos + 1;
         }
@@ -345,7 +351,7 @@ bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList
             {
                 if (param.buffer.indexOf("include ", pos + 1) != -1)
                 {
-                    // ‘¼‚Ìƒtƒ@ƒCƒ‹‚ğƒCƒ“ƒNƒ‹[ƒh‚·‚é
+                    // ä»–ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ã™ã‚‹
                     int32_t startPos = pos + 1 + sizeof("include ") - 1;
                     String include(param.buffer.getBuffer() + startPos, param.endPosition - startPos);
 
@@ -372,7 +378,7 @@ bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList
 
             if (param.replaceResult == false)
             {
-                // ƒCƒ“ƒNƒ‹[ƒhA‚Ü‚½‚Í•Ï”‚Ì’uŠ·‚É¸”s‚µ‚½‚Ì‚Å‚»‚Ì‚Ü‚Üappend‚·‚é
+                // ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ã€ã¾ãŸã¯å¤‰æ•°ã®ç½®æ›ã«å¤±æ•—ã—ãŸã®ã§ãã®ã¾ã¾appendã™ã‚‹
                 mHtml.append(param.buffer.getBuffer() + pos, (param.endPosition + 1) - pos);
             }
         }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   WebServerResponseThread.h
- *  \brief  WEBƒT[ƒo[‰“šƒXƒŒƒbƒhƒNƒ‰ƒX
+ *  \brief  WEBã‚µãƒ¼ãƒãƒ¼å¿œç­”ã‚¹ãƒ¬ãƒƒãƒ‰ã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
@@ -33,48 +33,48 @@ class Socket;
 class Buffer;
 
 /*!
- *  \brief  WEBƒT[ƒo[‰“šƒXƒŒƒbƒhƒNƒ‰ƒX
+ *  \brief  WEBã‚µãƒ¼ãƒãƒ¼å¿œç­”ã‚¹ãƒ¬ãƒƒãƒ‰ã‚¯ãƒ©ã‚¹
  */
 class SLOG_API WebServerResponseThread : public Thread
 {
 protected:  HttpRequest*        mHttpRequest;
             slog::VariableList  mVariables;
 
-            // ƒRƒ“ƒXƒgƒ‰ƒNƒ^ / ƒfƒXƒgƒ‰ƒNƒ^
+            // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ / ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 public:     WebServerResponseThread(HttpRequest* httpRequest);
             virtual ~WebServerResponseThread();
 
-            // ƒhƒƒCƒ“æ“¾
+            // ãƒ‰ãƒ¡ã‚¤ãƒ³å–å¾—
 private:    virtual const char* getDomain() const {return nullptr;}
 
-            // ƒ‹[ƒgƒfƒBƒŒƒNƒgƒŠæ“¾
+            // ãƒ«ãƒ¼ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå–å¾—
             virtual const char* getRootDir() const {return nullptr;}
 
-            // •Ï”‰Šú‰»
+            // å¤‰æ•°åˆæœŸåŒ–
 protected:  virtual void initVariables() {}
 
-            // ƒtƒ@ƒCƒ‹ƒpƒXæ“¾
+            // ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹å–å¾—
             void getFilePath(slog::CoreString* path, const slog::CoreString* url) const;
 
-            // ‘—M
+            // é€ä¿¡
             void send(const Buffer* content) const;
 
-            // ƒoƒCƒiƒŠ‘—M
+            // ãƒã‚¤ãƒŠãƒªé€ä¿¡
             void sendBinary(const slog::CoreString* path) const;
 
-            // HTTPƒwƒbƒ_[‘—Mi•Ø’fj
+            // HTTPãƒ˜ãƒƒãƒ€ãƒ¼é€ä¿¡ï¼ˆï¼†åˆ‡æ–­ï¼‰
             void sendHttpHeader(int32_t contentLen) const;
 
-            // ‰“š“à—e‘—M•Ø’f
+            // å¿œç­”å†…å®¹é€ä¿¡ï¼†åˆ‡æ–­
             void sendContent(const Buffer* content) const;
 
-            // Às
-            virtual void run() override;
+            // å®Ÿè¡Œ
+            virtual void run();
 
-            // WebSocket‚ÉƒAƒbƒvƒOƒŒ[ƒh
+            // WebSocketã«ã‚¢ãƒƒãƒ—ã‚°ãƒ¬ãƒ¼ãƒ‰
 protected:  bool upgradeWebSocket();
 
-            // WebSocketƒwƒbƒ_[‘—M
+            // WebSocketãƒ˜ãƒƒãƒ€ãƒ¼é€ä¿¡
             void sendWebSocketHeader(uint64_t payloadLen, bool isText = true, bool toClient = true) const;
 };
 

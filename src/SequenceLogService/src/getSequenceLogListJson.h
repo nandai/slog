@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   getSequenceLogListJson.h
- *  \brief  ƒV[ƒPƒ“ƒXƒƒOƒŠƒXƒgiJSONjæ“¾
+ *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ãƒªã‚¹ãƒˆï¼ˆJSONï¼‰å–å¾—
  *  \author Copyright 2013 printf.jp
  */
 #pragma once

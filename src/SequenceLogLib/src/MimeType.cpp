@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   MimeType.cpp
- *  \brief  mime-typeƒNƒ‰ƒX
+ *  \brief  mime-typeã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/MimeType.h"
@@ -50,11 +50,19 @@ static const mimeArray[] =
 };
 
 /*!
- * \brief   mime-type‚ğ‰ğÍ‚·‚é
+ * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+ */
+MimeType::MimeType()
+{
+    type = Type::TEXT;
+}
+
+/*!
+ * \brief   mime-typeã‚’è§£æã™ã‚‹
  *
- * \param[in]   path    ƒpƒX
+ * \param[in]   path    ãƒ‘ã‚¹
  *
- * \return  ‚È‚µ
+ * \return  ãªã—
  */
 void MimeType::analize(const CoreString* path)
 {
@@ -89,7 +97,7 @@ void MimeType::analize(const CoreString* path)
 }
 
 /*!
- * mime-typei•¶š—ñj‚ğİ’è‚·‚é
+ * mime-typeï¼ˆæ–‡å­—åˆ—ï¼‰ã‚’è¨­å®šã™ã‚‹
  */
 void MimeType::setText(const char* text)
 {

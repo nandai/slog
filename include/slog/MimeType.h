@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   MimeType.h
- *  \brief  mime-typeƒNƒ‰ƒX
+ *  \brief  mime-typeã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
@@ -26,7 +26,7 @@ namespace slog
 {
 
 /*!
- *  \brief  mime-typeƒNƒ‰ƒX
+ *  \brief  mime-typeã‚¯ãƒ©ã‚¹
  */
 class SLOG_API MimeType
 {
@@ -45,27 +45,32 @@ public:     enum class Type : int32_t
             };
 
             /*!
-             * ƒoƒCƒiƒŠƒf[ƒ^‚©‚Ç‚¤‚©
+             * ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿ã‹ã©ã†ã‹
              */
 public:     bool binary;
 
             /*!
-             * mime-typei”’lj
+             * mime-typeï¼ˆæ•°å€¤ï¼‰
              */
-            Type type = Type::TEXT;
+            Type type;
 
             /*!
-             * mime-typei•¶š—ñj
+             * mime-typeï¼ˆæ–‡å­—åˆ—ï¼‰
              */
             String text;
 
             /*!
-             * mime-type‚ğ‰ğÍ‚·‚é
+             * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
              */
-public:     void analize(const CoreString* url);
+public:     MimeType();
 
             /*!
-             * mime-typei•¶š—ñj‚ğİ’è‚·‚é
+             * mime-typeã‚’è§£æã™ã‚‹
+             */
+            void analize(const CoreString* url);
+
+            /*!
+             * mime-typeï¼ˆæ–‡å­—åˆ—ï¼‰ã‚’è¨­å®šã™ã‚‹
              */
             void setText(const char* text);
 };

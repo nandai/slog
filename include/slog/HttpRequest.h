@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   HttpRequest.h
- *  \brief  httpƒŠƒNƒGƒXƒgƒNƒ‰ƒX
+ *  \brief  httpãƒªã‚¯ã‚¨ã‚¹ãƒˆã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
@@ -34,7 +34,7 @@ class Socket;
 class ByteBuffer;
 
 /*!
- *  \brief  httpƒŠƒNƒGƒXƒgƒNƒ‰ƒX
+ *  \brief  httpãƒªã‚¯ã‚¨ã‚¹ãƒˆã‚¯ãƒ©ã‚¹
  */
 class SLOG_API HttpRequest
 {
@@ -47,11 +47,11 @@ public:     enum METHOD
 
 private:    Socket*                     mSocket;
             uint16_t                    mPort;
-            METHOD                      mMethod;        // —v‹ƒƒ\ƒbƒh
-            String                      mUrl;           // —v‹URL
+            METHOD                      mMethod;        // è¦æ±‚ãƒ¡ã‚½ãƒƒãƒ‰
+            String                      mUrl;           // è¦æ±‚URL
             MimeType                    mMimeType;      // mime-type
-            std::map<String, String>    mParams;        // ƒpƒ‰ƒ[ƒ^
-            bool                        mAjax;          // Ajax‚©‚Ç‚¤‚©
+            std::map<String, String>    mParams;        // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+            bool                        mAjax;          // Ajaxã‹ã©ã†ã‹
             String                      mWebSocketKey;  // Sec-WebSocket-Key
 
 public:      HttpRequest(Socket* socket, uint16_t port);

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   SequenceLogService.h
- *  \brief  ƒV[ƒPƒ“ƒXƒƒOƒT[ƒrƒXƒNƒ‰ƒX
+ *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ã‚µãƒ¼ãƒ“ã‚¹ã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
@@ -27,18 +27,18 @@
 namespace slog
 {
 /*!
- *  \brief  ‹¤—Lƒtƒ@ƒCƒ‹ƒRƒ“ƒeƒiƒNƒ‰ƒX
+ *  \brief  å…±æœ‰ãƒ•ã‚¡ã‚¤ãƒ«ã‚³ãƒ³ãƒ†ãƒŠã‚¯ãƒ©ã‚¹
  */
 class SharedFileContainer
 {
-            File                    mFile;                      //!< ‹¤—Lƒtƒ@ƒCƒ‹
-            FixedString<MAX_PATH>   mBaseFileName;              //!< ƒx[ƒXƒtƒ@ƒCƒ‹–¼
-            FileInfo*               mFileInfo;                  //!< ƒV[ƒPƒ“ƒXƒƒOƒtƒ@ƒCƒ‹î•ñ
-            Mutex                   mMutex;                     //!< ƒ~ƒ…[ƒeƒbƒNƒX
-            int32_t                 mReferenceCount;            //!< QÆƒJƒEƒ“ƒg
+            File                    mFile;                      //!< å…±æœ‰ãƒ•ã‚¡ã‚¤ãƒ«
+            FixedString<MAX_PATH>   mBaseFileName;              //!< ãƒ™ãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«å
+            FileInfo*               mFileInfo;                  //!< ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«æƒ…å ±
+            Mutex                   mMutex;                     //!< ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹
+            int32_t                 mReferenceCount;            //!< å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆ
 
             /*!
-             * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+             * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
              */
 public:     SharedFileContainer()
             {
@@ -47,28 +47,28 @@ public:     SharedFileContainer()
             }
 
             /*!
-             * ‹¤—Lƒtƒ@ƒCƒ‹
+             * å…±æœ‰ãƒ•ã‚¡ã‚¤ãƒ«
              */
             File* getFile() const {return (File*)&mFile;}
 
             /*!
-             * ƒx[ƒXƒtƒ@ƒCƒ‹–¼
+             * ãƒ™ãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«å
              */
             CoreString* getBaseFileName() const {return (CoreString*)&mBaseFileName;}
 
             /*!
-             * ƒV[ƒPƒ“ƒXƒƒOƒtƒ@ƒCƒ‹î•ñ
+             * ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«æƒ…å ±
              */
             FileInfo* getFileInfo() const {return (FileInfo*)mFileInfo;}
             void setFileInfo(FileInfo* fileInfo) {mFileInfo = fileInfo;}
 
             /*!
-             * ƒ~ƒ…[ƒeƒbƒNƒX
+             * ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹
              */
             Mutex* getMutex() const {return (Mutex*)&mMutex;}
 
             /*!
-             * QÆƒJƒEƒ“ƒg
+             * å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆ
              */
             void addReference() {mReferenceCount++;}
             bool removeReference()

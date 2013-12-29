@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   GetLogResponse.h
- *  \brief  æ“¾ƒƒO‘—MƒNƒ‰ƒX
+ *  \brief  å–å¾—ãƒ­ã‚°é€ä¿¡ã‚¯ãƒ©ã‚¹
  *  \author Copyright 2013 printf.jp
  */
 #pragma once
@@ -28,7 +28,7 @@ namespace slog
 {
 
 /*!
- *  \brief  æ“¾ƒƒO‘—MƒNƒ‰ƒX
+ *  \brief  å–å¾—ãƒ­ã‚°é€ä¿¡ã‚¯ãƒ©ã‚¹
  */
 class GetLogResponse :
     public WebServerResponseThread,
@@ -37,7 +37,7 @@ class GetLogResponse :
 public:     GetLogResponse(HttpRequest* httpRequest) : WebServerResponseThread(httpRequest) {}
             virtual~GetLogResponse();
 
-private:    virtual void run() override;
+private:    virtual void run();
 
 public:     virtual void onInitialized(   Thread* thread) {}
             virtual void onTerminated(    Thread* thread);

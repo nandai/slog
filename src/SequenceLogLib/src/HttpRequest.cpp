@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   HttpRequest.cpp
- *  \brief  httpƒŠƒNƒGƒXƒgƒNƒ‰ƒX
+ *  \brief  httpãƒªã‚¯ã‚¨ã‚¹ãƒˆã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/HttpRequest.h"
@@ -36,7 +36,7 @@ namespace slog
 {
 
 /*!
- *  \brief  16i”•¶š—ñ‚ğ”’l‚É•ÏŠ·
+ *  \brief  16é€²æ•°æ–‡å­—åˆ—ã‚’æ•°å€¤ã«å¤‰æ›
  */
 template <class T>
 inline const char* _hexToValue(const char* hex, T* value)
@@ -69,7 +69,7 @@ inline const char* _hexToValue(const char* hex, T* value)
 }
 
 /*!
- *  \brief  16i”•¶š—ñ‚ğcharŒ^‚Ì”’l‚É•ÏŠ·
+ *  \brief  16é€²æ•°æ–‡å­—åˆ—ã‚’charå‹ã®æ•°å€¤ã«å¤‰æ›
  */
 static const char* hexToValue(const char* hex, char* value)
 {
@@ -77,7 +77,7 @@ static const char* hexToValue(const char* hex, char* value)
 }
 
 /*!
- *  \brief  ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+ *  \brief  ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 HttpRequest::HttpRequest(Socket* socket, uint16_t port)
 {
@@ -88,7 +88,7 @@ HttpRequest::HttpRequest(Socket* socket, uint16_t port)
 }
 
 /*!
- *  \brief  ƒfƒXƒgƒ‰ƒNƒ^
+ *  \brief  ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 HttpRequest::~HttpRequest()
 {
@@ -96,7 +96,7 @@ HttpRequest::~HttpRequest()
 }
 
 /*!
- *  \brief  —v‹‰ğÍ
+ *  \brief  è¦æ±‚è§£æ
  */
 bool HttpRequest::analizeRequest()
 {
@@ -104,7 +104,7 @@ bool HttpRequest::analizeRequest()
 
     while (true)
     {
-        // óM
+        // å—ä¿¡
         String str;
         mSocket->recv(&str);
 
@@ -113,7 +113,7 @@ bool HttpRequest::analizeRequest()
 
         if (i == 0)
         {
-            // ‹ós‚¾‚Á‚½‚çƒ‹[ƒv‚ğ”²‚¯‚é
+            // ç©ºè¡Œã ã£ãŸã‚‰ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
             if (mMethod == POST && 0 < contentLen)
             {
                 ByteBuffer params(contentLen);
@@ -129,7 +129,7 @@ bool HttpRequest::analizeRequest()
         {
             if (mMethod == UNKNOWN)
             {
-                // URLæ“¾
+                // URLå–å¾—
                 if (analizeUrl(request, i, GET)  == -1)
                     return false;
 
@@ -194,7 +194,7 @@ bool HttpRequest::analizeRequest()
 }
 
 /*!
- *  \brief  URL‰ğÍ
+ *  \brief  URLè§£æ
  */
 int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 {
@@ -235,7 +235,7 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
             }
         }
 
-        p1++;   // '/'‚ğƒXƒLƒbƒv
+        p1++;   // '/'ã‚’ã‚¹ã‚­ãƒƒãƒ—
 
         decode(&mUrl, (char*)p1, p2);
         mMethod = method;
@@ -246,7 +246,7 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 }
 
 /*!
- *  \brief  ƒpƒ‰ƒ[ƒ^‰ğÍ
+ *  \brief  ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿è§£æ
  */
 void HttpRequest::analizeParams(const char* buffer, int32_t len)
 {
@@ -255,7 +255,7 @@ void HttpRequest::analizeParams(const char* buffer, int32_t len)
 
     while (end == false)
     {
-        // ˆê‘Î‚Ìƒpƒ‰ƒ[ƒ^‚ğæ‚èo‚·
+        // ä¸€å¯¾ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’å–ã‚Šå‡ºã™
         const char* p2 = strchr(p1, '&');
 
         if (p2 == nullptr)
@@ -264,20 +264,20 @@ void HttpRequest::analizeParams(const char* buffer, int32_t len)
             end = true;
         }
 
-        // ƒpƒ‰ƒ[ƒ^–¼‚Æ’l‚É•ª‚¯‚é
+        // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿åã¨å€¤ã«åˆ†ã‘ã‚‹
         const char* p3 = strchr(p1, '=');
 
         if (p3 == nullptr)
             break;
 
-        // ƒpƒ‰ƒ[ƒ^‚©‚çƒL[‚ğæ“¾
+        // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‹ã‚‰ã‚­ãƒ¼ã‚’å–å¾—
         String key(p1, (int32_t)(p3 - p1));
 
-        // ƒpƒ‰ƒ[ƒ^‚©‚ç’l‚ğæ“¾
+        // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‹ã‚‰å€¤ã‚’å–å¾—
         String  value;
         decode(&value, (char*)p3 + 1, p2);
 
-        // ƒpƒ‰ƒ[ƒ^ƒŠƒXƒg‚É’Ç‰Á
+        // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒªã‚¹ãƒˆã«è¿½åŠ 
         mParams.insert(pair<String, String>(key, value));
 
         p1 = p2 + 1;
@@ -285,7 +285,7 @@ void HttpRequest::analizeParams(const char* buffer, int32_t len)
 }
 
 /*!
- * ƒp[ƒZƒ“ƒgƒfƒR[ƒh
+ * ãƒ‘ãƒ¼ã‚»ãƒ³ãƒˆãƒ‡ã‚³ãƒ¼ãƒ‰
  */
 void HttpRequest::decode(slog::CoreString* str, char* start, const char* end)
 {
@@ -321,7 +321,7 @@ void HttpRequest::decode(slog::CoreString* str, char* start, const char* end)
 }
 
 /*!
- *  \brief  ƒ\ƒPƒbƒgæ“¾
+ *  \brief  ã‚½ã‚±ãƒƒãƒˆå–å¾—
  */
 Socket* HttpRequest::getSocket() const
 {
@@ -329,7 +329,7 @@ Socket* HttpRequest::getSocket() const
 }
 
 /*!
- *  \brief  ƒ|[ƒgæ“¾
+ *  \brief  ãƒãƒ¼ãƒˆå–å¾—
  */
 uint16_t HttpRequest::getPort() const
 {
@@ -337,7 +337,7 @@ uint16_t HttpRequest::getPort() const
 }
 
 /*!
- *  \brief  HTTPƒƒ\ƒbƒhæ“¾
+ *  \brief  HTTPãƒ¡ã‚½ãƒƒãƒ‰å–å¾—
  */
 HttpRequest::METHOD HttpRequest::getMethod() const
 {
@@ -345,7 +345,7 @@ HttpRequest::METHOD HttpRequest::getMethod() const
 }
 
 /*!
- *  \brief  URLæ“¾
+ *  \brief  URLå–å¾—
  */
 const CoreString& HttpRequest::getUrl() const
 {
@@ -353,7 +353,7 @@ const CoreString& HttpRequest::getUrl() const
 }
 
 /*!
- *  \brief  URLİ’è
+ *  \brief  URLè¨­å®š
  */
 void HttpRequest::setUrl(const char* url)
 {
@@ -364,7 +364,7 @@ void HttpRequest::setUrl(const char* url)
 }
 
 /*!
- *  \brief  mime-typeæ“¾
+ *  \brief  mime-typeå–å¾—
  */
 const MimeType* HttpRequest::getMimeType()
 {
@@ -372,7 +372,7 @@ const MimeType* HttpRequest::getMimeType()
 }
 
 /*!
- *  \brief  POSTƒpƒ‰ƒ[ƒ^æ“¾
+ *  \brief  POSTãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿å–å¾—
  */
 const CoreString* HttpRequest::getParam(const char* name, CoreString* param)
 {
@@ -381,7 +381,7 @@ const CoreString* HttpRequest::getParam(const char* name, CoreString* param)
 }
 
 /*!
- *  \brief  Ajax‚©‚Ç‚¤‚©’²‚×‚é
+ *  \brief  Ajaxã‹ã©ã†ã‹èª¿ã¹ã‚‹
  */
 bool HttpRequest::isAjax() const
 {
@@ -389,7 +389,7 @@ bool HttpRequest::isAjax() const
 }
 
 /*!
- *  \brief  Sec-WebSocket-Keyæ“¾
+ *  \brief  Sec-WebSocket-Keyå–å¾—
  */
 const CoreString* HttpRequest::getWebSocketKey() const
 {

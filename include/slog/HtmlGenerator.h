@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   HtmlGenerator.h
- *  \brief  html¶¬ƒNƒ‰ƒX
+ *  \brief  htmlç”Ÿæˆã‚¯ãƒ©ã‚¹
  *  \author Copyright 2013 printf.jp
  */
 #pragma once
@@ -28,22 +28,22 @@ namespace slog
 {
 
 /*!
- * \brief  •Ï”ƒNƒ‰ƒX
+ * \brief  å¤‰æ•°ã‚¯ãƒ©ã‚¹
  */
 class SLOG_API Variable
 {
             /*!
-             * •Ï”–¼
+             * å¤‰æ•°å
              */
 public:     slog::String name;
 
             /*!
-             * ’l
+             * å€¤
              */
             slog::String value;
 
             /*!
-             * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+             * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
              */
 public:     Variable(const char* name, const char* value)
             {
@@ -53,64 +53,64 @@ public:     Variable(const char* name, const char* value)
 };
 
 /*!
- * \brief  •Ï”ƒŠƒXƒg
+ * \brief  å¤‰æ•°ãƒªã‚¹ãƒˆ
  */
 typedef std::list<Variable*> VariableList;
 
 /*!
- * \brief  html¶¬ƒNƒ‰ƒX
+ * \brief  htmlç”Ÿæˆã‚¯ãƒ©ã‚¹
  */
 class SLOG_API HtmlGenerator
 {
             class Param;
 
             /*!
-             * ¶¬‚µ‚½html
+             * ç”Ÿæˆã—ãŸhtml
              */
             slog::String mHtml;
 
             /*!
-             * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+             * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
              */
 public:     HtmlGenerator() {}
 
             /*!
-             * ƒ^ƒO‚ğƒXƒLƒbƒv‚·‚é
+             * ã‚¿ã‚°ã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹
              */
 private:    int32_t skipTags(const slog::CoreString* readHtml, int32_t pos, int32_t depth);
 
             /*!
-             * ƒ^ƒO‚ğƒXƒLƒbƒv‚·‚é
+             * ã‚¿ã‚°ã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹
              */
             int32_t skipTags(const slog::CoreString* readHtml, int32_t pos);
 
             /*!
-             * •Ï”‚ğ’l‚É’uŠ·‚·‚é
+             * å¤‰æ•°ã‚’å€¤ã«ç½®æ›ã™ã‚‹
              */
             bool replaceVariable(Param* param, const slog::CoreString* var);
 
             /*!
-             * ’uŠ·‚·‚é
+             * ç½®æ›ã™ã‚‹
              */
             void replace(Param* param, const slog::CoreString* var);
 
             /*!
-             * html‚ğ“Ç‚İ‚Ş
+             * htmlã‚’èª­ã¿è¾¼ã‚€
              */
 public:     static bool readHtml(slog::CoreString* readHtml, const slog::CoreString* fileName);
 
             /*!
-             * html¶¬‚ğÀs‚·‚é
+             * htmlç”Ÿæˆã‚’å®Ÿè¡Œã™ã‚‹
              */
 public:     bool execute(const slog::CoreString* fileName, const VariableList* variableList);
 
             /*!
-             * html¶¬‚ğÀs‚·‚é
+             * htmlç”Ÿæˆã‚’å®Ÿè¡Œã™ã‚‹
              */
 private:    bool execute(const slog::CoreString* fileName, const VariableList* variableList, int32_t depth);
 
             /*!
-             * html‚ğæ“¾‚·‚é
+             * htmlã‚’å–å¾—ã™ã‚‹
              */
 public:    const slog::CoreString* getHtml() const {return &mHtml;}
 };

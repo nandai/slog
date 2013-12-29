@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   getSequenceLogListJson.cpp
- *  \brief  ƒV[ƒPƒ“ƒXƒƒOƒŠƒXƒgiJSONjæ“¾
+ *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ãƒªã‚¹ãƒˆï¼ˆJSONï¼‰å–å¾—
  *  \author Copyright 2013 printf.jp
  */
 #include "getSequenceLogListJson.h"
@@ -38,19 +38,19 @@ namespace slog
 {
 
 /*!
- *  \brief  ƒV[ƒPƒ“ƒXƒƒOƒŠƒXƒgJSONì¬
+ *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ãƒªã‚¹ãƒˆJSONä½œæˆ
  */
 static void createSequenceLogListJson(Json* json, FileInfo* info)
 {
     DateTime dateTime;
 
-    // ƒƒOƒtƒ@ƒCƒ‹–¼
+    // ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«å
     const CoreString& strCanonicalPath = info->getCanonicalPath();
 
-    // ŠJn“ú
+    // é–‹å§‹æ—¥æ™‚
     String strCreationTime = "Unknown";
 
-#if 0 // linux‚Å‚Íì¬“ú‚ªæ“¾‚Å‚«‚È‚¢‚Ì‚ÅAƒtƒ@ƒCƒ‹–¼‚ÉŠÜ‚ß‚½“ú‚ğg‚¤‚æ‚¤‚É•ÏX
+#if 0 // linuxã§ã¯ä½œæˆæ—¥ãŒå–å¾—ã§ããªã„ã®ã§ã€ãƒ•ã‚¡ã‚¤ãƒ«åã«å«ã‚ãŸæ—¥æ™‚ã‚’ä½¿ã†ã‚ˆã†ã«å¤‰æ›´
     dateTime = info->getCreationTime();
 
     if (dateTime.getValue())
@@ -84,7 +84,7 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
     }
 #endif
 
-    // I—¹“ú
+    // çµ‚äº†æ—¥æ™‚
     String strLastWriteTime;
     dateTime = info->getLastWriteTime();
 
@@ -94,10 +94,10 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
         DateTimeFormat::toString(&strLastWriteTime, dateTime, DateTimeFormat::Format::YYYYMMDDHHMISS);
     }
 
-    // ƒƒOƒtƒ@ƒCƒ‹–¼
+    // ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«å
 //  const CoreString& strCanonicalPath = info->getCanonicalPath();
 
-    // ƒTƒCƒY
+    // ã‚µã‚¤ã‚º
     String strSize;
     const CoreString& message = info->getMessage();
 
@@ -122,7 +122,7 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
         }
     }
 
-    // JSONì¬
+    // JSONä½œæˆ
     json->add("creationTime",  strCreationTime);
     json->add("lastWriteTime", strLastWriteTime);
     json->add("canonicalPath", strCanonicalPath);
@@ -130,7 +130,7 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
 }
 
 /*!
- *  \brief  ƒV[ƒPƒ“ƒXƒƒOƒŠƒXƒgiJSONjæ“¾
+ *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ãƒªã‚¹ãƒˆï¼ˆJSONï¼‰å–å¾—
  */
 void getSequenceLogListJson(String* content)
 {

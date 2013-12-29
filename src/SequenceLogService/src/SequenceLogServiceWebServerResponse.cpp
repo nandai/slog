@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   SequenceLogServiceWebServerResponse.cpp
- *  \brief  ƒV[ƒPƒ“ƒXƒƒOƒT[ƒrƒXWEBƒT[ƒo[‰“šƒNƒ‰ƒX
+ *  \brief  ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãƒ­ã‚°ã‚µãƒ¼ãƒ“ã‚¹WEBã‚µãƒ¼ãƒãƒ¼å¿œç­”ã‚¯ãƒ©ã‚¹
  *  \author Copyright 2013 printf.jp
  */
 #include "SequenceLogServiceWebServerResponse.h"
@@ -25,7 +25,7 @@ namespace slog
 {
 
 /*!
- *  \brief  ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+ *  \brief  ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 SequenceLogServiceWebServerResponse::SequenceLogServiceWebServerResponse(HttpRequest* httpRequest) :
     WebServerResponseThread(httpRequest)
@@ -33,7 +33,7 @@ SequenceLogServiceWebServerResponse::SequenceLogServiceWebServerResponse(HttpReq
 }
 
 /*!
- *  \brief  ƒhƒƒCƒ“æ“¾
+ *  \brief  ãƒ‰ãƒ¡ã‚¤ãƒ³å–å¾—
  */
 const char* SequenceLogServiceWebServerResponse::getDomain() const
 {
@@ -42,7 +42,7 @@ const char* SequenceLogServiceWebServerResponse::getDomain() const
 }
 
 /*!
- *  \brief  ƒ‹[ƒgƒfƒBƒŒƒNƒgƒŠæ“¾
+ *  \brief  ãƒ«ãƒ¼ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå–å¾—
  */
 const char* SequenceLogServiceWebServerResponse::getRootDir() const
 {
@@ -56,7 +56,7 @@ const char* SequenceLogServiceWebServerResponse::getRootDir() const
 }
 
 /*!
- * \brief  •Ï”‰Šú‰»
+ * \brief  å¤‰æ•°åˆæœŸåŒ–
  */
 void SequenceLogServiceWebServerResponse::initVariables()
 {

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   Dir.h
- *  \brief  ƒfƒBƒŒƒNƒgƒŠƒNƒ‰ƒX
+ *  \brief  ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
@@ -27,27 +27,27 @@ namespace slog
 class CoreString;
 
 /*!
- *  \brief  ƒfƒBƒŒƒNƒgƒŠƒNƒ‰ƒX
+ *  \brief  ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚¯ãƒ©ã‚¹
  */
 class SLOG_API Dir
 {
             /*!
-             * ƒfƒBƒŒƒNƒgƒŠì¬
+             * ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªä½œæˆ
              */
 public:     static bool create(const CoreString* aDirName);
 
             /*!
-             * ƒfƒBƒŒƒNƒgƒŠíœ
+             * ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå‰Šé™¤
              */
             static bool remove(const CoreString* aDirName);
 
             /*!
-             * ƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠæ“¾
+             * ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå–å¾—
              */
             static void getCurrent(CoreString* aDirName);
 
             /*!
-             * ƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠİ’è
+             * ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¨­å®š
              */
             static bool setCurrent(const CoreString* aDirName);
 };

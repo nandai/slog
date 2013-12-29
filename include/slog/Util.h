@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2011-2013 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   Util.h
- *  \brief  ƒ†[ƒeƒBƒŠƒeƒBƒNƒ‰ƒX
+ *  \brief  ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£ã‚¯ãƒ©ã‚¹
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
@@ -27,7 +27,7 @@ namespace slog
 class String;
 
 /*!
- *  \brief  ƒ†[ƒeƒBƒŠƒeƒBƒNƒ‰ƒX
+ *  \brief  ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£ã‚¯ãƒ©ã‚¹
  */
 class SLOG_API Util
 {
@@ -37,12 +37,12 @@ public:     static void getProcessPath(String* path);
 
 #if defined(_WINDOWS)
             /*!
-             * Unicode‚ğUTF-8‚É•ÏŠ·
+             * Unicodeã‚’UTF-8ã«å¤‰æ›
              */
             static int32_t toUTF8(char* utf8, int32_t size, const wchar_t* unicode);
 
             /*!
-             * UTF-8‚ğUnicode‚É•ÏŠ·
+             * UTF-8ã‚’Unicodeã«å¤‰æ›
              */
             static int32_t toUnicode(wchar_t* unicode, int32_t size, const char* utf8);
 #endif
