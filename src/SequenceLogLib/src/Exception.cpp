@@ -95,6 +95,8 @@ void Exception::setMessage(const char* format, ...)
 
     if (len == -1)
         mMessage[capacity] = '\0';
+
+    noticeLog("%s", mMessage);
 }
 
 }

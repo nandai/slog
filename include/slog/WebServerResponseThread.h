@@ -20,7 +20,9 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
+
 #include "slog/Thread.h"
+#include "slog/HtmlGenerator.h"
 
 namespace slog
 {
@@ -35,7 +37,8 @@ class Buffer;
  */
 class SLOG_API WebServerResponseThread : public Thread
 {
-protected:  HttpRequest*    mHttpRequest;
+protected:  HttpRequest*        mHttpRequest;
+            slog::VariableList  mVariables;
 
             // コンストラクタ / デストラクタ
 public:     WebServerResponseThread(HttpRequest* httpRequest);
@@ -47,8 +50,17 @@ private:    virtual const char* getDomain() const {return nullptr;}
             // ルートディレクトリ取得
             virtual const char* getRootDir() const {return nullptr;}
 
+            // 変数初期化
+protected:  virtual void initVariables() {}
+
+            // ファイルパス取得
+            void getFilePath(slog::CoreString* path, const slog::CoreString* url) const;
+
             // 送信
-protected:  void send(const Buffer* content) const;
+            void send(const Buffer* content) const;
+
+            // バイナリ送信
+            void sendBinary(const slog::CoreString* path) const;
 
             // HTTPヘッダー送信（＆切断）
             void sendHttpHeader(int32_t contentLen) const;
@@ -57,10 +69,7 @@ protected:  void send(const Buffer* content) const;
             void sendContent(const Buffer* content) const;
 
             // 実行
-            virtual void run();
-
-            // コンテンツ取得
-protected:  bool getContents(String* content, const char* url);
+            virtual void run() override;
 
             // WebSocketにアップグレード
 protected:  bool upgradeWebSocket();

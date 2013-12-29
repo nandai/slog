@@ -24,6 +24,7 @@
 #include "slog/WebSocket.h"
 #include "slog/Util.h"
 #include "slog/File.h"
+#include "slog/ByteBuffer.h"
 
 #include "sha1.h"
 
@@ -49,6 +50,42 @@ WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
 WebServerResponseThread::~WebServerResponseThread()
 {
     delete mHttpRequest;
+
+    for (auto  variable : mVariables)
+        delete variable;
+}
+
+/*!
+ *  \brief  ファイルパス取得
+ */
+void WebServerResponseThread::getFilePath(slog::CoreString* path, const slog::CoreString* url) const
+{
+    const char* rootDir = getRootDir();
+
+    if (rootDir == nullptr)
+        rootDir = "";
+
+    if (rootDir[0] == '/' || rootDir[1] == ':')
+    {
+        path->format(
+            "%s%c%s",
+            rootDir,
+            PATH_DELIMITER,
+            url->getBuffer());
+    }
+    else
+    {
+        String processPath;
+        Util::getProcessPath(&processPath);
+
+        path->format(
+            "%s%c%s%c%s",
+            processPath.getBuffer(),
+            PATH_DELIMITER,
+            rootDir,
+            PATH_DELIMITER,
+            url->getBuffer());
+    }
 }
 
 /*!
@@ -62,6 +99,38 @@ void WebServerResponseThread::send(const Buffer* content) const
 
     // コンテンツ送信
     sendContent(content);
+}
+
+/*!
+ *  \brief  送信
+ */
+void WebServerResponseThread::sendBinary(const slog::CoreString* path) const
+{
+    Socket* socket = mHttpRequest->getSocket();
+
+    try
+    {
+        File file;
+        file.open(*path, File::READ);
+
+        int32_t len = (int32_t)file.getSize();
+
+        // HTTPヘッダー送信
+        sendHttpHeader(len);
+
+        // コンテンツ送信
+        ByteBuffer buffer(1024 * 1024);
+        int32_t readLen;
+
+        while (0 < (readLen = file.read(&buffer, buffer.getCapacity())))
+            socket->send(&buffer, readLen);
+    }
+    catch (Exception& e)
+    {
+        noticeLog("sendBinary: %s", e.getMessage());
+    }
+
+    socket->close();
 }
 
 /*!
@@ -103,107 +172,44 @@ void WebServerResponseThread::run()
 {
     try
     {
-        String content;
+        String path;
 
-        HttpRequest::METHOD method = mHttpRequest->getMethod();
-        const CoreString& url =      mHttpRequest->getUrl();
+        const CoreString& url = mHttpRequest->getUrl();
+        getFilePath(&path, &url);
 
-        do
+        HtmlGenerator generator;
+        String notFound = "404 not found.";
+        const Buffer* writeBuffer = nullptr;
+
+        if (mHttpRequest->getMimeType()->binary == false)
         {
-            if (getContents(&content, url.getBuffer()))
-                break;
+            initVariables();
 
-            if (getContents(&content, "notfound.html"))
-                break;
+            if (generator.execute(&path, &mVariables))
+            {
+                writeBuffer = generator.getHtml();
+            }
+            else
+            {
+                String notFoundFileName = "notFound.html";
+                getFilePath(&path, &notFoundFileName);
 
-            noticeLog("WebServerResponseThread: %s", url.getBuffer());
-            mHttpRequest->getSocket()->close();
-            return;
+                HtmlGenerator::readHtml(&notFound, &path);
+                writeBuffer = &notFound;
+            }
+
+            // 送信
+            send(writeBuffer);
         }
-        while (false);
-
-        // 送信
-        send(&content);
+        else
+        {
+            sendBinary(&path);
+        }
     }
     catch (Exception& e)
     {
         noticeLog("WebServerResponseThread: %s", e.getMessage());
     }
-}
-
-/*!
- *  \brief  コンテンツ取得
- */
-bool WebServerResponseThread::getContents(String* content, const char* url)
-{
-    try
-    {
-        const CoreString& ip = mHttpRequest->getSocket()->getMyInetAddress();
-
-        String processPath;
-        Util::getProcessPath(&processPath);
-        const char* rootDir = getRootDir();
-
-        String htmlPath;
-        htmlPath.format("%s%c%s%c%s",
-            processPath.getBuffer(),
-            PATH_DELIMITER,
-            rootDir,
-            PATH_DELIMITER,
-            url);
-
-        File file;
-        file.open(htmlPath, File::READ);
-
-        String buffer;
-        while (file.read(&buffer))
-        {
-            const char* p = buffer.getBuffer();
-            int32_t index = 0;
-
-            while (true)
-            {
-                // DOMAIN変換
-                const char* find = "<? DOMAIN ?>";
-                int32_t pos = buffer.indexOf(find, index);
-
-                if (0 <= pos)
-                {
-                    content->append(p + index, pos - index);
-                    content->append(getDomain());
-                    index = (int32_t)(pos + strlen(find));
-                    continue;
-                }
-
-                // WS変換
-                find = "<? WS ?>";
-                pos = buffer.indexOf(find);
-
-                if (0 <= pos)
-                {
-                    String ws;
-                    ws.format("%s:%u", ip.getBuffer(), mHttpRequest->getPort());
-
-                    content->append(p + index, pos - index);
-                    content->append(ws.getBuffer());
-                    index = (int32_t)(pos + strlen(find));
-                }
-
-                // その他
-                content->append(p + index);
-                break;
-            }
-
-            content->append("\r\n");
-        }
-    }
-    catch (Exception& e)
-    {
-        noticeLog("getContents: %s", e.getMessage());
-        return false;
-    }
-
-    return true;
 }
 
 /*!

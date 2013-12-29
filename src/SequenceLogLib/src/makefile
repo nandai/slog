@@ -26,9 +26,11 @@ objs = \
 	File.o \
 	FileFind.o \
 	FileInfo.o \
+	HtmlGenerator.o \
 	HttpRequest.o \
 	HttpResponse.o \
 	Json.o \
+	MimeType.o \
 	Mutex.o \
 	PointerString.o \
 	Process.o \

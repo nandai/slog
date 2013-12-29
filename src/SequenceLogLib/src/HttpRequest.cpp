@@ -100,43 +100,16 @@ HttpRequest::~HttpRequest()
  */
 bool HttpRequest::analizeRequest()
 {
-    int32_t size = 1;
-    ByteBuffer buffer(size);
-
-    char request[1024 + 1];
-    int32_t i = 0;
     int32_t contentLen = 0;
 
     while (true)
     {
         // 受信
-        buffer.setLength(0);
-        mSocket->recv(&buffer, size);
+        String str;
+        mSocket->recv(&str);
 
-        // 改行までリクエストバッファに貯める
-        char c = buffer.get();
-//      noticeLog("%d: %c(%02X)", i, c, (uint8_t)c);
-
-        if (c != '\r')
-        {
-            if (sizeof(request) <= i)
-                return false;
-
-            request[i] = c;
-            i++;
-
-            continue;
-        }
-
-        request[i] = '\0';
-//      noticeLog("%s", request);
-
-        // '\n'捨て
-        buffer.setLength(0);
-        mSocket->recv(&buffer, size);
-
-//      c = buffer.get();
-//      noticeLog("%d: %c(%02X)", i + 1, c, (uint8_t)c);
+        const char* request = str.getBuffer();
+        int32_t i =           str.getLength();
 
         if (i == 0)
         {
@@ -183,7 +156,7 @@ bool HttpRequest::analizeRequest()
 
                 if (strncmp(request, compare, compareLen) == 0)
                 {
-                    char* p = strchr(request, ',');
+                    char* p = strchr((char*)request, ',');
 
                     if (p)
                         p[0] = '\0';
@@ -257,7 +230,7 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 
             if (p3)
             {
-                analizeParams(p3 + 1, p2 - (p3 + 1));
+                analizeParams(p3 + 1, (int32_t)(p2 - (p3 + 1)));
                 p2 = p3;
             }
         }

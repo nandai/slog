@@ -37,7 +37,7 @@ class GetLogResponse :
 public:     GetLogResponse(HttpRequest* httpRequest) : WebServerResponseThread(httpRequest) {}
             virtual~GetLogResponse();
 
-private:    virtual void run();
+private:    virtual void run() override;
 
 public:     virtual void onInitialized(   Thread* thread) {}
             virtual void onTerminated(    Thread* thread);

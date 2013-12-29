@@ -15,9 +15,11 @@ LOCAL_SRC_FILES := \
     ../src/File.cpp \
     ../src/FileFind.cpp \
     ../src/FileInfo.cpp \
+    ../src/HtmlGenerator.cpp \
     ../src/HttpRequest.cpp \
     ../src/HttpResponse.cpp \
     ../src/Json.cpp \
+    ../src/MimeType.cpp \
     ../src/Mutex.cpp \
     ../src/PointerString.cpp \
     ../src/Process.cpp \

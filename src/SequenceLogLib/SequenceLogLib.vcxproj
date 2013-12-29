@@ -209,6 +209,7 @@
     <ClCompile Include="src\File.cpp" />
     <ClCompile Include="src\FileFind.cpp" />
     <ClCompile Include="src\FileInfo.cpp" />
+    <ClCompile Include="src\HtmlGenerator.cpp" />
     <ClCompile Include="src\HttpRequest.cpp" />
     <ClCompile Include="src\HttpResponse.cpp" />
     <ClCompile Include="src\jp_printf_slog_Log.cpp">
@@ -255,6 +256,7 @@
     <ClInclude Include="..\..\include\slog\FileFind.h" />
     <ClInclude Include="..\..\include\slog\FileInfo.h" />
     <ClInclude Include="..\..\include\slog\FixedString.h" />
+    <ClInclude Include="..\..\include\slog\HtmlGenerator.h" />
     <ClInclude Include="..\..\include\slog\HttpRequest.h" />
     <ClInclude Include="..\..\include\slog\HttpResponse.h" />
     <ClInclude Include="..\..\include\slog\JavaString.h" />

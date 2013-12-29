@@ -32,8 +32,10 @@ class SequenceLogServiceWebServerResponse : public WebServerResponseThread
 {
 public:     SequenceLogServiceWebServerResponse(HttpRequest* httpRequest);
 
-private:    virtual const char* getDomain() const;
-            virtual const char* getRootDir() const;
+private:    virtual const char* getDomain() const override;
+            virtual const char* getRootDir() const override;
+
+            virtual void initVariables() override;
 };
 
 } // namespace slog

@@ -111,6 +111,11 @@ public:     Socket();
             int setNoDelay(bool noDelay);
 
             /*!
+             *  \brief  接続元／先ホスト名取得
+             */
+            void getHostName(slog::CoreString* hostName) const;
+
+            /*!
              * IP 取得
              */
             const CoreString& getInetAddress() const;
@@ -130,6 +135,7 @@ public:     Socket();
             void recv( int32_t* value) const throw(Exception);
             void recv(uint32_t* value) const throw(Exception);
             void recv(Buffer* buffer, int32_t len) const throw(Exception);
+            void recv(CoreString* buffer) const throw(Exception);
 
             /*!
              * 受信データがあるか

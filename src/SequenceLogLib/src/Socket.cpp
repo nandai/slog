@@ -573,6 +573,20 @@ int Socket::setNoDelay(bool noDelay)
 }
 
 /*!
+ *  \brief  接続元／先ホスト名取得
+ */
+void Socket::getHostName(slog::CoreString* hostName) const
+{
+    in_addr addr;
+    addr.s_addr = inet_addr(getInetAddress().getBuffer());
+
+    hostent* host = gethostbyaddr((const char*)&addr.s_addr, sizeof(addr.s_addr), AF_INET);
+
+    if (host != nullptr)
+        hostName->copy(host->h_name);
+}
+
+/*!
  *  \brief  接続元／先IPアドレス取得
  *
  *  \return 接続元／先IPアドレス
@@ -827,6 +841,57 @@ void Socket::recv(
     }
 
     buffer->setLength(len);
+}
+
+/*!
+ *  \brief  受信
+ */
+void Socket::recv(
+    CoreString* buffer) //!< 受信バッファ
+
+    const
+    throw(Exception)
+{
+    int32_t size = 1;
+    ByteBuffer recvBuffer(size);
+
+    char tmpBuffer[1024 + 1];
+    int32_t i = 0;
+
+    while (true)
+    {
+        // 受信
+        recvBuffer.setLength(0);
+        recv(&recvBuffer, size);
+
+        // 改行までリクエストバッファに貯める
+        char c = recvBuffer.get();
+//      noticeLog("%d: %c(%02X)", i, c, (uint8_t)c);
+
+        if (c == '\r')
+            break;
+
+        if (sizeof(tmpBuffer) <= i)
+        {
+            Exception e;
+            e.setMessage("Socket::recv() text %d bytes over.", sizeof(tmpBuffer) - 1);
+
+            throw e;
+        }
+
+        tmpBuffer[i] = c;
+        i++;
+    }
+
+    buffer->copy(tmpBuffer, i);
+//  noticeLog("%s", buffer->getBuffer());
+
+    // '\n'捨て
+    recvBuffer.setLength(0);
+    recv(&recvBuffer, size);
+
+//  char c = recvBuffer.get();
+//  noticeLog("%d: %c(%02X)", i + 1, c, (uint8_t)c);
 }
 
 /*!

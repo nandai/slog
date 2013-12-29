@@ -55,4 +55,12 @@ const char* SequenceLogServiceWebServerResponse::getRootDir() const
     return rootDir;
 }
 
+/*!
+ * \brief  •Ï”‰Šú‰»
+ */
+void SequenceLogServiceWebServerResponse::initVariables()
+{
+    mVariables.push_back(new Variable("domain", "printf.jp"));
+}
+
 } // namespace slog
