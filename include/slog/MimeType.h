@@ -70,6 +70,11 @@ public:     MimeType();
             void analize(const CoreString* url);
 
             /*!
+             * mime-type（タイプ）を設定する
+             */
+            void setType(Type type);
+
+            /*!
              * mime-type（文字列）を設定する
              */
             void setText(const char* text);

@@ -33,19 +33,24 @@ namespace slog
 class HtmlGenerator::Param
 {
             /*!
-             * 読み込んだファイルの内容
+             * ファイル名
              */
-public:     slog::String buffer;
+public:     const CoreString* fileName;
 
             /*!
-             * デフォルト変数リスト
+             * 読み込みバッファ
              */
-            VariableList defaultVariableList;
+            String readBuffer;
 
             /*!
-             * 変数リスト
+             * 書き込みバッファ
              */
-            const VariableList* variableList;
+            CoreString* writeBuffer;
+
+            /*!
+             * インクルード深度
+             */
+            int32_t depth;
 
             /*!
              * 解析終了位置
@@ -60,25 +65,22 @@ public:     slog::String buffer;
             /*!
              * コンストラクタ
              */
-public:     Param(const VariableList* variableList);
-
-            /*!
-             * デフォルトの変数リストか調べる
-             */
-            bool isDefaultVariableList() const;
+public:     Param(const CoreString* fileName, CoreString* writeBuffer, int32_t depth);
 };
 
 /*!
  * \brief   コンストラクタ
  *
+ * \param [in]  fileName        ファイル名
+ * \param [in]  writeBuffer     書き込みバッファ
  * \param [in]  variableList    変数リスト
  */
-HtmlGenerator::Param::Param(const VariableList* variableList)
+HtmlGenerator::Param::Param(const CoreString* fileName, CoreString* writeBuffer, int32_t depth)
 {
-    this->variableList = (variableList != nullptr
-        ? variableList
-        : &defaultVariableList);
+    this->fileName = fileName;
+    this->writeBuffer = writeBuffer;
 
+    this->depth = depth;
     this->endPosition = 0;
     this->replaceResult = false;
 }
@@ -86,9 +88,9 @@ HtmlGenerator::Param::Param(const VariableList* variableList)
 /*!
  * デフォルトの変数リストか調べる
  */
-bool HtmlGenerator::Param::isDefaultVariableList() const
+bool HtmlGenerator::isDefaultVariableList() const
 {
-    return (variableList == &defaultVariableList);
+    return (mVariableList == &mReadVariableList);
 }
 
 /*!
@@ -168,18 +170,27 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
 
     if (pos != -1)
     {
-//      if (param->isDefaultVariableList())
+//      if (isDefaultVariableList())
         {
             String name( var->getBuffer(),  pos);
-            String value(var->getBuffer() + pos + 1);
-            param->defaultVariableList.push_back(new Variable(name.getBuffer(), value.getBuffer()));
+            String value;
+
+            Param valueParam(param->fileName, &value, param->depth);
+            valueParam.readBuffer.format("%s;", var->getBuffer() + pos + 1);
+
+            expand(&valueParam);
+
+            if (value[value.getLength() - 1] == ';')
+                *(value.getBuffer() + value.getLength() - 1) = '\0';
+
+            mReadVariableList.push_back(new Variable(name.getBuffer(), value.getBuffer()));
         }
 
         return true;
     }
 
     // 変数を値に置換
-    const VariableList* variableList = param->variableList;
+    const VariableList* variableList = mVariableList;
 
     for (int32_t index = 0; index < 2; index++)
     {
@@ -190,15 +201,15 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
             if (var->equals(variable->name))
             {
                 // 変数の値をappendする
-                mHtml.append(variable->value);
+                param->writeBuffer->append(variable->value);
                 return true;
             }
         }
 
-        if (param->isDefaultVariableList())
+        if (isDefaultVariableList())
             break;
 
-        variableList = &param->defaultVariableList;
+        variableList = &mReadVariableList;
     }
 
     // 変数を値に置換できなかった場合
@@ -229,10 +240,10 @@ void HtmlGenerator::replace(Param* param, const slog::CoreString* var)
     {
         param->replaceResult = true;
 
-        if (param->isDefaultVariableList() == false)
+        if (isDefaultVariableList() == false)
         {
             // "[sample]"配下のタグを全てスキップする
-            param->endPosition = skipTags(&param->buffer, param->endPosition + 1);
+            param->endPosition = skipTags(&param->readBuffer, param->endPosition + 1);
         }
     }
     else
@@ -283,24 +294,28 @@ bool HtmlGenerator::readHtml(slog::CoreString* readHtml, const slog::CoreString*
  */
 bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList* variableList)
 {
-    return execute(fileName, variableList, 0);
+    mVariableList = (variableList != nullptr
+        ? variableList
+        : &mReadVariableList);
+
+    return expand(fileName, &mHtml, 0);
 }
 
 /*!
  * \brief   html生成を実行する
  *
  * \param [in]  fileName        ファイル名
- * \param [in]  variableList    変数リスト
+ * \param [in]  writeBuffer     書き込みバッファ
  * \param [in]  depth           インクルード深度
  *
  * \retval  true    生成に成功した場合
  * \retval  false   ファイルの読み込みに失敗した場合
  */
-bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList* variableList, int32_t depth)
+bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBuffer, int32_t depth)
 {
-    Param param(variableList);
+    Param param(fileName, writeBuffer, depth);
 
-    if (readHtml(&param.buffer, fileName) == false)
+    if (readHtml(&param.readBuffer, fileName) == false)
         return false;
 
     MimeType mimeType;
@@ -311,96 +326,100 @@ bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList
         switch (mimeType.type)
         {
         case MimeType::Type::CSS:
-            mHtml.append("<style type=\"text/css\">\n");
+            writeBuffer->append("<style type=\"text/css\">\n");
             break;
 
         case MimeType::Type::JAVASCRIPT:
-            mHtml.append("<script type=\"text/javascript\">\n");
+            writeBuffer->append("<script type=\"text/javascript\">\n");
             break;
         }
     }
 
-    int32_t index = 0;
-
-    while (true)
-    {
-        int32_t pos = param.buffer.indexOf("@", index);
-
-        if (pos == -1)
-        {
-            // 残りを全てappendしループを抜ける
-            mHtml.append(param.buffer.getBuffer() + index);
-            break;
-        }
-
-        // "@"までのhtmlをappendする
-        mHtml.append(param.buffer.getBuffer() + index, pos - index);
-
-        if (param.buffer[pos + 1] == '@')
-        {
-            // "@@"を"@"としてappendする
-            mHtml.append("@");
-            param.endPosition = pos + 1;
-        }
-        else
-        {
-            int32_t spacePos =  param.buffer.indexOf(" ", pos + 1);
-            param.endPosition = param.buffer.indexOf(";", pos + 1);
-
-            if (0 < spacePos && spacePos < param.endPosition)
-            {
-                if (param.buffer.indexOf("include ", pos + 1) != -1)
-                {
-                    // 他のファイルをインクルードする
-                    int32_t startPos = pos + 1 + sizeof("include ") - 1;
-                    String include(param.buffer.getBuffer() + startPos, param.endPosition - startPos);
-
-                    int32_t dirPos = fileName->lastIndexOf("/");
-                    String path;
-
-                    if (dirPos == -1)
-                        dirPos = fileName->lastIndexOf("\\");
-
-                    if (dirPos != -1)
-                        path.copy(fileName->getBuffer(), dirPos + 1);
-
-                    path.append(include);
-                    param.replaceResult = execute(&path, variableList, depth + 1);
-                }
-            }
-            else
-            {
-                int32_t startPos = pos + 1;
-                String var(param.buffer.getBuffer() + startPos, param.endPosition - startPos);
-
-                replace(&param, &var);
-            }
-
-            if (param.replaceResult == false)
-            {
-                // インクルード、または変数の置換に失敗したのでそのままappendする
-                mHtml.append(param.buffer.getBuffer() + pos, (param.endPosition + 1) - pos);
-            }
-        }
-
-        index = param.endPosition + 1;
-    }
+    expand(&param);
 
     if (0 < depth)
     {
         switch (mimeType.type)
         {
         case MimeType::Type::CSS:
-            mHtml.append("</style>\n");
+            writeBuffer->append("</style>\n");
             break;
 
         case MimeType::Type::JAVASCRIPT:
-            mHtml.append("</script>\n");
+            writeBuffer->append("</script>\n");
             break;
         }
     }
 
     return true;
+}
+
+/*!
+ * html生成を実行する
+ */
+void HtmlGenerator::expand(Param* param)
+{
+    int32_t index = 0;
+
+    while (true)
+    {
+        int32_t pos = param->readBuffer.indexOf("@", index);
+
+        if (pos == -1)
+        {
+            // 残りを全てappendしループを抜ける
+            param->writeBuffer->append(param->readBuffer.getBuffer() + index);
+            break;
+        }
+
+        // "@"までのhtmlをappendする
+        param->writeBuffer->append(param->readBuffer.getBuffer() + index, pos - index);
+
+        if (param->readBuffer.at(pos + 1) == '@')
+        {
+            // "@@"を"@"としてappendする
+            param->writeBuffer->append("@");
+            param->endPosition = pos + 1;
+        }
+        else
+        {
+            param->endPosition = param->readBuffer.indexOf(";", pos + 1);
+
+            if (param->readBuffer.indexOf("include ", pos + 1) == pos + 1)
+            {
+                // 他のファイルをインクルードする
+                int32_t startPos = pos + 1 + sizeof("include ") - 1;
+                String include(param->readBuffer.getBuffer() + startPos, param->endPosition - startPos);
+
+                int32_t dirPos = param->fileName->lastIndexOf("/");
+                String path;
+
+                if (dirPos == -1)
+                    dirPos = param->fileName->lastIndexOf("\\");
+
+                if (dirPos != -1)
+                    path.copy(param->fileName->getBuffer(), dirPos + 1);
+
+                path.append(include);
+                param->replaceResult = expand(&path, param->writeBuffer, param->depth + 1);
+            }
+            else
+            {
+                int32_t startPos = pos + 1;
+                String var(param->readBuffer.getBuffer() + startPos, param->endPosition - startPos);
+
+                replace(param, &var);
+            }
+
+            if (param->replaceResult == false)
+            {
+                // インクルード、または変数の置換に失敗したのでそのままappendする
+                param->writeBuffer->append(param->readBuffer.getBuffer() + pos, (param->endPosition + 1) - pos);
+            }
+        }
+
+        index = param->endPosition + 1;
+    }
 }
 
 } // namespace slog

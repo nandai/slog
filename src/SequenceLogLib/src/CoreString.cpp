@@ -245,18 +245,34 @@ int32_t CoreString::find(char c) const
 /*!
  *  \brief  前方検索
  */
-int32_t CoreString::indexOf(const char* find, int32_t index) const
+int32_t CoreString::indexOf(const char* find, int32_t index, int32_t count) const
 {
-    if (index < 0 || getLength() <= index)
+    int32_t findLen = (int32_t)strlen(find);
+    int32_t len = getLength();
+
+    if (count == -1)
+        count = len - index;
+
+    if (count < findLen)
+        return -1;
+
+    if (index < 0 || len < index + count)
         return -1;
 
     const char* buffer = getBuffer();
-    const char* p = strstr(buffer + index, find);
+    const char* p1 = buffer + index;
+    const char* p2 = p1 + (count - findLen);
 
-    if (p == nullptr)
-        return -1;
+    do
+    {
+        if (strncmp(p1, find, findLen) == 0)
+            return (int32_t)(p1 - buffer);
 
-    return (int32_t)(p - buffer);
+        p1++;
+    }
+    while (p1 <= p2);
+
+    return -1;
 }
 
 /*!

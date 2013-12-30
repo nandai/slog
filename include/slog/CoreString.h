@@ -58,13 +58,14 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             void append(const CoreString& str) throw(Exception) {append(str.getBuffer(), str.getLength());}
 
             // 挿入
-			void insert(int32_t pos, const char* text, int32_t len = -1) throw(Exception);
+            void insert(int32_t pos, const char* text, int32_t len = -1) throw(Exception);
 
             // 最後の１文字を削除
             void deleteLast();
 
             // １文字取得
-            char operator[](int32_t index) const;
+            char at(int32_t index) const;
+            char operator[](int32_t index) const {return at(index);}
 
             // 文字列長（バイト数）設定
             virtual void setLength(int32_t len) throw(Exception);
@@ -78,7 +79,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
 
             // 検索
             int32_t find(char c) const;
-            int32_t indexOf(    const char* find, int32_t index = 0) const;
+            int32_t indexOf(    const char* find, int32_t index = 0, int32_t count = -1) const;
             int32_t lastIndexOf(const char* find, int32_t index = -1) const;
 
             // 文字数取得
@@ -94,7 +95,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
 /*!
  *  \brief  指定位置の文字取得
  */
-inline char CoreString::operator[](int index) const
+inline char CoreString::at(int index) const
 {
     char* p = getBuffer();
     return p[index];

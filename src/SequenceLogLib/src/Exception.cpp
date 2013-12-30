@@ -61,12 +61,16 @@ void Exception::setMessage(const char* format, ...)
     if (len == -1)
     {
         mMessage[capacity] = '\0';
+        noticeLog("%s", mMessage);
         return;
     }
 
     // APIエラーによる例外か？
     if (mErrorNo == 0)
+    {
+        noticeLog("%s", mMessage);
         return;
+    }
 
     // APIエラーのメッセージ取得
 #if defined(_WINDOWS)

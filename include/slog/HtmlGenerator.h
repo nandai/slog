@@ -24,6 +24,8 @@
 #include "slog/String.h"
 #include <list>
 
+#pragma warning(disable:4251)
+
 namespace slog
 {
 
@@ -70,14 +72,29 @@ class SLOG_API HtmlGenerator
             slog::String mHtml;
 
             /*!
+             * 変数リスト
+             */
+            const VariableList* mVariableList;
+
+            /*!
+             * 読み込んだ変数のリスト
+             */
+            VariableList mReadVariableList;
+
+            /*!
              * コンストラクタ
              */
 public:     HtmlGenerator() {}
 
             /*!
+             * デフォルトの変数リストか調べる
+             */
+private:    bool isDefaultVariableList() const;
+
+            /*!
              * タグをスキップする
              */
-private:    int32_t skipTags(const slog::CoreString* readHtml, int32_t pos, int32_t depth);
+            int32_t skipTags(const slog::CoreString* readHtml, int32_t pos, int32_t depth);
 
             /*!
              * タグをスキップする
@@ -102,12 +119,17 @@ public:     static bool readHtml(slog::CoreString* readHtml, const slog::CoreStr
             /*!
              * html生成を実行する
              */
-public:     bool execute(const slog::CoreString* fileName, const VariableList* variableList);
+            bool execute(const slog::CoreString* fileName, const VariableList* variableList);
 
             /*!
              * html生成を実行する
              */
-private:    bool execute(const slog::CoreString* fileName, const VariableList* variableList, int32_t depth);
+private:    bool expand(const slog::CoreString* fileName, CoreString* writeBuffer, int32_t depth);
+
+            /*!
+             * html生成を実行する
+             */
+            void expand(Param* param);
 
             /*!
              * htmlを取得する

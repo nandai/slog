@@ -187,15 +187,27 @@ void WebServerResponseThread::run()
 
             if (generator.execute(&path, &mVariables))
             {
+                // 正常時
                 writeBuffer = generator.getHtml();
             }
             else
             {
+                // 異常時
+                ((MimeType*)mHttpRequest->getMimeType())->setType(MimeType::Type::HTML);
+
                 String notFoundFileName = "notFound.html";
                 getFilePath(&path, &notFoundFileName);
 
-                HtmlGenerator::readHtml(&notFound, &path);
-                writeBuffer = &notFound;
+                if (generator.execute(&path, &mVariables))
+                {
+                    // notFound.html
+                    writeBuffer = generator.getHtml();
+                }
+                else
+                {
+                    // notFound.htmlもなかった場合
+                    writeBuffer = &notFound;
+                }
             }
 
             // 送信
@@ -203,6 +215,7 @@ void WebServerResponseThread::run()
         }
         else
         {
+            // バイナリ送信
             sendBinary(&path);
         }
     }

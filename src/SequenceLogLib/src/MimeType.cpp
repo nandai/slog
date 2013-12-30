@@ -50,11 +50,21 @@ static const mimeArray[] =
 };
 
 /*!
+ * MimeTypeを設定する
+ */
+static void setMimeType(MimeType* mimeType, int32_t i)
+{
+    mimeType->binary =  mimeArray[i].binary;
+    mimeType->type =    mimeArray[i].type;
+    mimeType->text.copy(mimeArray[i].text);
+}
+
+/*!
  * コンストラクタ
  */
 MimeType::MimeType()
 {
-    type = Type::TEXT;
+    setMimeType(this, sizeof(mimeArray) / sizeof(mimeArray[0]) - 1);
 }
 
 /*!
@@ -91,9 +101,25 @@ void MimeType::analize(const CoreString* path)
         i++;
     }
 
-    this->binary =  mimeArray[i].binary;
-    this->type =    mimeArray[i].type;
-    this->text.copy(mimeArray[i].text);
+    setMimeType(this, i);
+}
+
+/*!
+ * mime-type（タイプ）を設定する
+ */
+void MimeType::setType(Type type)
+{
+    int32_t i = 0;
+
+    while (mimeArray[i].ext)
+    {
+        if (mimeArray[i].type == type)
+            break;
+
+        i++;
+    }
+
+    setMimeType(this, i);
 }
 
 /*!
@@ -118,9 +144,7 @@ void MimeType::setText(const char* text)
         i++;
     }
 
-    this->binary =  mimeArray[i].binary;
-    this->type =    mimeArray[i].type;
-    this->text.copy(mimeArray[i].text);
+    setMimeType(this, i);
 }
 
 } // namespace slog
