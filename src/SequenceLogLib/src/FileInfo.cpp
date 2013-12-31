@@ -85,7 +85,7 @@ FileInfo::FileInfo(
 #if defined(_WINDOWS)
         LPITEMIDLIST pidl;
         IMalloc* pMalloc;
-    wchar_t unicode[MAX_PATH];
+        wchar_t unicode[MAX_PATH];
 
         SHGetMalloc(&pMalloc);
         SHGetSpecialFolderLocation(nullptr, CSIDL_PERSONAL, &pidl);

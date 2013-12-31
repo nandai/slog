@@ -60,6 +60,11 @@ public:     bool binary;
             String text;
 
             /*!
+             * htmlタグ
+             */
+            String tag;
+
+            /*!
              * コンストラクタ
              */
 public:     MimeType();

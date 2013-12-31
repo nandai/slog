@@ -187,9 +187,6 @@ bool HttpRequest::analizeRequest()
         i = 0;
     }
 
-    if (mAjax == false)
-        mMimeType.analize(&mUrl);
-
     return true;
 }
 
@@ -358,9 +355,6 @@ const CoreString& HttpRequest::getUrl() const
 void HttpRequest::setUrl(const char* url)
 {
     mUrl.copy(url);
-
-    if (mAjax == false)
-        mMimeType.analize(&mUrl);
 }
 
 /*!

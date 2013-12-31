@@ -31,22 +31,27 @@ struct
     bool                    binary;
     const MimeType::Type    type;
     const char*             text;
+    const char*             tag;
 }
 static const mimeArray[] =
 {
-    {"html",  false, MimeType::Type::HTML,       "text/html"               },
-    {"css",   false, MimeType::Type::CSS,        "text/css"                },
-    {"js",    false, MimeType::Type::JAVASCRIPT, "text/javascript"         },
-    {"json",  false, MimeType::Type::JSON,       "application/json"        },
+    {"html",  false, MimeType::Type::HTML,       "text/html",                ""      },
+    {"css",   false, MimeType::Type::CSS,        "text/css",                 "style" },
+    {"js",    false, MimeType::Type::JAVASCRIPT, "text/javascript",          "script"},
+    {"json",  false, MimeType::Type::JSON,       "application/json",         ""      },
 
-    {"png",   true,  MimeType::Type::IMAGE,      "image/png"               },
-    {"jpg",   true,  MimeType::Type::IMAGE,      "image/jpeg"              },
-    {"jpeg",  true,  MimeType::Type::IMAGE,      "image/jpeg"              },
-    {"gif",   true,  MimeType::Type::IMAGE,      "image/gif"               },
-    {"zip",   true,  MimeType::Type::BINARY,     "application/zip"         },
-    {"exe",   true,  MimeType::Type::BINARY,     "application/octet-stream"},
+    {"pcss",  false, MimeType::Type::TEXT,       "text/css",                 "style" },
+    {"pjs",   false, MimeType::Type::TEXT,       "text/javascript",          "script"},
 
-    {nullptr, false, MimeType::Type::TEXT,       "text/plain"              },
+    {"png",   true,  MimeType::Type::IMAGE,      "image/png",                ""      },
+    {"jpg",   true,  MimeType::Type::IMAGE,      "image/jpeg",               ""      },
+    {"jpeg",  true,  MimeType::Type::IMAGE,      "image/jpeg",               ""      },
+    {"gif",   true,  MimeType::Type::IMAGE,      "image/gif",                ""      },
+    {"ico",   true,  MimeType::Type::IMAGE,      "image/vnd.microsoft.icon", ""      },
+    {"zip",   true,  MimeType::Type::BINARY,     "application/zip",          ""      },
+    {"exe",   true,  MimeType::Type::BINARY,     "application/octet-stream", ""      },
+
+    {nullptr, false, MimeType::Type::TEXT,       "text/plain",               ""      },
 };
 
 /*!
@@ -57,6 +62,7 @@ static void setMimeType(MimeType* mimeType, int32_t i)
     mimeType->binary =  mimeArray[i].binary;
     mimeType->type =    mimeArray[i].type;
     mimeType->text.copy(mimeArray[i].text);
+    mimeType->tag. copy(mimeArray[i].tag);
 }
 
 /*!

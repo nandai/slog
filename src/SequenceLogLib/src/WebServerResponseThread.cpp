@@ -24,6 +24,7 @@
 #include "slog/WebSocket.h"
 #include "slog/Util.h"
 #include "slog/File.h"
+#include "slog/FileInfo.h"
 #include "slog/ByteBuffer.h"
 
 #include "sha1.h"
@@ -85,6 +86,22 @@ void WebServerResponseThread::getFilePath(slog::CoreString* path, const slog::Co
             rootDir,
             PATH_DELIMITER,
             url->getBuffer());
+    }
+
+    if (path->at(path->getLength() - 1) == '\\' ||
+        path->at(path->getLength() - 1) == '/')
+    {
+        path->deleteLast();
+    }
+
+    FileInfo info(*path);
+
+    if (info.isFile() == false && info.getMessage().getLength() == 0)
+    {
+        String fileName;
+        fileName.format("%cindex.html", PATH_DELIMITER);
+
+        path->append(fileName);
     }
 }
 
@@ -173,15 +190,19 @@ void WebServerResponseThread::run()
     try
     {
         String path;
+        MimeType* mimeType = (MimeType*)mHttpRequest->getMimeType();
 
         const CoreString& url = mHttpRequest->getUrl();
         getFilePath(&path, &url);
+
+        if (mHttpRequest->isAjax() == false)
+            mimeType->analize(&path);
 
         HtmlGenerator generator;
         String notFound = "404 not found.";
         const Buffer* writeBuffer = nullptr;
 
-        if (mHttpRequest->getMimeType()->binary == false)
+        if (mimeType->binary == false)
         {
             initVariables();
 
@@ -193,7 +214,7 @@ void WebServerResponseThread::run()
             else
             {
                 // 異常時
-                ((MimeType*)mHttpRequest->getMimeType())->setType(MimeType::Type::HTML);
+                mimeType->setType(MimeType::Type::HTML);
 
                 String notFoundFileName = "notFound.html";
                 getFilePath(&path, &notFoundFileName);

@@ -321,34 +321,28 @@ bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBu
     MimeType mimeType;
     mimeType.analize(fileName);
 
-    if (0 < depth)
+    if (0 < depth && mimeType.tag.getLength())
     {
-        switch (mimeType.type)
-        {
-        case MimeType::Type::CSS:
-            writeBuffer->append("<style type=\"text/css\">\n");
-            break;
-
-        case MimeType::Type::JAVASCRIPT:
-            writeBuffer->append("<script type=\"text/javascript\">\n");
-            break;
-        }
+        String tag;
+        tag.format("<%s type=\"%s\">\n", mimeType.tag.getBuffer(), mimeType.text.getBuffer());
+        writeBuffer->append(tag);
     }
 
-    expand(&param);
-
-    if (0 < depth)
+    if (mimeType.type == MimeType::Type::CSS ||
+        mimeType.type == MimeType::Type::JAVASCRIPT)
     {
-        switch (mimeType.type)
-        {
-        case MimeType::Type::CSS:
-            writeBuffer->append("</style>\n");
-            break;
+        writeBuffer->append(param.readBuffer);
+    }
+    else
+    {
+        expand(&param);
+    }
 
-        case MimeType::Type::JAVASCRIPT:
-            writeBuffer->append("</script>\n");
-            break;
-        }
+    if (0 < depth && mimeType.tag.getLength())
+    {
+        String tag;
+        tag.format("</%s>\n", mimeType.tag.getBuffer());
+        writeBuffer->append(tag);
     }
 
     return true;

@@ -38,7 +38,6 @@ const WebServerThread::CREATE* SequenceLogServiceWebServerThread::getCreateList(
 {
     static const CREATE creates[] =
     {
-        {HttpRequest::GET,     "",                   "index.html", createSequenceLogServiceWebServerResponse},
         {HttpRequest::GET,     "getLog",             "",           createGetLogResponse},
         {HttpRequest::GET,     "outputLog",          "",           createSequenceLogService},
         {HttpRequest::UNKNOWN, "",                   "",           createSequenceLogServiceWebServerResponse}
