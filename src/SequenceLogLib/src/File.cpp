@@ -34,12 +34,266 @@
 namespace slog
 {
 
+class File::IO
+{
+            /*!
+             * オープンしているか調べる
+             */
+public:     virtual bool isOpen() const = 0;
+
+            /*!
+             * オープン
+             */
+            virtual bool open(const CoreString& fileName, File::Mode mode) = 0;
+
+            /*!
+             * クローズ
+             */
+            virtual void close() = 0;
+
+            /*!
+             * 読み込み
+             */
+            virtual int32_t read(char* buffer, int32_t count) const = 0;
+
+            /*!
+             * 書き込み
+             */
+            virtual void write(const char* buffer, int32_t count) const = 0;
+
+            /*!
+             * ファイルポインタの現在位置設定
+             */
+            virtual void setPosition(int64_t pos) const = 0;
+
+            /*!
+             * ファイルポインタ移動
+             */
+            virtual int64_t movePosition(int64_t count) const = 0;
+
+            /*!
+             *  \brief  ファイルポインタ移動
+             */
+            virtual int64_t moveLastPosition() const = 0;
+};
+
+class File::FileIO : public File::IO
+{
+            /*!
+             * ファイルハンドル
+             */
+#if defined(_WINDOWS)
+            HANDLE mHandle;
+#else
+            FILE*  mHandle;
+#endif
+
+            /*!
+             * コンストラクタ
+             */
+public:     FileIO();
+
+            /*!
+             * オープンしているか調べる
+             */
+            virtual bool isOpen() const {return (mHandle != 0);}
+
+            /*!
+             * オープン
+             */
+            virtual bool open(const CoreString& fileName, File::Mode mode);
+
+            /*!
+             * クローズ
+             */
+            virtual void close();
+
+            /*!
+             * 読み込み
+             */
+            virtual int32_t read(char* buffer, int32_t count) const;
+
+            /*!
+             * 書き込み
+             */
+            virtual void write(const char* buffer, int32_t count) const;
+
+            /*!
+             * ファイルポインタの現在位置設定
+             */
+            virtual void setPosition(int64_t pos) const;
+
+            /*!
+             * ファイルポインタ移動
+             */
+            virtual int64_t movePosition(int64_t count) const;
+
+            /*!
+             * ファイルポインタ移動
+             */
+            virtual int64_t moveLastPosition() const;
+};
+
+class File::BufferIO : public File::IO
+{
+};
+
+/*!
+ *  \brief  オープン
+ */
+bool File::FileIO::open(const CoreString& fileName, File::Mode mode)
+{
+#if defined(_WINDOWS)
+    UTF16LE utf16le;
+    utf16le.conv(fileName);
+
+    const wchar_t* p = utf16le.getBuffer();
+    HANDLE handle;
+
+    if (mode == File::READ)
+    {
+        // 書込み中のファイルを読めるようにFILE_SHARE_WRITEを付ける
+//      handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ,                    nullptr, OPEN_EXISTING, 0, nullptr);
+        handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
+    }
+    else
+    {
+//      handle = CreateFileW(p, GENERIC_WRITE, 0,               nullptr, CREATE_ALWAYS, 0, nullptr);
+        handle = CreateFileW(p, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, 0, nullptr);
+    }
+
+    if (handle == INVALID_HANDLE_VALUE)
+        return false;
+
+    mHandle = handle;
+#else
+    const char* p =  fileName.getBuffer();
+    const char* _mode = (mode == READ ? "r" : "w");
+    FILE* handle = fopen(p, _mode);
+
+    if (handle == nullptr)
+        return false;
+
+    mHandle = handle;
+#endif
+
+    return true;
+}
+
+/*!
+ *  \brief  クローズ
+ */
+void File::FileIO::close()
+{
+#if defined(_WINDOWS)
+    ::CloseHandle((HANDLE)mHandle);
+#else
+    fclose((FILE*)mHandle);
+#endif
+
+    mHandle = 0;
+}
+
+/*!
+ *  \brief  コンストラクタ
+ */
+File::FileIO::FileIO()
+{
+    mHandle = 0;
+}
+
+/*!
+ *  \brief  読み込み
+ */
+int32_t File::FileIO::read(char* buffer, int32_t count) const
+{
+	int32_t result = 0;
+
+#if defined(_WINDOWS)
+    ::ReadFile((HANDLE)mHandle, buffer, count, (DWORD*)&result, nullptr);
+#else
+    result = fread(buffer, 1, count, (FILE*)mHandle);
+#endif
+
+    return result;
+}
+
+/*!
+ *  \brief  書き込み
+ */
+void File::FileIO::write(const char* buffer, int32_t count) const
+{
+#if defined(_WINDOWS)
+    DWORD result = 0;
+    ::WriteFile(mHandle, buffer, count, &result, nullptr);
+#else
+    fwrite(p, 1, count, mHandle);
+#endif
+}
+
+/*!
+ *  \brief  ファイルポインタの現在位置設定
+ */
+void File::FileIO::setPosition(int64_t pos) const
+{
+#if defined(_WINDOWS)
+    LARGE_INTEGER move;
+    move.QuadPart = pos;
+
+    ::SetFilePointerEx(mHandle, move, nullptr, FILE_BEGIN);
+#else
+    fseek(mHandle, pos, SEEK_SET);
+#endif
+}
+
+/*!
+ *  \brief  ファイルポインタ移動
+ */
+int64_t File::FileIO::movePosition(int64_t count) const
+{
+#if defined(_WINDOWS)
+    LARGE_INTEGER move;
+    move.QuadPart = count;
+
+    LARGE_INTEGER pos;
+    ::SetFilePointerEx(mHandle, move, &pos, FILE_CURRENT);
+
+    return pos.QuadPart;
+#else
+    fseek(mHandle, count, SEEK_CUR);
+
+    int64_t pos = ftell(mHandle);
+    return  pos;
+#endif
+}
+
+/*!
+ *  \brief  ファイルポインタ移動
+ */
+int64_t File::FileIO::moveLastPosition() const
+{
+#if defined(_WINDOWS)
+    LARGE_INTEGER move;
+    move.QuadPart = 0;
+
+    LARGE_INTEGER pos;
+    ::SetFilePointerEx(mHandle, move, &pos, FILE_END);
+
+    return pos.QuadPart;
+#else
+    fseek(mHandle, 0, SEEK_END);
+
+    int64_t pos = ftell(mHandle);
+    return  pos;
+#endif
+}
+
 /*!
  *  \brief  コンストラクタ
  */
 File::File()
 {
-    mHandle = 0;
+    mIO = nullptr;
 }
 
 /*!
@@ -48,6 +302,7 @@ File::File()
 File::~File()
 {
     close();
+    delete mIO;
 }
 
 /*!
@@ -55,7 +310,7 @@ File::~File()
  */
 bool File::isOpen() const
 {
-    return (mHandle != 0);
+    return (mIO && mIO->isOpen());
 }
 
 /*!
@@ -69,49 +324,20 @@ void File::open(
 {
     Exception e;
 
-    if (mHandle != 0)
+    if (mIO == nullptr)
+        mIO = new FileIO;
+
+    if (isOpen())
     {
         e.setMessage("File::open(\"%s\") : already opened.", fileName.getBuffer());
         throw e;
     }
 
-#if defined(_WINDOWS)
-    UTF16LE utf16le;
-    utf16le.conv(fileName);
-
-    const wchar_t* p = utf16le.getBuffer();
-    HANDLE handle;
-
-    if (mode == READ)
-    {
-        // 書込み中のファイルを読めるようにFILE_SHARE_WRITEを付ける
-//      handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ,                    nullptr, OPEN_EXISTING, 0, nullptr);
-        handle = CreateFileW(p, GENERIC_READ,  FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-    }
-    else
-    {
-//      handle = CreateFileW(p, GENERIC_WRITE, 0,               nullptr, CREATE_ALWAYS, 0, nullptr);
-        handle = CreateFileW(p, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, 0, nullptr);
-    }
-
-    if (handle == INVALID_HANDLE_VALUE)
+    if (mIO->open(fileName, mode) == false)
     {
         e.setMessage("File::open(\"%s\")", fileName.getBuffer());
         throw e;
     }
-#else
-    const char* p =  fileName.getBuffer();
-    const char* _mode = (mode == READ ? "r" : "w");
-    FILE* handle = fopen(p, _mode);
-
-    if (handle == nullptr)
-    {
-        e.setMessage("File::open(\"%s\")", p);
-        throw e;
-    }
-#endif
-
-    mHandle = (int64_t)handle;
 }
 
 /*!
@@ -119,16 +345,10 @@ void File::open(
  */
 void File::close()
 {
-    if (mHandle == 0)
+    if (isOpen() == false)
         return;
 
-#if defined(_WINDOWS)
-    ::CloseHandle((HANDLE)mHandle);
-#else
-    fclose((FILE*)mHandle);
-#endif
-
-    mHandle = 0;
+    mIO->close();
 }
 
 /*!
@@ -149,17 +369,9 @@ bool File::read(
 
     str->setLength(0);
 
-#if defined(_WINDOWS)
-    HANDLE handle = (HANDLE)mHandle;
-#endif
-
     do
     {
-#if defined(_WINDOWS)
-        ::ReadFile(handle, p, count, (DWORD*)&result, nullptr);
-#else
-        result = fread(p, 1, count, (FILE*)mHandle);
-#endif
+        result = mIO->read(p, count);
 
 //      if (first && result == 0)
         if (         result == 0)
@@ -185,34 +397,15 @@ bool File::read(
     while (true);
 
     // 読み込みすぎた部分を戻す
-#if defined(_WINDOWS)
-    LARGE_INTEGER move;
-    move.QuadPart = index - result + 1;
-
-    ::SetFilePointerEx(handle, move, nullptr, FILE_CURRENT);
+    movePosition(index - result + 1);
 
     if (p[index] == '\n')
         return true;
 
-    ::ReadFile(handle, p, 1, (DWORD*)&result, nullptr);
+    mIO->read(p, 1);
 
     if (p[0] != '\n')
-    {
-        move.QuadPart = -1;
-        ::SetFilePointerEx(handle, move, nullptr, FILE_CURRENT);
-    }
-#else
-    FILE* handle = (FILE*)mHandle;
-    fseek(handle, index - result + 1, SEEK_CUR);
-
-    if (p[index] == '\n')
-        return true;
-
-    result = fread(p, 1, 1, handle);
-
-    if (p[0] != '\n')
-        fseek(handle, -1, SEEK_CUR);
-#endif
+        movePosition(-1);
 
     return true;
 }
@@ -222,22 +415,11 @@ bool File::read(
  */
 int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
 {
-	int32_t result = 0;
-    int32_t position = 0;
+    if (isOpen() == false)
+        return 0;
 
-    buffer->validateOverFlow(position, count);
-    char* p = buffer->getBuffer() + position;
-
-    if (mHandle != 0)
-    {
-#if defined(_WINDOWS)
-        ::ReadFile((HANDLE)mHandle, p, count, (DWORD*)&result, nullptr);
-#else
-        result = fread(p, 1, count, (FILE*)mHandle);
-#endif
-    }
-
-    return result;
+    buffer->validateOverFlow(0, count);
+    return mIO->read(buffer->getBuffer(), count);
 }
 
 /*!
@@ -253,18 +435,11 @@ void File::write(const Buffer* buffer, int32_t count) const throw(Exception)
  */
 void File::write(const Buffer* buffer, int32_t position, int32_t count) const throw(Exception)
 {
-    buffer->validateOverFlow(position, count);
-    const char* p = buffer->getBuffer() + position;
+    if (isOpen() == false)
+        return;
 
-    if (mHandle != 0)
-    {
-#if defined(_WINDOWS)
-        DWORD result = 0;
-        ::WriteFile((HANDLE)mHandle, p, count, &result, nullptr);
-#else
-        fwrite(p, 1, count, (FILE*)mHandle);
-#endif
-    }
+    buffer->validateOverFlow(position, count);
+    mIO->write(buffer->getBuffer() + position, count);
 }
 
 /*!
@@ -305,32 +480,27 @@ void File::unlink(const CoreString& fileName) throw(Exception)
 //}
 
 /*!
+ * 
+ */
+bool File::isEOF() const
+{
+    int64_t pos =  getPosition();
+    int64_t size = moveLastPosition();
+                   setPosition(pos);
+
+    return (pos >= size);
+}
+
+/*!
  *  \brief  ファイルサイズ取得
  */
 int64_t File::getSize() const
 {
-#if defined(_WINDOWS)
-    HANDLE handle = (HANDLE)mHandle;
-    LARGE_INTEGER move = {0, 0};
-    LARGE_INTEGER pos;
-    LARGE_INTEGER size;
-
-    ::SetFilePointerEx(handle, move, &pos,    FILE_CURRENT);
-    ::SetFilePointerEx(handle, move, &size,   FILE_END);
-    ::SetFilePointerEx(handle, pos,  nullptr, FILE_BEGIN);
-
-    return size.QuadPart;
-#else
-    FILE* handle = (FILE*)mHandle;
-
-    int64_t pos = ftell(handle);
-    fseek(handle, 0, SEEK_END);
-
-    int64_t size = ftell(handle);
-    fseek(handle, pos, SEEK_SET);
+    int64_t pos =  getPosition();
+    int64_t size = moveLastPosition();
+                   setPosition(pos);
 
     return size;
-#endif
 }
 
 /*!
@@ -338,33 +508,31 @@ int64_t File::getSize() const
  */
 int64_t File::getPosition() const
 {
-#if defined(_WINDOWS)
-    LARGE_INTEGER move = {0, 0};
-    LARGE_INTEGER pos;
-
-    ::SetFilePointerEx((HANDLE)mHandle, move, &pos, FILE_CURRENT);
-    return pos.QuadPart;
-#else
-    int64_t pos = ftell((FILE*)mHandle);
-    return pos;
-#endif
+    return movePosition(0);
 }
 
 /*!
- * 
+ *  \brief  ファイルポインタの現在位置設定
  */
-bool File::isEOF() const
+void File::setPosition(int64_t pos) const
 {
-#if defined(_WINDOWS)
-    HANDLE handle = (HANDLE)mHandle;
+    mIO->setPosition(pos);
+}
 
-    unsigned long cur = ::SetFilePointer(handle, 0,   nullptr, FILE_CURRENT);
-    unsigned long len = ::SetFilePointer(handle, 0,   nullptr, FILE_END);
-                        ::SetFilePointer(handle, cur, nullptr, FILE_BEGIN);
+/*!
+ *  \brief  ファイルポインタ移動
+ */
+int64_t File::movePosition(int64_t count) const
+{
+    return mIO->movePosition(count);
+}
 
-    return (cur >= len);
-#else
-#endif
+/*!
+ *  \brief  ファイルポインタ移動
+ */
+int64_t File::moveLastPosition() const
+{
+    return mIO->moveLastPosition();
 }
 
 /*!
@@ -381,6 +549,7 @@ bool File::copy(const CoreString* aSrc, const CoreString* aDst)
 
     return (CopyFileW(src.getBuffer(), dst.getBuffer(), FALSE) == TRUE);
 #else
+    noticeLog("*** File::copy() no implement.");
 #endif
 }
 
@@ -398,6 +567,7 @@ bool File::move(const CoreString* aSrc, const CoreString* aDst)
 
     return (MoveFileExW(src.getBuffer(), dst.getBuffer(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED) == TRUE);
 #else
+    noticeLog("*** File::move() no implement.");
 #endif
 }
 

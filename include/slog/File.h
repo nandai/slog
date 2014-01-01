@@ -32,18 +32,29 @@ namespace slog
  */
 class SLOG_API File
 {
+            class IO;
+            class FileIO;
+            class BufferIO;
+
 public:     enum Mode
             {
                 READ,
                 WRITE,
             };
 
-private:    int64_t mHandle;    //!< ファイルハンドル
+            /*!
+             * I/O
+             */
+private:    IO* mIO;
 
             /*!
-             * コンストラクタ／デストラクタ
+             * コンストラクタ
              */
-public:      File();
+public:     File();
+
+            /*!
+             * デストラクタ
+             */
             ~File();
 
             bool isOpen() const;
@@ -58,12 +69,37 @@ public:      File();
 
 //          void flush();
 
+            bool isEOF() const;
+
+            /*!
+             * ファイルサイズ取得
+             */
             int64_t getSize() const;
+
+            /*!
+             * ファイルポインタの現在位置取得
+             */
             int64_t getPosition() const;
 
-            static void unlink(const CoreString& fileName) throw(Exception);
+            /*!
+             * ファイルポインタの現在位置設定
+             */
+            void setPosition(int64_t pos) const;
 
-            bool isEOF() const;
+            /*!
+             * ファイルポインタ移動
+             */
+            int64_t movePosition(int64_t count) const;
+
+            /*!
+             * ファイルポインタ移動
+             */
+            int64_t moveLastPosition() const;
+
+            /*!
+             * ファイル削除
+             */
+            static void unlink(const CoreString& fileName) throw(Exception);
 
             /*!
              * ファイルコピー
