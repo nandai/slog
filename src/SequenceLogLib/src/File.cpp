@@ -21,6 +21,7 @@
  */
 #include "slog/File.h"
 #include "slog/String.h"
+#include "slog/ByteBuffer.h"
 
 #if defined(_WINDOWS)
     #include <windows.h>
@@ -54,27 +55,27 @@ public:     virtual bool isOpen() const = 0;
             /*!
              * 読み込み
              */
-            virtual int32_t read(char* buffer, int32_t count) const = 0;
+            virtual int64_t read(char* buffer, int64_t count) = 0;
 
             /*!
              * 書き込み
              */
-            virtual void write(const char* buffer, int32_t count) const = 0;
+            virtual void write(const char* buffer, int64_t count) = 0;
 
             /*!
              * ファイルポインタの現在位置設定
              */
-            virtual void setPosition(int64_t pos) const = 0;
+            virtual void setPosition(int64_t pos) = 0;
 
             /*!
              * ファイルポインタ移動
              */
-            virtual int64_t movePosition(int64_t count) const = 0;
+            virtual int64_t movePosition(int64_t count) = 0;
 
             /*!
              *  \brief  ファイルポインタ移動
              */
-            virtual int64_t moveLastPosition() const = 0;
+            virtual int64_t moveLastPosition() = 0;
 };
 
 class File::FileIO : public File::IO
@@ -111,32 +112,36 @@ public:     FileIO();
             /*!
              * 読み込み
              */
-            virtual int32_t read(char* buffer, int32_t count) const;
+            virtual int64_t read(char* buffer, int64_t count);
 
             /*!
              * 書き込み
              */
-            virtual void write(const char* buffer, int32_t count) const;
+            virtual void write(const char* buffer, int64_t count);
 
             /*!
              * ファイルポインタの現在位置設定
              */
-            virtual void setPosition(int64_t pos) const;
+            virtual void setPosition(int64_t pos);
 
             /*!
              * ファイルポインタ移動
              */
-            virtual int64_t movePosition(int64_t count) const;
+            virtual int64_t movePosition(int64_t count);
 
             /*!
              * ファイルポインタ移動
              */
-            virtual int64_t moveLastPosition() const;
+            virtual int64_t moveLastPosition();
 };
 
-class File::BufferIO : public File::IO
+/*!
+ *  \brief  コンストラクタ
+ */
+File::FileIO::FileIO()
 {
-};
+    mHandle = 0;
+}
 
 /*!
  *  \brief  オープン
@@ -195,22 +200,14 @@ void File::FileIO::close()
 }
 
 /*!
- *  \brief  コンストラクタ
- */
-File::FileIO::FileIO()
-{
-    mHandle = 0;
-}
-
-/*!
  *  \brief  読み込み
  */
-int32_t File::FileIO::read(char* buffer, int32_t count) const
+int64_t File::FileIO::read(char* buffer, int64_t count)
 {
 	int32_t result = 0;
 
 #if defined(_WINDOWS)
-    ::ReadFile((HANDLE)mHandle, buffer, count, (DWORD*)&result, nullptr);
+    ::ReadFile((HANDLE)mHandle, buffer, (int32_t)count, (DWORD*)&result, nullptr);
 #else
     result = fread(buffer, 1, count, (FILE*)mHandle);
 #endif
@@ -221,11 +218,11 @@ int32_t File::FileIO::read(char* buffer, int32_t count) const
 /*!
  *  \brief  書き込み
  */
-void File::FileIO::write(const char* buffer, int32_t count) const
+void File::FileIO::write(const char* buffer, int64_t count)
 {
 #if defined(_WINDOWS)
     DWORD result = 0;
-    ::WriteFile(mHandle, buffer, count, &result, nullptr);
+    ::WriteFile(mHandle, buffer, (int32_t)count, &result, nullptr);
 #else
     fwrite(p, 1, count, mHandle);
 #endif
@@ -234,7 +231,7 @@ void File::FileIO::write(const char* buffer, int32_t count) const
 /*!
  *  \brief  ファイルポインタの現在位置設定
  */
-void File::FileIO::setPosition(int64_t pos) const
+void File::FileIO::setPosition(int64_t pos)
 {
 #if defined(_WINDOWS)
     LARGE_INTEGER move;
@@ -249,7 +246,7 @@ void File::FileIO::setPosition(int64_t pos) const
 /*!
  *  \brief  ファイルポインタ移動
  */
-int64_t File::FileIO::movePosition(int64_t count) const
+int64_t File::FileIO::movePosition(int64_t count)
 {
 #if defined(_WINDOWS)
     LARGE_INTEGER move;
@@ -270,7 +267,7 @@ int64_t File::FileIO::movePosition(int64_t count) const
 /*!
  *  \brief  ファイルポインタ移動
  */
-int64_t File::FileIO::moveLastPosition() const
+int64_t File::FileIO::moveLastPosition()
 {
 #if defined(_WINDOWS)
     LARGE_INTEGER move;
@@ -286,6 +283,139 @@ int64_t File::FileIO::moveLastPosition() const
     int64_t pos = ftell(mHandle);
     return  pos;
 #endif
+}
+
+class File::BufferIO : public File::IO
+{
+            ByteBuffer* mBuffer;
+            int64_t mPosition;
+
+            /*!
+             * コンストラクタ
+             */
+public:     BufferIO(ByteBuffer* buffer);
+
+            /*!
+             * オープンしているか調べる
+             */
+            virtual bool isOpen() const;
+
+            /*!
+             * オープン
+             */
+            virtual bool open(const CoreString& fileName, File::Mode mode);
+
+            /*!
+             * クローズ
+             */
+            virtual void close();
+
+            /*!
+             * 読み込み
+             */
+            virtual int64_t read(char* buffer, int64_t count);
+
+            /*!
+             * 書き込み
+             */
+            virtual void write(const char* buffer, int64_t count);
+
+            /*!
+             * ファイルポインタの現在位置設定
+             */
+            virtual void setPosition(int64_t pos);
+
+            /*!
+             * ファイルポインタ移動
+             */
+            virtual int64_t movePosition(int64_t count);
+
+            /*!
+             * ファイルポインタ移動
+             */
+            virtual int64_t moveLastPosition();
+};
+
+/*!
+ *  \brief  コンストラクタ
+ */
+File::BufferIO::BufferIO(ByteBuffer* buffer)
+{
+    mBuffer = buffer;
+    mPosition = 0;
+}
+
+/*!
+ * オープンしているか調べる
+ */
+bool File::BufferIO::isOpen() const
+{
+    return true;
+}
+
+/*!
+ *  \brief  オープン
+ */
+bool File::BufferIO::open(const CoreString& fileName, File::Mode /*mode*/)
+{
+    return true;
+}
+
+/*!
+ *  \brief  クローズ
+ */
+void File::BufferIO::close()
+{
+}
+
+/*!
+ *  \brief  読み込み
+ */
+int64_t File::BufferIO::read(char* buffer, int64_t count)
+{
+    int64_t capacity = mBuffer->getCapacity();
+
+    if (count > capacity - mPosition)
+        count = capacity - mPosition;
+
+    memcpy(buffer, mBuffer->getBuffer() + mPosition, (size_t)count);
+    mPosition += count;
+
+    return count;
+}
+
+/*!
+ *  \brief  書き込み
+ */
+void File::BufferIO::write(const char* buffer, int64_t count)
+{
+    noticeLog("*** File::BufferIO::write() not implement.");
+}
+
+/*!
+ *  \brief  ファイルポインタの現在位置設定
+ */
+void File::BufferIO::setPosition(int64_t pos)
+{
+    mPosition = pos;
+}
+
+/*!
+ *  \brief  ファイルポインタ移動
+ */
+int64_t File::BufferIO::movePosition(int64_t count)
+{
+    mPosition += count;
+    return mPosition;
+}
+
+/*!
+ *  \brief  ファイルポインタ移動
+ */
+int64_t File::BufferIO::moveLastPosition()
+{
+    mPosition = mBuffer->getCapacity();
+    return mPosition;
 }
 
 /*!
@@ -362,9 +492,9 @@ bool File::read(
 {
     char buffer[256];
     char* p = buffer;
-    int32_t count = sizeof(buffer);
-    int32_t index;
-    int32_t result = 0;
+    int64_t count = sizeof(buffer);
+    int64_t index;
+    int64_t result = 0;
     bool first = true;
 
     str->setLength(0);
@@ -389,7 +519,7 @@ bool File::read(
                 break;
         }
 
-        str->append(p, index);
+        str->append(p, (int32_t)index);
 
         if (index < result)
             break;
@@ -413,19 +543,19 @@ bool File::read(
 /*!
  *  \brief  読み込み
  */
-int32_t File::read(Buffer* buffer, int32_t count) const throw(Exception)
+int64_t File::read(Buffer* buffer, int64_t count) const throw(Exception)
 {
     if (isOpen() == false)
         return 0;
 
-    buffer->validateOverFlow(0, count);
+    buffer->validateOverFlow(0, (int32_t)count);
     return mIO->read(buffer->getBuffer(), count);
 }
 
 /*!
  *  \brief  書き込み
  */
-void File::write(const Buffer* buffer, int32_t count) const throw(Exception)
+void File::write(const Buffer* buffer, int64_t count) const throw(Exception)
 {
     write(buffer, 0, count);
 }
@@ -433,12 +563,12 @@ void File::write(const Buffer* buffer, int32_t count) const throw(Exception)
 /*!
  *  \brief  書き込み
  */
-void File::write(const Buffer* buffer, int32_t position, int32_t count) const throw(Exception)
+void File::write(const Buffer* buffer, int64_t position, int64_t count) const throw(Exception)
 {
     if (isOpen() == false)
         return;
 
-    buffer->validateOverFlow(position, count);
+    buffer->validateOverFlow((int32_t)position, (int32_t)count);
     mIO->write(buffer->getBuffer() + position, count);
 }
 

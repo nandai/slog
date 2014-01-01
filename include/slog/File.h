@@ -61,11 +61,11 @@ public:     File();
             void open(const CoreString& fileName, Mode mode) throw(Exception);
             void close();
 
-            void write(const Buffer* buffer, int32_t count) const throw(Exception);
-            void write(const Buffer* buffer, int32_t position, int32_t count) const throw(Exception);
+            void write(const Buffer* buffer, int64_t count) const throw(Exception);
+            void write(const Buffer* buffer, int64_t position, int64_t count) const throw(Exception);
 
             bool read(CoreString* str) const throw(Exception);
-            int32_t read(Buffer* buffer, int32_t count) const throw(Exception);
+            int64_t read(Buffer* buffer, int64_t count) const throw(Exception);
 
 //          void flush();
 

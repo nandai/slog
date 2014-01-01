@@ -139,7 +139,7 @@ void WebServerResponseThread::sendBinary(const slog::CoreString* path) const
         ByteBuffer buffer(1024 * 1024);
         int32_t readLen;
 
-        while (0 < (readLen = file.read(&buffer, buffer.getCapacity())))
+        while (0 < (readLen = (int32_t)file.read(&buffer, buffer.getCapacity())))
             socket->send(&buffer, readLen);
     }
     catch (Exception& e)
