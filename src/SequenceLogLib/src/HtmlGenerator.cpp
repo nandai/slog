@@ -23,6 +23,8 @@
 
 #include "slog/File.h"
 #include "slog/MimeType.h"
+#include "slog/ByteBuffer.h"
+#include "slog/Util.h"
 
 namespace slog
 {
@@ -313,13 +315,40 @@ bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList
  */
 bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBuffer, int32_t depth)
 {
+    MimeType mimeType;
+    mimeType.analize(fileName);
+
+    if (mimeType.type == MimeType::Type::IMAGE)
+    {
+        try
+        {
+            File file;
+            file.open(*fileName, File::READ);
+
+            int32_t count = (int32_t)file.getSize();
+
+            ByteBuffer buffer( count);
+            file.read(&buffer, count);
+
+            String readBuffer;
+            Util::encodeBase64(&readBuffer, buffer.getBuffer(), count);
+
+            writeBuffer->append("data:");
+            writeBuffer->append(mimeType.text);
+            writeBuffer->append(";base64,");
+            writeBuffer->append(readBuffer);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
     Param param(fileName, writeBuffer, depth);
 
     if (readHtml(&param.readBuffer, fileName) == false)
         return false;
-
-    MimeType mimeType;
-    mimeType.analize(fileName);
 
     if (0 < depth && mimeType.tag.getLength())
     {
