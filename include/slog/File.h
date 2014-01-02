@@ -34,7 +34,7 @@ class SLOG_API File
 {
             class IO;
             class FileIO;
-            class BufferIO;
+            class CacheIO;
 
 public:     enum Mode
             {

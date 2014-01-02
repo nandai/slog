@@ -20,8 +20,11 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #include "slog/File.h"
+#include "slog/FileInfo.h"
 #include "slog/String.h"
 #include "slog/ByteBuffer.h"
+
+#include <list>
 
 #if defined(_WINDOWS)
     #include <windows.h>
@@ -34,6 +37,120 @@
 
 namespace slog
 {
+
+class FileCache
+{
+            const FileInfo* mFileInfo;
+            const ByteBuffer* mBuffer;
+
+            /*!
+             * コンストラクタ
+             */
+public:     FileCache(const FileInfo* fileInfo);
+
+            /*!
+             * デストラクタ
+             */
+            ~FileCache();
+
+            /*!
+             * ファイル情報取得
+             */
+            const FileInfo* getFileInfo() const {return mFileInfo;}
+
+            /*!
+             * バッファ取得
+             */
+            const ByteBuffer* getBuffer() const {return mBuffer;}
+
+            /*!
+             * バッファ設定
+             */
+            void setBuffer(const ByteBuffer* buffer);
+
+};
+
+/*!
+ * コンストラクタ
+ */
+FileCache::FileCache(const FileInfo* fileInfo)
+{
+    mFileInfo = fileInfo;
+    mBuffer = nullptr;
+}
+
+/*!
+ * デストラクタ
+ */
+FileCache::~FileCache()
+{
+    delete mFileInfo;
+    delete mBuffer;
+}
+
+/*!
+ * バッファ設定
+ */
+void FileCache::setBuffer(const ByteBuffer* buffer)
+{
+    delete mBuffer;
+    mBuffer = buffer;
+}
+
+class FileCacheList
+{
+            std::list<FileCache*> mList;
+
+            /*!
+             * デストラクタ
+             */
+public:     ~FileCacheList();
+
+            /*!
+             * ファイルキャッシュ追加
+             */
+            void add(FileCache* fileBuffer);
+
+            /*!
+             * ファイルキャッシュ取得
+             */
+            FileCache* get(const CoreString* path) const;
+};
+
+/*!
+ * デストラクタ
+ */
+FileCacheList::~FileCacheList()
+{
+    for (auto  fileBuffer : mList)
+        delete fileBuffer;
+
+    mList.clear();
+}
+
+/*!
+ * ファイルキャッシュ追加
+ */
+void FileCacheList::add(FileCache* fileBuffer)
+{
+    mList.push_back(fileBuffer);
+}
+
+/*!
+ * ファイルキャッシュ取得
+ */
+FileCache* FileCacheList::get(const CoreString* path) const
+{
+    for (auto fileBuffer : mList)
+    {
+        if (fileBuffer->getFileInfo()->getCanonicalPath().equals(*path))
+            return fileBuffer;
+    }
+
+    return nullptr;
+}
+
+FileCacheList fileCacheList;  // 動作確認用
 
 class File::IO
 {
@@ -285,15 +402,15 @@ int64_t File::FileIO::moveLastPosition()
 #endif
 }
 
-class File::BufferIO : public File::IO
+class File::CacheIO : public File::IO
 {
-            ByteBuffer* mBuffer;
+            const ByteBuffer* mBuffer;
             int64_t mPosition;
 
             /*!
              * コンストラクタ
              */
-public:     BufferIO(ByteBuffer* buffer);
+public:     CacheIO(const ByteBuffer* buffer);
 
             /*!
              * オープンしているか調べる
@@ -339,7 +456,7 @@ public:     BufferIO(ByteBuffer* buffer);
 /*!
  *  \brief  コンストラクタ
  */
-File::BufferIO::BufferIO(ByteBuffer* buffer)
+File::CacheIO::CacheIO(const ByteBuffer* buffer)
 {
     mBuffer = buffer;
     mPosition = 0;
@@ -348,7 +465,7 @@ File::BufferIO::BufferIO(ByteBuffer* buffer)
 /*!
  * オープンしているか調べる
  */
-bool File::BufferIO::isOpen() const
+bool File::CacheIO::isOpen() const
 {
     return true;
 }
@@ -356,7 +473,7 @@ bool File::BufferIO::isOpen() const
 /*!
  *  \brief  オープン
  */
-bool File::BufferIO::open(const CoreString& fileName, File::Mode /*mode*/)
+bool File::CacheIO::open(const CoreString& fileName, File::Mode /*mode*/)
 {
     return true;
 }
@@ -364,14 +481,14 @@ bool File::BufferIO::open(const CoreString& fileName, File::Mode /*mode*/)
 /*!
  *  \brief  クローズ
  */
-void File::BufferIO::close()
+void File::CacheIO::close()
 {
 }
 
 /*!
  *  \brief  読み込み
  */
-int64_t File::BufferIO::read(char* buffer, int64_t count)
+int64_t File::CacheIO::read(char* buffer, int64_t count)
 {
     int64_t capacity = mBuffer->getCapacity();
 
@@ -387,15 +504,15 @@ int64_t File::BufferIO::read(char* buffer, int64_t count)
 /*!
  *  \brief  書き込み
  */
-void File::BufferIO::write(const char* buffer, int64_t count)
+void File::CacheIO::write(const char* buffer, int64_t count)
 {
-    noticeLog("*** File::BufferIO::write() not implement.");
+    noticeLog("*** File::CacheIO::write() not implement.");
 }
 
 /*!
  *  \brief  ファイルポインタの現在位置設定
  */
-void File::BufferIO::setPosition(int64_t pos)
+void File::CacheIO::setPosition(int64_t pos)
 {
     mPosition = pos;
 }
@@ -403,7 +520,7 @@ void File::BufferIO::setPosition(int64_t pos)
 /*!
  *  \brief  ファイルポインタ移動
  */
-int64_t File::BufferIO::movePosition(int64_t count)
+int64_t File::CacheIO::movePosition(int64_t count)
 {
     mPosition += count;
     return mPosition;
@@ -412,7 +529,7 @@ int64_t File::BufferIO::movePosition(int64_t count)
 /*!
  *  \brief  ファイルポインタ移動
  */
-int64_t File::BufferIO::moveLastPosition()
+int64_t File::CacheIO::moveLastPosition()
 {
     mPosition = mBuffer->getCapacity();
     return mPosition;
@@ -432,7 +549,6 @@ File::File()
 File::~File()
 {
     close();
-    delete mIO;
 }
 
 /*!
@@ -452,21 +568,56 @@ void File::open(
 
     throw(Exception)
 {
-    Exception e;
+    FileInfo* info = new FileInfo(fileName);
+    FileCache* fileCache = fileCacheList.get(&info->getCanonicalPath());
 
-    if (mIO == nullptr)
+    if (fileCache == nullptr || mode == Mode::WRITE)
+    {
+        Exception e;
+
+        if (mIO)
+        {
+            e.setMessage("File::open(\"%s\") : already opened.", fileName.getBuffer());
+            throw e;
+        }
+
         mIO = new FileIO;
 
-    if (isOpen())
-    {
-        e.setMessage("File::open(\"%s\") : already opened.", fileName.getBuffer());
-        throw e;
+        if (mIO->open(fileName, mode) == false)
+        {
+            e.setMessage("File::open(\"%s\")", fileName.getBuffer());
+            throw e;
+        }
     }
 
-    if (mIO->open(fileName, mode) == false)
+#if 0
+    if (mode == Mode::READ)
     {
-        e.setMessage("File::open(\"%s\")", fileName.getBuffer());
-        throw e;
+        if (fileBuffer == nullptr)
+        {
+            int64_t size = getSize();
+            ByteBuffer* buffer = new ByteBuffer((int32_t)size);
+
+            read(buffer, size);
+            close();
+
+            mIO = new CacheIO(buffer);
+
+            fileBuffer = new FileCache(info);
+            fileBuffer->setBuffer(buffer);
+
+            fileBufferList.add(fileBuffer);
+        }
+        else
+        {
+            mIO = new CacheIO(fileBuffer->getBuffer());
+            delete info;
+        }
+    }
+    else
+#endif
+    {
+        delete info;
     }
 }
 
@@ -475,10 +626,11 @@ void File::open(
  */
 void File::close()
 {
-    if (isOpen() == false)
-        return;
+    if (isOpen())
+        mIO->close();
 
-    mIO->close();
+    delete mIO;
+    mIO = nullptr;
 }
 
 /*!
