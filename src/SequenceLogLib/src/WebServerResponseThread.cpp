@@ -160,6 +160,7 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
         "HTTP/1.1 200 OK\r\n"
         "Content-type: %s; charset=UTF-8\r\n"
         "Content-length: %d\r\n"
+        "Connection: Close\r\n"
         "\r\n",
         mHttpRequest->getMimeType()->text.getBuffer(),
         contentLen);

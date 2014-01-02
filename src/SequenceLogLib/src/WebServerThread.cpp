@@ -149,6 +149,7 @@ void WebServerThread::run()
             // accept
             client = new Socket;
             client->accept(&server);
+            client->setNoDelay(true);
 
             // SSL関連ファイルが設定されていたらSSL有効化
             if (0 < mCertificate.getLength() && 0 < mPrivateKey.getLength())

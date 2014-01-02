@@ -88,6 +88,15 @@ HtmlGenerator::Param::Param(const CoreString* fileName, CoreString* writeBuffer,
 }
 
 /*!
+ * コンストラクタ
+ */
+HtmlGenerator::HtmlGenerator()
+{
+    // appendの度にバッファ拡張処理させないように、ある程度の領域を確保しておく
+    mHtml.setCapacity(1024 * 1024 * 2);
+}
+
+/*!
  * デフォルトの変数リストか調べる
  */
 bool HtmlGenerator::isDefaultVariableList() const
@@ -176,6 +185,7 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
         {
             String name( var->getBuffer(),  pos);
             String value;
+            value.setCapacity(1024 * 1024);
 
             Param valueParam(param->fileName, &value, param->depth);
             valueParam.readBuffer.format("%s;", var->getBuffer() + pos + 1);
@@ -259,12 +269,13 @@ void HtmlGenerator::replace(Param* param, const slog::CoreString* var)
  * \brief   htmlを読み込む
  *
  * \param [out] readHtml    ファイルの内容を返す
+ * \param [in]  position    
  * \param [in]  fileName    ファイル名
  *
  * \retval  true    読み込みに成功した場合
  * \retval  false   読み込みに失敗した場合
  */
-bool HtmlGenerator::readHtml(slog::CoreString* readHtml, const slog::CoreString* fileName)
+bool HtmlGenerator::readHtml(slog::CoreString* readHtml, int32_t position, const slog::CoreString* fileName)
 {
     try
     {
@@ -273,9 +284,11 @@ bool HtmlGenerator::readHtml(slog::CoreString* readHtml, const slog::CoreString*
 
         int32_t count = (int32_t)file.getSize();
 
-        readHtml->setCapacity(count);
-        readHtml->setLength(  count);
-        file.read(readHtml,   count);
+        if (readHtml->getCapacity() < position + count)
+            readHtml->setCapacity(    position + count);
+
+        readHtml->setLength(position + count);
+        file.read(readHtml, position,  count);
     }
     catch (Exception)
     {
@@ -333,9 +346,9 @@ bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBu
             String readBuffer;
             Util::encodeBase64(&readBuffer, buffer.getBuffer(), count);
 
-            writeBuffer->append("data:");
+            writeBuffer->append("data:", 5);
             writeBuffer->append(mimeType.text);
-            writeBuffer->append(";base64,");
+            writeBuffer->append(";base64,", 8);
             writeBuffer->append(readBuffer);
             return true;
         }
@@ -345,11 +358,6 @@ bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBu
         }
     }
 
-    Param param(fileName, writeBuffer, depth);
-
-    if (readHtml(&param.readBuffer, fileName) == false)
-        return false;
-
     if (0 < depth && mimeType.tag.getLength())
     {
         String tag;
@@ -357,14 +365,20 @@ bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBu
         writeBuffer->append(tag);
     }
 
+    bool result;
+
     if (mimeType.type == MimeType::Type::CSS ||
         mimeType.type == MimeType::Type::JAVASCRIPT)
     {
-        writeBuffer->append(param.readBuffer);
+        result = readHtml(writeBuffer, writeBuffer->getLength(), fileName);
     }
     else
     {
-        expand(&param);
+        Param param(fileName, writeBuffer, depth);
+        result = readHtml(&param.readBuffer, 0, fileName);
+
+        if (result)
+            expand(&param);
     }
 
     if (0 < depth && mimeType.tag.getLength())
@@ -374,7 +388,7 @@ bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBu
         writeBuffer->append(tag);
     }
 
-    return true;
+    return result;
 }
 
 /*!
@@ -391,7 +405,10 @@ void HtmlGenerator::expand(Param* param)
         if (pos == -1)
         {
             // 残りを全てappendしループを抜ける
-            param->writeBuffer->append(param->readBuffer.getBuffer() + index);
+            param->writeBuffer->append(
+                param->readBuffer.getBuffer() + index,
+                param->readBuffer.getLength() - index);
+
             break;
         }
 
@@ -408,7 +425,8 @@ void HtmlGenerator::expand(Param* param)
         {
             param->endPosition = param->readBuffer.indexOf(";", pos + 1);
 
-            if (param->readBuffer.indexOf("include ", pos + 1) == pos + 1)
+//          if (param->readBuffer.indexOf("include ", pos + 1) == pos + 1)
+            if (strncmp(param->readBuffer.getBuffer() + pos + 1, "include ", 8) == 0)
             {
                 // 他のファイルをインクルードする
                 int32_t startPos = pos + 1 + sizeof("include ") - 1;

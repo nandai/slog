@@ -84,7 +84,7 @@ class SLOG_API HtmlGenerator
             /*!
              * コンストラクタ
              */
-public:     HtmlGenerator() {}
+public:     HtmlGenerator();
 
             /*!
              * デフォルトの変数リストか調べる
@@ -114,7 +114,7 @@ private:    bool isDefaultVariableList() const;
             /*!
              * htmlを読み込む
              */
-public:     static bool readHtml(slog::CoreString* readHtml, const slog::CoreString* fileName);
+public:     static bool readHtml(slog::CoreString* readHtml, int32_t position, const slog::CoreString* fileName);
 
             /*!
              * html生成を実行する

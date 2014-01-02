@@ -22,6 +22,7 @@
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
 #include "slog/FixedString.h"
+#include "slog/Thread.h"
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -171,6 +172,8 @@ int Socket::close()
 #else
     if (mSocket == -1)
         return 0;
+
+    Thread::sleep(1000);
 
 #if defined(_WINDOWS)
     int result = closesocket((SOCKET)mSocket);

@@ -593,7 +593,7 @@ void File::open(
 #if 0
     if (mode == Mode::READ)
     {
-        if (fileBuffer == nullptr)
+        if (fileCache == nullptr)
         {
             int64_t size = getSize();
             ByteBuffer* buffer = new ByteBuffer((int32_t)size);
@@ -603,14 +603,14 @@ void File::open(
 
             mIO = new CacheIO(buffer);
 
-            fileBuffer = new FileCache(info);
-            fileBuffer->setBuffer(buffer);
+            fileCache = new FileCache(info);
+            fileCache->setBuffer(buffer);
 
-            fileBufferList.add(fileBuffer);
+            fileCacheList.add(fileCache);
         }
         else
         {
-            mIO = new CacheIO(fileBuffer->getBuffer());
+            mIO = new CacheIO(fileCache->getBuffer());
             delete info;
         }
     }
@@ -697,11 +697,19 @@ bool File::read(
  */
 int64_t File::read(Buffer* buffer, int64_t count) const throw(Exception)
 {
+    return read(buffer, 0, count);
+}
+
+/*!
+ *  \brief  読み込み
+ */
+int64_t File::read(Buffer* buffer, int64_t position, int64_t count) const throw(Exception)
+{
     if (isOpen() == false)
         return 0;
 
-    buffer->validateOverFlow(0, (int32_t)count);
-    return mIO->read(buffer->getBuffer(), count);
+    buffer->validateOverFlow((int32_t)position, (int32_t)count);
+    return mIO->read(buffer->getBuffer() + position, count);
 }
 
 /*!
