@@ -82,9 +82,14 @@ class SLOG_API HtmlGenerator
             VariableList mReadVariableList;
 
             /*!
+             * ルートディレクトリ
+             */
+            slog::String mRootDir;
+
+            /*!
              * コンストラクタ
              */
-public:     HtmlGenerator();
+public:     HtmlGenerator(const slog::CoreString* rootDir);
 
             /*!
              * デフォルトの変数リストか調べる

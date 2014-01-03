@@ -90,8 +90,10 @@ HtmlGenerator::Param::Param(const CoreString* fileName, CoreString* writeBuffer,
 /*!
  * コンストラクタ
  */
-HtmlGenerator::HtmlGenerator()
+HtmlGenerator::HtmlGenerator(const slog::CoreString* rootDir)
 {
+    mRootDir.copy(*rootDir);
+
     // appendの度にバッファ拡張処理させないように、ある程度の領域を確保しておく
     mHtml.setCapacity(1024 * 1024 * 2);
 }
@@ -176,14 +178,32 @@ int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos)
  */
 bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
 {
-    // デフォルト値があれば登録する
+    // 変数名チェック
     int32_t pos = var->indexOf(":");
+    int32_t varEndPos = (0 < pos ? pos : var->getLength());
 
-    if (pos != -1)
+    for (int32_t index = 0; index < varEndPos; index++)
+    {
+        // 変数名は英数のみ有効
+        char c = var->at(index);
+        bool isalnum =
+            ('a' <= c && c <= 'z') ||
+            ('A' <= c && c <= 'Z') ||
+            ('0' <= c && c <= '9');
+
+        if (isalnum == false)
+        {
+            param->endPosition -= (var->getLength() - index);
+            return false;
+        }
+    }
+
+    // デフォルト値があれば登録する
+    if (0 < pos)
     {
 //      if (isDefaultVariableList())
         {
-            String name( var->getBuffer(),  pos);
+            String name(var->getBuffer(), pos);
             String value;
             value.setCapacity(1024 * 1024);
 
@@ -401,8 +421,12 @@ void HtmlGenerator::expand(Param* param)
     while (true)
     {
         int32_t pos = param->readBuffer.indexOf("@", index);
+        int32_t endPos = -1;
+        
+        if (pos != -1)
+            endPos = param->readBuffer.indexOf(";", pos + 1);
 
-        if (pos == -1)
+        if (pos == -1 || endPos == -1)
         {
             // 残りを全てappendしループを抜ける
             param->writeBuffer->append(
@@ -423,7 +447,7 @@ void HtmlGenerator::expand(Param* param)
         }
         else
         {
-            param->endPosition = param->readBuffer.indexOf(";", pos + 1);
+            param->endPosition = endPos;
 
 //          if (param->readBuffer.indexOf("include ", pos + 1) == pos + 1)
             if (strncmp(param->readBuffer.getBuffer() + pos + 1, "include ", 8) == 0)
@@ -431,15 +455,22 @@ void HtmlGenerator::expand(Param* param)
                 // 他のファイルをインクルードする
                 int32_t startPos = pos + 1 + sizeof("include ") - 1;
                 String include(param->readBuffer.getBuffer() + startPos, param->endPosition - startPos);
-
-                int32_t dirPos = param->fileName->lastIndexOf("/");
                 String path;
 
-                if (dirPos == -1)
-                    dirPos = param->fileName->lastIndexOf("\\");
+                if (include[0] == '/')
+                {
+                    path.format("%s/", mRootDir.getBuffer());
+                }
+                else
+                {
+                    int32_t dirPos = param->fileName->lastIndexOf("/");
 
-                if (dirPos != -1)
-                    path.copy(param->fileName->getBuffer(), dirPos + 1);
+                    if (dirPos == -1)
+                        dirPos = param->fileName->lastIndexOf("\\");
+
+                    if (dirPos != -1)
+                        path.copy(param->fileName->getBuffer(), dirPos + 1);
+                }
 
                 path.append(include);
                 param->replaceResult = expand(&path, param->writeBuffer, param->depth + 1);

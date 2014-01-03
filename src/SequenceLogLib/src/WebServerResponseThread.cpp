@@ -199,12 +199,21 @@ void WebServerResponseThread::run()
         if (mHttpRequest->isAjax() == false)
             mimeType->analize(&path);
 
-        HtmlGenerator generator;
-        String notFound = "404 not found.";
-        const Buffer* writeBuffer = nullptr;
-
         if (mimeType->binary == false)
         {
+
+            String privateRootDir;
+            privateRootDir.format(
+                "%s%c..%cprivate",
+                getRootDir(),
+                PATH_DELIMITER,
+                PATH_DELIMITER);
+
+            HtmlGenerator generator(&privateRootDir);
+
+            String notFound = "404 not found.";
+            const Buffer* writeBuffer = nullptr;
+
             initVariables();
 
             if (generator.execute(&path, &mVariables))
