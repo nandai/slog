@@ -117,6 +117,16 @@ private:    bool isDefaultVariableList() const;
             void replace(Param* param, const slog::CoreString* var);
 
             /*!
+             * 検索開始文字列の位置までの文字列をappendする
+             */
+            bool append(Param* param, int32_t index, const char* from, const char* to, int32_t* pos, int32_t* endPos);
+
+            /*!
+             * インクルードパスを取得する
+             */
+            void getIncludePath(Param* param, slog::CoreString* path, const slog::CoreString* include);
+
+            /*!
              * htmlを読み込む
              */
 public:     static bool readHtml(slog::CoreString* readHtml, int32_t position, const slog::CoreString* fileName);
@@ -135,6 +145,11 @@ private:    bool expand(const slog::CoreString* fileName, CoreString* writeBuffe
              * html生成を実行する
              */
             void expand(Param* param);
+
+            /*!
+             * html生成を実行する
+             */
+            void expandCSS(Param* param);
 
             /*!
              * htmlを取得する

@@ -286,6 +286,75 @@ void HtmlGenerator::replace(Param* param, const slog::CoreString* var)
 }
 
 /*!
+ * \brief   検索開始文字列の位置までの文字列をappendする。
+ *          検索開始、及び検索終了文字列が見つからなければ、全てappendする。
+ *
+ * \param [in,out]  param   生成実行パラメータ
+ * \param [in]      index   検索開始位置
+ * \param [in]      from    検索開始文字列
+ * \param [in]      to      検索終了文字列
+ * \param [out]     pos     検索開始文字列の位置
+ * \param [out]     endPos  検索終了文字列の位置
+ *
+ * \retval  true    検索開始、及び検索終了文字列が見つかった場合
+ * \retval  false   検索開始、及び検索終了文字列が見つからなかった場合
+ */
+bool HtmlGenerator::append(Param* param, int32_t index, const char* from, const char* to, int32_t* pos, int32_t* endPos)
+{
+    *pos = param->readBuffer.indexOf(from, index);
+    *endPos = -1;
+
+    if (*pos != -1)
+        *endPos = param->readBuffer.indexOf(to, *pos + 1);
+
+    if (*endPos != -1)
+    {
+        // fromまでappendする
+        param->writeBuffer->append(
+            param->readBuffer.getBuffer() + index,
+            *pos - index);
+    }
+    else
+    {
+        // 残り全てappendする
+        param->writeBuffer->append(
+            param->readBuffer.getBuffer() + index,
+            param->readBuffer.getLength() - index);
+    }
+
+    return (*endPos != -1);
+}
+
+/*!
+ * \brief   インクルードパスを取得する
+ *
+ * \param [in]  param       生成実行パラメータ
+ * \param [out] path        結果を返す
+ * \param [in]  fileName    ファイル名
+ *
+ * \return  なし
+ */
+void HtmlGenerator::getIncludePath(Param* param, slog::CoreString* path, const slog::CoreString* fileName)
+{
+    if (fileName->at(0) == '/')
+    {
+        path->format("%s/", mRootDir.getBuffer());
+    }
+    else
+    {
+        int32_t dirPos = param->fileName->lastIndexOf("/");
+
+        if (dirPos == -1)
+            dirPos =     param->fileName->lastIndexOf("\\");
+
+        if (dirPos != -1)
+            path->copy(  param->fileName->getBuffer(), dirPos + 1);
+    }
+
+    path->append(*fileName);
+}
+
+/*!
  * \brief   htmlを読み込む
  *
  * \param [out] readHtml    ファイルの内容を返す
@@ -385,20 +454,30 @@ bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBu
         writeBuffer->append(tag);
     }
 
+    Param param(fileName, writeBuffer, depth);
     bool result;
 
-    if (mimeType.type == MimeType::Type::CSS ||
-        mimeType.type == MimeType::Type::JAVASCRIPT)
+    switch (mimeType.type)
     {
+    case MimeType::Type::JAVASCRIPT:
         result = readHtml(writeBuffer, writeBuffer->getLength(), fileName);
-    }
-    else
-    {
-        Param param(fileName, writeBuffer, depth);
+        break;
+
+    case MimeType::Type::CSS:
+        result = readHtml(&param.readBuffer, 0, fileName);
+
+        if (result)
+            expandCSS(&param);
+
+        break;
+
+    default:
         result = readHtml(&param.readBuffer, 0, fileName);
 
         if (result)
             expand(&param);
+
+        break;
     }
 
     if (0 < depth && mimeType.tag.getLength())
@@ -412,7 +491,11 @@ bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBu
 }
 
 /*!
- * html生成を実行する
+ * \brief   html生成を実行する
+ *
+ * \param [in,out]  param   生成実行パラメータ
+ *
+ * \return  なし
  */
 void HtmlGenerator::expand(Param* param)
 {
@@ -420,24 +503,11 @@ void HtmlGenerator::expand(Param* param)
 
     while (true)
     {
-        int32_t pos = param->readBuffer.indexOf("@", index);
-        int32_t endPos = -1;
-        
-        if (pos != -1)
-            endPos = param->readBuffer.indexOf(";", pos + 1);
+        int32_t pos;
+        int32_t endPos;
 
-        if (pos == -1 || endPos == -1)
-        {
-            // 残りを全てappendしループを抜ける
-            param->writeBuffer->append(
-                param->readBuffer.getBuffer() + index,
-                param->readBuffer.getLength() - index);
-
+        if (append(param, index, "@", ";", &pos, &endPos) == false)
             break;
-        }
-
-        // "@"までのhtmlをappendする
-        param->writeBuffer->append(param->readBuffer.getBuffer() + index, pos - index);
 
         if (param->readBuffer.at(pos + 1) == '@')
         {
@@ -455,24 +525,10 @@ void HtmlGenerator::expand(Param* param)
                 // 他のファイルをインクルードする
                 int32_t startPos = pos + 1 + sizeof("include ") - 1;
                 String include(param->readBuffer.getBuffer() + startPos, param->endPosition - startPos);
+
                 String path;
+                getIncludePath(param, &path, &include);
 
-                if (include[0] == '/')
-                {
-                    path.format("%s/", mRootDir.getBuffer());
-                }
-                else
-                {
-                    int32_t dirPos = param->fileName->lastIndexOf("/");
-
-                    if (dirPos == -1)
-                        dirPos = param->fileName->lastIndexOf("\\");
-
-                    if (dirPos != -1)
-                        path.copy(param->fileName->getBuffer(), dirPos + 1);
-                }
-
-                path.append(include);
                 param->replaceResult = expand(&path, param->writeBuffer, param->depth + 1);
             }
             else
@@ -486,6 +542,59 @@ void HtmlGenerator::expand(Param* param)
             if (param->replaceResult == false)
             {
                 // インクルード、または変数の置換に失敗したのでそのままappendする
+                param->writeBuffer->append(param->readBuffer.getBuffer() + pos, (param->endPosition + 1) - pos);
+            }
+        }
+
+        index = param->endPosition + 1;
+    }
+}
+
+/*!
+ * \brief   html生成を実行する
+ *
+ * \param [in,out]  param   生成実行パラメータ
+ *
+ * \return  なし
+ */
+void HtmlGenerator::expandCSS(Param* param)
+{
+    int32_t index = 0;
+
+    while (true)
+    {
+        int32_t pos;
+        int32_t endPos;
+
+        if (append(param, index, "url(", ")", &pos, &endPos) == false)
+            break;
+
+        {
+            param->endPosition = endPos;
+
+            {
+                // 他のファイルをインクルードする
+                int32_t startPos = pos + sizeof("url(") - 1;
+
+                if (param->readBuffer[startPos] == '\'')
+                {
+                    startPos++;
+                    endPos--;
+                }
+
+                String include(param->readBuffer.getBuffer() + startPos, endPos - startPos);
+
+                String path;
+                getIncludePath(param, &path, &include);
+
+                param->writeBuffer->append("url(");
+                param->replaceResult = expand(&path, param->writeBuffer, param->depth + 1);
+                param->writeBuffer->append(")");
+            }
+
+            if (param->replaceResult == false)
+            {
+                // インクルードに失敗したのでそのままappendする
                 param->writeBuffer->append(param->readBuffer.getBuffer() + pos, (param->endPosition + 1) - pos);
             }
         }
