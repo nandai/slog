@@ -50,6 +50,9 @@ private:    virtual const char* getDomain() const {return nullptr;}
             // ルートディレクトリ取得
             virtual const char* getRootDir() const {return nullptr;}
 
+            // ルートディレクトリ取得
+            void getRootDir(slog::CoreString* path) const;
+
             // 変数初期化
 protected:  virtual void initVariables() {}
 
@@ -59,8 +62,11 @@ protected:  virtual void initVariables() {}
             // 送信
             void send(const Buffer* content) const;
 
+            // not found 送信
+            void sendNotFound(HtmlGenerator* generator) const;
+
             // バイナリ送信
-            void sendBinary(const slog::CoreString* path) const;
+            void sendBinary(HtmlGenerator* generator, const slog::CoreString* path) const;
 
             // HTTPヘッダー送信（＆切断）
             void sendHttpHeader(int32_t contentLen) const;

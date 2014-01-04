@@ -57,9 +57,9 @@ WebServerResponseThread::~WebServerResponseThread()
 }
 
 /*!
- *  \brief  ファイルパス取得
+ * ルートディレクトリ取得
  */
-void WebServerResponseThread::getFilePath(slog::CoreString* path, const slog::CoreString* url) const
+void WebServerResponseThread::getRootDir(slog::CoreString* path) const
 {
     const char* rootDir = getRootDir();
 
@@ -69,10 +69,8 @@ void WebServerResponseThread::getFilePath(slog::CoreString* path, const slog::Co
     if (rootDir[0] == '/' || rootDir[1] == ':')
     {
         path->format(
-            "%s%c%s",
-            rootDir,
-            PATH_DELIMITER,
-            url->getBuffer());
+            "%s/",
+            rootDir);
     }
     else
     {
@@ -80,13 +78,19 @@ void WebServerResponseThread::getFilePath(slog::CoreString* path, const slog::Co
         Util::getProcessPath(&processPath);
 
         path->format(
-            "%s%c%s%c%s",
+            "%s/%s/",
             processPath.getBuffer(),
-            PATH_DELIMITER,
-            rootDir,
-            PATH_DELIMITER,
-            url->getBuffer());
+            rootDir);
     }
+}
+
+/*!
+ *  \brief  ファイルパス取得
+ */
+void WebServerResponseThread::getFilePath(slog::CoreString* path, const slog::CoreString* url) const
+{
+    getRootDir(path);
+    path->append(*url);
 
     if (path->at(path->getLength() - 1) == '\\' ||
         path->at(path->getLength() - 1) == '/')
@@ -119,9 +123,38 @@ void WebServerResponseThread::send(const Buffer* content) const
 }
 
 /*!
+ *  \brief  not found 送信
+ */
+void WebServerResponseThread::sendNotFound(HtmlGenerator* generator) const
+{
+    MimeType* mimeType = (MimeType*)mHttpRequest->getMimeType();
+    mimeType->setType(MimeType::Type::HTML);
+
+    String path;
+    String notFoundFileName = "notFound.html";
+    getFilePath(&path, &notFoundFileName);
+
+    String notFound = "404 not found.";
+    const Buffer* writeBuffer = nullptr;
+
+    if (generator->execute(&path, &mVariables))
+    {
+        // notFound.html
+        writeBuffer = generator->getHtml();
+    }
+    else
+    {
+        // notFound.htmlもなかった場合
+        writeBuffer = &notFound;
+    }
+
+    send(writeBuffer);
+}
+
+/*!
  *  \brief  送信
  */
-void WebServerResponseThread::sendBinary(const slog::CoreString* path) const
+void WebServerResponseThread::sendBinary(HtmlGenerator* generator, const slog::CoreString* path) const
 {
     Socket* socket = mHttpRequest->getSocket();
 
@@ -141,13 +174,13 @@ void WebServerResponseThread::sendBinary(const slog::CoreString* path) const
 
         while (0 < (readLen = (int32_t)file.read(&buffer, buffer.getCapacity())))
             socket->send(&buffer, readLen);
-    }
-    catch (Exception& e)
-    {
-        noticeLog("sendBinary: %s", e.getMessage());
-    }
 
-    socket->close();
+        socket->close();
+    }
+    catch (Exception)
+    {
+        sendNotFound(generator);
+    }
 }
 
 /*!
@@ -199,55 +232,32 @@ void WebServerResponseThread::run()
         if (mHttpRequest->isAjax() == false)
             mimeType->analize(&path);
 
+        String privateRootDir;
+        getRootDir(&privateRootDir);
+        privateRootDir.append("../private");
+
+        HtmlGenerator generator(&privateRootDir);
+
         if (mimeType->binary == false)
         {
-
-            String privateRootDir;
-            privateRootDir.format(
-                "%s%c..%cprivate",
-                getRootDir(),
-                PATH_DELIMITER,
-                PATH_DELIMITER);
-
-            HtmlGenerator generator(&privateRootDir);
-
-            String notFound = "404 not found.";
-            const Buffer* writeBuffer = nullptr;
-
             initVariables();
 
             if (generator.execute(&path, &mVariables))
             {
                 // 正常時
-                writeBuffer = generator.getHtml();
+                send(generator.getHtml());
             }
             else
             {
                 // 異常時
-                mimeType->setType(MimeType::Type::HTML);
-
-                String notFoundFileName = "notFound.html";
-                getFilePath(&path, &notFoundFileName);
-
-                if (generator.execute(&path, &mVariables))
-                {
-                    // notFound.html
-                    writeBuffer = generator.getHtml();
-                }
-                else
-                {
-                    // notFound.htmlもなかった場合
-                    writeBuffer = &notFound;
-                }
+                sendNotFound(&generator);
             }
-
-            // 送信
-            send(writeBuffer);
         }
         else
         {
             // バイナリ送信
-            sendBinary(&path);
+            path.format("%s/%s", privateRootDir.getBuffer(), url.getBuffer());
+            sendBinary(&generator, &path);
         }
     }
     catch (Exception& e)
