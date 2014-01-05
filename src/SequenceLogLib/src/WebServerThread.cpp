@@ -22,6 +22,7 @@
 #include "slog/WebServerThread.h"
 #include "slog/WebServerResponseThread.h"
 #include "slog/Socket.h"
+#include "slog/Util.h"
 
 namespace slog
 {
@@ -94,6 +95,32 @@ WebServerThread::WebServerThread()
 }
 
 /*!
+ * ルートディレクトリ設定
+ */
+void WebServerThread::setRootDir(const char* rootDir)
+{
+    if (rootDir == nullptr)
+        rootDir = "";
+
+    if (rootDir[0] == '/' || rootDir[1] == ':')
+    {
+        mRootDir.format(
+            "%s/",
+            rootDir);
+    }
+    else
+    {
+        String processPath;
+        Util::getProcessPath(&processPath);
+
+        mRootDir.format(
+            "%s/%s/",
+            processPath.getBuffer(),
+            rootDir);
+    }
+}
+
+/*!
  *  \brief  ポート取得
  */
 uint16_t WebServerThread::getPort() const
@@ -156,7 +183,7 @@ void WebServerThread::run()
                 client->useSSL(mCertificate, mPrivateKey);
 
             // 応答スレッドを生成するスレッドを実行
-            HttpRequest* httpRequest = new HttpRequest(client, mPort);
+            HttpRequest* httpRequest = new HttpRequest(client, mPort, &mRootDir);
             CreateResponseThread* createResponseThread = new CreateResponseThread(this, httpRequest);
 
             createResponseThread->start();

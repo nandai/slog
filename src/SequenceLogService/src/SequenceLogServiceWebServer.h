@@ -30,8 +30,10 @@ namespace slog
  */
 class SequenceLogServiceWebServerThread : public WebServerThread
 {
-            virtual const CREATE* getCreateList() const;
-private:    virtual void run();
+public:     SequenceLogServiceWebServerThread();
+
+private:    virtual const CREATE* getCreateList() const;
+            virtual void run();
             virtual void onResponseStart(WebServerResponseThread* response);
 };
 

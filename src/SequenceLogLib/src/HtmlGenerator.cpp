@@ -26,6 +26,10 @@
 #include "slog/ByteBuffer.h"
 #include "slog/Util.h"
 
+#if defined(__unix__)
+    #include <string.h>
+#endif
+
 namespace slog
 {
 
@@ -338,7 +342,7 @@ void HtmlGenerator::getIncludePath(Param* param, slog::CoreString* path, const s
 {
     if (fileName->at(0) == '/')
     {
-        path->format("%s/", mRootDir.getBuffer());
+        path->copy(mRootDir);
     }
     else
     {
@@ -575,8 +579,9 @@ void HtmlGenerator::expandCSS(Param* param)
             {
                 // 他のファイルをインクルードする
                 int32_t startPos = pos + sizeof("url(") - 1;
+                char c = param->readBuffer[startPos];
 
-                if (param->readBuffer[startPos] == '\'')
+                if (c == '\'' || c == '"')
                 {
                     startPos++;
                     endPos--;

@@ -57,59 +57,6 @@ WebServerResponseThread::~WebServerResponseThread()
 }
 
 /*!
- * ルートディレクトリ取得
- */
-void WebServerResponseThread::getRootDir(slog::CoreString* path) const
-{
-    const char* rootDir = getRootDir();
-
-    if (rootDir == nullptr)
-        rootDir = "";
-
-    if (rootDir[0] == '/' || rootDir[1] == ':')
-    {
-        path->format(
-            "%s/",
-            rootDir);
-    }
-    else
-    {
-        String processPath;
-        Util::getProcessPath(&processPath);
-
-        path->format(
-            "%s/%s/",
-            processPath.getBuffer(),
-            rootDir);
-    }
-}
-
-/*!
- *  \brief  ファイルパス取得
- */
-void WebServerResponseThread::getFilePath(slog::CoreString* path, const slog::CoreString* url) const
-{
-    getRootDir(path);
-    path->append(*url);
-
-    if (path->at(path->getLength() - 1) == '\\' ||
-        path->at(path->getLength() - 1) == '/')
-    {
-        path->deleteLast();
-    }
-
-    FileInfo info(*path);
-
-    if (info.isFile() == false && info.getMessage().getLength() == 0)
-    {
-        String fileName;
-        fileName.format("%cindex.html", PATH_DELIMITER);
-
-        path->append(fileName);
-    }
-}
-
-/*!
  *  \brief  送信
  */
 void WebServerResponseThread::send(const Buffer* content) const
@@ -131,8 +78,8 @@ void WebServerResponseThread::sendNotFound(HtmlGenerator* generator) const
     mimeType->setType(MimeType::Type::HTML);
 
     String path;
-    String notFoundFileName = "notFound.html";
-    getFilePath(&path, &notFoundFileName);
+    mHttpRequest->setUrl("notFound.html");
+    mHttpRequest->getPath(&path);
 
     String notFound = "404 not found.";
     const Buffer* writeBuffer = nullptr;
@@ -223,23 +170,22 @@ void WebServerResponseThread::run()
 {
     try
     {
-        String path;
+        const CoreString& url = mHttpRequest->getUrl();
+
         MimeType* mimeType = (MimeType*)mHttpRequest->getMimeType();
 
-        const CoreString& url = mHttpRequest->getUrl();
-        getFilePath(&path, &url);
-
         if (mHttpRequest->isAjax() == false)
-            mimeType->analize(&path);
+            mimeType->analize(&url);
 
         String privateRootDir;
-        getRootDir(&privateRootDir);
-        privateRootDir.append("../private");
+        privateRootDir.format("%s../private", mHttpRequest->getRootDir()->getBuffer());
 
         HtmlGenerator generator(&privateRootDir);
+        String path;
 
         if (mimeType->binary == false)
         {
+            mHttpRequest->getPath(&path);
             initVariables();
 
             if (generator.execute(&path, &mVariables))

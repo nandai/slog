@@ -47,6 +47,7 @@ public:     enum METHOD
 
 private:    Socket*                     mSocket;
             uint16_t                    mPort;
+            String                      mRootDir;       // ルートディレクトリ
             METHOD                      mMethod;        // 要求メソッド
             String                      mUrl;           // 要求URL
             MimeType                    mMimeType;      // mime-type
@@ -54,7 +55,7 @@ private:    Socket*                     mSocket;
             bool                        mAjax;          // Ajaxかどうか
             String                      mWebSocketKey;  // Sec-WebSocket-Key
 
-public:      HttpRequest(Socket* socket, uint16_t port);
+public:      HttpRequest(Socket* socket, uint16_t port, const CoreString* rootDir);
             ~HttpRequest();
 
 public:     bool    analizeRequest();
@@ -65,9 +66,11 @@ private:    int32_t analizeUrl(const char* request, int32_t len, METHOD method);
 
 public:     Socket* getSocket() const;
             uint16_t getPort() const;
+            const CoreString* getRootDir() const;
             METHOD getMethod() const;
             const CoreString& getUrl() const;
             void setUrl(const char* url);
+            void getPath(CoreString* path);
             const MimeType* getMimeType();
             const CoreString* getParam(const char* name, CoreString* param);
             bool isAjax() const;

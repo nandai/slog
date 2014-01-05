@@ -43,13 +43,19 @@ protected:  typedef WebServerResponseThread* (*WEBCREATEPROC)(HttpRequest* httpR
             };
 
             uint16_t    mPort;          // WEBサーバーのポート番号
-private:    String      mCertificate;   // 証明書ファイル名
+private:    String      mRootDir;       // ルートディレクトリ
+            String      mCertificate;   // 証明書ファイル名
             String      mPrivateKey;    // プライベートキーファイル名
 
             /*!
              * コンストラクタ
              */
 public:     WebServerThread();
+
+            /*!
+             * ルートディレクトリ設定
+             */
+            void setRootDir(const char* rootDir);
 
             /*!
              * WEBサーバーのポート番号

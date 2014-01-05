@@ -22,6 +22,7 @@
 #include "slog/HttpRequest.h"
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
+#include "slog/FileInfo.h"
 
 #include <ctype.h>
 
@@ -79,10 +80,11 @@ static const char* hexToValue(const char* hex, char* value)
 /*!
  *  \brief  コンストラクタ
  */
-HttpRequest::HttpRequest(Socket* socket, uint16_t port)
+HttpRequest::HttpRequest(Socket* socket, uint16_t port, const CoreString* rootDir)
 {
     mSocket = socket;
     mPort = port;
+    mRootDir.copy(*rootDir);
     mMethod = UNKNOWN;
     mAjax = false;
 }
@@ -235,6 +237,8 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
         p1++;   // '/'をスキップ
 
         decode(&mUrl, (char*)p1, p2);
+        setUrl( mUrl.getBuffer());
+
         mMethod = method;
         return 0;
     }
@@ -334,6 +338,14 @@ uint16_t HttpRequest::getPort() const
 }
 
 /*!
+ *  \brief  ルートディレクトリ取得
+ */
+const CoreString* HttpRequest::getRootDir() const
+{
+    return &mRootDir;
+}
+
+/*!
  *  \brief  HTTPメソッド取得
  */
 HttpRequest::METHOD HttpRequest::getMethod() const
@@ -355,6 +367,31 @@ const CoreString& HttpRequest::getUrl() const
 void HttpRequest::setUrl(const char* url)
 {
     mUrl.copy(url);
+
+    String path = mRootDir;
+    path.append(mUrl);
+
+    int32_t len = path.getLength();
+
+    if (path[len - 1] == '/')
+        path.deleteLast();
+
+    FileInfo info(path);
+
+    if (info.isFile() == false && info.getMessage().getLength() == 0)
+    {
+        mUrl.copy(path.getBuffer() + mRootDir.getLength());
+        mUrl.append("/index.html");
+    }
+}
+
+/*!
+ *  \brief  
+ */
+void HttpRequest::getPath(CoreString* path)
+{
+    path->copy(mRootDir);
+    path->append(mUrl);
 }
 
 /*!

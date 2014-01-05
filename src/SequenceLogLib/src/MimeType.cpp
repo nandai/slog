@@ -35,23 +35,24 @@ struct
 }
 static const mimeArray[] =
 {
-    {"html",  false, MimeType::Type::HTML,       "text/html",                ""      },
-    {"css",   false, MimeType::Type::CSS,        "text/css",                 "style" },
-    {"js",    false, MimeType::Type::JAVASCRIPT, "text/javascript",          "script"},
-    {"json",  false, MimeType::Type::JSON,       "application/json",         ""      },
+    {"html",  false, MimeType::Type::HTML,       "text/html",                     ""      },
+    {"css",   false, MimeType::Type::CSS,        "text/css",                      "style" },
+    {"js",    false, MimeType::Type::JAVASCRIPT, "text/javascript",               "script"},
+    {"json",  false, MimeType::Type::JSON,       "application/json",              ""      },
 
-    {"pcss",  false, MimeType::Type::TEXT,       "text/css",                 "style" },
-    {"pjs",   false, MimeType::Type::TEXT,       "text/javascript",          "script"},
+    {"pcss",  false, MimeType::Type::TEXT,       "text/css",                      "style" },
+    {"pjs",   false, MimeType::Type::TEXT,       "text/javascript",               "script"},
 
-    {"png",   true,  MimeType::Type::IMAGE,      "image/png",                ""      },
-    {"jpg",   true,  MimeType::Type::IMAGE,      "image/jpeg",               ""      },
-    {"jpeg",  true,  MimeType::Type::IMAGE,      "image/jpeg",               ""      },
-    {"gif",   true,  MimeType::Type::IMAGE,      "image/gif",                ""      },
-    {"ico",   true,  MimeType::Type::IMAGE,      "image/vnd.microsoft.icon", ""      },
-    {"zip",   true,  MimeType::Type::BINARY,     "application/zip",          ""      },
-    {"exe",   true,  MimeType::Type::BINARY,     "application/octet-stream", ""      },
+    {"png",   true,  MimeType::Type::IMAGE,      "image/png",                     ""      },
+    {"jpg",   true,  MimeType::Type::IMAGE,      "image/jpeg",                    ""      },
+    {"jpeg",  true,  MimeType::Type::IMAGE,      "image/jpeg",                    ""      },
+    {"gif",   true,  MimeType::Type::IMAGE,      "image/gif",                     ""      },
+    {"ico",   true,  MimeType::Type::IMAGE,      "image/vnd.microsoft.icon",      ""      },
+    {"zip",   true,  MimeType::Type::BINARY,     "application/zip",               ""      },
+    {"exe",   true,  MimeType::Type::BINARY,     "application/octet-stream",      ""      },
+    {"swf",   true,  MimeType::Type::BINARY,     "application/x-shockwave-Flash", ""      },
 
-    {nullptr, false, MimeType::Type::TEXT,       "text/plain",               ""      },
+    {nullptr, false, MimeType::Type::TEXT,       "text/plain",                    ""      },
 };
 
 /*!

@@ -32,6 +32,7 @@
 
 #if defined(__unix__)
     #include <stdio.h>
+    #include <string.h>
     #include <unistd.h>
 #endif
 
@@ -341,7 +342,7 @@ void File::FileIO::write(const char* buffer, int64_t count)
     DWORD result = 0;
     ::WriteFile(mHandle, buffer, (int32_t)count, &result, nullptr);
 #else
-    fwrite(p, 1, count, mHandle);
+    fwrite(buffer, 1, count, mHandle);
 #endif
 }
 

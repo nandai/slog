@@ -27,6 +27,15 @@
 namespace slog
 {
 
+SequenceLogServiceWebServerThread::SequenceLogServiceWebServerThread()
+{
+#if !defined(__ANDROID__)
+    setRootDir("SequenceLogServiceWeb");
+#else
+    setRootDir("");
+#endif
+}
+
 /*!
  *  \brief  WEBサーバー応答スレッドオブジェクト生成リスト取得
  */

@@ -44,20 +44,8 @@ protected:  HttpRequest*        mHttpRequest;
 public:     WebServerResponseThread(HttpRequest* httpRequest);
             virtual ~WebServerResponseThread();
 
-            // ドメイン取得
-private:    virtual const char* getDomain() const {return nullptr;}
-
-            // ルートディレクトリ取得
-            virtual const char* getRootDir() const {return nullptr;}
-
-            // ルートディレクトリ取得
-            void getRootDir(slog::CoreString* path) const;
-
             // 変数初期化
 protected:  virtual void initVariables() {}
-
-            // ファイルパス取得
-            void getFilePath(slog::CoreString* path, const slog::CoreString* url) const;
 
             // 送信
             void send(const Buffer* content) const;

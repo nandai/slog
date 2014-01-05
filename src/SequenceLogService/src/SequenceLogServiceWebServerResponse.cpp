@@ -33,29 +33,6 @@ SequenceLogServiceWebServerResponse::SequenceLogServiceWebServerResponse(HttpReq
 }
 
 /*!
- *  \brief  ドメイン取得
- */
-const char* SequenceLogServiceWebServerResponse::getDomain() const
-{
-    static const char* domain = "printf.jp";
-    return domain;
-}
-
-/*!
- *  \brief  ルートディレクトリ取得
- */
-const char* SequenceLogServiceWebServerResponse::getRootDir() const
-{
-#if !defined(__ANDROID__)
-    static const char* rootDir = "SequenceLogServiceWeb";
-#else
-    static const char* rootDir = "";
-#endif
-
-    return rootDir;
-}
-
-/*!
  * \brief  変数初期化
  */
 void SequenceLogServiceWebServerResponse::initVariables()
