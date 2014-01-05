@@ -123,8 +123,8 @@ public:     ~FileCacheList();
  */
 FileCacheList::~FileCacheList()
 {
-    for (auto  fileBuffer : mList)
-        delete fileBuffer;
+    for (auto i = mList.begin(); i != mList.end(); i++)
+        delete *i;
 
     mList.clear();
 }
@@ -142,10 +142,12 @@ void FileCacheList::add(FileCache* fileBuffer)
  */
 FileCache* FileCacheList::get(const CoreString* path) const
 {
-    for (auto fileBuffer : mList)
+    for (auto i = mList.begin(); i != mList.end(); i++)
     {
-        if (fileBuffer->getFileInfo()->getCanonicalPath().equals(*path))
-            return fileBuffer;
+        auto fileCache = *i;
+
+        if (fileCache->getFileInfo()->getCanonicalPath().equals(*path))
+            return fileCache;
     }
 
     return nullptr;

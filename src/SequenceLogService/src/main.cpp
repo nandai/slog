@@ -252,7 +252,7 @@ void Application::main(int argc, char** argv)
         serviceMain.setOutputScreen(outputScreen);
         serviceMain.setWebServerPort(false, webServerPort);
         serviceMain.setWebServerPort(true,  webServerPortSSL);
-        serviceMain.setSSLFileName(certificate, privateKey);
+        serviceMain.setSSLFileName(&certificate, &privateKey);
         serviceMain.setSequenceLogServerPort(sequenceLogServerPort);
         serviceMain.start();
 

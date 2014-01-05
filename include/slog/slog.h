@@ -70,6 +70,7 @@
 
 #if defined(__ANDROID__)
     #define nullptr 0
+    #define override
 #endif
 
 #define MAX_PATH 260

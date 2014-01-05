@@ -45,7 +45,7 @@ class SLOG_API WebSocket : public Socket
              * コンストラクタ／デストラクタ
              */
 public:     WebSocket(bool isServer);
-            virtual ~WebSocket();
+            virtual ~WebSocket() override;
 
             /*!
              * 初期化
@@ -55,7 +55,7 @@ protected:  void init();
             /*!
              * クローズ
              */
-public:     virtual int close();
+public:     virtual int close() override;
 
             /*!
              * リスナー設定
@@ -76,10 +76,10 @@ private:    void check(uint64_t len, bool isText) throw(Exception);
             /*!
              * バイナリ送信
              */
-public:     virtual void send(const  int32_t* value) const throw(Exception);
-            virtual void send(const uint32_t* value) const throw(Exception);
-            virtual void send(const Buffer* buffer, int32_t len) const throw(Exception);
-            virtual void send(const char*   buffer, int32_t len) const throw(Exception);
+public:     virtual void send(const  int32_t* value) const throw(Exception) override;
+            virtual void send(const uint32_t* value) const throw(Exception) override;
+            virtual void send(const Buffer* buffer, int32_t len) const throw(Exception) override;
+            virtual void send(const char*   buffer, int32_t len) const throw(Exception) override;
 
             /*!
              * テキスト送信
