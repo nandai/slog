@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   HttpRequest.cpp
- *  \brief  httpリクエストクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    HttpRequest.cpp
+ * \brief   httpリクエストクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/HttpRequest.h"
 #include "slog/Socket.h"
@@ -37,7 +37,7 @@ namespace slog
 {
 
 /*!
- *  \brief  16進数文字列を数値に変換
+ * \brief   16進数文字列を数値に変換
  */
 template <class T>
 inline const char* _hexToValue(const char* hex, T* value)
@@ -70,7 +70,7 @@ inline const char* _hexToValue(const char* hex, T* value)
 }
 
 /*!
- *  \brief  16進数文字列をchar型の数値に変換
+ * \brief   16進数文字列をchar型の数値に変換
  */
 static const char* hexToValue(const char* hex, char* value)
 {
@@ -78,7 +78,11 @@ static const char* hexToValue(const char* hex, char* value)
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
+ *
+ * \param [in]  socket  ソケット
+ * \param [in]  port    ポート番号
+ * \param [in]  rootDir ルートディレクトリ
  */
 HttpRequest::HttpRequest(Socket* socket, uint16_t port, const CoreString* rootDir)
 {
@@ -90,7 +94,7 @@ HttpRequest::HttpRequest(Socket* socket, uint16_t port, const CoreString* rootDi
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 HttpRequest::~HttpRequest()
 {
@@ -98,7 +102,10 @@ HttpRequest::~HttpRequest()
 }
 
 /*!
- *  \brief  要求解析
+ * \brief   要求解析
+ *
+ * \retval  true    解析に成功した場合
+ * \retval  false   解析に失敗した場合
  */
 bool HttpRequest::analizeRequest()
 {
@@ -193,7 +200,15 @@ bool HttpRequest::analizeRequest()
 }
 
 /*!
- *  \brief  URL解析
+ * \brief   URL解析
+ *
+ * \param [in]  request 解析対象文字列
+ * \param [in]  len     解析対象文字列の長さ
+ * \param [in]  method  解析対象とするメソッド種別
+ *
+ * \retval  -1  methodがGETでもPOSTでもなかった、またはrequestが正しいフォーマット（"GET <ドメイン> HTTP/1.1"等）ではなかった場合
+ * \retval   0  解析成功
+ * \retval   1  requestに"GET"、または"POST"が含まれていなかった場合
  */
 int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 {
@@ -234,7 +249,7 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
             }
         }
 
-        p1++;   // '/'をスキップ
+        p1++;   // "/www.printf.jp"等の先頭の'/'をスキップ
 
         decode(&mUrl, (char*)p1, p2);
         setUrl( mUrl.getBuffer());
@@ -247,7 +262,12 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 }
 
 /*!
- *  \brief  パラメータ解析
+ * \brief  パラメータ解析
+ *
+ * \param [in]  buffer  解析対象文字列
+ * \param [in]  len     解析対象文字列の長さ
+ *
+ * \return  なし
  */
 void HttpRequest::analizeParams(const char* buffer, int32_t len)
 {
@@ -286,7 +306,13 @@ void HttpRequest::analizeParams(const char* buffer, int32_t len)
 }
 
 /*!
- * パーセントデコード
+ * \brief   パーセントデコード
+ *
+ * \param [out]     str     デコード結果を返す
+ * \param [in,out]  start   デコード開始位置（デコード処理により書き換わる）
+ * \param [in]      end     デコード終了位置
+ *
+ * \return  なし
  */
 void HttpRequest::decode(slog::CoreString* str, char* start, const char* end)
 {
@@ -322,7 +348,7 @@ void HttpRequest::decode(slog::CoreString* str, char* start, const char* end)
 }
 
 /*!
- *  \brief  ソケット取得
+ * \brief  ソケット取得
  */
 Socket* HttpRequest::getSocket() const
 {
@@ -330,7 +356,7 @@ Socket* HttpRequest::getSocket() const
 }
 
 /*!
- *  \brief  ポート取得
+ * \brief  ポート番号取得
  */
 uint16_t HttpRequest::getPort() const
 {
@@ -338,7 +364,7 @@ uint16_t HttpRequest::getPort() const
 }
 
 /*!
- *  \brief  ルートディレクトリ取得
+ * \brief  ルートディレクトリ取得
  */
 const CoreString* HttpRequest::getRootDir() const
 {
@@ -346,7 +372,7 @@ const CoreString* HttpRequest::getRootDir() const
 }
 
 /*!
- *  \brief  HTTPメソッド取得
+ * \brief  HTTPメソッド取得
  */
 HttpRequest::METHOD HttpRequest::getMethod() const
 {
@@ -354,15 +380,15 @@ HttpRequest::METHOD HttpRequest::getMethod() const
 }
 
 /*!
- *  \brief  URL取得
+ * \brief  URL取得
  */
-const CoreString& HttpRequest::getUrl() const
+const CoreString* HttpRequest::getUrl() const
 {
-    return mUrl;
+    return &mUrl;
 }
 
 /*!
- *  \brief  URL設定
+ * \brief  URL設定
  */
 void HttpRequest::setUrl(const char* url)
 {
@@ -386,7 +412,7 @@ void HttpRequest::setUrl(const char* url)
 }
 
 /*!
- *  \brief  
+ * \brief  ファイルパス取得
  */
 void HttpRequest::getPath(CoreString* path)
 {
@@ -395,7 +421,7 @@ void HttpRequest::getPath(CoreString* path)
 }
 
 /*!
- *  \brief  mime-type取得
+ * \brief  mime-type取得
  */
 const MimeType* HttpRequest::getMimeType()
 {
@@ -403,7 +429,7 @@ const MimeType* HttpRequest::getMimeType()
 }
 
 /*!
- *  \brief  POSTパラメータ取得
+ * \brief  パラメータ取得
  */
 const CoreString* HttpRequest::getParam(const char* name, CoreString* param)
 {
@@ -412,7 +438,7 @@ const CoreString* HttpRequest::getParam(const char* name, CoreString* param)
 }
 
 /*!
- *  \brief  Ajaxかどうか調べる
+ * \brief  Ajaxかどうか調べる
  */
 bool HttpRequest::isAjax() const
 {
@@ -420,7 +446,7 @@ bool HttpRequest::isAjax() const
 }
 
 /*!
- *  \brief  Sec-WebSocket-Key取得
+ * \brief  Sec-WebSocket-Key取得
  */
 const CoreString* HttpRequest::getWebSocketKey() const
 {

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   WebServerThread.cpp
- *  \brief  WEBサーバースレッドクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    WebServerThread.cpp
+ * \brief   WEBサーバースレッドクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/WebServerThread.h"
 #include "slog/WebServerResponseThread.h"
@@ -28,21 +28,38 @@ namespace slog
 {
 
 /*!
- * 応答スレッド生成クラス
+ * \brief   応答スレッド生成クラス
  */
 class CreateResponseThread : public Thread
 {
-            WebServerThread*    mWebServer;
-            HttpRequest*        mHttpRequest;
+            /*!
+             * WEBサーバー
+             */
+            WebServerThread* mWebServer;
 
+            /*!
+             * httpリクエスト
+             */
+            HttpRequest* mHttpRequest;
+
+            /*!
+             * コンストラクタ
+             */
 public:     CreateResponseThread(WebServerThread* webServer, HttpRequest* httpRequest);
+
+            /*!
+             * デストラクタ
+             */
             virtual ~CreateResponseThread();
 
+            /*!
+             * スレッド実行
+             */
             virtual void run();
 };
 
 /*!
- * コンストラクタ
+ * \brief   コンストラクタ
  */
 CreateResponseThread::CreateResponseThread(WebServerThread* webServer, HttpRequest* httpRequest)
 {
@@ -51,14 +68,14 @@ CreateResponseThread::CreateResponseThread(WebServerThread* webServer, HttpReque
 }
 
 /*!
- * デストラクタ
+ * \brief   デストラクタ
  */
 CreateResponseThread::~CreateResponseThread()
 {
 }
 
 /*!
- * スレッド実行
+ * \brief   スレッド実行
  */
 void CreateResponseThread::run()
 {
@@ -69,7 +86,7 @@ void CreateResponseThread::run()
         // リクエスト解析
         if (mHttpRequest->analizeRequest())
         {
-            noticeLog("request URL: /%s", mHttpRequest->getUrl().getBuffer());
+            noticeLog("request URL: /%s", mHttpRequest->getUrl()->getBuffer());
             response = mWebServer->createResponse(mHttpRequest);
         }
 
@@ -87,7 +104,7 @@ void CreateResponseThread::run()
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 WebServerThread::WebServerThread()
 {
@@ -95,7 +112,7 @@ WebServerThread::WebServerThread()
 }
 
 /*!
- * ルートディレクトリ設定
+ * \brief   ルートディレクトリ設定
  */
 void WebServerThread::setRootDir(const char* rootDir)
 {
@@ -121,7 +138,7 @@ void WebServerThread::setRootDir(const char* rootDir)
 }
 
 /*!
- *  \brief  ポート取得
+ * \brief   ポート取得
  */
 uint16_t WebServerThread::getPort() const
 {
@@ -129,7 +146,7 @@ uint16_t WebServerThread::getPort() const
 }
 
 /*!
- *  \brief  ポート設定
+ * \brief   ポート設定
  */
 void WebServerThread::setPort(uint16_t port)
 {
@@ -137,16 +154,16 @@ void WebServerThread::setPort(uint16_t port)
 }
 
 /*!
- * SSL関連
+ * \brief   SSL関連ファイル設定
  */
-void WebServerThread::setSSLFileName(const CoreString& certificate, const CoreString& privateKey)
+void WebServerThread::setSSLFileName(const CoreString* certificate, const CoreString* privateKey)
 {
-    mCertificate.copy(certificate);
-    mPrivateKey. copy(privateKey);
+    mCertificate.copy(*certificate);
+    mPrivateKey. copy(*privateKey);
 }
 
 /*!
- *  \brief  実行
+ * \brief   実行
  */
 void WebServerThread::run()
 {
@@ -197,12 +214,12 @@ void WebServerThread::run()
 }
 
 /*!
- *  \brief  WEBサーバー応答スレッドオブジェクト生成
+ * \brief   WEBサーバー応答スレッドオブジェクト生成
  */
 WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpRequest)
 {
     HttpRequest::METHOD method = httpRequest->getMethod();
-    const CoreString& url =      httpRequest->getUrl();
+    const CoreString* url =      httpRequest->getUrl();
 
     const CREATE* createList = getCreateList();
     WebServerResponseThread* response = nullptr;
@@ -212,7 +229,7 @@ WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpReques
     {
         String tmp = createList->url;
 
-        if (createList->method == method && url.equals(tmp))
+        if (createList->method == method && url->equals(tmp))
         {
             // HTTPメソッドとURLが一致
             if (createList->replaceUrl[0] != '\0')

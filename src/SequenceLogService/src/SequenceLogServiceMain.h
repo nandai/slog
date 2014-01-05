@@ -153,9 +153,9 @@ public:     void printLog(const Buffer* text, int32_t len);
             /*!
              * SSL関連
              */
-            void setSSLFileName(const CoreString& certificate, const CoreString& privateKey);
-            const CoreString& getCertificateFileName() const;
-            const CoreString& getPrivateKeyFileName() const;
+            void setSSLFileName(const CoreString* certificate, const CoreString* privateKey);
+            const CoreString* getCertificateFileName() const;
+            const CoreString* getPrivateKeyFileName() const;
 
             /*!
              * シーケンスログWEBサーバーポート

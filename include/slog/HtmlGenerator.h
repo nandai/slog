@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2013-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   HtmlGenerator.h
  *  \brief  html生成クラス
- *  \author Copyright 2013 printf.jp
+ *  \author Copyright 2013-2014 printf.jp
  */
 #pragma once
 

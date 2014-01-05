@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   WebServerResponseThread.cpp
- *  \brief  WEBサーバー応答スレッドクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    WebServerResponseThread.cpp
+ * \brief   WEBサーバー応答スレッドクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/WebServerResponseThread.h"
 #include "slog/HttpRequest.h"
@@ -38,7 +38,7 @@ namespace slog
 {
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
 {
@@ -46,7 +46,7 @@ WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief デストラクタ
  */
 WebServerResponseThread::~WebServerResponseThread()
 {
@@ -57,7 +57,7 @@ WebServerResponseThread::~WebServerResponseThread()
 }
 
 /*!
- *  \brief  送信
+ * \brief   送信
  */
 void WebServerResponseThread::send(const Buffer* content) const
 {
@@ -70,7 +70,7 @@ void WebServerResponseThread::send(const Buffer* content) const
 }
 
 /*!
- *  \brief  not found 送信
+ * \brief   not found 送信
  */
 void WebServerResponseThread::sendNotFound(HtmlGenerator* generator) const
 {
@@ -99,7 +99,7 @@ void WebServerResponseThread::sendNotFound(HtmlGenerator* generator) const
 }
 
 /*!
- *  \brief  送信
+ * \brief   送信
  */
 void WebServerResponseThread::sendBinary(HtmlGenerator* generator, const slog::CoreString* path) const
 {
@@ -131,7 +131,7 @@ void WebServerResponseThread::sendBinary(HtmlGenerator* generator, const slog::C
 }
 
 /*!
- *  \brief  HTTPヘッダー送信（＆切断）
+ * \brief   HTTPヘッダー送信（＆切断）
  */
 void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 {
@@ -153,7 +153,7 @@ void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
 }
 
 /*!
- *  \brief  応答内容送信＆切断
+ * \brief   応答内容送信＆切断
  */
 void WebServerResponseThread::sendContent(const Buffer* content) const
 {
@@ -164,18 +164,18 @@ void WebServerResponseThread::sendContent(const Buffer* content) const
 }
 
 /*!
- *  \brief  実行
+ * \brief   実行
  */
 void WebServerResponseThread::run()
 {
     try
     {
-        const CoreString& url = mHttpRequest->getUrl();
+        const CoreString* url = mHttpRequest->getUrl();
 
         MimeType* mimeType = (MimeType*)mHttpRequest->getMimeType();
 
         if (mHttpRequest->isAjax() == false)
-            mimeType->analize(&url);
+            mimeType->analize(url);
 
         String privateRootDir;
         privateRootDir.format("%s../private", mHttpRequest->getRootDir()->getBuffer());
@@ -202,7 +202,7 @@ void WebServerResponseThread::run()
         else
         {
             // バイナリ送信
-            path.format("%s/%s", privateRootDir.getBuffer(), url.getBuffer());
+            path.format("%s/%s", privateRootDir.getBuffer(), url->getBuffer());
             sendBinary(&generator, &path);
         }
     }
@@ -213,7 +213,7 @@ void WebServerResponseThread::run()
 }
 
 /*!
- *  \brief  WebSocketにアップグレード
+ * \brief   WebSocketにアップグレード
  */
 bool WebServerResponseThread::upgradeWebSocket()
 {
@@ -250,7 +250,7 @@ bool WebServerResponseThread::upgradeWebSocket()
 }
 
 /*!
- *  \brief  WebSocketヘッダー送信
+ * \brief   WebSocketヘッダー送信
  */
 void WebServerResponseThread::sendWebSocketHeader(uint64_t payloadLen, bool isText, bool toClient) const
 {

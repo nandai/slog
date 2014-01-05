@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   WebServerThread.h
- *  \brief  WEBサーバースレッドクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    WebServerThread.h
+ * \brief   WEBサーバースレッドクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -29,23 +29,54 @@ namespace slog
 class WebServerResponseThread;
 
 /*!
- *  \brief  WEBサーバースレッドクラス
+ * \brief   WEBサーバースレッドクラス
  */
 class SLOG_API WebServerThread : public Thread
 {
 protected:  typedef WebServerResponseThread* (*WEBCREATEPROC)(HttpRequest* httpRequest);
+
             struct CREATE
             {
-                HttpRequest::METHOD method;         // メソッド
-                const char*         url;            // URL
-                const char*         replaceUrl;     // 置換URL
-                WEBCREATEPROC       proc;           // プロシージャ
+                /*!
+                 * メソッド
+                 */
+                HttpRequest::METHOD method;
+
+                /*!
+                 * URL
+                 */
+                const char* url;
+
+                /*!
+                 * 置換URL
+                 */
+                const char* replaceUrl;
+
+                /*!
+                 * プロシージャ
+                 */
+                WEBCREATEPROC proc;
             };
 
-            uint16_t    mPort;          // WEBサーバーのポート番号
-private:    String      mRootDir;       // ルートディレクトリ
-            String      mCertificate;   // 証明書ファイル名
-            String      mPrivateKey;    // プライベートキーファイル名
+            /*!
+             * WEBサーバーのポート番号
+             */
+            uint16_t mPort;
+
+            /*!
+             * ルートディレクトリ
+             */
+private:    String mRootDir;
+
+            /*!
+             * 証明書ファイル名
+             */
+            String mCertificate;
+
+            /*!
+             * プライベートキーファイル名
+             */
+            String mPrivateKey;
 
             /*!
              * コンストラクタ
@@ -58,17 +89,29 @@ public:     WebServerThread();
             void setRootDir(const char* rootDir);
 
             /*!
-             * WEBサーバーのポート番号
+             * WEBサーバーのポート番号取得
              */
             uint16_t getPort() const;
-            void     setPort(uint16_t port);
 
             /*!
-             * SSL関連
+             * WEBサーバーのポート番号設定
              */
-            void setSSLFileName(const CoreString& certificate, const CoreString& privateKey);
-            const CoreString& getCertificateFileName() const {return mCertificate;}
-            const CoreString& getPrivateKeyFileName() const {return mPrivateKey;}
+            void setPort(uint16_t port);
+
+            /*!
+             * SSL関連ファイル設定
+             */
+            void setSSLFileName(const CoreString* certificate, const CoreString* privateKey);
+
+            /*!
+             * 公開鍵ファイル名取得
+             */
+            const CoreString* getCertificateFileName() const {return &mCertificate;}
+
+            /*!
+             * 秘密鍵ファイル名取得
+             */
+            const CoreString* getPrivateKeyFileName() const {return &mPrivateKey;}
 
             /*!
              * スレッド実行

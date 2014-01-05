@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   HttpRequest.h
- *  \brief  httpリクエストクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    HttpRequest.h
+ * \brief   httpリクエストクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -38,6 +38,9 @@ class ByteBuffer;
  */
 class SLOG_API HttpRequest
 {
+            /*!
+             * メソッド種別
+             */
 public:     enum METHOD
             {
                 UNKNOWN,
@@ -45,35 +48,134 @@ public:     enum METHOD
                 POST,
             };
 
-private:    Socket*                     mSocket;
-            uint16_t                    mPort;
-            String                      mRootDir;       // ルートディレクトリ
-            METHOD                      mMethod;        // 要求メソッド
-            String                      mUrl;           // 要求URL
-            MimeType                    mMimeType;      // mime-type
-            std::map<String, String>    mParams;        // パラメータ
-            bool                        mAjax;          // Ajaxかどうか
-            String                      mWebSocketKey;  // Sec-WebSocket-Key
+            /*!
+             * ソケット
+             */
+private:    Socket* mSocket;
 
-public:      HttpRequest(Socket* socket, uint16_t port, const CoreString* rootDir);
+            /*!
+             * ポート番号
+             */
+            uint16_t mPort;
+
+            /*!
+             * ルートディレクトリ
+             */
+            String mRootDir;
+
+            /*!
+             * 要求メソッド
+             */
+            METHOD mMethod;
+
+            /*!
+             * 要求URL
+             */
+            String mUrl;
+
+            /*!
+             * mime-type
+             */
+            MimeType mMimeType;
+
+            /*!
+             * パラメータ
+             */
+            std::map<String, String> mParams;
+
+            /*!
+             * Ajaxかどうか
+             */
+            bool mAjax;
+
+            /*!
+             * Sec-WebSocket-Key
+             */
+            String mWebSocketKey;
+
+            /*!
+             * コンストラクタ
+             */
+public:     HttpRequest(Socket* socket, uint16_t port, const CoreString* rootDir);
+
+            /*!
+             * デストラクタ
+             */
             ~HttpRequest();
 
-public:     bool    analizeRequest();
-private:    int32_t analizeUrl(const char* request, int32_t len, METHOD method);
-            void    analizeParams(const char* buffer, int32_t len);
+            /*!
+             * 要求解析
+             */
+            bool analizeRequest();
 
+            /*!
+             * URL解析
+             */
+private:    int32_t analizeUrl(const char* request, int32_t len, METHOD method);
+
+            /*!
+             * パラメータ解析
+             */
+            void analizeParams(const char* buffer, int32_t len);
+
+            /*!
+             * パーセントデコード
+             */
             void decode(slog::CoreString* str, char* start, const char* end);
 
+            /*!
+             * ソケット取得
+             */
 public:     Socket* getSocket() const;
+
+            /*!
+             * ポート番号取得
+             */
             uint16_t getPort() const;
+
+            /*!
+             * ルートディレクトリ取得
+             */
             const CoreString* getRootDir() const;
+
+            /*!
+             * HTTPメソッド取得
+             */
             METHOD getMethod() const;
-            const CoreString& getUrl() const;
+
+            /*!
+             * URL取得
+             */
+            const CoreString* getUrl() const;
+
+            /*!
+             * URL設定
+             */
             void setUrl(const char* url);
+
+            /*!
+             * ファイルパス取得
+             */
             void getPath(CoreString* path);
+
+            /*!
+             * mime-type取得
+             */
             const MimeType* getMimeType();
+
+            /*!
+             * パラメータ取得
+             */
             const CoreString* getParam(const char* name, CoreString* param);
+
+            /*!
+             * Ajaxかどうか調べる
+             */
             bool isAjax() const;
+
+            /*!
+             * Sec-WebSocket-Key取得
+             */
             const CoreString* getWebSocketKey() const;
 };
 

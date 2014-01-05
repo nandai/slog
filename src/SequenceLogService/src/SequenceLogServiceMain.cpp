@@ -381,7 +381,7 @@ void SequenceLogServiceMain::setWebServerPort(bool secure, uint16_t port)
 /*!
  * SSL関連
  */
-void SequenceLogServiceMain::setSSLFileName(const CoreString& certificate, const CoreString& privateKey)
+void SequenceLogServiceMain::setSSLFileName(const CoreString* certificate, const CoreString* privateKey)
 {
     mWebServer[1].setSSLFileName(certificate, privateKey);
 }
@@ -389,7 +389,7 @@ void SequenceLogServiceMain::setSSLFileName(const CoreString& certificate, const
 /*!
  * 証明書ファイル名取得
  */
-const CoreString& SequenceLogServiceMain::getCertificateFileName() const
+const CoreString* SequenceLogServiceMain::getCertificateFileName() const
 {
     return mWebServer[1].getCertificateFileName();
 }
@@ -397,7 +397,7 @@ const CoreString& SequenceLogServiceMain::getCertificateFileName() const
 /*!
  * プライベート機ファイル名取得
  */
-const CoreString& SequenceLogServiceMain::getPrivateKeyFileName() const
+const CoreString* SequenceLogServiceMain::getPrivateKeyFileName() const
 {
     return mWebServer[1].getPrivateKeyFileName();
 }
