@@ -59,11 +59,11 @@ WebServerResponseThread::~WebServerResponseThread()
 /*!
  * \brief   送信
  */
-void WebServerResponseThread::send(const Buffer* content) const
+void WebServerResponseThread::send(const DateTime* lastModified, const Buffer* content) const
 {
     // HTTPヘッダー送信
     int32_t contentLen = content->getLength();
-    sendHttpHeader(contentLen);
+    sendHttpHeader(lastModified, contentLen);
 
     // コンテンツ送信
     sendContent(content);
@@ -83,19 +83,22 @@ void WebServerResponseThread::sendNotFound(HtmlGenerator* generator) const
 
     String notFound = "404 not found.";
     const Buffer* writeBuffer = nullptr;
+    DateTime lastModified;
 
     if (generator->execute(&path, &mVariables))
     {
         // notFound.html
-        writeBuffer = generator->getHtml();
+        writeBuffer =   generator->getHtml();
+        lastModified = *generator->getLastWriteTime();
     }
     else
     {
         // notFound.htmlもなかった場合
         writeBuffer = &notFound;
+        lastModified.setCurrent();
     }
 
-    send(writeBuffer);
+    send(&lastModified, writeBuffer);
 }
 
 /*!
@@ -113,7 +116,7 @@ void WebServerResponseThread::sendBinary(HtmlGenerator* generator, const slog::C
         int32_t len = (int32_t)file.getSize();
 
         // HTTPヘッダー送信
-        sendHttpHeader(len);
+        sendHttpHeader(file.getLastWriteTime(), len);
 
         // コンテンツ送信
         ByteBuffer buffer(1024 * 1024);
@@ -132,19 +135,53 @@ void WebServerResponseThread::sendBinary(HtmlGenerator* generator, const slog::C
 
 /*!
  * \brief   HTTPヘッダー送信（＆切断）
+ *
+ * \param[in]   lastModified    最終書込日時（NULL可）
+ * \param[in]   contentLen      コンテンツの長さ
+ *
+ * \return  なし
  */
-void WebServerResponseThread::sendHttpHeader(int32_t contentLen) const
+void WebServerResponseThread::sendHttpHeader(const DateTime* lastModified, int32_t contentLen) const
 {
+    // Last-Modified生成
+    static const char* week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    static const char* mon[] =  {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+    DateTime now;
+
+    if (lastModified == nullptr)
+    {
+        now.setCurrent();
+        lastModified = &now;
+    }
+
+    String lm;
+    lm.format("%s, %02d %s %04d %02d:%02d:%02d GMT",
+        week[lastModified->getWeekDay()],
+             lastModified->getDay(),
+        mon[ lastModified->getMonth() - 1],
+             lastModified->getYear(),
+             lastModified->getHour(),
+             lastModified->getMinute(),
+             lastModified->getSecond());
+
+    // ヘッダー生成
+    const MimeType* mimeType = mHttpRequest->getMimeType();
+
     String str;
     str.format(
         "HTTP/1.1 200 OK\r\n"
-        "Content-type: %s; charset=UTF-8\r\n"
-        "Content-length: %d\r\n"
+        "Content-Type: %s%s\r\n"
+        "Content-Length: %d\r\n"
+        "Last-Modified: %s\r\n"
         "Connection: Close\r\n"
         "\r\n",
-        mHttpRequest->getMimeType()->text.getBuffer(),
-        contentLen);
+         mimeType->text.getBuffer(),
+        (mimeType->binary == false ? "; charset=UTF-8" : ""),
+        contentLen,
+        lm.getBuffer());
 
+    // 送信
     Socket* socket = mHttpRequest->getSocket();
     socket->send(&str, str.getLength());
 
@@ -191,7 +228,7 @@ void WebServerResponseThread::run()
             if (generator.execute(&path, &mVariables))
             {
                 // 正常時
-                send(generator.getHtml());
+                send(generator.getLastWriteTime(), generator.getHtml());
             }
             else
             {

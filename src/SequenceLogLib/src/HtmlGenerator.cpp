@@ -25,6 +25,7 @@
 #include "slog/MimeType.h"
 #include "slog/ByteBuffer.h"
 #include "slog/Util.h"
+#include "slog/DateTime.h"
 
 #if defined(__unix__)
     #include <string.h>
@@ -100,6 +101,16 @@ HtmlGenerator::HtmlGenerator(const slog::CoreString* rootDir)
 
     // appendの度にバッファ拡張処理させないように、ある程度の領域を確保しておく
     mHtml.setCapacity(1024 * 1024 * 2);
+
+    mLastWriteTime = new DateTime;
+}
+
+/*!
+ * デストラクタ
+ */
+HtmlGenerator::~HtmlGenerator()
+{
+    delete mLastWriteTime;
 }
 
 /*!
@@ -375,6 +386,11 @@ bool HtmlGenerator::readHtml(slog::CoreString* readHtml, int32_t position, const
         File file;
         file.open(*fileName, File::READ);
 
+        uint64_t value = file.getLastWriteTime()->getValue();
+
+        if (mLastWriteTime->getValue() < value)
+            mLastWriteTime->setValue(    value);
+
         int32_t count = (int32_t)file.getSize();
 
         if (readHtml->getCapacity() < position + count)
@@ -430,6 +446,11 @@ bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBu
         {
             File file;
             file.open(*fileName, File::READ);
+
+            uint64_t value = file.getLastWriteTime()->getValue();
+
+            if (mLastWriteTime->getValue() < value)
+                mLastWriteTime->setValue(    value);
 
             int32_t count = (int32_t)file.getSize();
 
@@ -606,6 +627,14 @@ void HtmlGenerator::expandCSS(Param* param)
 
         index = param->endPosition + 1;
     }
+}
+
+/*!
+ * 最終書込日時取得
+ */
+const DateTime* HtmlGenerator::getLastWriteTime() const
+{
+    return mLastWriteTime;
 }
 
 } // namespace slog

@@ -65,7 +65,7 @@ protected:  virtual void initVariables() {}
             /*!
              * 送信
              */
-            void send(const Buffer* content) const;
+            void send(const DateTime* lastModified, const Buffer* content) const;
 
             /*!
              * not found 送信
@@ -80,7 +80,7 @@ protected:  virtual void initVariables() {}
             /*!
              * HTTPヘッダー送信（＆切断）
              */
-            void sendHttpHeader(int32_t contentLen) const;
+            void sendHttpHeader(const DateTime* lastModified, int32_t contentLen) const;
 
             /*!
              * 応答内容送信＆切断

@@ -50,6 +50,8 @@ static const mimeArray[] =
     {"ico",   true,  MimeType::Type::IMAGE,      "image/vnd.microsoft.icon",      ""      },
     {"zip",   true,  MimeType::Type::BINARY,     "application/zip",               ""      },
     {"exe",   true,  MimeType::Type::BINARY,     "application/octet-stream",      ""      },
+    {"dll",   true,  MimeType::Type::BINARY,     "application/octet-stream",      ""      },
+    {"dat",   true,  MimeType::Type::BINARY,     "application/octet-stream",      ""      },
     {"swf",   true,  MimeType::Type::BINARY,     "application/x-shockwave-Flash", ""      },
 
     {nullptr, false, MimeType::Type::TEXT,       "text/plain",                    ""      },

@@ -544,6 +544,7 @@ int64_t File::CacheIO::moveLastPosition()
 File::File()
 {
     mIO = nullptr;
+    mLastWriteTime = new DateTime;
 }
 
 /*!
@@ -552,6 +553,7 @@ File::File()
 File::~File()
 {
     close();
+    delete mLastWriteTime;
 }
 
 /*!
@@ -573,6 +575,8 @@ void File::open(
 {
     FileInfo* info = new FileInfo(fileName);
     FileCache* fileCache = fileCacheList.get(&info->getCanonicalPath());
+
+    *mLastWriteTime = info->getLastWriteTime();
 
     if (fileCache == nullptr || mode == Mode::WRITE)
     {
@@ -826,6 +830,14 @@ int64_t File::movePosition(int64_t count) const
 int64_t File::moveLastPosition() const
 {
     return mIO->moveLastPosition();
+}
+
+/*!
+ * 最終書込日時取得
+ */
+const DateTime* File::getLastWriteTime() const
+{
+    return mLastWriteTime;
 }
 
 /*!

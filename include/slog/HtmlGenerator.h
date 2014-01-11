@@ -29,6 +29,8 @@
 namespace slog
 {
 
+class DateTime;
+
 /*!
  * \brief  変数クラス
  */
@@ -87,9 +89,19 @@ class SLOG_API HtmlGenerator
             slog::String mRootDir;
 
             /*!
+             * 最終書込日時
+             */
+            DateTime* mLastWriteTime;
+
+            /*!
              * コンストラクタ
              */
 public:     HtmlGenerator(const slog::CoreString* rootDir);
+
+            /*!
+             * デストラクタ
+             */
+            ~HtmlGenerator();
 
             /*!
              * デフォルトの変数リストか調べる
@@ -129,12 +141,12 @@ private:    bool isDefaultVariableList() const;
             /*!
              * htmlを読み込む
              */
-public:     static bool readHtml(slog::CoreString* readHtml, int32_t position, const slog::CoreString* fileName);
+            bool readHtml(slog::CoreString* readHtml, int32_t position, const slog::CoreString* fileName);
 
             /*!
              * html生成を実行する
              */
-            bool execute(const slog::CoreString* fileName, const VariableList* variableList);
+public:     bool execute(const slog::CoreString* fileName, const VariableList* variableList);
 
             /*!
              * html生成を実行する
@@ -155,6 +167,11 @@ private:    bool expand(const slog::CoreString* fileName, CoreString* writeBuffe
              * htmlを取得する
              */
 public:    const slog::CoreString* getHtml() const {return &mHtml;}
+
+            /*!
+             * 最終書込日時取得
+             */
+            const DateTime* getLastWriteTime() const;
 };
 
 } // namespace slog

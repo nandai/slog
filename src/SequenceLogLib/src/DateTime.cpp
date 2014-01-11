@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   DateTime.cpp
- *  \brief  日付時間クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    DateTime.cpp
+ * \brief   日付時間クラス
+ * \author  Copyright 2011-2013 printf.jp
  */
 #include "slog/DateTime.h"
 #include <time.h>
@@ -30,7 +30,7 @@ namespace slog
 {
 
 /*!
- *  \brief  コンストラクタ
+ * \brief  コンストラクタ
  */
 DateTime::DateTime()
 {
@@ -38,7 +38,7 @@ DateTime::DateTime()
 }
 
 /*!
- *  \brief  現在日時設定
+ * \brief  現在日時設定
  */
 void DateTime::setCurrent()
 {
@@ -71,7 +71,7 @@ void DateTime::setCurrent()
 }
 
 /*!
- *  \brief  UTCからローカル時間に変換
+ * \brief  UTCからローカル時間に変換
  */
 void DateTime::toLocal()
 {
@@ -105,7 +105,7 @@ void DateTime::toLocal()
 }
 
 /*!
- *  \brief  日付時間をuint64_t値で取得
+ * \brief  日付時間をuint64_t値で取得
  */
 uint64_t DateTime::getValue() const
 {
@@ -113,7 +113,7 @@ uint64_t DateTime::getValue() const
 }
 
 /*!
- *  \brief  日付時間をuint64_t値で設定
+ * \brief  日付時間をuint64_t値で設定
  */
 void DateTime::setValue(uint64_t value)
 {
@@ -121,7 +121,7 @@ void DateTime::setValue(uint64_t value)
 }
 
 /*!
- *  \brief  日付時間をuint64_t値で設定
+ * \brief  日付時間をuint64_t値で設定
  */
 void DateTime::toValue(tm* tm, uint32_t milliSecond)
 {
@@ -139,7 +139,7 @@ void DateTime::toValue(tm* tm, uint32_t milliSecond)
 }
 
 /*!
- *  \brief  日付時間をtime_tで設定
+ * \brief  日付時間をtime_tで設定
  */
 void DateTime::setTime_t(time_t value, uint32_t milliSecond)
 {
@@ -150,7 +150,7 @@ void DateTime::setTime_t(time_t value, uint32_t milliSecond)
 }
 
 /*!
- *  \brief  日付時間をミリ秒に変換
+ * \brief  日付時間をミリ秒に変換
  */
 int64_t DateTime::toMilliSeconds() const
 {
@@ -203,6 +203,23 @@ int64_t DateTime::toMilliSeconds() const
          getMilliSecond();
 
     return result;
+}
+
+/*!
+ * 曜日を取得する
+ */
+int32_t DateTime::getWeekDay() const
+{
+    static int32_t t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+
+    int32_t y = getYear();
+    int32_t m = getMonth();
+    int32_t d = getDay();
+
+    if (m < 3)
+        y--;
+
+    return ((y + y / 4 - y / 100 + y / 400 + t[m - 1] + d) % 7);
 }
 
 } // namespace slog

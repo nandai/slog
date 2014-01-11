@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   DateTime.h
- *  \brief  日付時間クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    DateTime.h
+ * \brief   日付時間クラス
+ * \author  Copyright 2011-2013 printf.jp
  */
 #pragma once
 
@@ -32,19 +32,48 @@ namespace slog
 {
 
 /*!
- *  \brief  日付時間クラス
+ * \brief   日付時間クラス
  */
 class SLOG_API DateTime
 {
-            uint64_t    mValue;     //!< 日付時間
+            /*!
+             * 日付時間
+             */
+            uint64_t mValue;
 
+            /*!
+             * コンストラクタ
+             */
 public:     DateTime();
+
+            /*!
+             * 現在日時設定
+             */
             void setCurrent();
+
+            /*!
+             * UTCからローカル時間に変換
+             */
             void toLocal();
 
+            /*!
+             * 日付時間をuint64_t値で取得
+             */
             uint64_t getValue() const;
+
+            /*!
+             * 日付時間をuint64_t値で設定
+             */
             void setValue(uint64_t value);
+
+            /*!
+             * 日付時間をuint64_t値で設定
+             */
             void toValue(tm* tm, uint32_t milliSecond);
+
+            /*!
+             * 日付時間をtime_tで設定
+             */
             void setTime_t(time_t value, uint32_t milliSecond = 0);
 
 //          operator uint64_t() const;
@@ -66,7 +95,15 @@ public:     DateTime();
             void setSecond(     uint32_t second)      {mValue = (mValue & 0xFFFFFFFFFF00FFFFLL) | ((uint64_t) second       << 16);} //!< 秒設定
             void setMilliSecond(uint32_t milliSecond) {mValue = (mValue & 0xFFFFFFFFFFFF0000LL) | ((uint64_t) milliSecond       );} //!< ミリ秒設定
 
+            /*!
+             * 日付時間をミリ秒に変換
+             */
             int64_t toMilliSeconds() const;
+
+            /*!
+             * 曜日を取得する
+             */
+            int32_t getWeekDay() const;
 };
 
 } // namespace slog

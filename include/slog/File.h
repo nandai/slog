@@ -27,6 +27,8 @@
 namespace slog
 {
 
+class DateTime;
+
 /*!
  *  \brief  ファイルクラス
  */
@@ -46,6 +48,11 @@ public:     enum Mode
              * I/O
              */
 private:    IO* mIO;
+
+            /*!
+             * 最終書込日時
+             */
+            DateTime* mLastWriteTime;
 
             /*!
              * コンストラクタ
@@ -96,6 +103,11 @@ public:     File();
              * ファイルポインタ移動
              */
             int64_t moveLastPosition() const;
+
+            /*!
+             * 最終書込日時取得
+             */
+            const DateTime* getLastWriteTime() const;
 
             /*!
              * ファイル削除
