@@ -34,6 +34,24 @@
     #include <strings.h>
 #endif
 
+/*!
+ * 日時を文字列で取得する
+ */
+static void getDateString(slog::CoreString* str, const slog::DateTime* dateTime)
+{
+    static const char* week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    static const char* mon[] =  {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+    str->format("%s, %02d %s %04d %02d:%02d:%02d GMT",
+        week[dateTime->getWeekDay()],
+             dateTime->getDay(),
+        mon[ dateTime->getMonth() - 1],
+             dateTime->getYear(),
+             dateTime->getHour(),
+             dateTime->getMinute(),
+             dateTime->getSecond());
+}
+
 namespace slog
 {
 
@@ -83,22 +101,21 @@ void WebServerResponseThread::sendNotFound(HtmlGenerator* generator) const
 
     String notFound = "404 not found.";
     const Buffer* writeBuffer = nullptr;
-    DateTime lastModified;
+    const DateTime* lastModified = nullptr;
 
     if (generator->execute(&path, &mVariables))
     {
         // notFound.html
-        writeBuffer =   generator->getHtml();
-        lastModified = *generator->getLastWriteTime();
+        writeBuffer =  generator->getHtml();
+        lastModified = generator->getLastWriteTime();
     }
     else
     {
         // notFound.htmlもなかった場合
         writeBuffer = &notFound;
-        lastModified.setCurrent();
     }
 
-    send(&lastModified, writeBuffer);
+    send(lastModified, writeBuffer);
 }
 
 /*!
@@ -143,27 +160,17 @@ void WebServerResponseThread::sendBinary(HtmlGenerator* generator, const slog::C
  */
 void WebServerResponseThread::sendHttpHeader(const DateTime* lastModified, int32_t contentLen) const
 {
-    // Last-Modified生成
-    static const char* week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-    static const char* mon[] =  {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
     DateTime now;
+    now.setCurrent();
 
     if (lastModified == nullptr)
-    {
-        now.setCurrent();
         lastModified = &now;
-    }
 
-    String lm;
-    lm.format("%s, %02d %s %04d %02d:%02d:%02d GMT",
-        week[lastModified->getWeekDay()],
-             lastModified->getDay(),
-        mon[ lastModified->getMonth() - 1],
-             lastModified->getYear(),
-             lastModified->getHour(),
-             lastModified->getMinute(),
-             lastModified->getSecond());
+    String dateString;
+    getDateString(&dateString, &now);
+
+    String lastModifiedString;
+    getDateString(&lastModifiedString, lastModified);
 
     // ヘッダー生成
     const MimeType* mimeType = mHttpRequest->getMimeType();
@@ -173,13 +180,15 @@ void WebServerResponseThread::sendHttpHeader(const DateTime* lastModified, int32
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: %s%s\r\n"
         "Content-Length: %d\r\n"
+        "Date: %s\r\n"
         "Last-Modified: %s\r\n"
         "Connection: Close\r\n"
         "\r\n",
          mimeType->text.getBuffer(),
         (mimeType->binary == false ? "; charset=UTF-8" : ""),
         contentLen,
-        lm.getBuffer());
+        dateString.getBuffer(),
+        lastModifiedString.getBuffer());
 
     // 送信
     Socket* socket = mHttpRequest->getSocket();
