@@ -32,34 +32,38 @@ namespace slog
 class DateTime;
 
 /*!
- * \brief  変数クラス
- */
-class SLOG_API Variable
-{
-            /*!
-             * 変数名
-             */
-public:     slog::String name;
-
-            /*!
-             * 値
-             */
-            slog::String value;
-
-            /*!
-             * コンストラクタ
-             */
-public:     Variable(const char* name, const char* value)
-            {
-                this->name. copy(name);
-                this->value.copy(value);
-            }
-};
-
-/*!
  * \brief  変数リスト
  */
-typedef std::list<Variable*> VariableList;
+class SLOG_API VariableList
+{
+            class Variable;
+            std::list<Variable*> mList;
+
+            /*!
+             * デストラクタ
+             */
+public:     ~VariableList();
+
+            /*!
+             * 変数を追加する
+             */
+            void add(const CoreString* name, const CoreString* value);
+
+            /*!
+             * 変数を追加する
+             */
+            void add(const char* name, const CoreString* value);
+
+            /*!
+             * 変数を追加する
+             */
+            void add(const char* name, const char* value);
+
+            /*!
+             * 変数を検索する
+             */
+            const CoreString* find(const CoreString* name) const;
+};
 
 /*!
  * \brief  html生成クラス

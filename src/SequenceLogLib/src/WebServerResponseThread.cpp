@@ -69,9 +69,6 @@ WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
 WebServerResponseThread::~WebServerResponseThread()
 {
     delete mHttpRequest;
-
-    for (VariableList::iterator i = mVariables.begin(); i != mVariables.end(); i++)
-        delete *i;
 }
 
 /*!

@@ -76,6 +76,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
 
             // 比較
             bool equals(const CoreString& str) const;
+            bool equals(const char* text) const;
 
             // 検索
             int32_t find(char c) const;

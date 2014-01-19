@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Exception.h
  *  \brief  例外クラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
 #include "slog/slog.h"
@@ -30,27 +30,44 @@ namespace slog
  */
 class SLOG_API Exception
 {
-            int32_t     mErrorNo;           //!< エラー番号
-            char        mMessage[255 + 1];  //!< メッセージ
+            /*!
+             * noticeLog()でログを出力するか
+             */
+            bool mOutputLog;
 
-public:     Exception();
+            /*!
+             * エラー番号
+             */
+            int32_t mErrorNo;
 
+            /*!
+             * メッセージ
+             */
+            char mMessage[255 + 1];
+
+            /*!
+             * コンストラクタ
+             */
+public:     Exception(bool outputLog = true);
+
+            /*!
+             * エラー番号取得
+             */
             int32_t getErrorNo() const;
+
+            /*!
+             * メッセージ取得
+             */
             const char* getMessage() const;
 
+            /*!
+             * メッセージ設定
+             */
 public:     void setMessage(const char* format, ...);
 };
 
 /*!
- *  \brief  コンストラクタ
- */
-inline Exception::Exception()
-{
-    mErrorNo = 0;
-}
-
-/*!
- *  \brief  エラー番号取得
+ * \brief   エラー番号取得
  */
 inline int32_t Exception::getErrorNo() const
 {
@@ -58,7 +75,7 @@ inline int32_t Exception::getErrorNo() const
 }
 
 /*!
- *  \brief  メッセージ取得
+ * \brief   メッセージ取得
  */
 inline const char* Exception::getMessage() const
 {

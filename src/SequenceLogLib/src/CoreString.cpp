@@ -229,6 +229,14 @@ bool CoreString::equals(const CoreString& str) const
 }
 
 /*!
+ * \brief   比較
+ */
+bool CoreString::equals(const char* text) const
+{
+    return (strcmp(getBuffer(), text) == 0);
+}
+
+/*!
  *  \brief  検索
  */
 int32_t CoreString::find(char c) const

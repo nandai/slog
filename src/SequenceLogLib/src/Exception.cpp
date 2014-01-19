@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Exception.cpp
  *  \brief  例外クラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #include "slog/Exception.h"
 #include "slog/String.h"
@@ -39,7 +39,16 @@ namespace slog
 {
 
 /*!
- *  \brief  メッセージ設定
+ * \brief   コンストラクタ
+ */
+inline Exception::Exception(bool outputLog)
+{
+    mOutputLog = outputLog;
+    mErrorNo = 0;
+}
+
+/*!
+ * \brief   メッセージ設定
  */
 void Exception::setMessage(const char* format, ...)
 {
@@ -100,7 +109,8 @@ void Exception::setMessage(const char* format, ...)
     if (len == -1)
         mMessage[capacity] = '\0';
 
-    noticeLog("%s", mMessage);
+    if (mOutputLog)
+        noticeLog("%s", mMessage);
 }
 
 }

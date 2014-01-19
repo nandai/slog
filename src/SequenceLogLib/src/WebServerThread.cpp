@@ -227,9 +227,7 @@ WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpReques
     // 条件に一致する応答スレッドを検索
     while (createList->method != HttpRequest::UNKNOWN)
     {
-        String tmp = createList->url;
-
-        if (createList->method == method && url->equals(tmp))
+        if (createList->method == method && url->equals(createList->url))
         {
             // HTTPメソッドとURLが一致
             if (createList->replaceUrl[0] != '\0')

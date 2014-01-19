@@ -197,7 +197,7 @@ void FileInfo::update(bool aUsing)
     }
     else
     {
-        Exception e;
+        Exception e(false);
         e.setMessage("");
 
         mCreationTime. setValue(0);

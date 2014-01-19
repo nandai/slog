@@ -35,6 +35,99 @@ namespace slog
 {
 
 /*!
+ * \brief  変数クラス
+ */
+class VariableList::Variable
+{
+            /*!
+             * 変数名
+             */
+public:     slog::String name;
+
+            /*!
+             * 値
+             */
+            slog::String value;
+
+            /*!
+             * コンストラクタ
+             */
+public:     Variable(const char* name, const char* value)
+            {
+                this->name. copy(name);
+                this->value.copy(value);
+            }
+};
+
+/*!
+ * \brief   デストラクタ
+ */
+VariableList::~VariableList()
+{
+    for (auto i = mList.begin(); i != mList.end(); i++)
+        delete *i;
+}
+
+/*!
+ * \brief   変数を追加する
+ *
+ * \param[in]   name    変数名
+ * \param[in]   value   値
+ *
+ * \return  なし
+ */
+void VariableList::add(const CoreString* name, const CoreString* value)
+{
+    add(name->getBuffer(), value->getBuffer());
+}
+
+/*!
+ * \brief   変数を追加する
+ *
+ * \param[in]   name    変数名
+ * \param[in]   value   値
+ *
+ * \return  なし
+ */
+void VariableList::add(const char* name, const CoreString* value)
+{
+    add(name, value->getBuffer());
+}
+
+/*!
+ * \brief   変数を追加する
+ *
+ * \param[in]   name    変数名
+ * \param[in]   value   値
+ *
+ * \return  なし
+ */
+void VariableList::add(const char* name, const char* value)
+{
+    mList.push_back(new Variable(name, value));
+}
+
+/*!
+ * \brief   変数を検索する
+ *
+ * \param[in]   name    変数名
+ *
+ * \return  値
+ */
+const CoreString* VariableList::find(const CoreString* name) const
+{
+    for (auto i = mList.begin(); i != mList.end(); i++)
+    {
+        auto variable = *i;
+
+        if (name->equals(variable->name))
+            return &variable->value;
+    }
+
+    return nullptr;
+}
+
+/*!
  * 生成実行パラメータクラス
  */
 class HtmlGenerator::Param
@@ -93,7 +186,7 @@ HtmlGenerator::Param::Param(const CoreString* fileName, CoreString* writeBuffer,
 }
 
 /*!
- * コンストラクタ
+ * \brief   コンストラクタ
  */
 HtmlGenerator::HtmlGenerator(const slog::CoreString* rootDir)
 {
@@ -106,7 +199,7 @@ HtmlGenerator::HtmlGenerator(const slog::CoreString* rootDir)
 }
 
 /*!
- * デストラクタ
+ * \brief   デストラクタ
  */
 HtmlGenerator::~HtmlGenerator()
 {
@@ -114,7 +207,7 @@ HtmlGenerator::~HtmlGenerator()
 }
 
 /*!
- * デフォルトの変数リストか調べる
+ * \brief   デフォルトの変数リストか調べる
  */
 bool HtmlGenerator::isDefaultVariableList() const
 {
@@ -230,7 +323,7 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
             if (value[value.getLength() - 1] == ';')
                 *(value.getBuffer() + value.getLength() - 1) = '\0';
 
-            mReadVariableList.push_back(new Variable(name.getBuffer(), value.getBuffer()));
+            mReadVariableList.add(&name, &value);
         }
 
         return true;
@@ -241,16 +334,13 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
 
     for (int32_t index = 0; index < 2; index++)
     {
-        for (VariableList::const_iterator i = variableList->begin(); i != variableList->end(); i++)
-        {
-            auto variable = *i;
+        const CoreString* value = variableList->find(var);
 
-            if (var->equals(variable->name))
-            {
-                // 変数の値をappendする
-                param->writeBuffer->append(variable->value);
-                return true;
-            }
+        if (value)
+        {
+            // 変数の値をappendする
+            param->writeBuffer->append(*value);
+            return true;
         }
 
         if (isDefaultVariableList())
@@ -281,9 +371,7 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
  */
 void HtmlGenerator::replace(Param* param, const slog::CoreString* var)
 {
-    String sample = "[sample]";
-
-    if (var->equals(sample))
+    if (var->equals("[sample]"))
     {
         param->replaceResult = true;
 
