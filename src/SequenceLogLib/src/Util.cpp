@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Util.cpp
  *  \brief  ユーティリティクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #include "slog/Util.h"
 #include "slog/String.h"
@@ -30,15 +30,20 @@
     #include <string.h>
     #include <limits.h>
     #include <unistd.h>
+    #include <netdb.h>
 #endif
 
 namespace slog
 {
 
 /*!
- *  \brief  プロセスの実行ファイルパスを取得
+ * \brief   プロセスの実行ファイルパスを取得
+ *
+ * \param[out]  path    プロセスの実行ファイルパスを返す
+ *
+ * \return  なし
  */
-void Util::getProcessPath(String* path)
+void Util::getProcessPath(CoreString* path)
 {
 #if defined(_WINDOWS)
     wchar_t fullName[MAX_PATH];
@@ -61,7 +66,14 @@ void Util::getProcessPath(String* path)
 }
 
 /*!
- *  \brief  ビット指定で値を取得
+ * \brief   ビット指定で値を取得
+ *
+ * \param[in]   p       バッファアドレス
+ * \param[in]   len     バッファの長さ
+ * \param[in]   bitPos  取得開始位置
+ * \param[in]   count   取得ビット数
+ *
+ * \return  指定範囲の値を返す
  */
 int64_t Util::getBitsValue(const char* p, int32_t len, int32_t bitPos, int32_t count)
 {
@@ -96,9 +108,15 @@ int64_t Util::getBitsValue(const char* p, int32_t len, int32_t bitPos, int32_t c
 }
 
 /*!
- *  \brief  Base64エンコード
+ * \brief   Base64エンコード
+ *
+ * \param[out]  dest    変換後の文字列を返す
+ * \param[in]   src     変換前の文字列
+ * \param[in]   srcLen  変換前の文字列の長さ
+ *
+ * \return  なし
  */
-void Util::encodeBase64(String* dest, const char* src, int32_t srcLen)
+void Util::encodeBase64(CoreString* dest, const char* src, int32_t srcLen)
 {
     const char* table = "=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     int32_t destLen = (srcLen *  4 / 3 + 3) / 4 * 4;
@@ -116,9 +134,35 @@ void Util::encodeBase64(String* dest, const char* src, int32_t srcLen)
     delete [] buffer;
 }
 
+/*!
+ * \brief   メールアドレスを検証
+ *
+ * \param[in]   mailAddress メールアドレス
+ *
+ * \return  正しいメールアドレスならtrue、正しくなければfalseを返す
+ */
+bool Util::validateMailAddress(const CoreString* mailAddress)
+{
+    if (256 < mailAddress->getLength())
+        return false;
+
+    int32_t domainPos = mailAddress->indexOf("@");
+
+    if (domainPos <= 0)
+        return false;
+
+    const char* domain = mailAddress->getBuffer() + domainPos + 1;
+    hostent* host = gethostbyname(domain);
+
+    if (host == nullptr)
+        return false;
+
+    return true;
+}
+
 #if defined(_WINDOWS)
 /*!
- * UnicodeをUTF-8に変換
+ * \brief   UnicodeをUTF-8に変換
  */
 int32_t Util::toUTF8(char* utf8, int32_t size, const wchar_t* unicode)
 {
@@ -129,7 +173,7 @@ int32_t Util::toUTF8(char* utf8, int32_t size, const wchar_t* unicode)
 }
 
 /*!
- * UTF-8をUnicodeに変換
+ * \brief   UTF-8をUnicodeに変換
  */
 int32_t Util::toUnicode(wchar_t* unicode, int32_t size, const char* utf8)
 {

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,39 @@
 /*!
  *  \file   Util.h
  *  \brief  ユーティリティクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
 #include "slog/slog.h"
 
 namespace slog
 {
-class String;
+class CoreString;
 
 /*!
  *  \brief  ユーティリティクラス
  */
 class SLOG_API Util
 {
-public:     static void getProcessPath(String* path);
+            /*!
+             * プロセスの実行ファイルパスを取得
+             */
+public:     static void getProcessPath(CoreString* path);
+
+            /*!
+             * ビット指定で値を取得
+             */
             static int64_t getBitsValue(const char* p, int32_t len, int32_t bitPos, int32_t count);
-            static void encodeBase64(String* dest, const char* src, int32_t srcLen);
+
+            /*!
+             * Base64エンコード
+             */
+            static void encodeBase64(CoreString* dest, const char* src, int32_t srcLen);
+
+            /*!
+             * メールアドレスを検証
+             */
+            static bool validateMailAddress(const CoreString* mailAddress);
 
 #if defined(_WINDOWS)
             /*!
