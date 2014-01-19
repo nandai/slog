@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   Socket.cpp
- *  \brief  ソケットクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    Socket.cpp
+ * \brief   ソケットクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
@@ -77,7 +77,7 @@ struct Socket::Data
 };
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 Socket::Socket()
 {
@@ -99,7 +99,7 @@ Socket::Socket()
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 Socket::~Socket()
 {
@@ -110,7 +110,12 @@ Socket::~Socket()
 }
 
 /*!
- *  \brief  オープン
+ * \brief   オープン
+ *
+ * \param[in]   inet    インターネットプロトコルか、ローカル通信か
+ * \param[in]   type    通信方式
+ *
+ * \return  なし
  */
 void Socket::open(bool inet, int type) throw(Exception)
 {
@@ -142,12 +147,12 @@ void Socket::open(bool inet, int type) throw(Exception)
 }
 
 /*!
- *  \brief  クローズ
+ * \brief   クローズ
  *
- *  \retval 0       正常終了
- *          0以外 異常終了
+ * \retval  0     正常終了
+ * \retval  0以外 異常終了
  *
- *  \note   クローズでは何か問題が発生しても例外は投げない。
+ * \note    クローズでは何か問題が発生しても例外は投げない。
  */
 int Socket::close()
 {
@@ -189,12 +194,13 @@ int Socket::close()
 }
 
 /*!
- *  \brief  接続準備
+ * \brief   接続準備
+ *
+ * \param[in]   port    ポート番号
+ *
+ * \return  なし
  */
-void Socket::bind(
-    unsigned short port)        //!< ポート番号
-
-    throw(Exception)
+void Socket::bind(unsigned short port) throw(Exception)
 {
 #if defined(MODERN_UI)
 #else
@@ -247,13 +253,13 @@ void Socket::bind(
 #endif
 
 /*!
- *  \brief  接続待ち設定
+ * \brief   接続待ち設定
+ *
+ * \param[in]   backlog 接続キューの数
+ *
+ * \return  なし
  */
-void Socket::listen(
-    int backlog)                //!< 接続キューの数
-
-    const
-    throw(Exception)
+void Socket::listen(int backlog) const throw(Exception)
 {
 #if defined(MODERN_UI)
 #else
@@ -274,12 +280,13 @@ void Socket::listen(
 }
 
 /*!
- *  \brief  接続受付
+ * \brief   接続受付
+ *
+ * \param[in]   servSocket  サーバーソケット
+ *
+ * \return  なし
  */
-void Socket::accept(
-    const Socket* servSocket)   //!< サーバーソケット
-
-    throw(Exception)
+void Socket::accept(const Socket* servSocket) throw(Exception)
 {
 #if defined(MODERN_UI)
 #else
@@ -310,11 +317,16 @@ void Socket::accept(
 }
 
 /*!
- *  \brief  接続
+ * \brief   接続
+ *
+ * \param[in]   ipAddress   IPアドレス
+ * \param[in]   port        ポート番号
+ *
+ * \return  なし
  */
 void Socket::connect(
-    const CoreString& ipAddress,    //!< IPアドレス
-    unsigned short port)            //!< ポート番号
+    const CoreString& ipAddress,
+    unsigned short port)
 
     throw(Exception)
 {
@@ -403,7 +415,12 @@ void Socket::connect(
 #endif
 
 /*!
- * SSL使用
+ * \brief   SSL使用
+ *
+ * \param[in]   certificate 公開鍵
+ * \param[in]   privateKey  秘密鍵
+ *
+ * \return  なし
  */
 void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
 {
@@ -469,7 +486,9 @@ void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
 }
 
 /*!
- * SSL使用
+ * \brief   SSL使用
+ *
+ * \return  なし
  */
 void Socket::useSSL()
 {
@@ -494,7 +513,9 @@ void Socket::useSSL()
 }
 
 /*!
- *  \brief  オープンしているかどうか調べる
+ * \brief   オープンしているか
+ *
+ * \return  オープンしている場合はtrue、していない場合はfalse
  */
 bool Socket::isOpen() const
 {
@@ -506,7 +527,9 @@ bool Socket::isOpen() const
 }
 
 /*!
- *  \brief  接続しているかどうか調べる
+ *  \brief  接続しているか
+ *
+ * \return  接続している場合はtrue、していない場合はfalse
  */
 bool Socket::isConnect() const
 {
@@ -514,7 +537,11 @@ bool Socket::isConnect() const
 }
 
 /*!
- *  \brief  アドレス再利用設定
+ * \brief   アドレス再利用設定
+ *
+ * \param[in]   reUse   即座にアドレスを再利用する場合はtrue
+ *
+ * \return  
  */
 int Socket::setReUseAddress(bool reUse)
 {
@@ -534,7 +561,11 @@ int Socket::setReUseAddress(bool reUse)
 }
 
 /*!
- *  \brief  受信タイムアウト設定
+ * \brief   受信タイムアウト設定
+ *
+ * \param[in]   msec    受信タイムアウト値
+ *
+ * \return  
  */
 int Socket::setRecvTimeOut(int32_t msec)
 {
@@ -556,7 +587,11 @@ int Socket::setRecvTimeOut(int32_t msec)
 }
 
 /*!
- *  \brief  Nagle アルゴリズム設定
+ * \brief   Nagleアルゴリズム設定
+ *
+ * \param[in]   noDelay 遅延させない場合はtrue
+ *
+ * \return  
  */
 int Socket::setNoDelay(bool noDelay)
 {
@@ -576,7 +611,11 @@ int Socket::setNoDelay(bool noDelay)
 }
 
 /*!
- *  \brief  接続元／先ホスト名取得
+ * \brief   接続元／先ホスト名取得
+ *
+ * \param[out]  hostName    接続元／先ホスト名を返す
+ *
+ * \return  なし
  */
 void Socket::getHostName(slog::CoreString* hostName) const
 {
@@ -590,9 +629,9 @@ void Socket::getHostName(slog::CoreString* hostName) const
 }
 
 /*!
- *  \brief  接続元／先IPアドレス取得
+ * \brief   接続元／先IPアドレス取得
  *
- *  \return 接続元／先IPアドレス
+ * \return  接続元／先IPアドレス
  */
 const CoreString& Socket::getInetAddress() const
 {
@@ -610,9 +649,9 @@ const CoreString& Socket::getInetAddress() const
 }
 
 /*!
- *  \brief  自IPアドレス取得
+ * \brief   自IPアドレス取得
  *
- *  \return 自IPアドレス
+ * \return  自IPアドレス
  */
 const CoreString& Socket::getMyInetAddress() const
 {
@@ -636,7 +675,7 @@ const CoreString& Socket::getMyInetAddress() const
 }
 
 /*!
- *  \brief  送信
+ * \brief   送信
  */
 void Socket::send(const int32_t* value) const throw(Exception)
 {
@@ -644,7 +683,7 @@ void Socket::send(const int32_t* value) const throw(Exception)
 }
 
 /*!
- *  \brief  送信
+ * \brief   送信
  */
 void Socket::send(const uint32_t* value) const throw(Exception)
 {
@@ -655,7 +694,7 @@ void Socket::send(const uint32_t* value) const throw(Exception)
 }
 
 /*!
- *  \brief  送信
+ * \brief   送信
  */
 void Socket::send(
     const Buffer* buffer,   //!< 送信バッファ
@@ -669,7 +708,7 @@ void Socket::send(
 }
 
 /*!
- *  \brief  送信
+ * \brief   送信
  */
 void Socket::send(
     const char* buffer,     //!< 送信バッファ
@@ -743,7 +782,7 @@ void Socket::send(
 }
 
 /*!
- *  \brief  受信
+ * \brief   受信
  */
 void Socket::recv(
     int32_t* value)         //!< 受信データ
@@ -755,7 +794,7 @@ void Socket::recv(
 }
 
 /*!
- *  \brief  受信
+ * \brief   受信
  */
 void Socket::recv(
     uint32_t* value)        //!< 受信データ
@@ -770,7 +809,7 @@ void Socket::recv(
 }
 
 /*!
- *  \brief  受信
+ * \brief   受信
  */
 void Socket::recv(
     Buffer* buffer,         //!< 受信バッファ
@@ -847,7 +886,7 @@ void Socket::recv(
 }
 
 /*!
- *  \brief  受信
+ * \brief   受信
  */
 void Socket::recv(
     CoreString* buffer) //!< 受信バッファ
@@ -898,7 +937,7 @@ void Socket::recv(
 }
 
 /*!
- *  \brief  受信データが有るかどうか
+ * \brief   受信データが有るかどうか
  */
 bool Socket::isReceiveData(int32_t timeoutMS)
 
@@ -933,7 +972,7 @@ bool Socket::isReceiveData(int32_t timeoutMS)
 }
 
 /*!
- *  \brief  スタートアップ
+ * \brief   スタートアップ
  */
 void Socket::startup()
 {
@@ -948,13 +987,22 @@ void Socket::startup()
 }
 
 /*!
- *  \brief  クリーンアップ
+ * \brief   クリーンアップ
  */
 void Socket::cleanup()
 {
 #if defined(_WINDOWS) && !defined(MODERN_UI)
     WSACleanup();
 #endif
+}
+
+/*!
+ * \brief   ドメインが存在するかどうか
+ */
+bool Socket::existsDomain(const char* domain)
+{
+    hostent* host = gethostbyname(domain);
+    return (host != nullptr);
 }
 
 } // namespace slog

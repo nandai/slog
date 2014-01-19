@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   Socket.h
- *  \brief  ソケットクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    Socket.h
+ * \brief   ソケットクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -36,7 +36,7 @@ class ByteBuffer;
 class CoreString;
 
 /*!
- *  \brief  ソケットクラス
+ * \brief   ソケットクラス
  */
 class SLOG_API Socket
 {
@@ -50,36 +50,81 @@ private:    struct Data;
             Windows::Storage::Streams::DataWriter^          mWriter;
             Windows::Storage::Streams::DataReader^          mReader;
     #else
-            int64_t         mSocket;        //!< ソケット
+            /*!
+             * ソケット
+             */
+            int64_t mSocket;
     #endif
 #else
-            int             mSocket;        //!< ソケット
+            /*!
+             * ソケット
+             */
+            int mSocket;
 #endif
 
-            Data*           mData;
-            bool            mInet;          //!< true:AF_INET、false:AF_UNIX
-            bool            mStream;        //!< true:SOCK_STREAM, false:SOCK_DGRAM
-            ByteBuffer*     mBuffer;        //!< 数値用送受信バッファ
-            bool            mConnect;       //!< 接続しているかどうか
+            /*!
+             * 内部データ
+             */
+            Data* mData;
 
             /*!
-             * コンストラクタ／デストラクタ
+             * true:AF_INET、false:AF_UNIX
+             */
+            bool mInet;
+
+            /*!
+             * true:SOCK_STREAM, false:SOCK_DGRAM
+             */
+            bool mStream;
+
+            /*!
+             * 数値用送受信バッファ
+             */
+            ByteBuffer* mBuffer;
+
+            /*!
+             * 接続しているかどうか
+             */
+            bool mConnect;
+
+            /*!
+             * コンストラクタ
              */
 public:     Socket();
+
+            /*!
+             * デストラクタ
+             */
             virtual ~Socket();
 
             /*!
-             * オープン／クローズ
+             * オープン
              */
             void open(bool inet = true, int type = STREAM) throw(Exception);
+
+            /*!
+             * クローズ
+             */
             virtual int close();
 
             /*!
-             * 接続関連
+             * 接続準備
              */
             void bind(unsigned short port) throw(Exception);
+
+            /*!
+             * 接続待ち設定
+             */
             void listen(int backlog = 5) const throw(Exception);
+
+            /*!
+             * 接続受付
+             */
             void accept(const Socket* servSocket) throw(Exception);
+
+            /*!
+             * 接続
+             */
             virtual void connect(const CoreString& ipAddress, unsigned short port) throw(Exception);
 
 #if defined(__ANDROID__)
@@ -91,6 +136,10 @@ public:     Socket();
              * SSL使用
              */
             void useSSL(const CoreString& certificate, const CoreString& privateKey);
+
+            /*!
+             * SSL使用
+             */
             void useSSL();
 
             /*!
@@ -104,37 +153,73 @@ public:     Socket();
             bool isConnect() const;
 
             /*!
-             * ソケットオプション設定
+             * アドレス再利用設定
              */
             int setReUseAddress(bool reUse);
+
+            /*!
+             * 受信タイムアウト設定
+             */
             int setRecvTimeOut(int32_t msec);
+
+            /*!
+             * Nagleアルゴリズム設定
+             */
             int setNoDelay(bool noDelay);
 
             /*!
-             *  \brief  接続元／先ホスト名取得
+             * 接続元／先ホスト名取得
              */
             void getHostName(slog::CoreString* hostName) const;
 
             /*!
-             * IP 取得
+             * 接続元／先IPアドレス取得
              */
             const CoreString& getInetAddress() const;
+
+            /*!
+             * 自IPアドレス取得
+             */
             const CoreString& getMyInetAddress() const;
 
             /*!
              * 送信
              */
-            virtual void send(const  int32_t* value) const throw(Exception);
+            virtual void send(const int32_t* value) const throw(Exception);
+
+            /*!
+             * 送信
+             */
             virtual void send(const uint32_t* value) const throw(Exception);
+
+            /*!
+             * 送信
+             */
             virtual void send(const Buffer* buffer, int32_t len) const throw(Exception);
+
+            /*!
+             * 送信
+             */
             virtual void send(const char*   buffer, int32_t len) const throw(Exception);
 
             /*!
              * 受信
              */
-            void recv( int32_t* value) const throw(Exception);
+            void recv(int32_t* value) const throw(Exception);
+
+            /*!
+             * 受信
+             */
             void recv(uint32_t* value) const throw(Exception);
+
+            /*!
+             * 受信
+             */
             void recv(Buffer* buffer, int32_t len) const throw(Exception);
+
+            /*!
+             * 受信
+             */
             void recv(CoreString* buffer) const throw(Exception);
 
             /*!
@@ -143,10 +228,19 @@ public:     Socket();
             bool isReceiveData(int32_t timeoutMS = 0) const throw(Exception);
 
             /*!
-             *  \brief  スタートアップ／クリーンアップ
+             * スタートアップ
              */
 public:     static void startup();
+
+            /*!
+             * クリーンアップ
+             */
             static void cleanup();
+
+            /*!
+             * ドメインが存在するかどうか
+             */
+            static bool existsDomain(const char* domain);
 };
 
 } // namespace slog
