@@ -41,7 +41,7 @@ namespace slog
 /*!
  * \brief   コンストラクタ
  */
-inline Exception::Exception(bool outputLog)
+Exception::Exception(bool outputLog)
 {
     mOutputLog = outputLog;
     mErrorNo = 0;
