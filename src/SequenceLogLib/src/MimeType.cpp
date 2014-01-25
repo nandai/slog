@@ -39,6 +39,7 @@ static const mimeArray[] =
     {"css",   false, MimeType::Type::CSS,        "text/css",                      "style" },
     {"js",    false, MimeType::Type::JAVASCRIPT, "text/javascript",               "script"},
     {"json",  false, MimeType::Type::JSON,       "application/json",              ""      },
+    {"xml",   false, MimeType::Type::XML,        "application/xml",               ""      },
 
     {"pcss",  false, MimeType::Type::TEXT,       "text/css",                      "style" },
     {"pjs",   false, MimeType::Type::TEXT,       "text/javascript",               "script"},

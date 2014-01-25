@@ -16,7 +16,7 @@
 
 /*!
  *  \file   WebSocket.cpp
- *  \brief  Web Socket クライアントクラス
+ *  \brief  Web Socket クラス
  *  \author Copyright 2013 printf.jp
  */
 #include "slog/slog.h"
@@ -26,7 +26,6 @@
 #endif
 
 #include "slog/WebSocket.h"
-#include "slog/HttpResponse.h"
 #include "slog/String.h"
 #include "slog/ByteBuffer.h"
 #include "slog/Mutex.h"

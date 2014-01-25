@@ -123,10 +123,10 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
     }
 
     // JSON作成
-    json->add("creationTime",  strCreationTime);
-    json->add("lastWriteTime", strLastWriteTime);
-    json->add("canonicalPath", strCanonicalPath);
-    json->add("size",          strSize);
+    json->add("creationTime",  &strCreationTime);
+    json->add("lastWriteTime", &strLastWriteTime);
+    json->add("canonicalPath", &strCanonicalPath);
+    json->add("size",          &strSize);
 }
 
 /*!

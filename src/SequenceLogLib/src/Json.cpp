@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Json.cpp
  *  \brief  JSONクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #include "slog/Json.h"
 using namespace std;
@@ -26,14 +26,19 @@ namespace slog
 {
 
 /*!
- *  \brief  エスケープエンコード
+ * \brief   エスケープエンコード
+ *
+ * \param[out]  dest    変換後の文字列を返す
+ * \param[in]   p       変換前の文字列
+ *
+ * \return  なし
  */
-static void encodeEscape(String* dest, const CoreString& src)
+static void encodeEscape(String* dest, const char* p)
 {
     static const char targets[] = {'\\', '"'};
 
-    const char* p = src.getBuffer();
-    int32_t len =   src.getLength() * 2;    // 全ての文字をエスケープするとしても２倍のバッファがあれば足りる
+    int32_t len = (int32_t)strlen(p) * 2;   // 全ての文字をエスケープするとしても２倍のバッファがあれば足りる
+
     char* buffer = new char[len + 1];
     int32_t pos = 0;
 
@@ -75,7 +80,9 @@ static void encodeEscape(String* dest, const CoreString& src)
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
+ *
+ * \param[in]   name    キーの名前
  */
 JsonAbstract::JsonAbstract(const char* name)
 {
@@ -83,23 +90,53 @@ JsonAbstract::JsonAbstract(const char* name)
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   JSON値クラス
  */
-JsonValue::JsonValue(const char* name, const CoreString& value) : JsonAbstract(name)
+class JsonValue : public JsonAbstract
+{
+            /*!
+             * 値
+             */
+            String mValue;
+
+            /*!
+             * コンストラクタ
+             */
+public:     JsonValue(const char* name, const char* value);
+
+            /*!
+             * シリアライズ
+             */
+            virtual void serialize(CoreString* content) const override;
+};
+
+/*!
+ * \brief   コンストラクタ
+ *
+ * \param[in]   name    キーの名前
+ * \param[in]   value   値
+ */
+JsonValue::JsonValue(const char* name, const char* value) : JsonAbstract(name)
 {
     encodeEscape(&mValue, value);
 }
 
 /*!
- *  \brief  シリアライズ
+ * \brief   シリアライズ
+ *
+ * \param[out]  content JSON形式の文字列を返す
+ *
+ * \return  なし
  */
-void JsonValue::serialize(String* content) const
+void JsonValue::serialize(CoreString* content) const
 {
     content->format("\"%s\":\"%s\"", mName.getBuffer(), mValue.getBuffer());
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
+ *
+ * \param[in]   name    キーの名前
  */
 Json::Json(const char* name) : JsonAbstract(name)
 {
@@ -108,7 +145,7 @@ Json::Json(const char* name) : JsonAbstract(name)
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 Json::~Json()
 {
@@ -117,9 +154,27 @@ Json::~Json()
 }
 
 /*!
- *  \brief  JSONデータ追加
+ * \brief   JSONデータ追加
+ *
+ * \param[in]   name    キーの名前
+ * \param[in]   value   値
+ *
+ * \return  なし
  */
-void Json::add(const char* name, const CoreString& value)
+void Json::add(const char* name, const CoreString* value)
+{
+    add(name, value->getBuffer());
+}
+
+/*!
+ * \brief   JSONデータ追加
+ *
+ * \param[in]   name    キーの名前
+ * \param[in]   value   値
+ *
+ * \return  なし
+ */
+void Json::add(const char* name, const char* value)
 {
     mName.setLength(0);
     mBracket[0] = '{';
@@ -128,7 +183,11 @@ void Json::add(const char* name, const CoreString& value)
 }
 
 /*!
- *  \brief  JSONオブジェクト追加
+ * \brief   JSONオブジェクト追加
+ *
+ * \param[in]   json    JSONオブジェクト
+ *
+ * \return  なし
  */
 void Json::add(Json* json)
 {
@@ -136,9 +195,13 @@ void Json::add(Json* json)
 }
 
 /*!
- *  \brief  シリアライズ
+ * \brief   シリアライズ
+ *
+ * \param[out]  content JSON形式の文字列を返す
+ *
+ * \return  なし
  */
-void Json::serialize(String* content) const
+void Json::serialize(CoreString* content) const
 {
     if (mList.size() == 0)
         return;

@@ -143,20 +143,29 @@ void Util::encodeBase64(CoreString* dest, const char* src, int32_t srcLen)
  */
 bool Util::validateMailAddress(const CoreString* mailAddress)
 {
+    // メールアドレスの長さをチェック
     if (256 < mailAddress->getLength())
         return false;
 
+    // 宛先ユーザー名の長さをチェック
     int32_t domainPos = mailAddress->indexOf("@");
 
     if (domainPos <= 0)
         return false;
 
+    // ドメイン名の長さをチェック
     const char* domain = mailAddress->getBuffer() + domainPos + 1;
+
+    if (*domain == '\0')
+        return false;
+
+    // ドメインの存在確認
     hostent* host = gethostbyname(domain);
 
     if (host == nullptr)
         return false;
 
+    // メールアドレスに問題なし
     return true;
 }
 

@@ -39,6 +39,7 @@ public:     enum class Type : int32_t
                 CSS,
                 JAVASCRIPT,
                 JSON,
+                XML,
                 IMAGE,
                 BINARY,
                 TEXT,
