@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 /*!
  *  \file   HttpResponse.h
  *  \brief  httpレスポンスクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
-#include "slog/slog.h"
+#include "slog/String.h"
 
 namespace slog
 {
@@ -31,11 +31,30 @@ class Socket;
  */
 class SLOG_API HttpResponse
 {
+            /*!
+             * ソケット
+             */
             Socket* mSocket;
 
+            /*!
+             * レスポンス
+             */
+            String mResponse;
+
+            /*!
+             * コンストラクタ
+             */
 public:     HttpResponse(Socket* socket);
 
+            /*!
+             * 解析
+             */
 public:     bool analizeResponse();
+
+            /*!
+             * レスポンス取得
+             */
+            const CoreString* getResponse() const {return &mResponse;}
 };
 
 } // namespace slog

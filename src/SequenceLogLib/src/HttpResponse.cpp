@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@
 /*!
  *  \file   HttpResponse.cpp
  *  \brief  httpレスポンスクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #include "slog/HttpResponse.h"
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
+
+#include <string.h>
+#include <stdlib.h>
 
 namespace slog
 {
@@ -39,43 +42,40 @@ HttpResponse::HttpResponse(Socket* socket)
  */
 bool HttpResponse::analizeResponse()
 {
-    int32_t size = 1;
-    ByteBuffer buffer(size);
-
-    char response[1024 + 1];
-    int32_t i = 0;
     int32_t contentLen = 0;
 
     while (true)
     {
-        // 受信
-        buffer.setLength(0);
-        mSocket->recv(&buffer, size);
+        String str;
+        mSocket->recv(&str);
 
-        // 改行までリクエストバッファに貯める
-        char c = buffer.get();
-
-        if (c != '\r')
-        {
-            if (sizeof(response) <= i)
-                return false;
-
-            response[i] = c;
-            i++;
-
-            continue;
-        }
-
-        response[i] = '\0';
-
-        // '\n'捨て
-        buffer.setLength(0);
-        mSocket->recv(&buffer, size);
+        const char* request = str.getBuffer();
+        int32_t i =           str.getLength();
 
         if (i == 0)
-            break;
+        {
+            // 空行だったらループを抜ける
+            if (0 < contentLen)
+            {
+                mResponse.setCapacity(contentLen);
+                mSocket->recv(&mResponse, contentLen);
+                break;
+            }
+//          noticeLog("analizeRequest ended");
 
-        i = 0;
+            break;
+        }
+        else
+        {
+            // Content-Length
+            const char* compare = "Content-Length: ";
+            int32_t compareLen = (int32_t)strlen(compare);
+
+            if (strncmp(request, compare, compareLen) == 0)
+            {
+                contentLen = atoi(request + compareLen);
+            }
+        }
     }
 
     return true;
