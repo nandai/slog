@@ -39,6 +39,7 @@ objs = \
 	Thread.o \
 	Tokenizer.o \
 	Util.o \
+	Variable.o \
 	WebServerThread.o \
 	WebServerResponseThread.o \
 	WebSocket.o \

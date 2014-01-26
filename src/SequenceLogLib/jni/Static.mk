@@ -28,6 +28,7 @@ LOCAL_SRC_FILES := \
     ../src/Thread.cpp \
     ../src/Tokenizer.cpp \
     ../src/Util.cpp \
+    ../src/Variable.cpp \
     ../src/WebServerThread.cpp \
     ../src/WebServerResponseThread.cpp \
     ../src/WebSocket.cpp \
