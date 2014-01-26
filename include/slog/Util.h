@@ -47,6 +47,16 @@ public:     static void getProcessPath(CoreString* path);
             static void encodeBase64(CoreString* dest, const char* src, int32_t srcLen);
 
             /*!
+             * パーセントデコード
+             */
+            static void decodePercent(CoreString* str);
+
+            /*!
+             * パーセントデコード
+             */
+            static void decodePercent(CoreString* str, char* start, const char* end);
+
+            /*!
              * メールアドレスを検証
              */
             static bool validateMailAddress(const CoreString* mailAddress);

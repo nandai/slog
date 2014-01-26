@@ -37,6 +37,47 @@ namespace slog
 {
 
 /*!
+ * \brief   16進数文字列を数値に変換
+ */
+template <class T>
+inline const char* _hexToValue(const char* hex, T* value)
+{
+    int32_t i;
+    int32_t size = sizeof(*value) * 2;
+    *value = 0;
+
+    for (i = 0; i < size; i++)
+    {
+        char c = toupper(hex[i]);
+
+        if ('0' <= c && c <= '9')
+        {
+            c = c - '0';
+        }
+        else if ('A' <= c && c <= 'F')
+        {
+            c = c - 'A' + 0x0A;
+        }
+        else
+        {
+            break;
+        }
+
+        *value = (*value << 4) | c;
+    }
+
+    return (hex + i);
+}
+
+/*!
+ * \brief   16進数文字列をchar型の数値に変換
+ */
+static const char* hexToValue(const char* hex, char* value)
+{
+    return _hexToValue(hex, value);
+}
+
+/*!
  * \brief   プロセスの実行ファイルパスを取得
  *
  * \param[out]  path    プロセスの実行ファイルパスを返す
@@ -132,6 +173,64 @@ void Util::encodeBase64(CoreString* dest, const char* src, int32_t srcLen)
 
     dest->copy(buffer, destLen);
     delete [] buffer;
+}
+
+/*!
+ * \brief   パーセントデコード
+ *
+ * \param [in,out]  str     デコード結果を返す
+ *
+ * \return  なし
+ */
+void Util::decodePercent(CoreString* str)
+{
+    char* p = str->getBuffer();
+    decodePercent(nullptr, p, p + str->getLength());
+}
+
+/*!
+ * \brief   パーセントデコード
+ *
+ * \param [out]     str     デコード結果を返す
+ * \param [in,out]  start   デコード開始位置（デコード処理により書き換わる）
+ * \param [in]      end     デコード終了位置
+ *
+ * \return  なし
+ */
+void Util::decodePercent(CoreString* str, char* start, const char* end)
+{
+    const char* cursor = start;
+    char* decodeCursor = start;
+
+    while (cursor < end)
+    {
+        char c = *cursor;
+
+        switch (c)
+        {
+        case '%':
+        {
+            cursor = hexToValue(cursor + 1, &c);
+            break;
+        }
+
+        case '+':
+            c =  ' ';
+//          break;
+
+        default:
+            cursor++;
+            break;
+        }
+
+        *decodeCursor = c;
+         decodeCursor++;
+    }
+
+    *decodeCursor = '\0';
+
+    if (str)
+        str->copy(start, (int32_t)(decodeCursor - start));
 }
 
 /*!

@@ -23,6 +23,7 @@
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
 #include "slog/FileInfo.h"
+#include "slog/Util.h"
 
 #include <ctype.h>
 
@@ -35,47 +36,6 @@ using namespace std;
 
 namespace slog
 {
-
-/*!
- * \brief   16進数文字列を数値に変換
- */
-template <class T>
-inline const char* _hexToValue(const char* hex, T* value)
-{
-    int32_t i;
-    int32_t size = sizeof(*value) * 2;
-    *value = 0;
-
-    for (i = 0; i < size; i++)
-    {
-        char c = toupper(hex[i]);
-
-        if ('0' <= c && c <= '9')
-        {
-            c = c - '0';
-        }
-        else if ('A' <= c && c <= 'F')
-        {
-            c = c - 'A' + 0x0A;
-        }
-        else
-        {
-            break;
-        }
-
-        *value = (*value << 4) | c;
-    }
-
-    return (hex + i);
-}
-
-/*!
- * \brief   16進数文字列をchar型の数値に変換
- */
-static const char* hexToValue(const char* hex, char* value)
-{
-    return _hexToValue(hex, value);
-}
 
 /*!
  * \brief   コンストラクタ
@@ -251,7 +211,7 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 
         p1++;   // "/www.printf.jp"等の先頭の'/'をスキップ
 
-        decode(&mUrl, (char*)p1, p2);
+        Util::decodePercent(&mUrl, (char*)p1, p2);
         setUrl( mUrl.getBuffer());
 
         mMethod = method;
@@ -296,55 +256,13 @@ void HttpRequest::analizeParams(const char* buffer, int32_t len)
 
         // パラメータから値を取得
         String  value;
-        decode(&value, (char*)p3 + 1, p2);
+        Util::decodePercent(&value, (char*)p3 + 1, p2);
 
         // パラメータリストに追加
         mParams.insert(pair<String, String>(key, value));
 
         p1 = p2 + 1;
     }
-}
-
-/*!
- * \brief   パーセントデコード
- *
- * \param [out]     str     デコード結果を返す
- * \param [in,out]  start   デコード開始位置（デコード処理により書き換わる）
- * \param [in]      end     デコード終了位置
- *
- * \return  なし
- */
-void HttpRequest::decode(slog::CoreString* str, char* start, const char* end)
-{
-    const char* cursor = start;
-    char* decodeCursor = start;
-
-    while (cursor < end)
-    {
-        char c = *cursor;
-
-        switch (c)
-        {
-        case '%':
-        {
-            cursor = hexToValue(cursor + 1, &c);
-            break;
-        }
-
-        case '+':
-            c =  ' ';
-//          break;
-
-        default:
-            cursor++;
-            break;
-        }
-
-        *decodeCursor = c;
-         decodeCursor++;
-    }
-
-    str->copy(start, (int32_t)(decodeCursor - start));
 }
 
 /*!

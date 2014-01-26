@@ -119,11 +119,6 @@ private:    int32_t analizeUrl(const char* request, int32_t len, METHOD method);
             void analizeParams(const char* buffer, int32_t len);
 
             /*!
-             * パーセントデコード
-             */
-            void decode(slog::CoreString* str, char* start, const char* end);
-
-            /*!
              * ソケット取得
              */
 public:     Socket* getSocket() const;
