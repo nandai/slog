@@ -35,99 +35,6 @@ namespace slog
 {
 
 /*!
- * \brief  変数クラス
- */
-class VariableList::Variable
-{
-            /*!
-             * 変数名
-             */
-public:     slog::String name;
-
-            /*!
-             * 値
-             */
-            slog::String value;
-
-            /*!
-             * コンストラクタ
-             */
-public:     Variable(const char* name, const char* value)
-            {
-                this->name. copy(name);
-                this->value.copy(value);
-            }
-};
-
-/*!
- * \brief   デストラクタ
- */
-VariableList::~VariableList()
-{
-    for (auto i = mList.begin(); i != mList.end(); i++)
-        delete *i;
-}
-
-/*!
- * \brief   変数を追加する
- *
- * \param[in]   name    変数名
- * \param[in]   value   値
- *
- * \return  なし
- */
-void VariableList::add(const CoreString* name, const CoreString* value)
-{
-    add(name->getBuffer(), value->getBuffer());
-}
-
-/*!
- * \brief   変数を追加する
- *
- * \param[in]   name    変数名
- * \param[in]   value   値
- *
- * \return  なし
- */
-void VariableList::add(const char* name, const CoreString* value)
-{
-    add(name, value->getBuffer());
-}
-
-/*!
- * \brief   変数を追加する
- *
- * \param[in]   name    変数名
- * \param[in]   value   値
- *
- * \return  なし
- */
-void VariableList::add(const char* name, const char* value)
-{
-    mList.push_back(new Variable(name, value));
-}
-
-/*!
- * \brief   変数を検索する
- *
- * \param[in]   name    変数名
- *
- * \return  値
- */
-const CoreString* VariableList::find(const CoreString* name) const
-{
-    for (auto i = mList.begin(); i != mList.end(); i++)
-    {
-        auto variable = *i;
-
-        if (name->equals(variable->name))
-            return &variable->value;
-    }
-
-    return nullptr;
-}
-
-/*!
  * 生成実行パラメータクラス
  */
 class HtmlGenerator::Param
@@ -188,7 +95,7 @@ HtmlGenerator::Param::Param(const CoreString* fileName, CoreString* writeBuffer,
 /*!
  * \brief   コンストラクタ
  */
-HtmlGenerator::HtmlGenerator(const slog::CoreString* rootDir)
+HtmlGenerator::HtmlGenerator(const CoreString* rootDir)
 {
     mRootDir.copy(*rootDir);
 
@@ -223,7 +130,7 @@ bool HtmlGenerator::isDefaultVariableList() const
  *
  * \return  スキップ終了位置（スキップした最後のタグの">"の位置）
  */
-int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos, int32_t depth)
+int32_t HtmlGenerator::skipTags(const CoreString* readHtml, int32_t pos, int32_t depth)
 {
     int32_t startPos;
     int32_t endPos;
@@ -270,7 +177,7 @@ int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos, i
  *
  * \return  スキップ終了位置（スキップした最後のタグの">"の位置）
  */
-int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos)
+int32_t HtmlGenerator::skipTags(const CoreString* readHtml, int32_t pos)
 {
     return skipTags(readHtml, pos, 0);
 }
@@ -284,7 +191,7 @@ int32_t HtmlGenerator::skipTags(const slog::CoreString* readHtml, int32_t pos)
  * \retval  true    置換できた場合。頭文字が大文字の場合は置換できなくてもtrueを返す。
  * \retval  false   置換できなかった場合
  */
-bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
+bool HtmlGenerator::replaceVariable(Param* param, const CoreString* var)
 {
     // 変数名チェック
     int32_t pos = var->indexOf(":");
@@ -369,7 +276,7 @@ bool HtmlGenerator::replaceVariable(Param* param, const slog::CoreString* var)
  *
  * \return  なし
  */
-void HtmlGenerator::replace(Param* param, const slog::CoreString* var)
+void HtmlGenerator::replace(Param* param, const CoreString* var)
 {
     if (var->equals("[sample]"))
     {
@@ -437,7 +344,7 @@ bool HtmlGenerator::append(Param* param, int32_t index, const char* from, const 
  *
  * \return  なし
  */
-void HtmlGenerator::getIncludePath(Param* param, slog::CoreString* path, const slog::CoreString* fileName)
+void HtmlGenerator::getIncludePath(Param* param, CoreString* path, const CoreString* fileName)
 {
     if (fileName->at(0) == '/')
     {
@@ -467,7 +374,7 @@ void HtmlGenerator::getIncludePath(Param* param, slog::CoreString* path, const s
  * \retval  true    読み込みに成功した場合
  * \retval  false   読み込みに失敗した場合
  */
-bool HtmlGenerator::readHtml(slog::CoreString* readHtml, int32_t position, const slog::CoreString* fileName)
+bool HtmlGenerator::readHtml(CoreString* readHtml, int32_t position, const CoreString* fileName)
 {
     try
     {
@@ -504,7 +411,7 @@ bool HtmlGenerator::readHtml(slog::CoreString* readHtml, int32_t position, const
  * \retval  true    生成に成功した場合
  * \retval  false   ファイルの読み込みに失敗した場合
  */
-bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList* variableList)
+bool HtmlGenerator::execute(const CoreString* fileName, const VariableList* variableList)
 {
     mVariableList = (variableList != nullptr
         ? variableList
@@ -523,7 +430,7 @@ bool HtmlGenerator::execute(const slog::CoreString* fileName, const VariableList
  * \retval  true    生成に成功した場合
  * \retval  false   ファイルの読み込みに失敗した場合
  */
-bool HtmlGenerator::expand(const slog::CoreString* fileName, CoreString* writeBuffer, int32_t depth)
+bool HtmlGenerator::expand(const CoreString* fileName, CoreString* writeBuffer, int32_t depth)
 {
     MimeType mimeType;
     mimeType.analize(fileName);

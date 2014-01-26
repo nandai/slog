@@ -238,6 +238,7 @@
     <ClCompile Include="src\TimeSpan.cpp" />
     <ClCompile Include="src\Tokenizer.cpp" />
     <ClCompile Include="src\Util.cpp" />
+    <ClCompile Include="src\Variable.cpp" />
     <ClCompile Include="src\WebServerResponseThread.cpp" />
     <ClCompile Include="src\WebServerThread.cpp" />
     <ClCompile Include="src\WebSocket.cpp" />
@@ -267,6 +268,7 @@
     <ClInclude Include="..\..\include\slog\PointerString.h" />
     <ClInclude Include="..\..\include\slog\Process.h" />
     <ClInclude Include="..\..\include\slog\SequenceLog.h" />
+    <ClInclude Include="..\..\include\slog\Variable.h" />
     <ClInclude Include="..\include\SequenceLogItem.h" />
     <ClInclude Include="src\sha1.h" />
     <ClInclude Include="..\..\include\slog\SharedMemory.h" />

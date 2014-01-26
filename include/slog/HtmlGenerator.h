@@ -22,48 +22,11 @@
 #pragma once
 
 #include "slog/String.h"
-#include <list>
-
-#pragma warning(disable:4251)
+#include "slog/Variable.h"
 
 namespace slog
 {
-
 class DateTime;
-
-/*!
- * \brief  変数リスト
- */
-class SLOG_API VariableList
-{
-            class Variable;
-            std::list<Variable*> mList;
-
-            /*!
-             * デストラクタ
-             */
-public:     ~VariableList();
-
-            /*!
-             * 変数を追加する
-             */
-            void add(const CoreString* name, const CoreString* value);
-
-            /*!
-             * 変数を追加する
-             */
-            void add(const char* name, const CoreString* value);
-
-            /*!
-             * 変数を追加する
-             */
-            void add(const char* name, const char* value);
-
-            /*!
-             * 変数を検索する
-             */
-            const CoreString* find(const CoreString* name) const;
-};
 
 /*!
  * \brief  html生成クラス
@@ -75,7 +38,7 @@ class SLOG_API HtmlGenerator
             /*!
              * 生成したhtml
              */
-            slog::String mHtml;
+            String mHtml;
 
             /*!
              * 変数リスト
@@ -90,7 +53,7 @@ class SLOG_API HtmlGenerator
             /*!
              * ルートディレクトリ
              */
-            slog::String mRootDir;
+            String mRootDir;
 
             /*!
              * 最終書込日時
@@ -100,7 +63,7 @@ class SLOG_API HtmlGenerator
             /*!
              * コンストラクタ
              */
-public:     HtmlGenerator(const slog::CoreString* rootDir);
+public:     HtmlGenerator(const CoreString* rootDir);
 
             /*!
              * デストラクタ
@@ -115,22 +78,22 @@ private:    bool isDefaultVariableList() const;
             /*!
              * タグをスキップする
              */
-            int32_t skipTags(const slog::CoreString* readHtml, int32_t pos, int32_t depth);
+            int32_t skipTags(const CoreString* readHtml, int32_t pos, int32_t depth);
 
             /*!
              * タグをスキップする
              */
-            int32_t skipTags(const slog::CoreString* readHtml, int32_t pos);
+            int32_t skipTags(const CoreString* readHtml, int32_t pos);
 
             /*!
              * 変数を値に置換する
              */
-            bool replaceVariable(Param* param, const slog::CoreString* var);
+            bool replaceVariable(Param* param, const CoreString* var);
 
             /*!
              * 置換する
              */
-            void replace(Param* param, const slog::CoreString* var);
+            void replace(Param* param, const CoreString* var);
 
             /*!
              * 検索開始文字列の位置までの文字列をappendする
@@ -140,22 +103,22 @@ private:    bool isDefaultVariableList() const;
             /*!
              * インクルードパスを取得する
              */
-            void getIncludePath(Param* param, slog::CoreString* path, const slog::CoreString* include);
+            void getIncludePath(Param* param, CoreString* path, const CoreString* include);
 
             /*!
              * htmlを読み込む
              */
-            bool readHtml(slog::CoreString* readHtml, int32_t position, const slog::CoreString* fileName);
+            bool readHtml(CoreString* readHtml, int32_t position, const CoreString* fileName);
 
             /*!
              * html生成を実行する
              */
-public:     bool execute(const slog::CoreString* fileName, const VariableList* variableList);
+public:     bool execute(const CoreString* fileName, const VariableList* variableList);
 
             /*!
              * html生成を実行する
              */
-private:    bool expand(const slog::CoreString* fileName, CoreString* writeBuffer, int32_t depth);
+private:    bool expand(const CoreString* fileName, CoreString* writeBuffer, int32_t depth);
 
             /*!
              * html生成を実行する
@@ -170,7 +133,7 @@ private:    bool expand(const slog::CoreString* fileName, CoreString* writeBuffe
             /*!
              * htmlを取得する
              */
-public:    const slog::CoreString* getHtml() const {return &mHtml;}
+public:    const CoreString* getHtml() const {return &mHtml;}
 
             /*!
              * 最終書込日時取得
