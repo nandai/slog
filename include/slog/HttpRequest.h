@@ -94,6 +94,16 @@ private:    Socket* mSocket;
             String mWebSocketKey;
 
             /*!
+             * ユーザー
+             */
+            String mUser;
+
+            /*!
+             * パスワード
+             */
+            String mPassword;
+
+            /*!
              * コンストラクタ
              */
 public:     HttpRequest(Socket* socket, uint16_t port, const CoreString* rootDir);
@@ -172,6 +182,16 @@ public:     Socket* getSocket() const;
              * Sec-WebSocket-Key取得
              */
             const CoreString* getWebSocketKey() const;
+
+            /*!
+             * ユーザー取得
+             */
+            const CoreString* getUser() const;
+
+            /*!
+             * パスワード取得
+             */
+            const CoreString* getPassword() const;
 };
 
 } // namespace slog

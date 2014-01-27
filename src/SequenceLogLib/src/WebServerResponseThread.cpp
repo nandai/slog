@@ -207,6 +207,48 @@ void WebServerResponseThread::sendContent(const Buffer* content) const
 }
 
 /*!
+ * \brief   リダイレクト
+ *
+ * \param[in]   url リダイレクト先URL
+ *
+ * \return  なし
+ */
+void WebServerResponseThread::redirect(const CoreString* url) const
+{
+    String str;
+    str.format(
+        "HTTP/1.1 302 Found\r\n"
+        "Location: %s\r\n"
+        "\r\n",
+        url->getBuffer());
+
+    Socket* socket = mHttpRequest->getSocket();
+    socket->send(&str, str.getLength());
+    socket->close();
+}
+
+/*!
+ * \brief   BASIC認証
+ *
+ * \param[in]   realm   認証領域名
+ *
+ * \return  なし
+ */
+void WebServerResponseThread::basicAuth(const char* realm) const
+{
+    String str;
+    str.format(
+        "HTTP/1.1 401 Authorization Required\r\n"
+        "WWW-Authenticate: Basic realm=\"%s\"\r\n"
+        "\r\n",
+        realm);
+
+    Socket* socket = mHttpRequest->getSocket();
+    socket->send(&str, str.getLength());
+    socket->close();
+}
+
+/*!
  * \brief   実行
  */
 void WebServerResponseThread::run()

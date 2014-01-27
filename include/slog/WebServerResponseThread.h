@@ -88,6 +88,16 @@ protected:  virtual void initVariables() {}
             void sendContent(const Buffer* content) const;
 
             /*!
+             * リダイレクト
+             */
+            void redirect(const CoreString* url) const;
+
+            /*!
+             * BASIC認証
+             */
+            void basicAuth(const char* realm) const;
+
+            /*!
              * 実行
              */
             virtual void run();

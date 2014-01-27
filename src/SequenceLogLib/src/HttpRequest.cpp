@@ -76,6 +76,7 @@ bool HttpRequest::analizeRequest()
         // 受信
         String str;
         mSocket->recv(&str);
+//      noticeLog("request: %s", str.getBuffer());
 
         const char* request = str.getBuffer();
         int32_t i =           str.getLength();
@@ -150,6 +151,25 @@ bool HttpRequest::analizeRequest()
                 {
                     mWebSocketKey.copy(request + compareLen);
                 }
+
+                // Authorization
+                compare = "Authorization: Basic ";
+                compareLen = (int32_t)strlen(compare);
+
+                if (strncmp(request, compare, compareLen) == 0)
+                {
+                    String basicAuth;
+                    Util::decodeBase64(&basicAuth, request + compareLen);
+
+                    int32_t pos =   basicAuth.find(':');
+                    const char* p = basicAuth.getBuffer();
+
+                    if (pos != -1)
+                    {
+                        mUser.    copy(p, pos);
+                        mPassword.copy(p + pos + 1);
+                    }
+                }
             }
         }
 
@@ -198,7 +218,7 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
         if (p2 == nullptr)
             return -1;
 
-        if (method == GET)
+//      if (method == GET)
         {
             const char* p3 = strchr(p1, '?');
 
@@ -237,13 +257,28 @@ void HttpRequest::analizeParams(const char* buffer, int32_t len)
     while (end == false)
     {
         // 一対のパラメータを取り出す
-        const char* p2 = strchr(p1, '&');
+        const char* p2 = nullptr;
+        int32_t index = 0;
 
-        if (p2 == nullptr)
+        while (true)
         {
-            p2 = buffer + len;
-            end = true;
+            if (p1 + index == buffer + len)
+            {
+                p2 = buffer + len;
+                end = true;
+                break;
+            }
+
+            if (p1[index] == '&')
+            {
+                p2 = p1 + index;
+                break;
+            }
+
+            index++;
         }
+
+//      noticeLog("HttpRequest::analizeParams %*s(%d)", (p2 - p1), p1, (p2 - p1));
 
         // パラメータ名と値に分ける
         const char* p3 = strchr(p1, '=');
@@ -369,6 +404,22 @@ bool HttpRequest::isAjax() const
 const CoreString* HttpRequest::getWebSocketKey() const
 {
     return &mWebSocketKey;
+}
+
+/*!
+ * \brief   ユーザー取得
+ */
+const CoreString* HttpRequest::getUser() const
+{
+    return &mUser;
+}
+
+/*!
+ * \brief   パスワード取得
+ */
+const CoreString* HttpRequest::getPassword() const
+{
+    return &mPassword;
 }
 
 } // namespace slog
