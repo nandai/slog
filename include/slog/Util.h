@@ -47,6 +47,11 @@ public:     static void getProcessPath(CoreString* path);
             static void encodeBase64(CoreString* dest, const char* src, int32_t srcLen);
 
             /*!
+             * Base64デコード
+             */
+            static void decodeBase64(CoreString* dest, const char* src);
+
+            /*!
              * パーセントデコード
              */
             static void decodePercent(CoreString* str);

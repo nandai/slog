@@ -176,6 +176,54 @@ void Util::encodeBase64(CoreString* dest, const char* src, int32_t srcLen)
 }
 
 /*!
+ * \brief   Base64デコード
+ *
+ * \param[out]  dest    変換後の文字列を返す
+ * \param[in]   src     変換前の文字列
+ *
+ * \return  なし
+ */
+void Util::decodeBase64(CoreString* dest, const char* src)
+{
+    const char* table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    char b64[128];
+    int32_t len = (int32_t)strlen(src);
+    int32_t i;
+
+    if (len % 4)
+        return;
+
+    dest->setCapacity(len / 4 * 3);
+    char* buffer = dest->getBuffer();
+
+    for (i = 0; i < 65; i++)
+    {
+        char c = table[i];
+        b64[c] = i % 64;
+    }
+
+    while (*src)
+    {
+        char c[4];
+
+        for (i = 0; i < 4; i++)
+        {
+            c[i] = b64[*src];
+            src++;
+        }
+
+        for (i = 0; i < 3; i++)
+        {
+            *buffer =
+                (c[i + 0] << ( i * 2  + 2)) |
+                (c[i + 1] >> ((2 - i) * 2));
+
+            buffer++;
+        }
+    }
+}
+
+/*!
  * \brief   パーセントデコード
  *
  * \param [in,out]  str     デコード結果を返す
@@ -191,7 +239,7 @@ void Util::decodePercent(CoreString* str)
 /*!
  * \brief   パーセントデコード
  *
- * \param [out]     str     デコード結果を返す
+ * \param [out]     str     デコード結果を返す（null可）
  * \param [in,out]  start   デコード開始位置（デコード処理により書き換わる）
  * \param [in]      end     デコード終了位置
  *
@@ -227,10 +275,14 @@ void Util::decodePercent(CoreString* str, char* start, const char* end)
          decodeCursor++;
     }
 
-    *decodeCursor = '\0';
-
     if (str)
+    {
         str->copy(start, (int32_t)(decodeCursor - start));
+    }
+    else
+    {
+        *decodeCursor = '\0';
+    }
 }
 
 /*!

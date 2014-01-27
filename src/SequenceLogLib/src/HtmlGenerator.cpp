@@ -199,14 +199,15 @@ bool HtmlGenerator::replaceVariable(Param* param, const CoreString* var)
 
     for (int32_t index = 0; index < varEndPos; index++)
     {
-        // 変数名は英数のみ有効
+        // 変数名は英数、及び'_'のみ有効
         char c = var->at(index);
-        bool isalnum =
+        bool pass =
             ('a' <= c && c <= 'z') ||
             ('A' <= c && c <= 'Z') ||
-            ('0' <= c && c <= '9');
+            ('0' <= c && c <= '9') ||
+            ('_' == c);
 
-        if (isalnum == false)
+        if (pass == false)
         {
             param->endPosition -= (var->getLength() - index);
             return false;
