@@ -159,7 +159,7 @@ int64_t Util::getBitsValue(const char* p, int32_t len, int32_t bitPos, int32_t c
  */
 void Util::encodeBase64(CoreString* dest, const char* src, int32_t srcLen)
 {
-    const char* table = "=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    static const char* table = "=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     int32_t destLen = (srcLen *  4 / 3 + 3) / 4 * 4;
     char* buffer = new char[destLen];
     int32_t bitPos = 0;
@@ -185,7 +185,7 @@ void Util::encodeBase64(CoreString* dest, const char* src, int32_t srcLen)
  */
 void Util::decodeBase64(CoreString* dest, const char* src)
 {
-    const char* table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    static const char* table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
     char b64[128];
     int32_t len = (int32_t)strlen(src);
     int32_t i;
@@ -283,6 +283,60 @@ void Util::decodePercent(CoreString* str, char* start, const char* end)
     {
         *decodeCursor = '\0';
     }
+}
+
+/*!
+ * \brief   HTMLエンコード
+ */
+void Util::encodeHtml(CoreString* str)
+{
+    static struct
+    {
+        char        target;
+        const char* encode;
+        int32_t     len;
+    }
+    list[] =
+    {
+        {'"', "&quot;", 6},
+        {'&', "&amp;",  5},
+        {'<', "&lt;",   4},
+        {'>', "&gt;",   4},
+    };
+
+    int32_t len = str->getLength();
+    char* buffer = new char[len * 6 + 1];
+    char* dest = buffer;
+    const char* src = str->getBuffer();
+
+    for (int32_t i = 0; i < len; i++)
+    {
+        char c = *src;
+        int32_t j;
+
+        for (j = 0; j < sizeof(list) / sizeof(list[0]); j++)
+        {
+            if (c == list[j].target)
+            {
+                memcpy(dest, list[j].encode, list[j].len);
+                dest += list[j].len;
+                break;
+            }
+        }
+
+        if (j == sizeof(list) / sizeof(list[0]))
+        {
+            *dest = c;
+             dest++;
+        }
+
+        src++;
+    }
+
+    *dest = '\0';
+
+    str->copy(buffer);
+    delete [] buffer;
 }
 
 /*!

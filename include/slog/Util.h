@@ -62,6 +62,11 @@ public:     static void getProcessPath(CoreString* path);
             static void decodePercent(CoreString* str, char* start, const char* end);
 
             /*!
+             * HTMLエンコード
+             */
+            static void encodeHtml(CoreString* str);
+
+            /*!
              * メールアドレスを検証
              */
             static bool validateMailAddress(const CoreString* mailAddress);
