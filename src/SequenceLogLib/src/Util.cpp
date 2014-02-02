@@ -31,6 +31,7 @@
     #include <limits.h>
     #include <unistd.h>
     #include <netdb.h>
+    #include <iconv.h>
 #endif
 
 namespace slog
@@ -372,6 +373,35 @@ bool Util::validateMailAddress(const CoreString* mailAddress)
 
     // メールアドレスに問題なし
     return true;
+}
+
+/*!
+ * \brief   SJISをUTF-8に変換
+ */
+void Util::shiftJIStoUTF8(CoreString* str, const char* sjis)
+{
+#if defined(_WINDOWS)
+    // 一旦Unicodeに変換
+    int32_t chars;
+    chars = MultiByteToWideChar(CP_ACP, 0, sjis, -1, nullptr, 0) - 1;
+
+    wchar_t* unicode = new wchar_t[chars + 1];
+    chars = MultiByteToWideChar(CP_ACP, 0, sjis, -1, unicode, chars + 1);
+
+    // 改めてUTF-8に変換
+    str->conv(unicode);
+    delete [] unicode;
+#else
+    size_t srcLen = strlen(sjis);
+    size_t dstLen = srcLen * 6;
+
+    str->setCapacity(dstLen);
+    char* dst = str->getBuffer();
+
+    iconv_t icd = iconv_open("UTF-8", "Shift_JIS");
+    iconv(icd, (char**)&sjis, &srcLen, &dst, &dstLen);
+    iconv_close(icd);
+#endif
 }
 
 #if defined(_WINDOWS)

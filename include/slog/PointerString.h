@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   PointerString.h
  *  \brief  ポインタ文字列クラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
 #include "slog/CoreString.h"
@@ -30,52 +30,43 @@ namespace slog
  */
 class SLOG_API PointerString : public CoreString
 {
-            int32_t     mCapacity;      //!< 容量
-            char*       mBuffer;        //!< バッファ
+            /*!
+             * バッファサイズ
+             */
+            int32_t mCapacity;
+
+            /*!
+             * バッファ
+             */
+            char* mBuffer;
 
 private:    const PointerString& operator=(const char*);
             const PointerString& operator=(const PointerString&);
 
+            /*!
+             * コンストラクタ
+             */
 protected:  PointerString();
-public:     PointerString(char* buffer);
-            PointerString(char* buffer, int32_t capacity);
 
-protected:  void init(char* buffer, int32_t capacity = -1);
+            /*!
+             * コンストラクタ
+             */
+public:     PointerString(const char* buffer, int32_t capacity = -1);
 
-public:     virtual char*   getBuffer() const;
-            virtual int32_t getCapacity() const;
+            /*!
+             * 初期化
+             */
+protected:  void init(const char* buffer, int32_t capacity = -1);
+
+            /*!
+             * バッファアドレス取得
+             */
+public:     virtual char* getBuffer() const override;
+
+            /*!
+             * バッファサイズ取得
+             */
+            virtual int32_t getCapacity() const override;
 };
-
-/*!
- *  \brief  コンストラクタ
- */
-inline PointerString::PointerString(char* buffer)
-{
-    init(buffer);
-}
-
-/*!
- *  \brief  コンストラクタ
- */
-inline PointerString::PointerString(char* buffer, int32_t capacity)
-{
-    init(buffer, capacity);
-}
-
-/*!
- *  \brief  バッファアドレス取得
- */
-inline char* PointerString::getBuffer() const
-{
-    return mBuffer;
-}
-
-/*!
- *  \brief  バッファサイズ取得
- */
-inline int32_t PointerString::getCapacity() const
-{
-    return mCapacity;
-}
 
 } // namespace slog
