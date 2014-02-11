@@ -27,11 +27,15 @@
 #endif
 
 #if defined(__linux__)
+    #include <ctype.h>
     #include <string.h>
     #include <limits.h>
     #include <unistd.h>
     #include <netdb.h>
-    #include <iconv.h>
+
+    #if !defined(__ANDROID__)
+        #include <iconv.h>
+    #endif
 #endif
 
 namespace slog
@@ -375,6 +379,7 @@ bool Util::validateMailAddress(const CoreString* mailAddress)
     return true;
 }
 
+#if !defined(__ANDROID__)
 /*!
  * \brief   SJISをUTF-8に変換
  */
@@ -403,6 +408,7 @@ void Util::shiftJIStoUTF8(CoreString* str, const char* sjis)
     iconv_close(icd);
 #endif
 }
+#endif
 
 #if defined(_WINDOWS)
 /*!

@@ -37,7 +37,7 @@ PointerString::PointerString()
 /*!
  *  \brief  コンストラクタ
  */
-inline PointerString::PointerString(const char* buffer, int32_t capacity)
+PointerString::PointerString(const char* buffer, int32_t capacity)
 {
     init(buffer, capacity);
 }
@@ -45,7 +45,7 @@ inline PointerString::PointerString(const char* buffer, int32_t capacity)
 /*!
  *  \brief  バッファアドレス取得
  */
-inline char* PointerString::getBuffer() const
+char* PointerString::getBuffer() const
 {
     return mBuffer;
 }
@@ -53,7 +53,7 @@ inline char* PointerString::getBuffer() const
 /*!
  *  \brief  バッファサイズ取得
  */
-inline int32_t PointerString::getCapacity() const
+int32_t PointerString::getCapacity() const
 {
     return mCapacity;
 }

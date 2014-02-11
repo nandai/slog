@@ -20,6 +20,11 @@
  *  \author Copyright 2011-2014 printf.jp
  */
 #include "slog/Json.h"
+
+#if defined(__linux__)
+    #include <string.h>
+#endif
+
 using namespace std;
 
 namespace slog

@@ -71,10 +71,12 @@ public:     static void getProcessPath(CoreString* path);
              */
             static bool validateMailAddress(const CoreString* mailAddress);
 
+#if !defined(__ANDROID__)
             /*!
              * SJISをUTF-8に変換
              */
             static void shiftJIStoUTF8(CoreString* str, const char* sjis);
+#endif
 
 #if defined(_WINDOWS)
             /*!
