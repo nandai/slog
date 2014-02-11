@@ -71,6 +71,11 @@
 #if defined(__ANDROID__)
     #define nullptr 0
     #define override
+#elif defined(__linux__) && defined(__GNUC__)
+    #if __GNUC__ < 4 || __GNUC_MINOR__ < 6
+        #define nullptr 0
+        #define override
+    #endif
 #endif
 
 #define MAX_PATH 260
