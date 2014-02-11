@@ -268,9 +268,9 @@
     <ClInclude Include="..\..\include\slog\PointerString.h" />
     <ClInclude Include="..\..\include\slog\Process.h" />
     <ClInclude Include="..\..\include\slog\SequenceLog.h" />
+    <ClInclude Include="..\..\include\slog\sha1.h" />
     <ClInclude Include="..\..\include\slog\Variable.h" />
     <ClInclude Include="..\include\SequenceLogItem.h" />
-    <ClInclude Include="src\sha1.h" />
     <ClInclude Include="..\..\include\slog\SharedMemory.h" />
     <ClInclude Include="..\..\include\slog\slog.h" />
     <ClInclude Include="..\..\include\slog\Socket.h" />

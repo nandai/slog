@@ -27,7 +27,7 @@
 #include "slog/FileInfo.h"
 #include "slog/ByteBuffer.h"
 
-#include "sha1.h"
+#include "slog/sha1.h"
 
 #if defined(__linux__)
     #include <string.h>
