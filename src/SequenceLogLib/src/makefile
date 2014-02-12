@@ -19,6 +19,7 @@ objs = \
 	slog.o \
 	Buffer.o \
 	ByteBuffer.o \
+	Convert.o \
 	CoreString.o \
 	DateTime.o \
 	Dir.o \

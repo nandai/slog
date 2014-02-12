@@ -195,7 +195,7 @@ void WebServerResponseThread::sendHttpHeader(const DateTime* lastModified, int32
     else
     {
         str.append("Transfer-Encoding: chunked\r\n");
-        (bool)mChunked = true;
+        (bool&)mChunked = true;
     }
 
     str.append("\r\n");

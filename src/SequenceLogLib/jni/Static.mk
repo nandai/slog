@@ -8,6 +8,7 @@ LOCAL_SRC_FILES := \
     ../src/slog.cpp \
     ../src/Buffer.cpp \
     ../src/ByteBuffer.cpp \
+    ../src/Convert.cpp \
     ../src/CoreString.cpp \
     ../src/DateTime.cpp \
     ../src/Dir.cpp \
