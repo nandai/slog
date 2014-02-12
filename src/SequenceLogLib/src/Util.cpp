@@ -198,6 +198,7 @@ void Util::decodePercent(CoreString* str)
 {
     char* p = str->getBuffer();
     decodePercent(nullptr, p, p + str->getLength());
+    str->setLength((int32_t)strlen(p));
 }
 
 /*!
@@ -357,7 +358,7 @@ void Util::shiftJIStoUTF8(CoreString* str, const char* sjis)
     str->conv(unicode);
     delete [] unicode;
 #else
-    size_t srcLen = strlen(sjis);
+    size_t srcLen = strlen(sjis) + 1;
     size_t dstLen = srcLen * 6;
 
     str->setCapacity(dstLen);
@@ -376,7 +377,7 @@ void Util::UTF8toShiftJIS(CoreString* str, const char* utf8)
 {
 #if defined(_WINDOWS)
 #else
-    size_t srcLen = strlen(utf8);
+    size_t srcLen = strlen(utf8) + 1;
     size_t dstLen = srcLen;
 
     str->setCapacity(dstLen);
