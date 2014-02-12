@@ -61,6 +61,7 @@ namespace slog
 WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
 {
     mHttpRequest = httpRequest;
+    mChunked = false;
 }
 
 /*!
@@ -176,16 +177,28 @@ void WebServerResponseThread::sendHttpHeader(const DateTime* lastModified, int32
     str.format(
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: %s%s\r\n"
-        "Content-Length: %d\r\n"
         "Date: %s\r\n"
-        "Last-Modified: %s\r\n"
-        "Connection: Close\r\n"
-        "\r\n",
+        "Last-Modified: %s\r\n",
          mimeType->text.getBuffer(),
         (mimeType->binary == false ? "; charset=UTF-8" : ""),
-        contentLen,
         dateString.getBuffer(),
         lastModifiedString.getBuffer());
+
+    if (0 <= contentLen)
+    {
+        String work;
+        work.format(
+            "Connection: Close\r\n"
+            "Content-Length: %d\r\n", contentLen);
+        str.append(work);
+    }
+    else
+    {
+        str.append("Transfer-Encoding: chunked\r\n");
+        (bool)mChunked = true;
+    }
+
+    str.append("\r\n");
 
     // 送信
     Socket* socket = mHttpRequest->getSocket();
@@ -202,8 +215,32 @@ void WebServerResponseThread::sendContent(const Buffer* content) const
 {
     Socket* socket = mHttpRequest->getSocket();
 
-    socket->send(content, content->getLength());
-    socket->close();
+    if (mChunked == false)
+    {
+        socket->send(content, content->getLength());
+        socket->close();
+    }
+    else
+    {
+        String str;
+
+        if (content)
+        {
+            str.format(
+                "%x\r\n"
+                "%s\r\n",
+                content->getLength(),
+                content->getBuffer());
+        }
+        else
+        {
+            str.copy(
+                "0\r\n"
+                "\r\n");
+        }
+
+        socket->send(&str, str.getLength());
+    }
 }
 
 /*!

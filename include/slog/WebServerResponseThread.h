@@ -48,6 +48,11 @@ protected:  HttpRequest* mHttpRequest;
             slog::VariableList mVariables;
 
             /*!
+             * "Transfer-Encoding: chunked" で返すかどうか
+             */
+private:    bool mChunked;
+
+            /*!
              * コンストラクタ
              */
 public:     WebServerResponseThread(HttpRequest* httpRequest);

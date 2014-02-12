@@ -22,6 +22,7 @@
 #include "slog/HttpResponse.h"
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
+#include "slog/Convert.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -42,11 +43,14 @@ HttpResponse::HttpResponse(Socket* socket)
  */
 bool HttpResponse::analizeResponse()
 {
+    String str;
     int32_t contentLen = 0;
 
     while (true)
     {
-        String str;
+        const char* compare;
+        int32_t compareLen;
+
         mSocket->recv(&str);
 
         const char* request = str.getBuffer();
@@ -54,27 +58,52 @@ bool HttpResponse::analizeResponse()
 
         if (i == 0)
         {
-            // 空行だったらループを抜ける
-            if (0 < contentLen)
-            {
-                mResponse.setCapacity(contentLen);
-                mSocket->recv(&mResponse, contentLen);
-                break;
-            }
-//          noticeLog("analizeRequest ended");
-
+            // 空行なのでループを抜ける
             break;
         }
-        else
-        {
-            // Content-Length
-            const char* compare = "Content-Length: ";
-            int32_t compareLen = (int32_t)strlen(compare);
 
-            if (strncmp(request, compare, compareLen) == 0)
-            {
-                contentLen = atoi(request + compareLen);
-            }
+        // Content-Length
+        compare = "Content-Length: ";
+        compareLen = (int32_t)strlen(compare);
+
+        if (strncmp(request, compare, compareLen) == 0)
+        {
+            if (contentLen != 0)
+                return false;
+
+            contentLen = atoi(request + compareLen);
+        }
+
+        // Transfer-Encoding
+        compare = "Transfer-Encoding: chunked";
+        compareLen = (int32_t)strlen(compare);
+
+        if (strncmp(request, compare, compareLen) == 0)
+        {
+            if (contentLen != 0)
+                return false;
+
+            contentLen = -1;
+        }
+    }
+
+    if (0 < contentLen)
+    {
+        mResponse.setCapacity(contentLen);
+        mSocket->recv(&mResponse, contentLen);
+    }
+    else if (contentLen == -1)
+    {
+        while (true)
+        {
+            mSocket->recv(&str);
+//          contentLen = Convert::toInt(str.getBuffer(), 16);
+
+            mSocket->recv(&str);
+            mResponse.append(str);
+
+            if (str.getLength() == 0)
+                break;
         }
     }
 
