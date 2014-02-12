@@ -76,6 +76,11 @@ public:     static void getProcessPath(CoreString* path);
              * SJISをUTF-8に変換
              */
             static void shiftJIStoUTF8(CoreString* str, const char* sjis);
+
+            /*!
+             * UTF-8をSJISに変換
+             */
+            static void UTF8toShiftJIS(CoreString* str, const char* utf8);
 #endif
 
 #if defined(_WINDOWS)

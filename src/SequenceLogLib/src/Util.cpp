@@ -21,13 +21,13 @@
  */
 #include "slog/Util.h"
 #include "slog/String.h"
+#include "slog/Convert.h"
 
 #if defined(_WINDOWS)
     #include <windows.h>
 #endif
 
 #if defined(__linux__)
-    #include <ctype.h>
     #include <string.h>
     #include <limits.h>
     #include <unistd.h>
@@ -40,47 +40,6 @@
 
 namespace slog
 {
-
-/*!
- * \brief   16進数文字列を数値に変換
- */
-template <class T>
-inline const char* _hexToValue(const char* hex, T* value)
-{
-    int32_t i;
-    int32_t size = sizeof(*value) * 2;
-    *value = 0;
-
-    for (i = 0; i < size; i++)
-    {
-        char c = toupper(hex[i]);
-
-        if ('0' <= c && c <= '9')
-        {
-            c = c - '0';
-        }
-        else if ('A' <= c && c <= 'F')
-        {
-            c = c - 'A' + 0x0A;
-        }
-        else
-        {
-            break;
-        }
-
-        *value = (*value << 4) | c;
-    }
-
-    return (hex + i);
-}
-
-/*!
- * \brief   16進数文字列をchar型の数値に変換
- */
-static const char* hexToValue(const char* hex, char* value)
-{
-    return _hexToValue(hex, value);
-}
 
 /*!
  * \brief   プロセスの実行ファイルパスを取得
@@ -263,7 +222,8 @@ void Util::decodePercent(CoreString* str, char* start, const char* end)
         {
         case '%':
         {
-            cursor = hexToValue(cursor + 1, &c);
+            c = Convert::toByte(cursor + 1, 16, 2);
+            cursor += (1 + 2);
             break;
         }
 
@@ -405,6 +365,25 @@ void Util::shiftJIStoUTF8(CoreString* str, const char* sjis)
 
     iconv_t icd = iconv_open("UTF-8", "Shift_JIS");
     iconv(icd, (char**)&sjis, &srcLen, &dst, &dstLen);
+    iconv_close(icd);
+#endif
+}
+
+/*!
+ * UTF-8をSJISに変換
+ */
+void Util::UTF8toShiftJIS(CoreString* str, const char* utf8)
+{
+#if defined(_WINDOWS)
+#else
+    size_t srcLen = strlen(utf8);
+    size_t dstLen = srcLen;
+
+    str->setCapacity(dstLen);
+    char* dst = str->getBuffer();
+
+    iconv_t icd = iconv_open("Shift_JIS", "UTF-8");
+    iconv(icd, (char**)&utf8, &srcLen, &dst, &dstLen);
     iconv_close(icd);
 #endif
 }
