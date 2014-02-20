@@ -40,17 +40,20 @@ namespace slog
 /*!
  * \brief   コンストラクタ
  *
- * \param [in]  socket  ソケット
- * \param [in]  port    ポート番号
- * \param [in]  rootDir ルートディレクトリ
+ * \param[in]   socket  ソケット
+ * \param[in]   scheme  スキーマ
+ * \param[in]   port    ポート番号
+ * \param[in]   rootDir ルートディレクトリ
  */
-HttpRequest::HttpRequest(Socket* socket, uint16_t port, const CoreString* rootDir)
+HttpRequest::HttpRequest(SCHEME scheme, Socket* socket, uint16_t port, const CoreString* rootDir)
 {
     mSocket = socket;
+    mScheme = scheme;
     mPort = port;
     mRootDir.copy(*rootDir);
     mMethod = UNKNOWN;
     mAjax = false;
+    mListener = &mDefaultListener;
 }
 
 /*!
@@ -62,6 +65,14 @@ HttpRequest::~HttpRequest()
 }
 
 /*!
+ * リスナー設定
+ */
+void HttpRequest::setListener(HttpRequestListener* listener)
+{
+    mListener = listener;
+}
+
+/*!
  * \brief   要求解析
  *
  * \retval  true    解析に成功した場合
@@ -70,12 +81,13 @@ HttpRequest::~HttpRequest()
 bool HttpRequest::analizeRequest()
 {
     int32_t contentLen = 0;
+    String str;
 
     while (true)
     {
         // 受信
-        String str;
         mSocket->recv(&str);
+        mListener->onHeader(&str);
 //      noticeLog("request: %s", str.getBuffer());
 
         const char* request = str.getBuffer();
@@ -182,9 +194,9 @@ bool HttpRequest::analizeRequest()
 /*!
  * \brief   URL解析
  *
- * \param [in]  request 解析対象文字列
- * \param [in]  len     解析対象文字列の長さ
- * \param [in]  method  解析対象とするメソッド種別
+ * \param[in]   request 解析対象文字列
+ * \param[in]   len     解析対象文字列の長さ
+ * \param[in]   method  解析対象とするメソッド種別
  *
  * \retval  -1  methodがGETでもPOSTでもなかった、またはrequestが正しいフォーマット（"GET <ドメイン> HTTP/1.1"等）ではなかった場合
  * \retval   0  解析成功
@@ -242,10 +254,10 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 }
 
 /*!
- * \brief  パラメータ解析
+ * \brief   パラメータ解析
  *
- * \param [in]  buffer  解析対象文字列
- * \param [in]  len     解析対象文字列の長さ
+ * \param[in]   buffer  解析対象文字列
+ * \param[in]   len     解析対象文字列の長さ
  *
  * \return  なし
  */
@@ -301,7 +313,7 @@ void HttpRequest::analizeParams(const char* buffer, int32_t len)
 }
 
 /*!
- * \brief  ソケット取得
+ * \brief   ソケット取得
  */
 Socket* HttpRequest::getSocket() const
 {
@@ -309,7 +321,7 @@ Socket* HttpRequest::getSocket() const
 }
 
 /*!
- * \brief  ポート番号取得
+ * \brief   ポート番号取得
  */
 uint16_t HttpRequest::getPort() const
 {
@@ -317,7 +329,7 @@ uint16_t HttpRequest::getPort() const
 }
 
 /*!
- * \brief  ルートディレクトリ取得
+ * \brief   ルートディレクトリ取得
  */
 const CoreString* HttpRequest::getRootDir() const
 {
@@ -325,7 +337,15 @@ const CoreString* HttpRequest::getRootDir() const
 }
 
 /*!
- * \brief  HTTPメソッド取得
+ * \brief   スキーマ取得
+ */
+HttpRequest::SCHEME HttpRequest::getScheme() const
+{
+    return mScheme;
+}
+
+/*!
+ * \brief   メソッド取得
  */
 HttpRequest::METHOD HttpRequest::getMethod() const
 {
@@ -333,7 +353,7 @@ HttpRequest::METHOD HttpRequest::getMethod() const
 }
 
 /*!
- * \brief  URL取得
+ * \brief   URL取得
  */
 const CoreString* HttpRequest::getUrl() const
 {
@@ -341,7 +361,7 @@ const CoreString* HttpRequest::getUrl() const
 }
 
 /*!
- * \brief  URL設定
+ * \brief   URL設定
  */
 void HttpRequest::setUrl(const char* url)
 {
@@ -365,7 +385,7 @@ void HttpRequest::setUrl(const char* url)
 }
 
 /*!
- * \brief  ファイルパス取得
+ * \brief   ファイルパス取得
  */
 void HttpRequest::getPath(CoreString* path)
 {
@@ -374,7 +394,7 @@ void HttpRequest::getPath(CoreString* path)
 }
 
 /*!
- * \brief  mime-type取得
+ * \brief   mime-type取得
  */
 const MimeType* HttpRequest::getMimeType()
 {
@@ -382,7 +402,7 @@ const MimeType* HttpRequest::getMimeType()
 }
 
 /*!
- * \brief  パラメータ取得
+ * \brief   パラメータ取得
  */
 const CoreString* HttpRequest::getParam(const char* name, CoreString* param)
 {
@@ -391,7 +411,7 @@ const CoreString* HttpRequest::getParam(const char* name, CoreString* param)
 }
 
 /*!
- * \brief  Ajaxかどうか調べる
+ * \brief   Ajaxかどうか調べる
  */
 bool HttpRequest::isAjax() const
 {
@@ -399,7 +419,7 @@ bool HttpRequest::isAjax() const
 }
 
 /*!
- * \brief  Sec-WebSocket-Key取得
+ * \brief   Sec-WebSocket-Key取得
  */
 const CoreString* HttpRequest::getWebSocketKey() const
 {

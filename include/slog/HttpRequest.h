@@ -34,14 +34,34 @@ class Socket;
 class ByteBuffer;
 
 /*!
+ * httpリクエストリスナークラス
+ */
+class SLOG_API HttpRequestListener
+{
+            /*!
+             * ヘッダー通知
+             */
+public:     virtual void onHeader(const CoreString* str) {}
+};
+
+/*!
  *  \brief  httpリクエストクラス
  */
 class SLOG_API HttpRequest
 {
             /*!
+             * スキーマ
+             */
+public:     enum SCHEME
+            {
+                HTTP,
+                HTTPS,
+            };
+
+            /*!
              * メソッド種別
              */
-public:     enum METHOD
+            enum METHOD
             {
                 UNKNOWN,
                 GET,
@@ -54,6 +74,11 @@ public:     enum METHOD
 private:    Socket* mSocket;
 
             /*!
+             * スキーマ
+             */
+            SCHEME mScheme;
+
+            /*!
              * ポート番号
              */
             uint16_t mPort;
@@ -64,12 +89,12 @@ private:    Socket* mSocket;
             String mRootDir;
 
             /*!
-             * 要求メソッド
+             * メソッド
              */
             METHOD mMethod;
 
             /*!
-             * 要求URL
+             * URL
              */
             String mUrl;
 
@@ -104,14 +129,29 @@ private:    Socket* mSocket;
             String mPassword;
 
             /*!
+             * デフォルトリスナー
+             */
+            HttpRequestListener mDefaultListener;
+
+            /*!
+             * リスナー
+             */
+            HttpRequestListener* mListener;
+
+            /*!
              * コンストラクタ
              */
-public:     HttpRequest(Socket* socket, uint16_t port, const CoreString* rootDir);
+public:     HttpRequest(SCHEME scheme, Socket* socket, uint16_t port, const CoreString* rootDir);
 
             /*!
              * デストラクタ
              */
             ~HttpRequest();
+
+            /*!
+             * リスナー設定
+             */
+            void setListener(HttpRequestListener* listener);
 
             /*!
              * 要求解析
@@ -144,7 +184,12 @@ public:     Socket* getSocket() const;
             const CoreString* getRootDir() const;
 
             /*!
-             * HTTPメソッド取得
+             * スキーマ取得
+             */
+            SCHEME getScheme() const;
+
+            /*!
+             * メソッド取得
              */
             METHOD getMethod() const;
 
