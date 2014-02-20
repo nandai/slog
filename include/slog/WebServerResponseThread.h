@@ -16,7 +16,7 @@
 
 /*!
  * \file    WebServerResponseThread.h
- * \brief   WEBサーバー応答スレッドクラス
+ * \brief   WEBサーバー応答クラス
  * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
@@ -33,9 +33,9 @@ class Socket;
 class Buffer;
 
 /*!
- * \brief   WEBサーバー応答スレッドクラス
+ * \brief   WEBサーバー応答クラス
  */
-class SLOG_API WebServerResponseThread : public Thread
+class SLOG_API WebServerResponse : public Thread
 {
             /*!
              * httpリクエスト
@@ -55,12 +55,12 @@ private:    bool mChunked;
             /*!
              * コンストラクタ
              */
-public:     WebServerResponseThread(HttpRequest* httpRequest);
+public:     WebServerResponse(HttpRequest* httpRequest);
 
             /*!
              * デストラクタ
              */
-            virtual ~WebServerResponseThread();
+            virtual ~WebServerResponse();
 
             /*!
              * 変数初期化

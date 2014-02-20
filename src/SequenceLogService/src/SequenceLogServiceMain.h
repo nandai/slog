@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   SequenceLogServiceMain.h
  *  \brief  シーケンスログサービスメインクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -34,7 +34,7 @@ namespace slog
 {
 class FileInfo;
 class Mutex;
-class WebServerResponseThread;
+class WebServerResponse;
 class SequenceLogService;
 class SequenceLogServiceThreadListener;
 class SharedFileContainer;
@@ -73,7 +73,7 @@ class SequenceLogServiceMain :
             bool                        mStartRunTime;              //!< 実行時にサービスを開始するかどうか
             bool                        mOutputScreen;              //!< ログを画面に表示するかどうか
 
-            SequenceLogServiceWebServerThread   mWebServer[2];
+            SequenceLogServiceWebServer mWebServer[2];
             uint16_t                    mSequenceLogServerPort;     //!< シーケンスログサーバーポート
 
             /*!
@@ -88,7 +88,7 @@ public:     SequenceLogServiceMain();
             static SequenceLogServiceMain* getInstance();
 
 private:    virtual void run();
-public:     virtual void onResponseStart(WebServerResponseThread* response);
+public:     virtual void onResponseStart(WebServerResponse* response);
 private:    void cleanup();
 
             /*!

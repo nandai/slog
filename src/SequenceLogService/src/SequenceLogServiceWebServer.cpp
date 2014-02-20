@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2013-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   SequenceLogServiceWebServer.cpp
  *  \brief  シーケンスログサービスWEBサーバークラス
- *  \author Copyright 2013 printf.jp
+ *  \author Copyright 2013-2014 printf.jp
  */
 #include "SequenceLogServiceWebServer.h"
 #include "SequenceLogServiceWebServerResponse.h"
@@ -27,7 +27,10 @@
 namespace slog
 {
 
-SequenceLogServiceWebServerThread::SequenceLogServiceWebServerThread()
+/*!
+ * \brief   コンストラクタ
+ */
+SequenceLogServiceWebServer::SequenceLogServiceWebServer()
 {
 #if !defined(__ANDROID__)
     setRootDir("SequenceLogServiceWeb");
@@ -39,30 +42,36 @@ SequenceLogServiceWebServerThread::SequenceLogServiceWebServerThread()
 /*!
  *  \brief  WEBサーバー応答スレッドオブジェクト生成リスト取得
  */
-static WebServerResponseThread* createSequenceLogServiceWebServerResponse(HttpRequest* httpRequest) {return new SequenceLogServiceWebServerResponse(httpRequest);}
-static WebServerResponseThread* createGetLogResponse(                     HttpRequest* httpRequest) {return new GetLogResponse(                     httpRequest);}
-static WebServerResponseThread* createSequenceLogService(                 HttpRequest* httpRequest) {return new SequenceLogService(                 httpRequest);}
+static WebServerResponse* createSequenceLogServiceWebServerResponse(HttpRequest* httpRequest) {return new SequenceLogServiceWebServerResponse(httpRequest);}
+static WebServerResponse* createGetLogResponse(                     HttpRequest* httpRequest) {return new GetLogResponse(                     httpRequest);}
+static WebServerResponse* createSequenceLogService(                 HttpRequest* httpRequest) {return new SequenceLogService(                 httpRequest);}
 
-const WebServerThread::CREATE* SequenceLogServiceWebServerThread::getCreateList() const
+/*!
+ * 
+ */
+const WebServer::CREATE* SequenceLogServiceWebServer::getCreateList() const
 {
     static const CREATE creates[] =
     {
-        {HttpRequest::GET,     "getLog",             "",           createGetLogResponse},
-        {HttpRequest::GET,     "outputLog",          "",           createSequenceLogService},
-        {HttpRequest::UNKNOWN, "",                   "",           createSequenceLogServiceWebServerResponse}
+        {"getLog",      "", createGetLogResponse},
+        {"outputLog",   "", createSequenceLogService},
+        {"",            "", createSequenceLogServiceWebServerResponse}
     };
     return creates;
 }
 
-void SequenceLogServiceWebServerThread::run()
+/*!
+ * \brief   実行
+ */
+void SequenceLogServiceWebServer::run()
 {
-    WebServerThread::run();
+    WebServer::run();
 }
 
 /*!
  *  \brief  onResponseStart
  */
-void SequenceLogServiceWebServerThread::onResponseStart(WebServerResponseThread* response)
+void SequenceLogServiceWebServer::onResponseStart(WebServerResponse* response)
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     serviceMain->onResponseStart(response);

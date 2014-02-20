@@ -417,12 +417,13 @@ void Socket::connect(
 /*!
  * \brief   SSL使用
  *
- * \param[in]   certificate 公開鍵
- * \param[in]   privateKey  秘密鍵
+ * \param[in]   certificate         証明書
+ * \param[in]   privateKey          秘密鍵
+ * \param[in]   certificateChain    中間証明書（null可）※未対応
  *
  * \return  なし
  */
-void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
+void Socket::useSSL(const CoreString* certificate, const CoreString* privateKey, const CoreString* certificateChain) throw(Exception)
 {
     mData->mCTX = SSL_CTX_new(SSLv23_server_method());
 //  mData->mSSL = SSL_new(mData->mCTX);
@@ -435,24 +436,30 @@ void Socket::useSSL(const CoreString& certificate, const CoreString& privateKey)
 
     do
     {
-        // 証明書
-//      res =     SSL_use_certificate_file(mData->mSSL, certificate.getBuffer(), SSL_FILETYPE_PEM);
-        res = SSL_CTX_use_certificate_file(mData->mCTX, certificate.getBuffer(), SSL_FILETYPE_PEM);
-        phase = 1;
+//      if (certificateChain == nullptr || certificateChain->getLength() == 0)
+        if (true)
+        {
+            // 証明書
+//          res =     SSL_use_certificate_file(mData->mSSL, certificate->getBuffer(), SSL_FILETYPE_PEM);
+            res = SSL_CTX_use_certificate_file(mData->mCTX, certificate->getBuffer(), SSL_FILETYPE_PEM);
+            phase = 1;
 
-        if (res != 1)
-            break;
+            if (res != 1)
+                break;
+        }
+        else
+        {
+            // 中間証明書
+            res = SSL_CTX_use_certificate_chain_file(mData->mCTX, certificateChain->getBuffer());
+            phase = 2;
 
-        // 中間証明書
-//      res = SSL_CTX_use_certificate_chain_file(mData->mCTX, "");
-        phase = 2;
-
-//      if (res != 1)
-//          break;
+            if (res != 1)
+                break;
+        }
 
         // プライベートキー
-//      res =     SSL_use_PrivateKey_file(mData->mSSL, privateKey.getBuffer(), SSL_FILETYPE_PEM);
-        res = SSL_CTX_use_PrivateKey_file(mData->mCTX, privateKey.getBuffer(), SSL_FILETYPE_PEM);
+//      res =     SSL_use_PrivateKey_file(mData->mSSL, privateKey->getBuffer(), SSL_FILETYPE_PEM);
+        res = SSL_CTX_use_PrivateKey_file(mData->mCTX, privateKey->getBuffer(), SSL_FILETYPE_PEM);
         phase = 3;
 
         if (res != 1)

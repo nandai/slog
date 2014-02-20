@@ -42,7 +42,7 @@ typedef std::map<uint32_t, ItemQueue*> ItemQueueManager;        // キーはス�
 /*!
  *  \brief  シーケンスログサービスクラス
  */
-class SequenceLogService : public WebServerResponseThread
+class SequenceLogService : public WebServerResponse
 {
 private:    SLOG_SHM*               mSHM;                       //!< ログバッファ（旧 - 共有メモリ）
 

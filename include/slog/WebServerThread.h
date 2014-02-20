@@ -16,7 +16,7 @@
 
 /*!
  * \file    WebServerThread.h
- * \brief   WEBサーバースレッドクラス
+ * \brief   WEBサーバークラス
  * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
@@ -26,22 +26,19 @@
 
 namespace slog
 {
-class WebServerResponseThread;
+class WebServerResponse;
 
 /*!
- * \brief   WEBサーバースレッドクラス
+ * \brief   WEBサーバークラス
  */
-class SLOG_API WebServerThread : public Thread
+class SLOG_API WebServer :
+    public Thread,
+    public HttpRequestListener
 {
-protected:  typedef WebServerResponseThread* (*WEBCREATEPROC)(HttpRequest* httpRequest);
+protected:  typedef WebServerResponse* (*WEBCREATEPROC)(HttpRequest* httpRequest);
 
             struct CREATE
             {
-                /*!
-                 * メソッド
-                 */
-                HttpRequest::METHOD method;
-
                 /*!
                  * URL
                  */
@@ -79,9 +76,14 @@ private:    String mRootDir;
             String mPrivateKey;
 
             /*!
+             * 中間証明書ファイル名
+             */
+            String mCertificateChain;
+
+            /*!
              * コンストラクタ
              */
-public:     WebServerThread();
+public:     WebServer();
 
             /*!
              * ルートディレクトリ設定
@@ -101,7 +103,10 @@ public:     WebServerThread();
             /*!
              * SSL関連ファイル設定
              */
-            void setSSLFileName(const CoreString* certificate, const CoreString* privateKey);
+            void setSSLFileName(
+                const CoreString* certificate,
+                const CoreString* privateKey,
+                const CoreString* certificateChain = nullptr);
 
             /*!
              * 公開鍵ファイル名取得
@@ -117,13 +122,22 @@ public:     WebServerThread();
              * スレッド実行
              */
 protected:  virtual void run();
-public:     virtual void onResponseStart(WebServerResponseThread* response) {}
+private:    virtual void onResponseStart(WebServerResponse* response) {}
 
             /*!
-             * 応答スレッド関連
+             * リクエスト実行
+             */
+public:     void executeRequest(HttpRequest* httpRequest);
+
+            /*!
+             * 
              */
 private:    virtual const CREATE* getCreateList() const = 0;
-public:     WebServerResponseThread* createResponse(HttpRequest* httpRequest);
+
+            /*!
+             * WEBサーバー応答オブジェクト生成
+             */
+            WebServerResponse* createResponse(HttpRequest* httpRequest);
 };
 
 } // namespace slog

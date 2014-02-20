@@ -189,7 +189,7 @@ public:     long        mAlwaysCount;       //!< 常出力カウンタ（1以上
 /*!
  *  \brief  コンストラクタ
  */
-SequenceLogService::SequenceLogService(HttpRequest* httpRequest) : WebServerResponseThread(httpRequest),
+SequenceLogService::SequenceLogService(HttpRequest* httpRequest) : WebServerResponse(httpRequest),
     mFileOutputBuffer(1024 * 2)
 {
     mSHM = nullptr;

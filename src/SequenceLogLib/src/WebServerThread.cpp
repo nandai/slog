@@ -16,7 +16,7 @@
 
 /*!
  * \file    WebServerThread.cpp
- * \brief   WEBサーバースレッドクラス
+ * \brief   WEBサーバークラス
  * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/WebServerThread.h"
@@ -35,7 +35,7 @@ class CreateResponseThread : public Thread
             /*!
              * WEBサーバー
              */
-            WebServerThread* mWebServer;
+            WebServer* mWebServer;
 
             /*!
              * httpリクエスト
@@ -45,7 +45,7 @@ class CreateResponseThread : public Thread
             /*!
              * コンストラクタ
              */
-public:     CreateResponseThread(WebServerThread* webServer, HttpRequest* httpRequest);
+public:     CreateResponseThread(WebServer* webServer, HttpRequest* httpRequest);
 
             /*!
              * デストラクタ
@@ -61,7 +61,7 @@ public:     CreateResponseThread(WebServerThread* webServer, HttpRequest* httpRe
 /*!
  * \brief   コンストラクタ
  */
-CreateResponseThread::CreateResponseThread(WebServerThread* webServer, HttpRequest* httpRequest)
+CreateResponseThread::CreateResponseThread(WebServer* webServer, HttpRequest* httpRequest)
 {
     mWebServer = webServer;
     mHttpRequest = httpRequest;
@@ -81,21 +81,7 @@ void CreateResponseThread::run()
 {
     try
     {
-        WebServerResponseThread* response = nullptr;
-
-        // リクエスト解析
-        if (mHttpRequest->analizeRequest())
-        {
-            noticeLog("request URL: /%s", mHttpRequest->getUrl()->getBuffer());
-            response = mWebServer->createResponse(mHttpRequest);
-        }
-
-        // 応答スレッド実行
-        if (response)
-        {
-            mWebServer->onResponseStart(response);
-            response->start();
-        }
+        mWebServer->executeRequest(mHttpRequest);
     }
     catch (Exception& e)
     {
@@ -106,15 +92,19 @@ void CreateResponseThread::run()
 /*!
  * \brief   コンストラクタ
  */
-WebServerThread::WebServerThread()
+WebServer::WebServer()
 {
     mPort = 8080;
 }
 
 /*!
  * \brief   ルートディレクトリ設定
+ *
+ * \param[in]   rootDir ルートディレクトリ
+ *
+ * \return  なし
  */
-void WebServerThread::setRootDir(const char* rootDir)
+void WebServer::setRootDir(const char* rootDir)
 {
     if (rootDir == nullptr)
         rootDir = "";
@@ -139,33 +129,49 @@ void WebServerThread::setRootDir(const char* rootDir)
 
 /*!
  * \brief   ポート取得
+ *
+ * \return  ポート番号
  */
-uint16_t WebServerThread::getPort() const
+uint16_t WebServer::getPort() const
 {
     return mPort;
 }
 
 /*!
  * \brief   ポート設定
+ *
+ * \param[in]   port    ポート番号
  */
-void WebServerThread::setPort(uint16_t port)
+void WebServer::setPort(uint16_t port)
 {
     mPort = port;
 }
 
 /*!
  * \brief   SSL関連ファイル設定
+ *
+ * \param[in]   certificate         証明書
+ * \param[in]   privateKey          秘密鍵
+ * \param[in]   certificateChain    中間証明書（null可）※未対応
+ *
+ * \return  なし
  */
-void WebServerThread::setSSLFileName(const CoreString* certificate, const CoreString* privateKey)
+void WebServer::setSSLFileName(
+    const CoreString* certificate,
+    const CoreString* privateKey,
+    const CoreString* certificateChain)
 {
     mCertificate.copy(*certificate);
     mPrivateKey. copy(*privateKey);
+
+    if (certificateChain && certificateChain->getLength())
+        mCertificateChain.copy(*certificateChain);
 }
 
 /*!
  * \brief   実行
  */
-void WebServerThread::run()
+void WebServer::run()
 {
     // WEBサーバーソケット準備
     Socket server;
@@ -178,7 +184,7 @@ void WebServerThread::run()
     // 要求待ち
     while (true)
     {
-        Socket* client = nullptr;
+        Socket* socket = nullptr;
 
         try
         {
@@ -191,16 +197,23 @@ void WebServerThread::run()
                 continue;
 
             // accept
-            client = new Socket;
-            client->accept(&server);
-            client->setNoDelay(true);
+            socket = new Socket;
+            socket->accept(&server);
+            socket->setNoDelay(true);
 
             // SSL関連ファイルが設定されていたらSSL有効化
+            HttpRequest::SCHEME scheme = HttpRequest::HTTP;
+
             if (0 < mCertificate.getLength() && 0 < mPrivateKey.getLength())
-                client->useSSL(mCertificate, mPrivateKey);
+            {
+                scheme = HttpRequest::HTTPS;
+                socket->useSSL(&mCertificate, &mPrivateKey, &mCertificateChain);
+            }
 
             // 応答スレッドを生成するスレッドを実行
-            HttpRequest* httpRequest = new HttpRequest(client, mPort, &mRootDir);
+            HttpRequest* httpRequest = new HttpRequest(scheme, socket, mPort, &mRootDir);
+            httpRequest->setListener(this);
+
             CreateResponseThread* createResponseThread = new CreateResponseThread(this, httpRequest);
 
             createResponseThread->start();
@@ -214,20 +227,50 @@ void WebServerThread::run()
 }
 
 /*!
- * \brief   WEBサーバー応答スレッドオブジェクト生成
+ * \brief   リクエスト実行
+ *
+ * \param[in,out]   httpRequest HTTPリクエスト
+ *
+ * \return  なし
  */
-WebServerResponseThread* WebServerThread::createResponse(HttpRequest* httpRequest)
+void WebServer::executeRequest(HttpRequest* httpRequest)
+{
+    WebServerResponse* response = nullptr;
+
+    // リクエスト解析
+    if (httpRequest->analizeRequest())
+    {
+        noticeLog("request URL: /%s", httpRequest->getUrl()->getBuffer());
+        response = createResponse(httpRequest);
+    }
+
+    // 応答スレッド実行
+    if (response)
+    {
+        onResponseStart(response);
+        response->start();
+    }
+}
+
+/*!
+ * \brief   WEBサーバー応答オブジェクト生成
+ *
+ * \param[in,out]   httpRequest HTTPリクエスト
+ *
+ * \return  WEBサーバーレスポンス
+ */
+WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
 {
     HttpRequest::METHOD method = httpRequest->getMethod();
     const CoreString* url =      httpRequest->getUrl();
 
     const CREATE* createList = getCreateList();
-    WebServerResponseThread* response = nullptr;
+    WebServerResponse* response = nullptr;
 
     // 条件に一致する応答スレッドを検索
-    while (createList->method != HttpRequest::UNKNOWN)
+    while (createList->url && createList->url[0] != '\0')
     {
-        if (createList->method == method && url->equals(createList->url))
+        if (url->equals(createList->url))
         {
             // HTTPメソッドとURLが一致
             if (createList->replaceUrl[0] != '\0')

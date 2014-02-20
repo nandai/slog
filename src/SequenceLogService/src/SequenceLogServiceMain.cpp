@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   SequenceLogServiceMain.cpp
  *  \brief  シーケンスログサービスメインクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
@@ -202,7 +202,7 @@ void SequenceLogServiceMain::run()
 /*!
  *  \brief  onResponseStart
  */
-void SequenceLogServiceMain::onResponseStart(WebServerResponseThread* response)
+void SequenceLogServiceMain::onResponseStart(WebServerResponse* response)
 {
     SLOG(CLS_NAME, "onResponseStart");
 

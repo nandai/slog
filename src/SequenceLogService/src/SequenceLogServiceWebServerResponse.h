@@ -28,7 +28,7 @@ namespace slog
 /*!
  *  \brief  シーケンスログサービスWEBサーバー応答クラス
  */
-class SequenceLogServiceWebServerResponse : public WebServerResponseThread
+class SequenceLogServiceWebServerResponse : public WebServerResponse
 {
 public:     SequenceLogServiceWebServerResponse(HttpRequest* httpRequest);
 

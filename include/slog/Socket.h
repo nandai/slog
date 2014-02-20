@@ -135,7 +135,7 @@ public:     Socket();
             /*!
              * SSL使用
              */
-            void useSSL(const CoreString& certificate, const CoreString& privateKey);
+            void useSSL(const CoreString* certificate, const CoreString* privateKey, const CoreString* certificateChain = nullptr) throw(Exception);
 
             /*!
              * SSL使用

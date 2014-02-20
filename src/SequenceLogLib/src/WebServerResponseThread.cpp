@@ -16,7 +16,7 @@
 
 /*!
  * \file    WebServerResponseThread.cpp
- * \brief   WEBサーバー応答スレッドクラス
+ * \brief   WEBサーバー応答クラス
  * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/WebServerResponseThread.h"
@@ -58,7 +58,7 @@ namespace slog
 /*!
  * \brief   コンストラクタ
  */
-WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
+WebServerResponse::WebServerResponse(HttpRequest* httpRequest)
 {
     mHttpRequest = httpRequest;
     mChunked = false;
@@ -67,15 +67,20 @@ WebServerResponseThread::WebServerResponseThread(HttpRequest* httpRequest)
 /*!
  * \brief デストラクタ
  */
-WebServerResponseThread::~WebServerResponseThread()
+WebServerResponse::~WebServerResponse()
 {
     delete mHttpRequest;
 }
 
 /*!
  * \brief   送信
+ *
+ * \param[in]   lastModified    最終書込日時（NULL可）
+ * \param[in]   content         コンテンツ
+ *
+ * \return  なし
  */
-void WebServerResponseThread::send(const DateTime* lastModified, const Buffer* content) const
+void WebServerResponse::send(const DateTime* lastModified, const Buffer* content) const
 {
     // HTTPヘッダー送信
     int32_t contentLen = content->getLength();
@@ -87,8 +92,12 @@ void WebServerResponseThread::send(const DateTime* lastModified, const Buffer* c
 
 /*!
  * \brief   not found 送信
+ *
+ * \param[in,out]   generator   HtmlGenerator
+ *
+ * \return  なし
  */
-void WebServerResponseThread::sendNotFound(HtmlGenerator* generator) const
+void WebServerResponse::sendNotFound(HtmlGenerator* generator) const
 {
     MimeType* mimeType = (MimeType*)mHttpRequest->getMimeType();
     mimeType->setType(MimeType::Type::HTML);
@@ -117,9 +126,14 @@ void WebServerResponseThread::sendNotFound(HtmlGenerator* generator) const
 }
 
 /*!
- * \brief   送信
+ * \brief   バイナリ送信
+ *
+ * \param[in,out]   generator   HtmlGenerator
+ * \param[in]       path        ファイルパス
+ *
+ * \return  なし
  */
-void WebServerResponseThread::sendBinary(HtmlGenerator* generator, const slog::CoreString* path) const
+void WebServerResponse::sendBinary(HtmlGenerator* generator, const slog::CoreString* path) const
 {
     Socket* socket = mHttpRequest->getSocket();
 
@@ -156,7 +170,7 @@ void WebServerResponseThread::sendBinary(HtmlGenerator* generator, const slog::C
  *
  * \return  なし
  */
-void WebServerResponseThread::sendHttpHeader(const DateTime* lastModified, int32_t contentLen) const
+void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t contentLen) const
 {
     DateTime now;
     now.setCurrent();
@@ -210,8 +224,12 @@ void WebServerResponseThread::sendHttpHeader(const DateTime* lastModified, int32
 
 /*!
  * \brief   応答内容送信＆切断
+ *
+ * \param[in]   content         コンテンツ
+ *
+ * \return  なし
  */
-void WebServerResponseThread::sendContent(const Buffer* content) const
+void WebServerResponse::sendContent(const Buffer* content) const
 {
     Socket* socket = mHttpRequest->getSocket();
 
@@ -250,7 +268,7 @@ void WebServerResponseThread::sendContent(const Buffer* content) const
  *
  * \return  なし
  */
-void WebServerResponseThread::redirect(const CoreString* url) const
+void WebServerResponse::redirect(const CoreString* url) const
 {
     String str;
     str.format(
@@ -271,7 +289,7 @@ void WebServerResponseThread::redirect(const CoreString* url) const
  *
  * \return  なし
  */
-void WebServerResponseThread::basicAuth(const char* realm) const
+void WebServerResponse::basicAuth(const char* realm) const
 {
     String str;
     str.format(
@@ -288,7 +306,7 @@ void WebServerResponseThread::basicAuth(const char* realm) const
 /*!
  * \brief   実行
  */
-void WebServerResponseThread::run()
+void WebServerResponse::run()
 {
     try
     {
@@ -330,14 +348,14 @@ void WebServerResponseThread::run()
     }
     catch (Exception& e)
     {
-        noticeLog("WebServerResponseThread: %s", e.getMessage());
+        noticeLog("WebServerResponse: %s", e.getMessage());
     }
 }
 
 /*!
  * \brief   WebSocketにアップグレード
  */
-bool WebServerResponseThread::upgradeWebSocket()
+bool WebServerResponse::upgradeWebSocket()
 {
     const CoreString* webSocketKey = mHttpRequest->getWebSocketKey();
 
@@ -374,7 +392,7 @@ bool WebServerResponseThread::upgradeWebSocket()
 /*!
  * \brief   WebSocketヘッダー送信
  */
-void WebServerResponseThread::sendWebSocketHeader(uint64_t payloadLen, bool isText, bool toClient) const
+void WebServerResponse::sendWebSocketHeader(uint64_t payloadLen, bool isText, bool toClient) const
 {
     Socket* socket = mHttpRequest->getSocket();
     WebSocket::sendHeader(socket, payloadLen, isText, toClient);
