@@ -81,6 +81,11 @@ private:    String mRootDir;
             String mCertificateChain;
 
             /*!
+             * WEBサーバー応答オブジェクト生成スレッドリスト
+             */
+            std::list<Thread*> mCreateResponseList;
+
+            /*!
              * コンストラクタ
              */
 public:     WebServer();
@@ -121,13 +126,12 @@ public:     WebServer();
             /*!
              * スレッド実行
              */
-protected:  virtual void run();
-private:    virtual void onResponseStart(WebServerResponse* response) {}
+protected:  virtual void run() override;
 
             /*!
-             * リクエスト実行
+             * 
              */
-public:     void executeRequest(HttpRequest* httpRequest);
+public:     virtual void onResponseStart(WebServerResponse* response) {}
 
             /*!
              * 
@@ -137,7 +141,7 @@ private:    virtual const CREATE* getCreateList() const = 0;
             /*!
              * WEBサーバー応答オブジェクト生成
              */
-            WebServerResponse* createResponse(HttpRequest* httpRequest);
+public:     WebServerResponse* createResponse(HttpRequest* httpRequest);
 };
 
 } // namespace slog

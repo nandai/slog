@@ -65,6 +65,9 @@ void Thread::start()
 #else
     pthread_create(&mHandle, 0/*nullptr*/, main, this);
 #endif
+
+    mInterrupted = false;
+    mAlive = true;
 }
 
 /*!
@@ -122,8 +125,8 @@ void* Thread::main(void* param)
 {
     Thread* thread = (Thread*)param;
 
-    thread->mInterrupted = false;
-    thread->mAlive = true;
+//  thread->mInterrupted = false;
+//  thread->mAlive = true;
 
     if (thread->init())
     {

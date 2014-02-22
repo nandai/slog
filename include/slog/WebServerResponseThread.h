@@ -105,7 +105,7 @@ protected:  virtual void initVariables() {}
             /*!
              * 実行
              */
-            virtual void run();
+            virtual void run() override;
 
             /*!
              * WebSocketにアップグレード

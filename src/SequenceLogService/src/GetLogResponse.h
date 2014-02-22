@@ -34,15 +34,25 @@ class GetLogResponse :
     public WebServerResponse,
     public SequenceLogServiceThreadListener
 {
+            /*!
+             * コンストラクタ
+             */
 public:     GetLogResponse(HttpRequest* httpRequest) : WebServerResponse(httpRequest) {}
-            virtual~GetLogResponse();
 
-private:    virtual void run();
+            /*!
+             * デストラクタ
+             */
+            virtual~GetLogResponse() override;
 
-public:     virtual void onInitialized(   Thread* thread) {}
-            virtual void onTerminated(    Thread* thread);
-            virtual void onLogFileChanged(Thread* thread);
-            virtual void onUpdateLog(const Buffer* text);
+            /*!
+             * 実行
+             */
+private:    virtual void run() override;
+
+public:     virtual void onInitialized(   Thread* thread) override {}
+            virtual void onTerminated(    Thread* thread) override;
+            virtual void onLogFileChanged(Thread* thread) override;
+            virtual void onUpdateLog(const Buffer* text)  override;
 
             void send(const char* commandNo, const Buffer* payloadData);
 };

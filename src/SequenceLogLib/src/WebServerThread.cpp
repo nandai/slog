@@ -55,7 +55,7 @@ public:     CreateResponseThread(WebServer* webServer, HttpRequest* httpRequest)
             /*!
              * スレッド実行
              */
-            virtual void run();
+            virtual void run() override;
 };
 
 /*!
@@ -81,7 +81,36 @@ void CreateResponseThread::run()
 {
     try
     {
-        mWebServer->executeRequest(mHttpRequest);
+        WebServerResponse* response = nullptr;
+
+        // リクエスト解析
+        if (mHttpRequest->analizeRequest())
+        {
+            noticeLog("request URL: /%s", mHttpRequest->getUrl()->getBuffer());
+            response = mWebServer->createResponse(mHttpRequest);
+        }
+
+        // 応答スレッド実行
+        if (response)
+        {
+            mWebServer->onResponseStart(response);
+            response->start();
+
+            while (response->isAlive())
+            {
+                if (isInterrupted() == false)
+                {
+                    sleep(2000);
+                }
+                else
+                {
+                    response->interrupt();
+                    response->join();
+                }
+            }
+
+            delete response;
+        }
     }
     catch (Exception& e)
     {
@@ -215,8 +244,9 @@ void WebServer::run()
             httpRequest->setListener(this);
 
             CreateResponseThread* createResponseThread = new CreateResponseThread(this, httpRequest);
-
             createResponseThread->start();
+
+            mCreateResponseList.push_back(createResponseThread);
         }
         catch (Exception& e)
         {
@@ -224,32 +254,22 @@ void WebServer::run()
             continue;
         }
     }
-}
 
-/*!
- * \brief   リクエスト実行
- *
- * \param[in,out]   httpRequest HTTPリクエスト
- *
- * \return  なし
- */
-void WebServer::executeRequest(HttpRequest* httpRequest)
-{
-    WebServerResponse* response = nullptr;
-
-    // リクエスト解析
-    if (httpRequest->analizeRequest())
+    // 終了処理
+    for (auto i = mCreateResponseList.begin(); i != mCreateResponseList.end(); i++)
     {
-        noticeLog("request URL: /%s", httpRequest->getUrl()->getBuffer());
-        response = createResponse(httpRequest);
+        Thread* thread = *i;
+        thread->interrupt();
     }
 
-    // 応答スレッド実行
-    if (response)
+    for (auto i = mCreateResponseList.begin(); i != mCreateResponseList.end(); i++)
     {
-        onResponseStart(response);
-        response->start();
+        Thread* thread = *i;
+        thread->join();
+        delete thread;
     }
+
+    mCreateResponseList.clear();
 }
 
 /*!

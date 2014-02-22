@@ -19,12 +19,9 @@
  *  \brief  Web Socket クラス
  *  \author Copyright 2013 printf.jp
  */
-#include "slog/slog.h"
-
-#if defined(_WINDOWS)
 #pragma execution_character_set("utf-8")
-#endif
 
+#include "slog/slog.h"
 #include "slog/WebSocket.h"
 #include "slog/String.h"
 #include "slog/ByteBuffer.h"
@@ -51,7 +48,7 @@ public:     WebSocketReceiver(WebSocket* webSocket)
             /*!
              * スレッド実行
              */
-private:    virtual void run();
+private:    virtual void run() override;
 
             /*!
              * リスナーに通知

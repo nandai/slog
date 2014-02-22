@@ -26,7 +26,7 @@ namespace slog
 {
 
 /*!
- *  \brief  シーケンスログサービスWEBサーバースレッドクラス
+ * \brief   シーケンスログサービスWEBサーバークラス
  */
 class SequenceLogServiceWebServer : public WebServer
 {
@@ -38,17 +38,17 @@ public:     SequenceLogServiceWebServer();
             /*!
              * 
              */
-private:    virtual const CREATE* getCreateList() const;
+private:    virtual const CREATE* getCreateList() const override;
 
             /*!
              * 実行
              */
-            virtual void run();
+            virtual void run() override;
 
             /*!
              * 
              */
-            virtual void onResponseStart(WebServerResponse* response);
+            virtual void onResponseStart(WebServerResponse* response) override;
 };
 
 } // namespace slog

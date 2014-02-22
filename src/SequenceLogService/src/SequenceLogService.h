@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   SequenceLogService.h
  *  \brief  シーケンスログサービスクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -44,36 +44,77 @@ typedef std::map<uint32_t, ItemQueue*> ItemQueueManager;        // キーはス�
  */
 class SequenceLogService : public WebServerResponse
 {
-private:    SLOG_SHM*               mSHM;                       //!< ログバッファ（旧 - 共有メモリ）
+            /*!
+             * ログバッファ（旧 - 共有メモリ）
+             */
+private:    SLOG_SHM* mSHM;
 
-            Process                 mProcess;                   //!< プロセスオブジェクト
+            /*!
+             * プロセスオブジェクト
+             */
+            Process mProcess;
 
-            ItemList*               mOutputList;                //!< シーケンスログ出力リスト
+            /*!
+             * シーケンスログ出力リスト
+             */
+            ItemList* mOutputList;
 
-            SequenceLogByteBuffer   mFileOutputBuffer;          //!< ファイル出力用バッファ
-            bool                    mBinaryLog;                 //!< シーケンスログファイルタイプ
+            /*!
+             * ファイル出力用バッファ
+             */
+            SequenceLogByteBuffer mFileOutputBuffer;
 
-            ItemQueueManager*       mItemQueueManager;          //!< シーケンスログアイテムキューマネージャー
-            SequenceLogItem*        mStockItems;                //!< 未使用シーケンスログアイテムのストック
+            /*!
+             * シーケンスログファイルタイプ
+             */
+            bool mBinaryLog;
 
-            SharedFileContainer*    mSharedFileContainer;       //!< シーケンスログ共有ファイルコンテナ
+            /*!
+             * シーケンスログアイテムキューマネージャー
+             */
+            ItemQueueManager* mItemQueueManager;
 
-            // 初期化 / 破棄
+            /*!
+             * 未使用シーケンスログアイテムのストック
+             */
+            SequenceLogItem* mStockItems;
+
+            /*!
+             * シーケンスログ共有ファイルコンテナ
+             */
+            SharedFileContainer* mSharedFileContainer;
+
+            /*!
+             * コンストラクタ
+             */
 public:     SequenceLogService(HttpRequest* httpRequest);
-            virtual ~SequenceLogService();
 
-private:    virtual bool init();
+            /*!
+             * デストラクタ
+             */
+            virtual ~SequenceLogService() override;
 
-            // シーケンスログファイル情報取得
+            /*!
+             * 初期化
+             */
+private:    virtual bool init() override;
+
+            /*!
+             * シーケンスログファイル情報取得
+             */
 public:     FileInfo* getFileInfo() const;
 
-            // シーケンスログスレッド
-private:    virtual void run();
+            /*!
+             * シーケンスログスレッド関連
+             */
+private:    virtual void run() override;
             void writeMain();
             void callLogFileChanged();
             void cleanUp();
 
-            // シーケンスログアイテムキープ / 追加
+            /*!
+             * シーケンスログアイテムキープ / 追加
+             */
 private:    void divideItems();
 
             void keep(   ItemQueue* queue, SequenceLogItem* item);
@@ -85,19 +126,23 @@ private:    void divideItems();
             void pushStockItem(SequenceLogItem* item);
             SequenceLogItem* popStockItem();
 
-            // シーケンスログファイル関連
+            /*!
+             * シーケンスログファイル関連
+             */
 private:    const char* initBinaryOrText(CoreString* fileName);
 
             void  openSeqLogFile(    File& file) throw(Exception);
             void writeSeqLogFile(    File& file, SequenceLogItem*);
             void writeSeqLogFileText(File& file, SequenceLogItem*);
 
-            // 受信メイン
+            /*!
+             * 受信メイン
+             */
 public:     void receiveMain();
 };
 
 /*!
- *  \brief  シーケンスログアイテムをストックに積む
+ * \brief   シーケンスログアイテムをストックに積む
  */
 inline void SequenceLogService::pushStockItem(SequenceLogItem* item)
 {
@@ -106,7 +151,7 @@ inline void SequenceLogService::pushStockItem(SequenceLogItem* item)
 }
 
 /*!
- *  \brief  シーケンスログアイテムをストックから取り出す
+ * \brief   シーケンスログアイテムをストックから取り出す
  */
 inline SequenceLogItem* SequenceLogService::popStockItem()
 {

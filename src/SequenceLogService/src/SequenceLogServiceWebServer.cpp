@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   SequenceLogServiceWebServer.cpp
- *  \brief  シーケンスログサービスWEBサーバークラス
- *  \author Copyright 2013-2014 printf.jp
+ * \file    SequenceLogServiceWebServer.cpp
+ * \brief   シーケンスログサービスWEBサーバークラス
+ * \author  Copyright 2013-2014 printf.jp
  */
 #include "SequenceLogServiceWebServer.h"
 #include "SequenceLogServiceWebServerResponse.h"
@@ -40,7 +40,7 @@ SequenceLogServiceWebServer::SequenceLogServiceWebServer()
 }
 
 /*!
- *  \brief  WEBサーバー応答スレッドオブジェクト生成リスト取得
+ * \brief   WEBサーバー応答スレッドオブジェクト生成リスト取得
  */
 static WebServerResponse* createSequenceLogServiceWebServerResponse(HttpRequest* httpRequest) {return new SequenceLogServiceWebServerResponse(httpRequest);}
 static WebServerResponse* createGetLogResponse(                     HttpRequest* httpRequest) {return new GetLogResponse(                     httpRequest);}
@@ -69,7 +69,7 @@ void SequenceLogServiceWebServer::run()
 }
 
 /*!
- *  \brief  onResponseStart
+ * \brief   onResponseStart
  */
 void SequenceLogServiceWebServer::onResponseStart(WebServerResponse* response)
 {

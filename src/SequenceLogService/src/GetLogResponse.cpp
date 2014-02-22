@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2013-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,9 @@
 /*!
  *  \file   GetLogResponse.cpp
  *  \brief  取得ログ送信クラス
- *  \author Copyright 2013 printf.jp
+ *  \author Copyright 2013-2014 printf.jp
  */
-#if defined(_WINDOWS)
 #pragma execution_character_set("utf-8")
-#endif
 
 #include "GetLogResponse.h"
 #include "getSequenceLogListJson.h"
@@ -49,8 +47,8 @@ class SendSequenceLogThread : public Thread, public ThreadListener
 
 public:     SendSequenceLogThread(const CoreString& ip, uint16_t port, const CoreString& path);
 
-private:    virtual void run();
-            virtual void onTerminated(Thread* thread);
+private:    virtual void run() override;
+            virtual void onTerminated(Thread* thread) override;
 };
 
 /*!

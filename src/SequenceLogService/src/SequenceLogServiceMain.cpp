@@ -200,42 +200,25 @@ void SequenceLogServiceMain::run()
 }
 
 /*!
- *  \brief  onResponseStart
+ * \brief   onResponseStart
  */
 void SequenceLogServiceMain::onResponseStart(WebServerResponse* response)
 {
     SLOG(CLS_NAME, "onResponseStart");
-
-    mServiceManager.push_back(response);
     response->setListener(this);
 }
 
 /*!
- *  \brief  クリーンアップ
+ * \brief   クリーンアップ
  */
 void SequenceLogServiceMain::cleanup()
 {
     SLOG(CLS_NAME, "cleanup");
     mCleanupFlag = true;
-
-    for (SequenceLogServiceManager::iterator i = mServiceManager.begin(); i != mServiceManager.end(); i++)
-    {
-        Thread* thread = *i;
-        thread->interrupt();
-    }
-
-    for (SequenceLogServiceManager::iterator i = mServiceManager.begin(); i != mServiceManager.end(); i++)
-    {
-        Thread* thread = *i;
-        thread->join();
-        delete thread;
-    }
-
-    mServiceManager.clear();
 }
 
 /*!
- *  \brief  インスタンス取得
+ * \brief   インスタンス取得
  */
 SequenceLogServiceMain* SequenceLogServiceMain::getInstance()
 {
@@ -243,7 +226,7 @@ SequenceLogServiceMain* SequenceLogServiceMain::getInstance()
 }
 
 /*!
- *  \brief  シーケンスログプリントに出力（送信）
+ * \brief   シーケンスログプリントに出力（送信）
  */
 void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 {

@@ -39,7 +39,6 @@ class SequenceLogService;
 class SequenceLogServiceThreadListener;
 class SharedFileContainer;
 
-typedef std::list<Thread*>              SequenceLogServiceManager;
 typedef std::list<SharedFileContainer*> SharedFileContainerArray;
 typedef std::list<FileInfo*>            FileInfoArray;
 
@@ -60,35 +59,89 @@ class SequenceLogServiceMain :
     public FileFindListener,
     public SequenceLogServiceThreadListener
 {
-            FixedString<MAX_PATH>       mLogFolderName;             //!< シーケンスログフォルダ名
-            uint32_t                    mMaxFileSize;               //!< 最大ファイルサイズ
-            int32_t                     mMaxFileCount;              //!< 最大ファイル数
-
-            SequenceLogServiceManager   mServiceManager;            //!< シーケンスログサービスマネージャー
-            SharedFileContainerArray    mSharedFileContainerArray;  //!< 共有ファイルコンテナ情報
-            FileInfoArray               mFileInfoArray;             //!< シーケンスログファイル情報
-            bool                        mCleanupFlag;               //!< クリーンアップフラグ
-
-            Mutex*                      mMutex;                     //!< ミューテックス
-            bool                        mStartRunTime;              //!< 実行時にサービスを開始するかどうか
-            bool                        mOutputScreen;              //!< ログを画面に表示するかどうか
-
-            SequenceLogServiceWebServer mWebServer[2];
-            uint16_t                    mSequenceLogServerPort;     //!< シーケンスログサーバーポート
+            /*!
+             * シーケンスログフォルダ名
+             */
+            FixedString<MAX_PATH> mLogFolderName;
 
             /*!
-             * コンストラクタ／デストラクタ
+             * 最大ファイルサイズ
+             */
+            uint32_t mMaxFileSize;
+
+            /*!
+             * 最大ファイル数
+             */
+            int32_t mMaxFileCount;
+
+            /*!
+             * 共有ファイルコンテナ情報
+             */
+            SharedFileContainerArray mSharedFileContainerArray;
+
+            /*!
+             * シーケンスログファイル情報
+             */
+            FileInfoArray mFileInfoArray;
+
+            /*!
+             * クリーンアップフラグ
+             */
+            bool mCleanupFlag;
+
+            /*!
+             * ミューテックス
+             */
+            Mutex* mMutex;
+
+            /*!
+             * 実行時にサービスを開始するかどうか
+             */
+            bool mStartRunTime;
+
+            /*!
+             * ログを画面に表示するかどうか
+             */
+            bool mOutputScreen;
+
+            /*!
+             * WEBサーバー
+             */
+            SequenceLogServiceWebServer mWebServer[2];
+
+            /*!
+             * シーケンスログサーバーポート
+             */
+            uint16_t mSequenceLogServerPort;
+
+            /*!
+             * コンストラクタ
              */
 public:     SequenceLogServiceMain();
-            virtual ~SequenceLogServiceMain();
+
+            /*!
+             * デストラクタ
+             */
+            virtual ~SequenceLogServiceMain() override;
 
             /*!
              * インスタンス取得
              */
             static SequenceLogServiceMain* getInstance();
 
-private:    virtual void run();
+            /*!
+             * 実行
+             */
+private:    virtual void run() override;
+
+            /*!
+             * 
+             */
 public:     virtual void onResponseStart(WebServerResponse* response);
+
+            /*!
+             * クリーンアップ
+             */
 private:    void cleanup();
 
             /*!
@@ -163,11 +216,11 @@ public:     void printLog(const Buffer* text, int32_t len);
             uint16_t getSequenceLogServerPort() const;
             void     setSequenceLogServerPort(uint16_t port);
 
-private:    virtual void onFind(const CoreString& path);
-            virtual void onInitialized(   Thread* thread);
-            virtual void onTerminated(    Thread* thread);
-            virtual void onLogFileChanged(Thread* thread);
-            virtual void onUpdateLog(const Buffer* text);
+private:    virtual void onFind(const CoreString& path)   override;
+            virtual void onInitialized(   Thread* thread) override;
+            virtual void onTerminated(    Thread* thread) override;
+            virtual void onLogFileChanged(Thread* thread) override;
+            virtual void onUpdateLog(const Buffer* text)  override;
 };
 
 /*!
