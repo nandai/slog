@@ -23,6 +23,7 @@
 
 #include "slog/Thread.h"
 #include "slog/HtmlGenerator.h"
+#include "slog/Cookie.h"
 
 namespace slog
 {
@@ -45,7 +46,12 @@ protected:  HttpRequest* mHttpRequest;
             /*!
              * 変数リスト
              */
-            slog::VariableList mVariables;
+            VariableList mVariables;
+
+            /*!
+             * Cookieリスト
+             */
+            CookieList mCookies;
 
             /*!
              * "Transfer-Encoding: chunked" で返すかどうか
@@ -80,7 +86,7 @@ protected:  virtual void initVariables() {}
             /*!
              * バイナリ送信
              */
-            void sendBinary(HtmlGenerator* generator, const slog::CoreString* path) const;
+            void sendBinary(HtmlGenerator* generator, const CoreString* path) const;
 
             /*!
              * HTTPヘッダー送信（＆切断）
@@ -106,6 +112,11 @@ protected:  virtual void initVariables() {}
              * 実行
              */
             virtual void run() override;
+
+            /*!
+             * "Set-Cookie"を文字列に追加
+             */
+private:    void appendCookiesString(CoreString* str) const;
 
             /*!
              * WebSocketにアップグレード

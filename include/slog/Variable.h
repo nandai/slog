@@ -16,7 +16,7 @@
 
 /*!
  *  \file   Variable.h
- *  \brief  変数リストクラス
+ *  \brief  変数クラス
  *  \author Copyright 2014 printf.jp
  */
 #pragma once
@@ -56,7 +56,7 @@ public:     Variable(const char* name, const char* value);
 };
 
 /*!
- * \brief  変数リスト
+ * \brief  変数リストクラス
  */
 class SLOG_API VariableList
 {

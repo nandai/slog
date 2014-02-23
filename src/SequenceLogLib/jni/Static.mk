@@ -9,6 +9,7 @@ LOCAL_SRC_FILES := \
     ../src/Buffer.cpp \
     ../src/ByteBuffer.cpp \
     ../src/Convert.cpp \
+    ../src/Cookie.cpp \
     ../src/CoreString.cpp \
     ../src/DateTime.cpp \
     ../src/Dir.cpp \

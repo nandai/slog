@@ -22,6 +22,7 @@
 #include "slog/Util.h"
 #include "slog/String.h"
 #include "slog/Convert.h"
+#include "slog/DateTime.h"
 
 #if defined(_WINDOWS)
     #include <windows.h>
@@ -303,6 +304,24 @@ void Util::encodeHtml(CoreString* str)
 
     str->copy(buffer);
     delete [] buffer;
+}
+
+/*!
+ * 日時を文字列で取得する
+ */
+void Util::getDateString(CoreString* str, const DateTime* dateTime)
+{
+    static const char* week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    static const char* mon[] =  {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+    str->format("%s, %02d %s %04d %02d:%02d:%02d GMT",
+        week[dateTime->getWeekDay()],
+             dateTime->getDay(),
+        mon[ dateTime->getMonth() - 1],
+             dateTime->getYear(),
+             dateTime->getHour(),
+             dateTime->getMinute(),
+             dateTime->getSecond());
 }
 
 /*!

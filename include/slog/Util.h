@@ -25,6 +25,7 @@
 namespace slog
 {
 class CoreString;
+class DateTime;
 
 /*!
  *  \brief  ユーティリティクラス
@@ -65,6 +66,11 @@ public:     static void getProcessPath(CoreString* path);
              * HTMLエンコード
              */
             static void encodeHtml(CoreString* str);
+
+            /*!
+             * 日時を文字列で取得する
+             */
+            static void getDateString(CoreString* str, const DateTime* dateTime);
 
             /*!
              * メールアドレスを検証

@@ -203,6 +203,7 @@
     <ClCompile Include="src\Buffer.cpp" />
     <ClCompile Include="src\ByteBuffer.cpp" />
     <ClCompile Include="src\Convert.cpp" />
+    <ClCompile Include="src\Cookie.cpp" />
     <ClCompile Include="src\CoreString.cpp" />
     <ClCompile Include="src\DateTime.cpp" />
     <ClCompile Include="src\Dir.cpp" />
@@ -249,6 +250,7 @@
     <ClInclude Include="..\..\include\slog\Buffer.h" />
     <ClInclude Include="..\..\include\slog\ByteBuffer.h" />
     <ClInclude Include="..\..\include\slog\Convert.h" />
+    <ClInclude Include="..\..\include\slog\Cookie.h" />
     <ClInclude Include="..\..\include\slog\CoreString.h" />
     <ClInclude Include="..\..\include\slog\CSharpString.h" />
     <ClInclude Include="..\..\include\slog\DateTime.h" />

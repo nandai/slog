@@ -25,7 +25,7 @@ namespace slog
 {
 
 /*!
- * コンストラクタ
+ * \brief   コンストラクタ
  */
 Variable::Variable(const char* name, const char* value)
 {
@@ -34,7 +34,7 @@ Variable::Variable(const char* name, const char* value)
 }
 
 /*!
- * コンストラクタ
+ * \brief   コンストラクタ
  */
 Variable::Variable(const char* name, int32_t value)
 {
@@ -52,7 +52,7 @@ VariableList::~VariableList()
 }
 
 /*!
- * 変数を取得する
+ * \brief   変数を取得する
  */
 const Variable* VariableList::get(int32_t index) const
 {

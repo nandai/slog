@@ -20,6 +20,7 @@ objs = \
 	Buffer.o \
 	ByteBuffer.o \
 	Convert.o \
+	Cookie.o \
 	CoreString.o \
 	DateTime.o \
 	Dir.o \

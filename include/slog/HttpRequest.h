@@ -104,6 +104,11 @@ private:    Socket* mSocket;
             MimeType mMimeType;
 
             /*!
+             * Cookie
+             */
+            std::map<String, String> mCookies;
+
+            /*!
              * パラメータ
              */
             std::map<String, String> mParams;
@@ -164,11 +169,6 @@ public:     HttpRequest(SCHEME scheme, Socket* socket, uint16_t port, const Core
 private:    int32_t analizeUrl(const char* request, int32_t len, METHOD method);
 
             /*!
-             * パラメータ解析
-             */
-            void analizeParams(const char* buffer, int32_t len);
-
-            /*!
              * ソケット取得
              */
 public:     Socket* getSocket() const;
@@ -214,9 +214,14 @@ public:     Socket* getSocket() const;
             const MimeType* getMimeType();
 
             /*!
+             * Cookie取得
+             */
+            const CoreString* getCookie(const char* name, CoreString* str);
+
+            /*!
              * パラメータ取得
              */
-            const CoreString* getParam(const char* name, CoreString* param);
+            const CoreString* getParam(const char* name, CoreString* str);
 
             /*!
              * Ajaxかどうか調べる

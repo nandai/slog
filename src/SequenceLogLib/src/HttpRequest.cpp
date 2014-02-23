@@ -38,6 +38,68 @@ namespace slog
 {
 
 /*!
+ * \brief   文字列のペアを取得する
+ *
+ * \param[in]   maps        マップ
+ * \param[in]   buffer      解析対象文字列
+ * \param[in]   len         解析対象文字列の長さ
+ * \param[in]   separator   セパレータ
+ *
+ * \return  なし
+ */
+static void getStringPairs(map<String, String>* maps, const char* buffer, int32_t len, const char* separator)
+{
+    const char* p1 = buffer;
+    bool end = false;
+    int32_t sepLen = (int32_t)strlen(separator);
+
+    while (end == false)
+    {
+        // 一対のパラメータを取り出す
+        const char* p2 = nullptr;
+        int32_t index = 0;
+
+        while (true)
+        {
+            if (p1 + index == buffer + len)
+            {
+                p2 = buffer + len;
+                end = true;
+                break;
+            }
+
+            if (memcmp(p1 + index, separator, sepLen) == 0)
+            {
+                p2 = p1 + index;
+                break;
+            }
+
+            index++;
+        }
+
+//      noticeLog("getStringPairs: %.*s(%d)", (p2 - p1), p1, (p2 - p1));
+
+        // パラメータ名と値に分ける
+        const char* p3 = strchr(p1, '=');
+
+        if (p3 == nullptr)
+            break;
+
+        // パラメータからキーを取得
+        String key(p1, (int32_t)(p3 - p1));
+
+        // パラメータから値を取得
+        String  value;
+        Util::decodePercent(&value, (char*)p3 + 1, p2);
+
+        // パラメータリストに追加
+        maps->insert(pair<String, String>(key, value));
+
+        p1 = p2 + sepLen;
+    }
+}
+
+/*!
  * \brief   コンストラクタ
  *
  * \param[in]   socket  ソケット
@@ -101,7 +163,7 @@ bool HttpRequest::analizeRequest()
                 ByteBuffer params(contentLen);
 
                 mSocket->recv(&params, contentLen);
-                analizeParams(params.getBuffer(), params.getLength());
+                getStringPairs(&mParams, params.getBuffer(), params.getLength(), "&");
             }
 //          noticeLog("analizeRequest ended");
 
@@ -182,6 +244,15 @@ bool HttpRequest::analizeRequest()
                         mPassword.copy(p + pos + 1);
                     }
                 }
+
+                // Cookie
+                compare = "Cookie: ";
+                compareLen = (int32_t)strlen(compare);
+
+                if (strncmp(request, compare, compareLen) == 0)
+                {
+                    getStringPairs(&mCookies, request + compareLen, i - compareLen, "; ");
+                }
             }
         }
 
@@ -236,7 +307,7 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
 
             if (p3)
             {
-                analizeParams(p3 + 1, (int32_t)(p2 - (p3 + 1)));
+                getStringPairs(&mParams, p3 + 1, (int32_t)(p2 - (p3 + 1)), "&");
                 p2 = p3;
             }
         }
@@ -251,65 +322,6 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
     }
 
     return 1;
-}
-
-/*!
- * \brief   パラメータ解析
- *
- * \param[in]   buffer  解析対象文字列
- * \param[in]   len     解析対象文字列の長さ
- *
- * \return  なし
- */
-void HttpRequest::analizeParams(const char* buffer, int32_t len)
-{
-    const char* p1 = buffer;
-    bool end = false;
-
-    while (end == false)
-    {
-        // 一対のパラメータを取り出す
-        const char* p2 = nullptr;
-        int32_t index = 0;
-
-        while (true)
-        {
-            if (p1 + index == buffer + len)
-            {
-                p2 = buffer + len;
-                end = true;
-                break;
-            }
-
-            if (p1[index] == '&')
-            {
-                p2 = p1 + index;
-                break;
-            }
-
-            index++;
-        }
-
-//      noticeLog("HttpRequest::analizeParams %*s(%d)", (p2 - p1), p1, (p2 - p1));
-
-        // パラメータ名と値に分ける
-        const char* p3 = strchr(p1, '=');
-
-        if (p3 == nullptr)
-            break;
-
-        // パラメータからキーを取得
-        String key(p1, (int32_t)(p3 - p1));
-
-        // パラメータから値を取得
-        String  value;
-        Util::decodePercent(&value, (char*)p3 + 1, p2);
-
-        // パラメータリストに追加
-        mParams.insert(pair<String, String>(key, value));
-
-        p1 = p2 + 1;
-    }
 }
 
 /*!
@@ -402,12 +414,21 @@ const MimeType* HttpRequest::getMimeType()
 }
 
 /*!
+ * \brief   Cookie取得
+ */
+const CoreString* HttpRequest::getCookie(const char* name, CoreString* str)
+{
+    str->copy(mCookies[name]);
+    return str;
+}
+
+/*!
  * \brief   パラメータ取得
  */
-const CoreString* HttpRequest::getParam(const char* name, CoreString* param)
+const CoreString* HttpRequest::getParam(const char* name, CoreString* str)
 {
-    param->copy(mParams[name]);
-    return param;
+    str->copy(mParams[name]);
+    return str;
 }
 
 /*!

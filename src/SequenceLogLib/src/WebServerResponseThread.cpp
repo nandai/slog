@@ -34,24 +34,6 @@
     #include <strings.h>
 #endif
 
-/*!
- * 日時を文字列で取得する
- */
-static void getDateString(slog::CoreString* str, const slog::DateTime* dateTime)
-{
-    static const char* week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-    static const char* mon[] =  {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
-    str->format("%s, %02d %s %04d %02d:%02d:%02d GMT",
-        week[dateTime->getWeekDay()],
-             dateTime->getDay(),
-        mon[ dateTime->getMonth() - 1],
-             dateTime->getYear(),
-             dateTime->getHour(),
-             dateTime->getMinute(),
-             dateTime->getSecond());
-}
-
 namespace slog
 {
 
@@ -133,7 +115,7 @@ void WebServerResponse::sendNotFound(HtmlGenerator* generator) const
  *
  * \return  なし
  */
-void WebServerResponse::sendBinary(HtmlGenerator* generator, const slog::CoreString* path) const
+void WebServerResponse::sendBinary(HtmlGenerator* generator, const CoreString* path) const
 {
     Socket* socket = mHttpRequest->getSocket();
 
@@ -179,15 +161,16 @@ void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t con
         lastModified = &now;
 
     String dateString;
-    getDateString(&dateString, &now);
+    Util::getDateString(&dateString, &now);
 
     String lastModifiedString;
-    getDateString(&lastModifiedString, lastModified);
+    Util::getDateString(&lastModifiedString, lastModified);
 
     // ヘッダー生成
     const MimeType* mimeType = mHttpRequest->getMimeType();
-
     String str;
+    String work;
+
     str.format(
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: %s%s\r\n"
@@ -200,7 +183,6 @@ void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t con
 
     if (0 <= contentLen)
     {
-        String work;
         work.format(
             "Connection: Close\r\n"
             "Content-Length: %d\r\n", contentLen);
@@ -212,6 +194,7 @@ void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t con
         (bool&)mChunked = true;
     }
 
+    appendCookiesString(&str);
     str.append("\r\n");
 
     // 送信
@@ -273,9 +256,11 @@ void WebServerResponse::redirect(const CoreString* url) const
     String str;
     str.format(
         "HTTP/1.1 302 Found\r\n"
-        "Location: %s\r\n"
-        "\r\n",
+        "Location: %s\r\n",
         url->getBuffer());
+
+    appendCookiesString(&str);
+    str.append("\r\n");
 
     Socket* socket = mHttpRequest->getSocket();
     socket->send(&str, str.getLength());
@@ -349,6 +334,42 @@ void WebServerResponse::run()
     catch (Exception& e)
     {
         noticeLog("WebServerResponse: %s", e.getMessage());
+    }
+}
+
+/*!
+ * \brief   "Set-Cookie"を文字列に追加
+ */
+void WebServerResponse::appendCookiesString(CoreString* str) const
+{
+    String work;
+
+    for (int32_t i = 0; i < mCookies.getCount(); i++)
+    {
+        const Cookie* cookie = mCookies.get(i);
+
+        work.format(
+            "Set-Cookie: %s=%s; path=%s",
+            cookie->name. getBuffer(),
+            cookie->value.getBuffer(),
+            cookie->path. getBuffer());
+        str->append(work);
+
+        if (cookie->expires.getLength())
+        {
+            work.format(
+                "; expires=%s",
+                cookie->expires.getBuffer());
+            str->append(work);
+        }
+
+        if (cookie->secure)
+            str->append("; secure");
+
+        if (cookie->httpOnly)
+            str->append("; httpOnly");
+
+        str->append("\r\n");
     }
 }
 
