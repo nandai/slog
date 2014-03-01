@@ -229,10 +229,7 @@
     <ClCompile Include="src\PointerString.cpp" />
     <ClCompile Include="src\Process.cpp" />
     <ClCompile Include="src\SequenceLog.cpp" />
-    <ClCompile Include="src\sha1.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release-dll|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release-dll|x64'">CompileAsCpp</CompileAs>
-    </ClCompile>
+    <ClCompile Include="src\SHA1.cpp" />
     <ClCompile Include="src\slog.cpp" />
     <ClCompile Include="src\Socket.cpp" />
     <ClCompile Include="src\String.cpp" />
@@ -272,7 +269,7 @@
     <ClInclude Include="..\..\include\slog\PointerString.h" />
     <ClInclude Include="..\..\include\slog\Process.h" />
     <ClInclude Include="..\..\include\slog\SequenceLog.h" />
-    <ClInclude Include="..\..\include\slog\sha1.h" />
+    <ClInclude Include="..\..\include\slog\SHA1.h" />
     <ClInclude Include="..\..\include\slog\Variable.h" />
     <ClInclude Include="..\include\SequenceLogItem.h" />
     <ClInclude Include="..\..\include\slog\SharedMemory.h" />

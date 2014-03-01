@@ -26,8 +26,7 @@
 #include "slog/File.h"
 #include "slog/FileInfo.h"
 #include "slog/ByteBuffer.h"
-
-#include "slog/sha1.h"
+#include "slog/SHA1.h"
 
 #if defined(__linux__)
     #include <string.h>
@@ -386,15 +385,11 @@ bool WebServerResponse::upgradeWebSocket()
     String mes;
     mes.format("%s%s", webSocketKey->getBuffer(), "258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
 
-    uint8_t digest[SHA1HashSize];
-
-    SHA1Context sha;
-    SHA1Reset( &sha);
-    SHA1Input( &sha, (uint8_t*)mes.getBuffer(), mes.getLength());
-    SHA1Result(&sha, digest);
+    SHA1 hash;
+    hash.execute(&mes);
 
     String resValue;
-    Util::encodeBase64(&resValue, (char*)digest, SHA1HashSize);
+    Util::encodeBase64(&resValue, (const char*)hash.getMessageDigest(), hash.getHashSize());
 
     // 応答内容送信
     String str;
