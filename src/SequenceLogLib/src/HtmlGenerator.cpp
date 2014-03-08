@@ -27,12 +27,17 @@
 #include "slog/Util.h"
 #include "slog/DateTime.h"
 
+#undef __SLOG__
+#include "slog/SequenceLog.h"
+
 #if defined(__unix__)
     #include <string.h>
 #endif
 
 namespace slog
 {
+
+const char* HtmlGenerator::CLS_NAME = "HtmlGenerator";
 
 /*!
  * 生成実行パラメータクラス
@@ -414,6 +419,8 @@ bool HtmlGenerator::readHtml(CoreString* readHtml, int32_t position, const CoreS
  */
 bool HtmlGenerator::execute(const CoreString* fileName, const VariableList* variableList)
 {
+    SLOG(CLS_NAME, "execute");
+
     mVariableList = (variableList != nullptr
         ? variableList
         : &mReadVariableList);

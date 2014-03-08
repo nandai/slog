@@ -178,7 +178,7 @@ int Socket::close()
     if (mSocket == -1)
         return 0;
 
-    Thread::sleep(1000);
+//  Thread::sleep(1000);
 
 #if defined(_WINDOWS)
     int result = closesocket((SOCKET)mSocket);

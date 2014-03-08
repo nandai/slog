@@ -81,41 +81,56 @@ void CreateResponseThread::run()
 {
     try
     {
-        WebServerResponse* response = nullptr;
-
-        // リクエスト解析
-        if (mHttpRequest->analizeRequest())
+        while (true)
         {
-            noticeLog("request URL: /%s", mHttpRequest->getUrl()->getBuffer());
-            response = mWebServer->createResponse(mHttpRequest);
-        }
+            Socket* socket = mHttpRequest->getSocket();
+            bool isReceive = socket->isReceiveData(3000);
 
-        // 応答スレッド実行
-        if (response)
-        {
-            mWebServer->onResponseStart(response);
-            response->start();
+            if (isInterrupted())
+                break;
 
-            while (response->isAlive())
+            if (isReceive == false)
+                continue;
+
+            // リクエスト解析
+            WebServerResponse* response = nullptr;
+
+            if (mHttpRequest->analizeRequest())
             {
-                if (isInterrupted() == false)
-                {
-                    sleep(2000);
-                }
-                else
-                {
-                    response->interrupt();
-                    response->join();
-                }
+                noticeLog("request URL: /%s", mHttpRequest->getUrl()->getBuffer());
+                response = mWebServer->createResponse(mHttpRequest);
             }
 
-            delete response;
+            // 応答スレッド実行
+            if (response)
+            {
+                mWebServer->onResponseStart(response);
+                response->start();
+
+                while (response->isAlive())
+                {
+                    if (isInterrupted() == false)
+                    {
+                        sleep(2000);
+                    }
+                    else
+                    {
+                        response->interrupt();
+                        response->join();
+                    }
+                }
+
+                delete response;
+            }
         }
     }
     catch (Exception& e)
     {
         noticeLog("CreateResponseThread: %s", e.getMessage());
     }
+
+    delete mHttpRequest;
+    mHttpRequest = nullptr;
 }
 
 /*!

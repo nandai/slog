@@ -28,6 +28,9 @@
 #include "slog/ByteBuffer.h"
 #include "slog/SHA1.h"
 
+#undef __SLOG__
+#include "slog/SequenceLog.h"
+
 #if defined(__linux__)
     #include <string.h>
     #include <strings.h>
@@ -35,6 +38,8 @@
 
 namespace slog
 {
+
+const char* WebServerResponse::CLS_NAME = "WebServerResponse";
 
 /*!
  * \brief   コンストラクタ
@@ -50,7 +55,6 @@ WebServerResponse::WebServerResponse(HttpRequest* httpRequest)
  */
 WebServerResponse::~WebServerResponse()
 {
-    delete mHttpRequest;
 }
 
 /*!
@@ -63,6 +67,8 @@ WebServerResponse::~WebServerResponse()
  */
 void WebServerResponse::send(const DateTime* lastModified, const Buffer* content) const
 {
+    SLOG(CLS_NAME, "send");
+
     // HTTPヘッダー送信
     int32_t contentLen = content->getLength();
     sendHttpHeader(lastModified, contentLen);
@@ -116,6 +122,7 @@ void WebServerResponse::sendNotFound(HtmlGenerator* generator) const
  */
 void WebServerResponse::sendBinary(HtmlGenerator* generator, const CoreString* path) const
 {
+    SLOG(CLS_NAME, "sendBinary");
     Socket* socket = mHttpRequest->getSocket();
 
     try
@@ -135,7 +142,7 @@ void WebServerResponse::sendBinary(HtmlGenerator* generator, const CoreString* p
         while (0 < (readLen = (int32_t)file.read(&buffer, buffer.getCapacity())))
             socket->send(&buffer, readLen);
 
-        socket->close();
+//      socket->close();
     }
     catch (Exception)
     {
@@ -153,6 +160,8 @@ void WebServerResponse::sendBinary(HtmlGenerator* generator, const CoreString* p
  */
 void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t contentLen) const
 {
+    SLOG(CLS_NAME, "sendHttpHeader");
+
     DateTime now;
     now.setCurrent();
 
@@ -183,7 +192,7 @@ void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t con
     if (0 <= contentLen)
     {
         work.format(
-            "Connection: Close\r\n"
+//          "Connection: Close\r\n"
             "Content-Length: %d\r\n", contentLen);
         str.append(work);
     }
@@ -200,8 +209,8 @@ void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t con
     Socket* socket = mHttpRequest->getSocket();
     socket->send(&str, str.getLength());
 
-    if (contentLen == 0)
-        socket->close();
+//  if (contentLen == 0)
+//      socket->close();
 }
 
 /*!
@@ -213,12 +222,13 @@ void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t con
  */
 void WebServerResponse::sendContent(const Buffer* content) const
 {
+    SLOG(CLS_NAME, "sendContent");
     Socket* socket = mHttpRequest->getSocket();
 
     if (mChunked == false)
     {
         socket->send(content, content->getLength());
-        socket->close();
+//      socket->close();
     }
     else
     {
@@ -263,7 +273,7 @@ void WebServerResponse::redirect(const CoreString* url) const
 
     Socket* socket = mHttpRequest->getSocket();
     socket->send(&str, str.getLength());
-    socket->close();
+//  socket->close();
 }
 
 /*!
@@ -284,7 +294,7 @@ void WebServerResponse::basicAuth(const char* realm) const
 
     Socket* socket = mHttpRequest->getSocket();
     socket->send(&str, str.getLength());
-    socket->close();
+//  socket->close();
 }
 
 /*!

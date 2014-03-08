@@ -50,6 +50,11 @@ public:     SHA1();
             void execute(const CoreString* message);
 
             /*!
+             * ハッシュ計算実行
+             */
+            void execute(const char* message, int32_t size);
+
+            /*!
              * メッセージダイジェスト取得
              */
             const uint8_t* getMessageDigest() const;

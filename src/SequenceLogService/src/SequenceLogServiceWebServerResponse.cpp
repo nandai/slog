@@ -38,6 +38,7 @@ SequenceLogServiceWebServerResponse::SequenceLogServiceWebServerResponse(HttpReq
 void SequenceLogServiceWebServerResponse::initVariables()
 {
     mVariables.add("domain", "printf.jp");
+//  mVariables.add("domain", "localhost:9080");
 }
 
 } // namespace slog

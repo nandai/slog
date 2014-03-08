@@ -38,6 +38,8 @@ class Buffer;
  */
 class SLOG_API WebServerResponse : public Thread
 {
+            static const char* CLS_NAME;
+
             /*!
              * httpリクエスト
              */

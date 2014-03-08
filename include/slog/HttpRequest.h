@@ -242,6 +242,11 @@ public:     Socket* getSocket() const;
              * パスワード取得
              */
             const CoreString* getPassword() const;
+
+            /*!
+             * リセット
+             */
+private:    void reset();
 };
 
 } // namespace slog

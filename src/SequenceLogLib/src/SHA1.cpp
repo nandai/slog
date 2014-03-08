@@ -55,8 +55,16 @@ SHA1::~SHA1()
  */
 void SHA1::execute(const CoreString* message)
 {
+    execute(message->getBuffer(), message->getLength());
+}
+
+/*!
+ * \brief   ハッシュ計算実行
+ */
+void SHA1::execute(const char* message, int32_t size)
+{
     SHA1_Init(  &mData->mContext);
-    SHA1_Update(&mData->mContext, message->getBuffer(), message->getLength());
+    SHA1_Update(&mData->mContext, message, size);
     SHA1_Final(  mData->mMessageDigest, &mData->mContext);
 }
 

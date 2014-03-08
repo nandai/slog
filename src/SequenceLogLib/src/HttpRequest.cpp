@@ -145,6 +145,8 @@ bool HttpRequest::analizeRequest()
     int32_t contentLen = 0;
     String str;
 
+    reset();
+
     while (true)
     {
         // 受信
@@ -461,6 +463,21 @@ const CoreString* HttpRequest::getUser() const
 const CoreString* HttpRequest::getPassword() const
 {
     return &mPassword;
+}
+
+/*!
+ * \brief   リセット
+ */
+void HttpRequest::reset()
+{
+    mMethod = UNKNOWN;
+    mAjax = false;
+    mUrl.setLength(0);
+    mCookies.clear();
+    mParams. clear();
+    mWebSocketKey.setLength(0);
+    mUser.        setLength(0);
+    mPassword.    setLength(0);
 }
 
 } // namespace slog

@@ -35,6 +35,8 @@ class SLOG_API HtmlGenerator
 {
             class Param;
 
+            static const char* CLS_NAME;
+
             /*!
              * 生成したhtml
              */
