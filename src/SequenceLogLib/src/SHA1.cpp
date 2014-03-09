@@ -16,7 +16,12 @@
 #include "slog/SHA1.h"
 #include "slog/CoreString.h"
 
-#include <openssl/sha.h>
+#if defined(_WINDOWS)
+    #include <windows.h>
+    #define SHA_DIGEST_LENGTH 20
+#else
+    #include <openssl/sha.h>
+#endif
 
 namespace slog
 {
@@ -24,14 +29,9 @@ namespace slog
 class SHA1::Data
 {
             /*!
-             * SHA1コンテキスト
-             */
-public:     SHA_CTX mContext;
-
-            /*!
              * メッセージダイジェスト
              */
-            uint8_t mMessageDigest[SHA_DIGEST_LENGTH];
+public:     uint8_t mMessageDigest[SHA_DIGEST_LENGTH];
 };
 
 /*!
@@ -63,9 +63,38 @@ void SHA1::execute(const CoreString* message)
  */
 void SHA1::execute(const char* message, int32_t size)
 {
-    SHA1_Init(  &mData->mContext);
-    SHA1_Update(&mData->mContext, message, size);
-    SHA1_Final(  mData->mMessageDigest, &mData->mContext);
+#if defined(_WINDOWS)
+    HCRYPTPROV hProv = NULL;
+    HCRYPTHASH hHash = NULL;
+
+    do
+    {
+        if (CryptAcquireContextW(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT) == FALSE)
+            break;
+
+        if (CryptCreateHash(hProv, CALG_SHA, 0, 0, &hHash) == FALSE)
+            break;
+
+        if (CryptHashData(hHash, (uint8_t*)message, size, 0) == FALSE)
+            break;
+
+        int32_t hashSize = getHashSize();
+        CryptGetHashParam(hHash, HP_HASHVAL, mData->mMessageDigest, (DWORD*)&hashSize, 0);
+    }
+    while (false);
+
+    if (hHash)
+        CryptDestroyHash(hHash);
+
+    if (hProv)
+        CryptReleaseContext(hProv, 0);
+#else
+    SHA_CTX context;
+
+    SHA1_Init(  &context);
+    SHA1_Update(&context, message, size);
+    SHA1_Final(mData->mMessageDigest, &context);
+#endif
 }
 
 /*!
