@@ -229,6 +229,7 @@
     <ClCompile Include="src\PointerString.cpp" />
     <ClCompile Include="src\Process.cpp" />
     <ClCompile Include="src\SequenceLog.cpp" />
+    <ClCompile Include="src\Session.cpp" />
     <ClCompile Include="src\SHA1.cpp" />
     <ClCompile Include="src\slog.cpp" />
     <ClCompile Include="src\Socket.cpp" />
@@ -238,6 +239,7 @@
     <ClCompile Include="src\Tokenizer.cpp" />
     <ClCompile Include="src\Util.cpp" />
     <ClCompile Include="src\Variable.cpp" />
+    <ClCompile Include="src\WebServerManager.cpp" />
     <ClCompile Include="src\WebServerResponseThread.cpp" />
     <ClCompile Include="src\WebServerThread.cpp" />
     <ClCompile Include="src\WebSocket.cpp" />
@@ -263,6 +265,7 @@
     <ClInclude Include="..\..\include\slog\HttpResponse.h" />
     <ClInclude Include="..\..\include\slog\JavaString.h" />
     <ClInclude Include="..\..\include\slog\Json.h" />
+    <ClInclude Include="src\Session.h" />
     <CustomBuild Include="src\Log.h" />
     <ClInclude Include="..\..\include\slog\MimeType.h" />
     <ClInclude Include="..\..\include\slog\Mutex.h" />
@@ -271,6 +274,7 @@
     <ClInclude Include="..\..\include\slog\SequenceLog.h" />
     <ClInclude Include="..\..\include\slog\SHA1.h" />
     <ClInclude Include="..\..\include\slog\Variable.h" />
+    <ClInclude Include="..\..\include\slog\WebServerManager.h" />
     <ClInclude Include="..\include\SequenceLogItem.h" />
     <ClInclude Include="..\..\include\slog\SharedMemory.h" />
     <ClInclude Include="..\..\include\slog\slog.h" />

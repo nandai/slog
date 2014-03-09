@@ -36,12 +36,14 @@ objs = \
 	Mutex.o \
 	PointerString.o \
 	Process.o \
+	Session.o \
 	Socket.o \
 	String.o \
 	Thread.o \
 	Tokenizer.o \
 	Util.o \
 	Variable.o \
+	WebServerManager.o \
 	WebServerThread.o \
 	WebServerResponseThread.o \
 	WebSocket.o \

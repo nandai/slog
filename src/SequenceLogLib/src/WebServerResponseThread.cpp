@@ -28,6 +28,8 @@
 #include "slog/ByteBuffer.h"
 #include "slog/SHA1.h"
 
+#include "Session.h"
+
 #undef __SLOG__
 #include "slog/SequenceLog.h"
 
@@ -55,6 +57,32 @@ WebServerResponse::WebServerResponse(HttpRequest* httpRequest)
  */
 WebServerResponse::~WebServerResponse()
 {
+}
+
+/*!
+ * \brief   セッション生成
+ */
+void WebServerResponse::generateSession()
+{
+    const CoreString& ip = mHttpRequest->getSocket()->getInetAddress();
+    Session* session = SessionManager::get(&ip);
+
+    if (session == nullptr)
+    {
+        session = new Session(&ip);
+        SessionManager::add(session);
+    }
+
+    session->generate();
+    mCookies.add(Session::NAME, session->getId(), "/", nullptr, true, true);
+}
+
+/*!
+ * \brief   セッション削除
+ */
+void WebServerResponse::removeSession()
+{
+    mCookies.remove(Session::NAME, "/");
 }
 
 /*!

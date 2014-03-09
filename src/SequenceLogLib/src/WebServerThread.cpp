@@ -24,6 +24,8 @@
 #include "slog/Socket.h"
 #include "slog/Util.h"
 
+#include "Session.h"
+
 namespace slog
 {
 
@@ -326,6 +328,32 @@ WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
 //  if (response == nullptr && HttpRequest::GET == method)
     if (response == nullptr)
         response = (*createList->proc)(httpRequest);
+
+    // セッション管理
+    do
+    {
+        String sessionId;
+        httpRequest->getCookie(Session::NAME, &sessionId);
+
+        if (0 == sessionId.getLength())
+            break;
+
+        const CoreString& ip = httpRequest->getSocket()->getInetAddress();
+        Session* session = SessionManager::get(&ip);
+
+        if (session == nullptr || session->getId()->equals(sessionId) == false)
+            break;
+
+        if (httpRequest->getMimeType()->type == MimeType::Type::HTML)
+        {
+            // アクセス毎にセッションIDを再生成する
+            session->generate();
+            response->getCookieList()->add(Session::NAME, session->getId(), "/", nullptr, true, true);
+        }
+
+        response->setSessionId(session->getId());
+    }
+    while (false);
 
     return response;
 }

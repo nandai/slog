@@ -21,6 +21,7 @@
  */
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
+#include "SequenceLogServiceWebServer.h"
 #include "SequenceLogServiceWebServerResponse.h"
 #include "SharedFileContainer.h"
 
@@ -93,6 +94,12 @@ SequenceLogServiceMain::SequenceLogServiceMain()
 
     mStartRunTime = false;
     mOutputScreen = true;
+
+    mWebServerManager.setWebServer(new SequenceLogServiceWebServer, false);
+
+#if !defined(__ANDROID__)
+    mWebServerManager.setWebServer(new SequenceLogServiceWebServer, true);
+#endif
 }
 
 /*!
@@ -177,25 +184,12 @@ void SequenceLogServiceMain::addFileInfo(FileInfo* info)
 void SequenceLogServiceMain::run()
 {
     SLOG(CLS_NAME, "run");
-
-    mWebServer[0].start();
-#if !defined(__ANDROID__)
-    mWebServer[1].start();
-#endif
+    mWebServerManager.start();
 
     while (isInterrupted() == false)
         sleep(2000);
 
-    mWebServer[0].interrupt();
-#if !defined(__ANDROID__)
-    mWebServer[1].interrupt();
-#endif
-
-    mWebServer[0].join();
-#if !defined(__ANDROID__)
-    mWebServer[1].join();
-#endif
-
+    mWebServerManager.stop();
     cleanup();
 }
 
@@ -348,8 +342,7 @@ void SequenceLogServiceMain::setMaxFileCount(int32_t count)
  */
 uint16_t SequenceLogServiceMain::getWebServerPort(bool secure) const
 {
-    int32_t index = (secure ? 1 : 0);
-    return mWebServer[index].getPort();
+    return mWebServerManager.getWebServer(secure)->getPort();
 }
 
 /*!
@@ -357,8 +350,7 @@ uint16_t SequenceLogServiceMain::getWebServerPort(bool secure) const
  */
 void SequenceLogServiceMain::setWebServerPort(bool secure, uint16_t port)
 {
-    int32_t index = (secure ? 1 : 0);
-    mWebServer[index].setPort(port);
+    mWebServerManager.getWebServer(secure)->setPort(port);
 }
 
 /*!
@@ -366,7 +358,7 @@ void SequenceLogServiceMain::setWebServerPort(bool secure, uint16_t port)
  */
 void SequenceLogServiceMain::setSSLFileName(const CoreString* certificate, const CoreString* privateKey)
 {
-    mWebServer[1].setSSLFileName(certificate, privateKey);
+    mWebServerManager.getWebServer(true)->setSSLFileName(certificate, privateKey);
 }
 
 /*!
@@ -374,7 +366,7 @@ void SequenceLogServiceMain::setSSLFileName(const CoreString* certificate, const
  */
 const CoreString* SequenceLogServiceMain::getCertificateFileName() const
 {
-    return mWebServer[1].getCertificateFileName();
+    return mWebServerManager.getWebServer(true)->getCertificateFileName();
 }
 
 /*!
@@ -382,7 +374,7 @@ const CoreString* SequenceLogServiceMain::getCertificateFileName() const
  */
 const CoreString* SequenceLogServiceMain::getPrivateKeyFileName() const
 {
-    return mWebServer[1].getPrivateKeyFileName();
+    return mWebServerManager.getWebServer(true)->getPrivateKeyFileName();
 }
 
 /*!

@@ -26,8 +26,8 @@
 #include "slog/Socket.h"
 #include "slog/FixedString.h"
 #include "slog/String.h"
+#include "slog/WebServerManager.h"
 
-#include "SequenceLogServiceWebServer.h"
 #include <list>
 
 namespace slog
@@ -105,9 +105,9 @@ class SequenceLogServiceMain :
             bool mOutputScreen;
 
             /*!
-             * WEBサーバー
+             * WEBサーバーマネージャー
              */
-            SequenceLogServiceWebServer mWebServer[2];
+            WebServerManager mWebServerManager;
 
             /*!
              * シーケンスログサーバーポート

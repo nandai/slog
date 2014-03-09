@@ -28,9 +28,6 @@
 namespace slog
 {
 class HttpRequest;
-class CoreString;
-class String;
-class Socket;
 class Buffer;
 
 /*!
@@ -56,6 +53,11 @@ protected:  HttpRequest* mHttpRequest;
             CookieList mCookies;
 
             /*!
+             * セッション
+             */
+            String mSessionId;
+
+            /*!
              * "Transfer-Encoding: chunked" で返すかどうか
              */
 private:    bool mChunked;
@@ -71,9 +73,34 @@ public:     WebServerResponse(HttpRequest* httpRequest);
             virtual ~WebServerResponse();
 
             /*!
+             * Cookieリスト取得
+             */
+            CookieList* getCookieList() const {return (CookieList*)&mCookies;}
+
+            /*!
+             * セッションID取得
+             */
+            const CoreString* getSessionId() const {return &mSessionId;}
+
+            /*!
+             * セッションID設定
+             */
+            void setSessionId(const CoreString* sessionId) {mSessionId.copy(*sessionId);}
+
+            /*!
              * 変数初期化
              */
 protected:  virtual void initVariables() {}
+
+            /*!
+             * セッション生成
+             */
+            void generateSession();
+
+            /*!
+             * セッション削除
+             */
+            void removeSession();
 
             /*!
              * 送信

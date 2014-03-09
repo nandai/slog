@@ -25,12 +25,14 @@ LOCAL_SRC_FILES := \
     ../src/Mutex.cpp \
     ../src/PointerString.cpp \
     ../src/Process.cpp \
+    ../src/Session.cpp \
     ../src/Socket.cpp \
     ../src/String.cpp \
     ../src/Thread.cpp \
     ../src/Tokenizer.cpp \
     ../src/Util.cpp \
     ../src/Variable.cpp \
+    ../src/WebServerManager.cpp \
     ../src/WebServerThread.cpp \
     ../src/WebServerResponseThread.cpp \
     ../src/WebSocket.cpp \
