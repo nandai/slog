@@ -49,6 +49,7 @@ const char* WebServerResponse::CLS_NAME = "WebServerResponse";
 WebServerResponse::WebServerResponse(HttpRequest* httpRequest)
 {
     mHttpRequest = httpRequest;
+    mUserId = -1;
     mChunked = false;
 }
 
@@ -62,14 +63,16 @@ WebServerResponse::~WebServerResponse()
 /*!
  * \brief   セッション生成
  */
-void WebServerResponse::generateSession()
+void WebServerResponse::generateSession(int32_t userId)
 {
-    const CoreString& ip = mHttpRequest->getSocket()->getInetAddress();
-    Session* session = SessionManager::get(&ip);
+    const CoreString& ip =        mHttpRequest->getSocket()->getInetAddress();
+    const CoreString* userAgent = mHttpRequest->getUserAgent();
+
+    Session* session = SessionManager::get(&ip, userAgent);
 
     if (session == nullptr)
     {
-        session = new Session(&ip);
+        session = new Session(userId, &ip, userAgent);
         SessionManager::add(session);
     }
 

@@ -19,7 +19,10 @@
  *  \brief  シーケンスログサービスWEBサーバー応答クラス
  *  \author Copyright 2013-2014 printf.jp
  */
+#pragma execution_character_set("utf-8")
+
 #include "SequenceLogServiceWebServerResponse.h"
+#include "slog/HttpRequest.h"
 
 namespace slog
 {
@@ -38,7 +41,22 @@ SequenceLogServiceWebServerResponse::SequenceLogServiceWebServerResponse(HttpReq
 void SequenceLogServiceWebServerResponse::initVariables()
 {
     mVariables.add("domain", "printf.jp");
-//  mVariables.add("domain", "localhost:9080");
+//  mVariables.add("domain", "localhost");
+
+    if (mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0)
+    {
+        mVariables.add("startTime",   "開始日時");
+        mVariables.add("endTime",     "終了日時");
+        mVariables.add("logFileName", "ログファイル名");
+        mVariables.add("logFileSize", "サイズ");
+    }
+    else
+    {
+        mVariables.add("startTime",   "Start time");
+        mVariables.add("endTime",     "End time");
+        mVariables.add("logFileName", "Log file name");
+        mVariables.add("logFileSize", "Size");
+    }
 }
 
 } // namespace slog

@@ -338,8 +338,10 @@ WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
         if (0 == sessionId.getLength())
             break;
 
-        const CoreString& ip = httpRequest->getSocket()->getInetAddress();
-        Session* session = SessionManager::get(&ip);
+        const CoreString& ip =        httpRequest->getSocket()->getInetAddress();
+        const CoreString* userAgent = httpRequest->getUserAgent();
+
+        Session* session = SessionManager::get(&ip, userAgent);
 
         if (session == nullptr || session->getId()->equals(sessionId) == false)
             break;
@@ -351,7 +353,7 @@ WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
             response->getCookieList()->add(Session::NAME, session->getId(), "/", nullptr, true, true);
         }
 
-        response->setSessionId(session->getId());
+        response->setUserId(session->getUserId());
     }
     while (false);
 

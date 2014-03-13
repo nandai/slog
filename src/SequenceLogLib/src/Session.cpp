@@ -40,9 +40,11 @@ static SessionManager sSessionManager;
 /*!
  * \brief   コンストラクタ
  */
-Session::Session(const slog::CoreString* ip)
+Session::Session(int32_t userId, const CoreString* ip, const CoreString* userAgent)
 {
+    mUserId = userId;
     mIP.copy(*ip);
+    mUserAgent.copy(*userAgent);
 }
 
 /*!
@@ -54,7 +56,7 @@ void Session::generate()
     dateTime.setCurrent();
 
     String key;
-    key.format("%s%llu", mIP.getBuffer(), dateTime.toMilliSeconds());
+    key.format("%s%%sllu", mIP.getBuffer(), mUserAgent.getBuffer(), dateTime.toMilliSeconds());
 
     SHA1 hash;
     hash.execute(&key);
@@ -85,7 +87,7 @@ void SessionManager::clear()
 /*!
  * \brief   セッション取得
  */
-Session* SessionManager::get(const slog::CoreString* ip)
+Session* SessionManager::get(const CoreString* ip, const CoreString* userAgent)
 {
     ScopedLock lock(&sSessionManager.mSessionMutex);
     Session* session;
@@ -94,8 +96,11 @@ Session* SessionManager::get(const slog::CoreString* ip)
     {
         session = *i;
 
-        if (session->getIP()->equals(*ip))
+        if (session->getIP()->       equals(*ip) &&
+            session->getUserAgent()->equals(*userAgent))
+        {
             return session;
+        }
     }
 
     return nullptr;

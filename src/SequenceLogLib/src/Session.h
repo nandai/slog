@@ -40,19 +40,29 @@ class Session
 public:     static const char* NAME;
 
             /*!
-             * IPアドレス
-             */
-private:    String mIP;
-
-            /*!
              * セッションID
              */
-            String mId;
+private:    String mId;
+
+            /*!
+             * ユーザーID
+             */
+            int32_t mUserId;
+
+            /*!
+             * IPアドレス
+             */
+            String mIP;
+
+            /*!
+             * User-Agent
+             */
+            String mUserAgent;
 
             /*!
              * コンストラクタ
              */
-public:     Session(const CoreString* ip);
+public:     Session(int32_t userId, const CoreString* ip, const CoreString* userAgent);
 
             /*!
              * セッション生成
@@ -60,14 +70,24 @@ public:     Session(const CoreString* ip);
             void generate();
 
             /*!
+             * セッションID取得
+             */
+            const CoreString* getId() const {return &mId;}
+
+            /*!
+             * ユーザーID取得
+             */
+            int32_t getUserId() const {return mUserId;}
+
+            /*!
              * IPアドレス取得
              */
             const CoreString* getIP() const {return &mIP;}
 
             /*!
-             * セッションID取得
+             * User-Agent取得
              */
-            const CoreString* getId() const {return &mId;}
+            const CoreString* getUserAgent() const {return &mUserAgent;}
 };
 
 /*!
@@ -78,7 +98,7 @@ class SessionManager
             /*!
              * セッションミューテックス
              */
-            slog::Mutex mSessionMutex;
+            Mutex mSessionMutex;
 
             /*!
              * セッションリスト
@@ -93,7 +113,7 @@ public:     static void clear();
             /*
              * セッション取得
              */
-            static Session* get(const slog::CoreString* ip);
+            static Session* get(const CoreString* ip, const CoreString* userAgent);
 
             /*!
              * セッション追加

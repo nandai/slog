@@ -53,14 +53,14 @@ protected:  HttpRequest* mHttpRequest;
             CookieList mCookies;
 
             /*!
-             * セッション
+             * ユーザーID
              */
-            String mSessionId;
+private:    int32_t mUserId;
 
             /*!
              * "Transfer-Encoding: chunked" で返すかどうか
              */
-private:    bool mChunked;
+            bool mChunked;
 
             /*!
              * コンストラクタ
@@ -78,14 +78,14 @@ public:     WebServerResponse(HttpRequest* httpRequest);
             CookieList* getCookieList() const {return (CookieList*)&mCookies;}
 
             /*!
-             * セッションID取得
+             * ユーザーID取得
              */
-            const CoreString* getSessionId() const {return &mSessionId;}
+            int32_t getUserId() const {return mUserId;}
 
             /*!
-             * セッションID設定
+             * ユーザーID設定
              */
-            void setSessionId(const CoreString* sessionId) {mSessionId.copy(*sessionId);}
+            void setUserId(int32_t userId) {mUserId = userId;}
 
             /*!
              * 変数初期化
@@ -95,7 +95,7 @@ protected:  virtual void initVariables() {}
             /*!
              * セッション生成
              */
-            void generateSession();
+            void generateSession(int32_t userId);
 
             /*!
              * セッション削除

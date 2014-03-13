@@ -255,6 +255,24 @@ bool HttpRequest::analizeRequest()
                 {
                     getStringPairs(&mCookies, request + compareLen, i - compareLen, "; ");
                 }
+
+                // Accept-Language
+                compare = "Accept-Language: ";
+                compareLen = (int32_t)strlen(compare);
+
+                if (strncmp(request, compare, compareLen) == 0)
+                {
+                    mAcceptLanguage.copy(request + compareLen);
+                }
+
+                // User-Agent
+                compare = "User-Agent: ";
+                compareLen = (int32_t)strlen(compare);
+
+                if (strncmp(request, compare, compareLen) == 0)
+                {
+                    mUserAgent.copy(request + compareLen);
+                }
             }
         }
 
@@ -466,6 +484,22 @@ const CoreString* HttpRequest::getPassword() const
 }
 
 /*!
+ * \brief   Accept-Language取得
+ */
+const CoreString* HttpRequest::getAcceptLanguage() const
+{
+    return &mAcceptLanguage;
+}
+
+/*!
+ * \brief   User-Agent取得
+ */
+const CoreString* HttpRequest::getUserAgent() const
+{
+    return &mUserAgent;
+}
+
+/*!
  * \brief   リセット
  */
 void HttpRequest::reset()
@@ -475,9 +509,11 @@ void HttpRequest::reset()
     mUrl.setLength(0);
     mCookies.clear();
     mParams. clear();
-    mWebSocketKey.setLength(0);
-    mUser.        setLength(0);
-    mPassword.    setLength(0);
+    mWebSocketKey.  setLength(0);
+    mUser.          setLength(0);
+    mPassword.      setLength(0);
+    mAcceptLanguage.setLength(0);
+    mUserAgent.     setLength(0);
 }
 
 } // namespace slog

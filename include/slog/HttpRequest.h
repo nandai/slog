@@ -134,6 +134,16 @@ private:    Socket* mSocket;
             String mPassword;
 
             /*!
+             * Accept-Language
+             */
+            String mAcceptLanguage;
+
+            /*!
+             * User-Agent
+             */
+            String mUserAgent;
+
+            /*!
              * デフォルトリスナー
              */
             HttpRequestListener mDefaultListener;
@@ -242,6 +252,16 @@ public:     Socket* getSocket() const;
              * パスワード取得
              */
             const CoreString* getPassword() const;
+
+            /*!
+             * Accept-Language取得
+             */
+            const CoreString* getAcceptLanguage() const;
+
+            /*!
+             * User-Agent取得
+             */
+            const CoreString* getUserAgent() const;
 
             /*!
              * リセット
