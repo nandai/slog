@@ -39,7 +39,7 @@ LOCAL_SRC_FILES := \
     ../src/WebSocketClient.cpp \
     ../src/SequenceLog.cpp \
     ../src/jp_printf_slog_Log.cpp \
-    ../src/SHA1.c
+    ../src/SHA1.cpp
 
 LOCAL_C_INCLUDES += \
     . \

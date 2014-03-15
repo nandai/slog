@@ -342,7 +342,12 @@ void SequenceLogServiceMain::setMaxFileCount(int32_t count)
  */
 uint16_t SequenceLogServiceMain::getWebServerPort(bool secure) const
 {
-    return mWebServerManager.getWebServer(secure)->getPort();
+    auto webServer = mWebServerManager.getWebServer(secure);
+
+    if (webServer)
+        return webServer->getPort();
+
+    return 0;
 }
 
 /*!
@@ -350,7 +355,10 @@ uint16_t SequenceLogServiceMain::getWebServerPort(bool secure) const
  */
 void SequenceLogServiceMain::setWebServerPort(bool secure, uint16_t port)
 {
-    mWebServerManager.getWebServer(secure)->setPort(port);
+    auto webServer = mWebServerManager.getWebServer(secure);
+
+    if (webServer)
+        webServer->setPort(port);
 }
 
 /*!
@@ -358,7 +366,10 @@ void SequenceLogServiceMain::setWebServerPort(bool secure, uint16_t port)
  */
 void SequenceLogServiceMain::setSSLFileName(const CoreString* certificate, const CoreString* privateKey)
 {
-    mWebServerManager.getWebServer(true)->setSSLFileName(certificate, privateKey);
+    auto webServer = mWebServerManager.getWebServer(true);
+
+    if (webServer)
+        webServer->setSSLFileName(certificate, privateKey);
 }
 
 /*!
@@ -366,7 +377,12 @@ void SequenceLogServiceMain::setSSLFileName(const CoreString* certificate, const
  */
 const CoreString* SequenceLogServiceMain::getCertificateFileName() const
 {
-    return mWebServerManager.getWebServer(true)->getCertificateFileName();
+    auto webServer = mWebServerManager.getWebServer(true);
+
+    if (webServer)
+        return webServer->getCertificateFileName();
+
+    return nullptr;
 }
 
 /*!
@@ -374,7 +390,12 @@ const CoreString* SequenceLogServiceMain::getCertificateFileName() const
  */
 const CoreString* SequenceLogServiceMain::getPrivateKeyFileName() const
 {
-    return mWebServerManager.getWebServer(true)->getPrivateKeyFileName();
+    auto webServer = mWebServerManager.getWebServer(true);
+
+    if (webServer)
+        return webServer->getPrivateKeyFileName();
+
+    return nullptr;
 }
 
 /*!

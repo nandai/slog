@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,41 +25,110 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import jp.printf.slog.Log;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.util.Log;
 
 @SuppressLint("DefaultLocale")
 public class App extends android.app.Application
 {
+    private final String CLS_NAME = "App";
+
     public final int SERVICE_STOPPED =  0;
     public final int SERVICE_RUNNING =  1;
     public final int SERVICE_STOPPING = 2;
 
-    private int     mServiceStatus = SERVICE_STOPPED;
+    /**
+     * ステータス
+     */
+    private int mServiceStatus = SERVICE_STOPPED;
 
-    public String   mLogOutputDir;          // ログ出力ディレクトリ
-    public int      mMaxFileSize;           // 最大ファイルサイズ
-    public String   mMaxFileSizeUnit;       // 最大ファイルサイズ単位
-    public int      mMaxFileCount;          // 最大ファイル数
-    public int      mWebServerPort;         // Webサーバーポート
-    public int      mWebServerPortSSL;      // Webサーバーポート (SSL)
-    public int      mSequenceLogServerPort; // Sequence Log Server ポート
+    /**
+     * ログ出力ディレクトリ
+     */
+    public String mLogOutputDir;
 
-    private String              mExecPath;              // 実行ファイルパス
-    private String              mConfigPath;            // 設定ファイルパス
+    /**
+     * 最大ファイルサイズ
+     */
+    public int mMaxFileSize;
 
-    private boolean             mSuperUser = false;
-    private Process             mShell = null;          // shプロセス
-    private BufferedReader      mInputStream = null;    // 標準入力
-    private DataOutputStream    mOutputStream = null;   // 標準出力
+    /**
+     * 最大ファイルサイズ単位
+     */
+    public String mMaxFileSizeUnit;
 
-    private InputStreamThread   mInputStreamThread = null;
+    /**
+     * 最大ファイル数
+     */
+    public int mMaxFileCount;
 
+    /**
+     * Webサーバーポート
+     */
+    public int mWebServerPort;
+
+    /**
+     * Webサーバーポート (SSL)
+     */
+    public int mWebServerPortSSL;
+
+    /**
+     * Sequence Log Server ポート
+     */
+    public int mSequenceLogServerPort;
+
+    /**
+     * 実行ファイルパス
+     */
+    private String mExecPath;
+
+    /**
+     * 設定ファイルパス
+     */
+    private String mConfigPath;
+
+    /**
+     * スーパーユーザーモードフラグ
+     */
+    private boolean mSuperUser = false;
+
+    /**
+     * shプロセス
+     */
+    private Process mShell = null;
+
+    /**
+     * 標準入力
+     */
+    private BufferedReader mInputStream = null;
+
+    /**
+     * 標準出力
+     */
+    private DataOutputStream mOutputStream = null;
+
+    /**
+     * 標準入力読み出しスレッド
+     */
+    private InputStreamThread mInputStreamThread = null;
+
+    /**
+     * onCreate
+     */
     @Override
     public void onCreate() 
     {
+        {
+            System.loadLibrary("slog");
+            Log.setFileName("SequenceLogServiceForAndroid.slog");
+            Log.setServiceAddress("ws://192.168.0.2:8080");     // 自分自身以外の端末を指定する
+            Log.enableOutput(false);
+        }
+
+        long TAG = Log.stepIn(CLS_NAME, "onCreate");
         super.onCreate();
 
         mExecPath =   getFileStreamPath("slogsvc").  getAbsolutePath();
@@ -82,6 +151,8 @@ public class App extends android.app.Application
 
         install("web/SequenceLogService.css", "SequenceLogService.css", "644");
         install("web/SequenceLogService.js",  "SequenceLogService.js",  "644");
+
+        Log.stepOut(TAG);
     }
 
     // Sequence Log Service のステータスを取得
@@ -184,6 +255,7 @@ public class App extends android.app.Application
 
     public int start()
     {
+        long TAG = Log.stepIn(CLS_NAME, "start");
         FileWriter writer = null;
         int result = -1;
         String response = "";
@@ -220,7 +292,7 @@ public class App extends android.app.Application
 
             response = readStream();
             result = Integer.parseInt(response.substring(0, 3));
-//          Log.i("slog", response);
+//          Log.d(TAG, response);
 
             if (result == 0)
             {
@@ -236,7 +308,7 @@ public class App extends android.app.Application
         }
         catch (Exception e)
         {
-            Log.e("slog", response);
+            Log.e(TAG, response);
             e.printStackTrace();
         }
         finally
@@ -244,12 +316,15 @@ public class App extends android.app.Application
             close(writer);
         }
 
+        Log.stepOut(TAG);
         return result;
     }
 
     // Sequence Log Service 停止
     public void stop()
     {
+        long TAG = Log.stepIn(CLS_NAME, "stop");
+
         writeStream("\n");
         setServiceStatus(SERVICE_STOPPING);
 
@@ -264,6 +339,7 @@ public class App extends android.app.Application
         }
 
         setServiceStatus(SERVICE_STOPPED);
+        Log.stepOut(TAG);
     }
 
     /**

@@ -15,6 +15,7 @@
  */
 package jp.printf.slog.service;
 
+import jp.printf.slog.Log;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -37,6 +38,8 @@ import android.os.Bundle;
 
 public class Settings extends PreferenceFragment implements OnSharedPreferenceChangeListener
 {
+    private final String CLS_NAME = "Settings";
+
     private final String        KEY_START_STOP =               "startStop";
     private final String        KEY_LOG_OUTPUT_DIR =           "logOutputDir";
     private final String        KEY_MAX_FILE_SIZE =            "maxFileSize";
@@ -256,6 +259,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
      */
     public void onCreate(Bundle savedInstanceState)
     {
+        long TAG = Log.stepIn(CLS_NAME, "onCreate");
         super.onCreate(savedInstanceState);
 
         // Preference追加
@@ -278,6 +282,8 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
 
         if (app.getServiceStatus() == app.SERVICE_STOPPED && mSP.getBoolean(KEY_START_STOP, false))
             start();
+
+        Log.stepOut(TAG);
     }
 
     /**
