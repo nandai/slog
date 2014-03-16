@@ -107,7 +107,7 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
 
         if (size < 1024)
         {
-            strSize.format("%s %d byte(s)", message.getBuffer(), (int64_t)size);
+            strSize.format("%s %d byte(s)", message.getBuffer(), (int32_t)size);
         }
 
         else
