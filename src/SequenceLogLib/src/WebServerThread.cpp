@@ -350,7 +350,7 @@ WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
         {
             // アクセス毎にセッションIDを再生成する
             session->generate();
-            response->getCookieList()->add(Session::NAME, session->getId(), "/", nullptr, true, true);
+            response->getCookieList()->add(Session::NAME, session->getId(), "/", nullptr, session->isSecure(), true);
         }
 
         response->setUserId(session->getUserId());

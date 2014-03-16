@@ -60,6 +60,11 @@ private:    String mId;
             String mUserAgent;
 
             /*!
+             * セキュアフラグ
+             */
+            bool mSecure;
+
+            /*!
              * コンストラクタ
              */
 public:     Session(int32_t userId, const CoreString* ip, const CoreString* userAgent);
@@ -88,6 +93,16 @@ public:     Session(int32_t userId, const CoreString* ip, const CoreString* user
              * User-Agent取得
              */
             const CoreString* getUserAgent() const {return &mUserAgent;}
+
+            /*!
+             * セキュアフラグ取得
+             */
+            bool isSecure() const {return mSecure;}
+
+            /*!
+             * セキュアフラグ設定
+             */
+            void setSecure(bool secure) {mSecure = secure;}
 };
 
 /*!

@@ -130,8 +130,7 @@ void SequenceLogServiceWebServerResponse::run()
                     else
                     {
                         generateSession(id);
-//                      mVariables.add("userId", getUserId());  generateSession()でidをセットするべき
-                        mVariables.add("userId", id);
+                        mVariables.add("userId", getUserId());
                     }
                 }
             }

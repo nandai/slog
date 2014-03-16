@@ -76,8 +76,13 @@ void WebServerResponse::generateSession(int32_t userId)
         SessionManager::add(session);
     }
 
+    bool secure = (mHttpRequest->getScheme() == HttpRequest::SCHEME::HTTPS);
+
+    session->setSecure(secure);
     session->generate();
-    mCookies.add(Session::NAME, session->getId(), "/", nullptr, true, true);
+
+    mCookies.add(Session::NAME, session->getId(), "/", nullptr, secure, true);
+    setUserId(userId);
 }
 
 /*!

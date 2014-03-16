@@ -45,6 +45,7 @@ Session::Session(int32_t userId, const CoreString* ip, const CoreString* userAge
     mUserId = userId;
     mIP.copy(*ip);
     mUserAgent.copy(*userAgent);
+    mSecure = false;
 }
 
 /*!
@@ -56,7 +57,7 @@ void Session::generate()
     dateTime.setCurrent();
 
     String key;
-    key.format("%s%%sllu", mIP.getBuffer(), mUserAgent.getBuffer(), dateTime.toMilliSeconds());
+    key.format("%s%s%llu", mIP.getBuffer(), mUserAgent.getBuffer(), dateTime.toMilliSeconds());
 
     SHA1 hash;
     hash.execute(&key);
