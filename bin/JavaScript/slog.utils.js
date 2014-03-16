@@ -501,7 +501,7 @@
         view.onUpdateBuffer = function(flag, msg, removeCount)
         {
             updateVisibleTop(this, removeCount);
-            drawView(this);
+//          drawView(this);
         };
 
         view.draw = function()

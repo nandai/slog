@@ -21,6 +21,7 @@ objs = \
 	SequenceLogServiceMain.o \
 	SequenceLogServiceWebServer.o \
 	SequenceLogServiceWebServerResponse.o \
+	SQLite.o \
 	sqlite3/sqlite3.o
 
 slogsvc: $(objs)

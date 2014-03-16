@@ -28,7 +28,8 @@
 #include "slog/SHA1.h"
 #include "slog/Util.h"
 
-#include "sqlite3/sqlite3.h"
+#include "SQLite.h"
+#include <memory>
 
 namespace slog
 {
@@ -70,31 +71,28 @@ void SequenceLogServiceWebServerResponse::run()
                 hash.execute(&passwd);
                 Util::encodeBase64(&passwd, (const char*)hash.getMessageDigest(), hash.getHashSize());
 
+                // ユーザー検索
                 String dbPath;
                 Util::getProcessPath(&dbPath);
                 dbPath.append("/SequenceLogService.db");
 
-                sqlite3* db = nullptr;
-                sqlite3_open_v2(dbPath.getBuffer(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_NOMUTEX, nullptr);
+                SQLite db;
+                db.connect("", "", "", dbPath.getBuffer());
 
-                sqlite3_stmt* stmt = nullptr;
-                sqlite3_prepare_v2(db, "select id from user where name=? and password=?", -1, &stmt, nullptr);
-                sqlite3_bind_text(stmt, 1, name.  getBuffer(), -1, SQLITE_STATIC);
-                sqlite3_bind_text(stmt, 2, passwd.getBuffer(), -1, SQLITE_STATIC);
+                std::unique_ptr<Statement> stmt(db.newStatement());
+                stmt->prepare("select id from user where name=? and password=?");
+                stmt->setStringParam(0, &name);
+                stmt->setStringParam(1, &passwd);
 
-                int32_t ret = sqlite3_step(stmt);
                 int32_t id = -1;
-                bool pass = false;
+                stmt->setIntResult(0, &id);
 
-                if (ret == SQLITE_ROW)
-                {
-                    id = sqlite3_column_int(stmt, 0);
-                    pass = true;
-                }
+                stmt->bind();
+                stmt->execute();
 
-                sqlite3_finalize(stmt);
-                sqlite3_close_v2(db);
+                bool pass = stmt->fetch();
 
+                // 検索結果検証
                 String result;
 
                 if (pass == false)
@@ -137,6 +135,10 @@ void SequenceLogServiceWebServerResponse::run()
                     }
                 }
             }
+        }
+        else
+        {
+            mVariables.add("userId", getUserId());
         }
     }
 

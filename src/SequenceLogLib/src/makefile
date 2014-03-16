@@ -23,6 +23,7 @@ objs = \
 	Cookie.o \
 	CoreString.o \
 	DateTime.o \
+	DB.o \
 	Dir.o \
 	Exception.o \
 	File.o \

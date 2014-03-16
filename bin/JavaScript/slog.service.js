@@ -5,7 +5,7 @@
     // シーケンスログサービス
     var SequenceLogService = function()
     {
-        this.version = '1.2.6';
+        this.version = '1.2.7';
         this.ws = null;
         this.logFileListUpdateCallback = null;
         this.logViews = [];                     // シーケンスログビューの配列
@@ -25,7 +25,8 @@
             this.logFileListUpdateCallback = logFileListUpdateCallback;
 
             // WebSocket
-            this.ws = new WebSocket('ws://' + domain + '/getLog');
+            var protocol = (('http:' === document.location.protocol) ? 'ws://' : 'wss://');
+            this.ws = new WebSocket(protocol + domain + '/getLog');
             var self = this;
 
             this.ws.onmessage = function(e) {onMessage(self, e.data);};
@@ -93,4 +94,11 @@
         exports.slog = {};
 
     exports.slog.service = new SequenceLogService();
+
+    setInterval(function()
+    {
+        for (var i = 0; i < exports.slog.service.logViews.length; i++)
+            exports.slog.service.logViews[i].draw();
+    },
+    100);
 })(this);

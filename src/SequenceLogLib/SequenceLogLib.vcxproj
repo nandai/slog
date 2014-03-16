@@ -206,6 +206,7 @@
     <ClCompile Include="src\Cookie.cpp" />
     <ClCompile Include="src\CoreString.cpp" />
     <ClCompile Include="src\DateTime.cpp" />
+    <ClCompile Include="src\DB.cpp" />
     <ClCompile Include="src\Dir.cpp" />
     <ClCompile Include="src\Exception.cpp" />
     <ClCompile Include="src\File.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="..\..\include\slog\CSharpString.h" />
     <ClInclude Include="..\..\include\slog\DateTime.h" />
     <ClInclude Include="..\..\include\slog\DateTimeFormat.h" />
+    <ClInclude Include="..\..\include\slog\DB.h" />
     <ClInclude Include="..\..\include\slog\Dir.h" />
     <ClInclude Include="..\..\include\slog\Exception.h" />
     <ClInclude Include="..\..\include\slog\File.h" />

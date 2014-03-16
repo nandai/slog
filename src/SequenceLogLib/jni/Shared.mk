@@ -12,6 +12,7 @@ LOCAL_SRC_FILES := \
     ../src/Cookie.cpp \
     ../src/CoreString.cpp \
     ../src/DateTime.cpp \
+    ../src/DB.cpp \
     ../src/Dir.cpp \
     ../src/Exception.cpp \
     ../src/File.cpp \
