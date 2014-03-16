@@ -9,7 +9,7 @@ CFLAGS = \
 #CFLAGS += -D_DEBUG
 #CFLAGS += -D__SLOG__
 
-LDFLAGS = -lslog -lstdc++ -lrt -lssl
+LDFLAGS = -lslog -lstdc++ -lrt -lssl -lpthread -ldl
 
 INSTALLDIR = /usr/bin
 
@@ -20,7 +20,8 @@ objs = \
 	SequenceLogService.o \
 	SequenceLogServiceMain.o \
 	SequenceLogServiceWebServer.o \
-	SequenceLogServiceWebServerResponse.o
+	SequenceLogServiceWebServerResponse.o \
+	sqlite3/sqlite3.o
 
 slogsvc: $(objs)
 	$(CC) -o slogsvc $^ $(LDFLAGS)
@@ -31,7 +32,9 @@ slogsvc: $(objs)
 install:
 	cp slogsvc                       $(INSTALLDIR)/
 	mkdir -p                         $(INSTALLDIR)/SequenceLogServiceWeb
-	cp  ../SequenceLogServiceWeb/*.* $(INSTALLDIR)/SequenceLogServiceWeb/
+	cp ../SequenceLogServiceWeb/*.*  $(INSTALLDIR)/SequenceLogServiceWeb/
+	cp ../SequenceLogService.db      $(INSTALLDIR)/
+	chmod 666 $(INSTALLDIR)/SequenceLogService.db
 
 clean:
 	$(RM) slogsvc $(objs) depend.inc

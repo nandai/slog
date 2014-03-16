@@ -11,7 +11,8 @@ LOCAL_SRC_FILES	:= \
 	../src/SequenceLogService.cpp \
 	../src/SequenceLogServiceMain.cpp \
 	../src/SequenceLogServiceWebServer.cpp \
-	../src/SequenceLogServiceWebServerResponse.cpp
+	../src/SequenceLogServiceWebServerResponse.cpp \
+	../src/sqlite3/sqlite3.c
 
 LOCAL_C_INCLUDES += \
 	../../include \

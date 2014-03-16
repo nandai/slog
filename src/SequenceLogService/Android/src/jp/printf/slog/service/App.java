@@ -148,7 +148,11 @@ public class App extends android.app.Application
         install("bin/slogsvc",       "slogsvc",       "755");
         install("web/index.html",    "index.html",    "644");
         install("web/notfound.html", "notfound.html", "644");
+        install("web/login.html",    "login.html",    "644");
+        install("web/login.js",      "login.js",      "644");
+        install("web/login.pcss",    "login.pcss",    "644");
 
+        install("bin/SequenceLogService.db",  "SequenceLogService.db",  "644");
         install("web/SequenceLogService.css", "SequenceLogService.css", "644");
         install("web/SequenceLogService.js",  "SequenceLogService.js",  "644");
 

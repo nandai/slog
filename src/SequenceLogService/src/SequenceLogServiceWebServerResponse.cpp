@@ -71,7 +71,8 @@ void SequenceLogServiceWebServerResponse::run()
                 Util::encodeBase64(&passwd, (const char*)hash.getMessageDigest(), hash.getHashSize());
 
                 String dbPath;
-                dbPath.append("SequenceLogService.db");
+                Util::getProcessPath(&dbPath);
+                dbPath.append("/SequenceLogService.db");
 
                 sqlite3* db = nullptr;
                 sqlite3_open_v2(dbPath.getBuffer(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_NOMUTEX, nullptr);
