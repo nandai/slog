@@ -27,7 +27,6 @@
 
 #include "SQLite.h"
 
-#include <memory>
 #include <algorithm>
 
 namespace slog
@@ -64,7 +63,8 @@ bool Account::validate()
     String hashPasswd;
     getHashPassword(&hashPasswd);
 
-    std::unique_ptr<Statement> stmt(mDB->newStatement());
+//  std::unique_ptr<Statement> stmt(mDB->newStatement());
+    Statement* stmt =               mDB->newStatement();
     stmt->prepare("select id from user where name=? and password=?");
     stmt->setStringParam(0, &this->name);
     stmt->setStringParam(1, &hashPasswd);
@@ -74,7 +74,10 @@ bool Account::validate()
     stmt->bind();
     stmt->execute();
 
-    return stmt->fetch();
+    bool res = stmt->fetch();
+    delete stmt;
+
+    return res;
 }
 
 /*!
@@ -82,7 +85,8 @@ bool Account::validate()
  */
 bool Account::canUpdate() const
 {
-    std::unique_ptr<Statement> stmt(mDB->newStatement());
+//  std::unique_ptr<Statement> stmt(mDB->newStatement());
+    Statement* stmt =               mDB->newStatement();
     stmt->prepare("select count(*) from user where id<>? and name=?");
     stmt->setIntParam(   0,  this->id);
     stmt->setStringParam(1, &this->name);
@@ -94,6 +98,7 @@ bool Account::canUpdate() const
     stmt->execute();
     stmt->fetch();
 
+    delete stmt;
     return (count == 0);
 }
 
@@ -105,7 +110,8 @@ void Account::update() const
     String hashPasswd;
     getHashPassword(&hashPasswd);
 
-    std::unique_ptr<Statement> stmt(mDB->newStatement());
+//  std::unique_ptr<Statement> stmt(mDB->newStatement());
+    Statement* stmt =               mDB->newStatement();
     stmt->prepare("update user set name=?, password=? where id=?");
     stmt->setStringParam(0, &this->name);
     stmt->setStringParam(1, &hashPasswd);
@@ -113,6 +119,8 @@ void Account::update() const
 
     stmt->bind();
     stmt->execute();
+
+    delete stmt;
 }
 
 /*!
