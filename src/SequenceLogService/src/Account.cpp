@@ -83,10 +83,34 @@ bool Account::validate()
 /*!
  * \brief   アカウント更新可能かどうか
  */
-bool Account::canUpdate() const
+Account::Result Account::canUpdate() const
 {
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
     Statement* stmt =               mDB->newStatement();
+    stmt->prepare("select name, admin from user where id=?");
+    stmt->setIntParam(0, this->id);
+
+    String name;
+    int32_t admin;
+
+    stmt->setStringResult(0, &name, 20);
+    stmt->setIntResult(   1, &admin);
+
+    stmt->bind();
+    stmt->execute();
+    stmt->fetch();
+
+    delete stmt;
+    stmt = nullptr;
+
+    if (admin != 1 && name.equals(this->name) == false)
+    {
+        // 一般ユーザーはユーザー名の変更不可
+        return Result::CANT_CHANGE_USER_NAME;
+    }
+
+    // 同名のユーザーが存在しないかチェック
+    stmt = mDB->newStatement();
     stmt->prepare("select count(*) from user where id<>? and name=?");
     stmt->setIntParam(   0,  this->id);
     stmt->setStringParam(1, &this->name);
@@ -99,7 +123,10 @@ bool Account::canUpdate() const
     stmt->fetch();
 
     delete stmt;
-    return (count == 0);
+
+    return (count == 0
+        ? Result::OK
+        : Result::ALREADY_USER_EXISTS);
 }
 
 /*!

@@ -111,6 +111,11 @@ public:    virtual ~Statement() {}
             /*!
              * 結果設定
              */
+            virtual void setStringResult(int32_t index, CoreString* result, int32_t size) const = 0;
+
+            /*!
+             * 結果設定
+             */
             virtual void setIntResult(int32_t index, int32_t* result) const = 0;
 
             /*!

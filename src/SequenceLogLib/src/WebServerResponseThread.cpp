@@ -67,17 +67,17 @@ void WebServerResponse::generateSession(int32_t userId)
 {
     const CoreString& ip =        mHttpRequest->getSocket()->getInetAddress();
     const CoreString* userAgent = mHttpRequest->getUserAgent();
+    bool secure =                (mHttpRequest->getScheme() == HttpRequest::SCHEME::HTTPS);
 
     Session* session = SessionManager::get(&ip, userAgent);
 
     if (session == nullptr)
     {
-        session = new Session(userId, &ip, userAgent);
+        session = new Session(&ip, userAgent);
         SessionManager::add(session);
     }
 
-    bool secure = (mHttpRequest->getScheme() == HttpRequest::SCHEME::HTTPS);
-
+    session->setUserId(userId);
     session->setSecure(secure);
     session->generate();
 
@@ -309,7 +309,12 @@ void WebServerResponse::redirect(const CoreString* url) const
 
     Socket* socket = mHttpRequest->getSocket();
     socket->send(&str, str.getLength());
-//  socket->close();
+
+    // HTTPのリダイレクトではブラウザが「provisional headers are shown」で待ち状態となり
+    // 先に進まないので、リダイレクトの場合はクローズする。
+    //
+    // ※HTTPSの場合はクローズなしでも問題なかった。
+    socket->close();
 }
 
 /*!

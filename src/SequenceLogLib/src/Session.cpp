@@ -40,9 +40,9 @@ static SessionManager sSessionManager;
 /*!
  * \brief   コンストラクタ
  */
-Session::Session(int32_t userId, const CoreString* ip, const CoreString* userAgent)
+Session::Session(const CoreString* ip, const CoreString* userAgent)
 {
-    mUserId = userId;
+    mUserId = -1;
     mIP.copy(*ip);
     mUserAgent.copy(*userAgent);
     mSecure = false;

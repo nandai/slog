@@ -101,14 +101,23 @@ bool AccountResponse::account()
 
     // アカウント変更
     Json* json = Json::getNewObject();
-    bool pass = account.canUpdate();
+    Account::Result res = account.canUpdate();
 
-    if (pass == false)
+    switch (res)
+    {
+    case Account::Result::CANT_CHANGE_USER_NAME:
+        json->add("", "ユーザー名は変更できません。");
+        break;
+
+    case Account::Result::ALREADY_USER_EXISTS:
     {
         if (mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0)
-            json->add("", "その名前は既に使われています。");
+            json->add("", "そのユーザー名は既に使われています。");
         else
-            json->add("", "That name is already in use.");
+            json->add("", "That user name is already in use.");
+
+        break;
+    }
     }
 
     String result;
@@ -127,7 +136,7 @@ bool AccountResponse::account()
     }
     else
     {
-        if (pass == false)
+        if (res != Account::Result::OK)
         {
             // 通常であればまず検証し、問題なければログインとなるはずで、
             // この段階で検証に問題があるのはおかしいためnotFoundを返す

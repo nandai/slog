@@ -44,6 +44,7 @@ class SQLiteStatement : public Statement
             enum class ResultType : int32_t
             {
                 UNKNOWN,
+                STRING,
                 INT,
             };
 
@@ -62,7 +63,8 @@ class SQLiteStatement : public Statement
                      */
                     union Value
                     {
-                        int32_t* value32;
+                        CoreString* string;
+                        int32_t*    int32;
                     } value;
 
                     /*!
@@ -133,6 +135,11 @@ public:     SQLiteStatement(const DB* db);
              * パラメータ設定
              */
             virtual void setLongParam(int32_t index, int64_t value) override;
+
+            /*!
+             * 結果設定
+             */
+            virtual void setStringResult(int32_t index, CoreString* result, int32_t size) const override;
 
             /*!
              * 結果設定
@@ -265,7 +272,22 @@ void SQLiteStatement::setIntResult(int32_t index, int32_t* result) const
         return;
 
     mResult[index].type = ResultType::INT;
-    mResult[index].value.value32 = result;
+    mResult[index].value.int32 = result;
+}
+
+/*!
+ * \brief   結果設定
+ */
+void SQLiteStatement::setStringResult(int32_t index, CoreString* result, int32_t size) const
+{
+    if (index < 0 || mResultCount <= index)
+        return;
+
+    if (result->getCapacity() < size)
+        result->setCapacity(    size);
+
+    mResult[index].type = ResultType::STRING;
+    mResult[index].value.string = result;
 }
 
 /*!
@@ -303,8 +325,12 @@ bool SQLiteStatement::fetch() const
     {
         switch (mResult[i].type)
         {
+        case ResultType::STRING:
+            mResult[i].value.string->copy((const char*)sqlite3_column_text(mStmt, i));
+            break;
+
         case ResultType::INT:
-            *mResult[i].value.value32 = (int32_t)sqlite3_column_int64(mStmt, i);
+            *mResult[i].value.int32 = (int32_t)sqlite3_column_int64(mStmt, i);
             break;
         }
     }

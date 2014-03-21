@@ -67,7 +67,7 @@ private:    String mId;
             /*!
              * コンストラクタ
              */
-public:     Session(int32_t userId, const CoreString* ip, const CoreString* userAgent);
+public:     Session(const CoreString* ip, const CoreString* userAgent);
 
             /*!
              * セッション生成
@@ -83,6 +83,11 @@ public:     Session(int32_t userId, const CoreString* ip, const CoreString* user
              * ユーザーID取得
              */
             int32_t getUserId() const {return mUserId;}
+
+            /*!
+             * ユーザーID設定
+             */
+            void setUserId(int32_t userId) {mUserId = userId;}
 
             /*!
              * IPアドレス取得

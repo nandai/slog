@@ -31,7 +31,20 @@ class DB;
  */
 class Account
 {
-            DB* mDB;
+            /*!
+             * アカウント操作結果
+             */
+public:     enum class Result : int32_t
+            {
+                OK,
+                CANT_CHANGE_USER_NAME,
+                ALREADY_USER_EXISTS,
+            };
+
+            /*!
+             * データベース
+             */
+private:    DB* mDB;
 
             /*!
              * ID
@@ -66,7 +79,7 @@ public:     Account();
             /*!
              * アカウント更新可能かどうか
              */
-            bool canUpdate() const;
+            Result canUpdate() const;
 
             /*!
              * アカウント更新
