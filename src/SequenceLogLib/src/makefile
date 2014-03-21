@@ -51,7 +51,8 @@ objs = \
 	WebSocketClient.o \
 	SequenceLog.o \
 	jp_printf_slog_Log.o \
-	SHA1.o
+	SHA1.o \
+	SHA256.o
 
 #all: depend libslog.so
 

@@ -281,7 +281,14 @@ void SQLiteStatement::bind() const throw(Exception)
  */
 void SQLiteStatement::execute() throw(Exception)
 {
-    // no implementation
+    if (sqlite3_stmt_readonly(mStmt) != 0)
+    {
+        // select文の場合は何もしない
+        return;
+    }
+
+    if (sqlite3_step(mStmt) != SQLITE_DONE)
+        throwException();
 }
 
 /*!

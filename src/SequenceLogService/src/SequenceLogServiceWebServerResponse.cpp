@@ -22,17 +22,10 @@
 #pragma execution_character_set("utf-8")
 
 #include "SequenceLogServiceWebServerResponse.h"
+#include "Account.h"
 
 #include "slog/HttpRequest.h"
 #include "slog/Json.h"
-#include "slog/SHA256.h"
-#include "slog/Util.h"
-#include "slog/ByteBuffer.h"
-
-#include "SQLite.h"
-
-#include <memory>
-#include <algorithm>
 
 namespace slog
 {
@@ -125,58 +118,12 @@ bool SequenceLogServiceWebServerResponse::login()
     String phase;
     mHttpRequest->getParam("phase", &phase);
 
-    String name;
-    mHttpRequest->getParam("name", &name);
+    Account account;
+    mHttpRequest->getParam("name",   &account.name);
+    mHttpRequest->getParam("passwd", &account.passwd);
 
-    String passwd;
-    mHttpRequest->getParam("passwd", &passwd);
-
-    String salt;
-    salt.format("%s%s", name.getBuffer(), "SequenceLogService");
-
-    SHA256 hash;
-    int32_t hashDataSize = salt.getLength() + std::max(passwd.getLength(), hash.getHashSize());
-
-    ByteBuffer hashData(hashDataSize);
-    hashData.put(&salt, salt.getLength());
-
-    const char* p = passwd.getBuffer();
-    int32_t len =   passwd.getLength();
-
-    int32_t stretchingCount = 10000;
-    for (int32_t i = 0; i < stretchingCount; i++)
-    {
-        hashData.setPosition(salt.getLength());
-        hashData.put(p, len);
-
-        hash.execute(&hashData);
-
-        p =   (const char*)hash.getMessageDigest();
-        len =              hash.getHashSize();
-    }
-
-    Util::encodeBase64(&passwd, (const char*)hash.getMessageDigest(), hash.getHashSize());
-
-    // ユーザー検索
-    String dbPath;
-    Util::getProcessPath(&dbPath);
-    dbPath.append("/SequenceLogService.db");
-
-    SQLite db;
-    db.connect("", "", "", dbPath.getBuffer());
-
-    std::unique_ptr<Statement> stmt(db.newStatement());
-    stmt->prepare("select id from user where name=? and password=?");
-    stmt->setStringParam(0, &name);
-    stmt->setStringParam(1, &passwd);
-
-    int32_t id = -1;
-    stmt->setIntResult(0, &id);
-
-    stmt->bind();
-    stmt->execute();
-
-    bool pass = stmt->fetch();
+    // ユーザー検証
+    bool pass = account.validate();
 
     // 検索結果検証
     String result;
@@ -215,7 +162,7 @@ bool SequenceLogServiceWebServerResponse::login()
         }
         else
         {
-            generateSession(id);
+            generateSession(account.id);
             mVariables.add("userId", getUserId());
         }
     }
