@@ -232,6 +232,7 @@
     <ClCompile Include="src\SequenceLog.cpp" />
     <ClCompile Include="src\Session.cpp" />
     <ClCompile Include="src\SHA1.cpp" />
+    <ClCompile Include="src\SHA256.cpp" />
     <ClCompile Include="src\slog.cpp" />
     <ClCompile Include="src\Socket.cpp" />
     <ClCompile Include="src\String.cpp" />
@@ -267,6 +268,7 @@
     <ClInclude Include="..\..\include\slog\HttpResponse.h" />
     <ClInclude Include="..\..\include\slog\JavaString.h" />
     <ClInclude Include="..\..\include\slog\Json.h" />
+    <ClInclude Include="..\..\include\slog\SHA256.h" />
     <ClInclude Include="src\Session.h" />
     <CustomBuild Include="src\Log.h" />
     <ClInclude Include="..\..\include\slog\MimeType.h" />

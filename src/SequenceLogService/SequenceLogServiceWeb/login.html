@@ -3,6 +3,7 @@
 <meta charset="UTF-8">
 <link rel="shortcut icon" href="http://@domain;/images/SequenceLogService.ico">
 <title>@login;</title>
+<link type="text/css" rel="stylesheet" href="SequenceLogService.pcss" media="screen" />
 <link type="text/css" rel="stylesheet" href="login.pcss" media="screen" />
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script type="text/javascript" src="login.js"></script>
@@ -16,13 +17,15 @@
         <input class="form-field" type="text" name="name" autofocus /><br />
 
         <div class="form-title">@password;</div>
-        <input class="form-field" type="text" name="passwd" /><br />
+        <input class="form-field" type="password" name="passwd" /><br />
 
         <div class="submit-container">
-        <input class="submit-button" type="submit" value="@login;" />
+        <input type="submit" value="@login;" />
         </div>
         <div id="message"></div>
     </form>
+    <br />
+    <div id="waiting"></div>
 </div>
 <br />
 <div align="right">

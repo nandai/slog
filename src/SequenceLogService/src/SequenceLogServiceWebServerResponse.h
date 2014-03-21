@@ -44,6 +44,16 @@ private:    virtual void run() override;
              * 変数初期化
              */
             virtual void initVariables();
+
+            /*!
+             * ログイン
+             */
+            bool login();
+
+            /*!
+             * ログアウト
+             */
+            void logout();
 };
 
 } // namespace slog

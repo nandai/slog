@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Buffer.cpp
  *  \brief  バッファクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #include "slog/Buffer.h"
 
@@ -41,7 +41,7 @@ void Buffer::setLength(int32_t len) throw(Exception)
 }
 
 /*!
- *  \brief  バッファオーバーフローしないか確認する
+ *  \brief  オーバーフロー検証
  */
 void Buffer::validateOverFlow(int32_t position, int32_t len) const throw(Exception)
 {

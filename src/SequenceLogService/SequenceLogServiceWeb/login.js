@@ -17,6 +17,8 @@ $(function()
         // （後で使う: 二重送信を防止する。）
 //      var $button = $form.find('button');
 
+//      $('#waiting').html('<img src="/wait.gif" width="24" height="24" alt="Wait..." />');
+
         // 送信
         $.ajax(
         {

@@ -60,4 +60,14 @@ $(function()
     // テスト用
 //  var logView2 = $('#logView2');
 //  settingLogView(logView2);
+
+    $('#account').on('click', function()
+    {
+        location.href = 'account.html';
+    });
+
+    $('#logout').on('click', function()
+    {
+        location.href = 'logout';
+    });
 });

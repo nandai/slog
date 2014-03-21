@@ -15,16 +15,16 @@
  */
 
 /*!
- *  \file   SHA1.cpp
- *  \brief  SHA1クラス
+ *  \file   SHA256.cpp
+ *  \brief  SHA256クラス
  *  \author Copyright 2014 printf.jp
  */
-#include "slog/SHA1.h"
+#include "slog/SHA256.h"
 #include "slog/Buffer.h"
 
 #if defined(_WINDOWS)
     #include <windows.h>
-    #define SHA_DIGEST_LENGTH 20
+    #define SHA256_DIGEST_LENGTH 32
 #else
     #include <openssl/sha.h>
 #endif
@@ -32,18 +32,18 @@
 namespace slog
 {
 
-class SHA1::Data
+class SHA256::Data
 {
             /*!
              * メッセージダイジェスト
              */
-public:     uint8_t mMessageDigest[SHA_DIGEST_LENGTH];
+public:     uint8_t mMessageDigest[SHA256_DIGEST_LENGTH];
 };
 
 /*!
  * \brief   コンストラクタ
  */
-SHA1::SHA1()
+SHA256::SHA256()
 {
     mData = new Data;
 }
@@ -51,7 +51,7 @@ SHA1::SHA1()
 /*!
  * デストラクタ
  */
-SHA1::~SHA1()
+SHA256::~SHA256()
 {
     delete mData;
 }
@@ -59,7 +59,7 @@ SHA1::~SHA1()
 /*!
  * \brief   ハッシュ計算実行
  */
-void SHA1::execute(const Buffer* message)
+void SHA256::execute(const Buffer* message)
 {
     execute(message->getBuffer(), message->getLength());
 }
@@ -67,7 +67,7 @@ void SHA1::execute(const Buffer* message)
 /*!
  * \brief   ハッシュ計算実行
  */
-void SHA1::execute(const char* message, int32_t size)
+void SHA256::execute(const char* message, int32_t size)
 {
 #if defined(_WINDOWS)
     HCRYPTPROV hProv = NULL;
@@ -75,10 +75,10 @@ void SHA1::execute(const char* message, int32_t size)
 
     do
     {
-        if (CryptAcquireContextW(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT) == FALSE)
+        if (CryptAcquireContextW(&hProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT) == FALSE)
             break;
 
-        if (CryptCreateHash(hProv, CALG_SHA, 0, 0, &hHash) == FALSE)
+        if (CryptCreateHash(hProv, CALG_SHA_256, 0, 0, &hHash) == FALSE)
             break;
 
         if (CryptHashData(hHash, (uint8_t*)message, size, 0) == FALSE)
@@ -95,18 +95,18 @@ void SHA1::execute(const char* message, int32_t size)
     if (hProv)
         CryptReleaseContext(hProv, 0);
 #else
-    SHA_CTX context;
+    SHA256_CTX context;
 
-    SHA1_Init(  &context);
-    SHA1_Update(&context, message, size);
-    SHA1_Final(mData->mMessageDigest, &context);
+    SHA256_Init(  &context);
+    SHA256_Update(&context, message, size);
+    SHA256_Final(mData->mMessageDigest, &context);
 #endif
 }
 
 /*!
  * メッセージダイジェスト取得
  */
-const uint8_t* SHA1::getMessageDigest() const
+const uint8_t* SHA256::getMessageDigest() const
 {
     return mData->mMessageDigest;
 }
@@ -114,9 +114,9 @@ const uint8_t* SHA1::getMessageDigest() const
 /*!
  * ハッシュサイズ取得
  */
-int32_t SHA1::getHashSize() const
+int32_t SHA256::getHashSize() const
 {
-    return SHA_DIGEST_LENGTH;
+    return SHA256_DIGEST_LENGTH;
 }
 
 } // namespace slog

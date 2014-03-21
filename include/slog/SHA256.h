@@ -15,21 +15,21 @@
  */
 
 /*!
- *  \file   SHA1.h
- *  \brief  SHA1クラス
+ *  \file   SHA256.h
+ *  \brief  SHA256クラス
  *  \author Copyright 2014 printf.jp
  */
 #pragma once
 #include "slog/slog.h"
 
 /*!
- * \brief   SHA1クラス
+ * \brief   SHA256クラス
  */
 namespace slog
 {
 class Buffer;
 
-class SLOG_API SHA1
+class SLOG_API SHA256
 {
             class  Data;
             Data* mData;
@@ -37,12 +37,12 @@ class SLOG_API SHA1
             /*!
              * コンストラクタ
              */
-public:     SHA1();
+public:     SHA256();
 
             /*!
              * デストラクタ
              */
-            ~SHA1();
+            ~SHA256();
 
             /*!
              * ハッシュ計算実行

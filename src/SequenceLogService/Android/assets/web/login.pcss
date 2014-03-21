@@ -10,16 +10,6 @@
 @formFieldBackground:         rgb( 34, 128, 192);
 @formFieldFocusBackground:    rgb( 34, 132, 208);
 
-@submitBorder:         rgb(  0,   0,   0);
-@submitBackgroundFrom: rgb( 34, 160, 255);
-@submitBackgroundTo:   rgb( 34,  96, 160);
-@submitTextColor:      rgb(224, 224, 224);
-
-body
-{
-    font-family: 'Lucida Grande', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;;
-}
-
 .form-container
 {
     border: 1px solid @formContainerBorder;
@@ -80,58 +70,14 @@ body
     text-align:right;
 }
 
-.submit-button
-{
-    border: 1px solid @submitBorder;;
-    background: @submitBackgroundTo;;
-    background:   -webkit-gradient(linear, left top, left bottom, from(@submitBackgroundFrom;), to(@submitBackgroundTo;));
-    background:   -webkit-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
-    background:      -moz-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
-    background:       -ms-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
-    background:        -o-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
-    background-image: -ms-linear-gradient(top, @submitBackgroundFrom; 0%, @submitBackgroundTo; 100%);
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
-       -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
-            box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
-    color: @submitTextColor;;
-    padding: 8.5px 18px;
-    font-size: 14px;
-    text-decoration: none;
-    vertical-align: middle;
-    outline: 0px;
-}
-
-.submit-button:hover
-{
-    border: 1px solid @submitBorder;;
-    background: @submitBackgroundTo;;
-    background:   -webkit-gradient(linear, left top, left bottom, from(@submitBackgroundFrom;), to(@submitBackgroundTo;));
-    background:   -webkit-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
-    background:      -moz-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
-    background:       -ms-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
-    background:        -o-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
-    background-image: -ms-linear-gradient(top, @submitBackgroundFrom; 0%, @submitBackgroundTo; 100%);
-    color: #FFF;
-}
-
-.submit-button:active
-{
-    border: 1px solid @submitBorder;;
-    background: @submitBackgroundFrom;;
-    background:   -webkit-gradient(linear, left top, left bottom, from(@submitBackgroundTo;), to(@submitBackgroundTo;));
-    background:   -webkit-linear-gradient(top, @submitBackgroundTo;,    @submitBackgroundFrom;);
-    background:      -moz-linear-gradient(top, @submitBackgroundTo;,    @submitBackgroundFrom;);
-    background:       -ms-linear-gradient(top, @submitBackgroundTo;,    @submitBackgroundFrom;);
-    background:        -o-linear-gradient(top, @submitBackgroundTo;,    @submitBackgroundFrom;);
-    background-image: -ms-linear-gradient(top, @submitBackgroundTo; 0%, @submitBackgroundFrom; 100%);
-    color: #FFF;
-}
-
 #message
 {
     text-align:left;
     color: #F88;
+}
+
+input[type=text],
+input[type=password]
+{
+    font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
 }

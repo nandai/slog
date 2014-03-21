@@ -3,7 +3,7 @@
 <meta charset="UTF-8">
 <link rel="shortcut icon" href="http://@domain;/images/SequenceLogService.ico">
 <title>Sequence Log Service</title>
-<link type="text/css" rel="stylesheet" href="SequenceLogService.css" media="screen" />
+<link type="text/css" rel="stylesheet" href="SequenceLogService.pcss" media="screen" />
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script type="text/javascript" src="//@domain;/js/jquery.mousewheel-3.0.6.pack.js"></script>
 <script type="text/javascript" src="//@domain;/js/slog.service.js"></script>
@@ -12,7 +12,16 @@
 </head>
 
 <body>
-<h1>Sequence Log Service</h1>
+<div style="float:left">
+    <h1>Sequence Log Service</h1>
+</div>
+
+<div style="float:right">
+    <input id="account" type="button" value="@account;" />
+    <input id="logout"  type="button" value="@logout;" />
+</div>
+
+<div style="clear: both"></div>
 
 <!-- シーケンスログファイル一覧 -->
 <div align="center">

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Buffer.h
  *  \brief  バッファクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
 #include "slog/Exception.h"
@@ -30,22 +30,60 @@ namespace slog
  */
 class SLOG_API Buffer
 {
-            int32_t mLen;                               //!< バッファ使用サイズ
+            /*!
+             * バッファ使用サイズ
+             */
+            int32_t mLen;
 
+            /*!
+             * コンストラクタ
+             */
 public:     Buffer();
+
+            /*!
+             * デストラクタ
+             */
             virtual ~Buffer();
 
-            virtual char*   getBuffer() const = 0;      //!< バッファアドレス取得
 
-            virtual int32_t getCapacity() const = 0;    //!< バッファサイズ取得
+            /*!
+             * バッファアドレス取得
+             */
+            virtual char* getBuffer() const = 0;
+
+            /*!
+             * バッファサイズ取得
+             */
+            virtual int32_t getCapacity() const = 0;
+
+            /*!
+             * バッファサイズ設定
+             */
             virtual void setCapacity(int32_t capacity) throw(Exception);
 
+            /*!
+             * 位置取得
+             */
             virtual int32_t getPosition() const;
 
+            /*!
+             * バッファ使用サイズ取得
+             */
             int32_t getLength() const;
+
+            /*!
+             * バッファ使用サイズ設定
+             */
             virtual void setLength(int32_t len) throw(Exception);
 
+            /*!
+             * オーバーフロー検証
+             */
             void validateOverFlow(int32_t len) const throw(Exception);
+
+            /*!
+             * オーバーフロー検証
+             */
             void validateOverFlow(int32_t position, int32_t len) const throw(Exception);
 };
 
@@ -92,7 +130,7 @@ inline int32_t Buffer::getLength() const
 }
 
 /*!
- *  \brief  バッファオーバーフローしないか確認する
+ *  \brief  オーバーフロー検証
  */
 inline void Buffer::validateOverFlow(int32_t len) const throw(Exception)
 {

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   ByteBuffer.h
- *  \brief  バイトバッファクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    ByteBuffer.h
+ * \brief   バイトバッファクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 #include "slog/Buffer.h"
@@ -30,36 +30,115 @@ namespace slog
  */
 class SLOG_API ByteBuffer : public Buffer
 {
-            int32_t     mPosition;      //!< 位置
-            int32_t     mCapacity;      //!< 容量
-            uint8_t*    mBuffer;        //!< バッファ
+            /*!
+             * 位置
+             */
+            int32_t mPosition;
 
+            /*!
+             * 容量
+             */
+            int32_t mCapacity;
+
+            /*!
+             * バッファ
+             */
+            uint8_t* mBuffer;
+
+            /*!
+             * コンストラクタ
+             */
 public:      ByteBuffer(int32_t capacity);
+
+            /*!
+             * デストラクタ
+             */
             ~ByteBuffer();
 
-            virtual char* getBuffer() const;
-            virtual int32_t getCapacity() const;
+            /*!
+             * バッファアドレス取得
+             */
+            virtual char* getBuffer() const override;
 
-            virtual int32_t getPosition() const;
-            void    setPosition(int32_t position) throw(Exception);
-private:    void    addPosition(int32_t len) throw(Exception);
+            /*!
+             * 容量取得
+             */
+            virtual int32_t getCapacity() const override;
 
-public:     virtual void setLength(int32_t len) throw(Exception);
+            /*!
+             * 位置取得
+             */
+            virtual int32_t getPosition() const override;
 
-            char    get();
-            void    put(char value) throw(Exception);
+            /*!
+             * 位置設定
+             */
+            void setPosition(int32_t position) throw(Exception);
 
-            short   getShort();
-            void    putShort(short value) throw(Exception);
+            /*!
+             * 位置を進める
+             */
+private:    void addPosition(int32_t len) throw(Exception);
 
+            /*!
+             * バッファ使用サイズ設定
+             */
+public:     virtual void setLength(int32_t len) throw(Exception) override;
+
+            /*!
+             * char値取得
+             */
+            char get();
+
+            /*!
+             * char値書き込み
+             */
+            void put(char value) throw(Exception);
+
+            /*!
+             * short値取得
+             */
+            short getShort();
+
+            /*!
+             * short値書き込み
+             */
+            void putShort(short value) throw(Exception);
+
+            /*!
+             * int32_t値取得
+             */
             int32_t getInt();
-            void    putInt(int32_t value) throw(Exception);
 
+            /*!
+             * int32_t値書き込み
+             */
+            void putInt(int32_t value) throw(Exception);
+
+            /*!
+             * int64_t値取得
+             */
             int64_t getLong();
-            void    putLong(int64_t value) throw(Exception);
 
-            char*   get(int32_t len);
-            void    put(const Buffer* buffer, int32_t len) throw(Exception);
+            /*!
+             * int64_t値書き込み
+             */
+            void putLong(int64_t value) throw(Exception);
+
+            /*!
+             * 一括取得
+             */
+            char* get(int32_t len);
+
+            /*!
+             * 一括書き込み
+             */
+            void put(const Buffer* buffer, int32_t len) throw(Exception);
+
+            /*!
+             * 一括書き込み
+             */
+            void put(const char* buffer, int32_t len) throw(Exception);
 };
 
 /*!

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   ByteBuffer.cpp
- *  \brief  バイトバッファクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    ByteBuffer.cpp
+ * \brief   バイトバッファクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/ByteBuffer.h"
 #include <string.h>
@@ -26,7 +26,7 @@ namespace slog
 {
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 ByteBuffer::ByteBuffer(int32_t capacity)
 {
@@ -36,7 +36,7 @@ ByteBuffer::ByteBuffer(int32_t capacity)
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 ByteBuffer::~ByteBuffer()
 {
@@ -44,7 +44,7 @@ ByteBuffer::~ByteBuffer()
 }
 
 /*!
- *  \brief  位置設定
+ * \brief   位置設定
  */
 void ByteBuffer::setPosition(int32_t position) throw(Exception)
 {
@@ -66,7 +66,7 @@ void ByteBuffer::setPosition(int32_t position) throw(Exception)
 }
 
 /*!
- *  \brief  char値取得
+ * \brief   char値取得
  */
 char ByteBuffer::get()
 {
@@ -83,7 +83,7 @@ char ByteBuffer::get()
 }
 
 /*!
- *  \brief  char値書き込み
+ * \brief   char値書き込み
  */
 void ByteBuffer::put(char value) throw(Exception)
 {
@@ -97,7 +97,7 @@ void ByteBuffer::put(char value) throw(Exception)
 }
 
 /*!
- *  \brief  short値取得
+ * \brief   short値取得
  */
 short ByteBuffer::getShort()
 {
@@ -116,7 +116,7 @@ short ByteBuffer::getShort()
 }
 
 /*!
- *  \brief  short値書き込み
+ * \brief   short値書き込み
  */
 void ByteBuffer::putShort(short value) throw(Exception)
 {
@@ -132,7 +132,7 @@ void ByteBuffer::putShort(short value) throw(Exception)
 }
 
 /*!
- *  \brief  int32_t値取得
+ * \brief   int32_t値取得
  */
 int32_t ByteBuffer::getInt()
 {
@@ -153,7 +153,7 @@ int32_t ByteBuffer::getInt()
 }
 
 /*!
- *  \brief  int32_t値書き込み
+ * \brief   int32_t値書き込み
  */
 void ByteBuffer::putInt(int32_t value) throw(Exception)
 {
@@ -171,7 +171,7 @@ void ByteBuffer::putInt(int32_t value) throw(Exception)
 }
 
 /*!
- *  \brief  int64_t値取得
+ * \brief   int64_t値取得
  */
 int64_t ByteBuffer::getLong()
 {
@@ -196,7 +196,7 @@ int64_t ByteBuffer::getLong()
 }
 
 /*!
- *  \brief  int64_t値書き込み
+ * \brief   int64_t値書き込み
  */
 void ByteBuffer::putLong(int64_t value) throw(Exception)
 {
@@ -218,7 +218,7 @@ void ByteBuffer::putLong(int64_t value) throw(Exception)
 }
 
 /*!
- *  \brief  一括取得
+ * \brief   一括取得
  */
 char* ByteBuffer::get(int32_t len)
 {
@@ -231,16 +231,22 @@ char* ByteBuffer::get(int32_t len)
 }
 
 /*!
- *  \brief  一括書き込み
+ * \brief   一括書き込み
  */
 void ByteBuffer::put(const Buffer* buffer, int32_t len) throw(Exception)
 {
     buffer->validateOverFlow(0, len);
+    put(buffer->getBuffer(), len);
+}
+
+/*!
+ * \brief   一括書き込み
+ */
+void ByteBuffer::put(const char* buffer, int32_t len) throw(Exception)
+{
     validateOverFlow(len);
 
-    uint8_t* p = mBuffer + mPosition;
-
-    memcpy(p, buffer->getBuffer(), len);
+    memcpy(mBuffer + mPosition, buffer, len);
     addPosition(len);
 }
 
