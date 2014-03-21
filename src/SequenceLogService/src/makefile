@@ -16,6 +16,8 @@ INSTALLDIR = /usr/bin
 objs = \
 	main.o \
 	getSequenceLogListJson.o \
+	Account.o \
+	AccountResponse.o \
 	GetLogResponse.o \
 	SequenceLogService.o \
 	SequenceLogServiceMain.o \

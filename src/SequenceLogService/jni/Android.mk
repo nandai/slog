@@ -7,6 +7,8 @@ LOCAL_MODULE	:= slogsvc
 LOCAL_SRC_FILES	:= \
 	../src/main.cpp \
 	../src/getSequenceLogListJson.cpp \
+	../src/Account.cpp \
+	../src/AccountResponse.cpp \
 	../src/GetLogResponse.cpp \
 	../src/SequenceLogService.cpp \
 	../src/SequenceLogServiceMain.cpp \
