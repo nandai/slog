@@ -206,6 +206,7 @@ void SQLiteStatement::prepare(const char* sql) throw(Exception)
     // 結果準備
     mResultCount = sqlite3_column_count(mStmt);
     mResult = new Result[mResultCount];
+    SMSG(slog::DEBUG, "mResultCount: %d", mResultCount);
 }
 
 /*!
@@ -318,6 +319,8 @@ void SQLiteStatement::execute() throw(Exception)
  */
 bool SQLiteStatement::fetch() const
 {
+    SLOG(CLS_NAME, "fetch");
+
     if (sqlite3_step(mStmt) == SQLITE_DONE)
         return false;
 
@@ -326,8 +329,12 @@ bool SQLiteStatement::fetch() const
         switch (mResult[i].type)
         {
         case ResultType::STRING:
-            mResult[i].value.string->copy((const char*)sqlite3_column_text(mStmt, i));
+        {
+            const char* p = (const char*)sqlite3_column_text(mStmt, i);
+//          SMSG(slog::DEBUG, "%d:%s", i, p);
+            mResult[i].value.string->copy(p ? p : "");
             break;
+        }
 
         case ResultType::INT:
             *mResult[i].value.int32 = (int32_t)sqlite3_column_int64(mStmt, i);

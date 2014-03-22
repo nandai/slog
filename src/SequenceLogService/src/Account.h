@@ -25,11 +25,59 @@
 namespace slog
 {
 class DB;
+class Statement;
 
 /*!
  *  \brief  アカウントクラス
  */
 class Account
+{
+public:     static const int32_t NAME_MIN;
+            static const int32_t NAME_MAX;
+            static const int32_t PASSWD_MIN;
+            static const int32_t PASSWD_MAX;
+            static const int32_t MAIL_ADDR_MAX;
+
+            /*!
+             * ID
+             */
+            int32_t id;
+
+            /*!
+             * ユーザー名
+             */
+            String name;
+
+            /*!
+             * パスワード
+             */
+            String passwd;
+
+            /*!
+             * メールアドレス
+             */
+            String mailAddr;
+
+            /*!
+             * ハッシュバージョン
+             */
+            int32_t version;
+
+            /*!
+             * 管理者フラグ
+             */
+            int32_t admin;
+
+            /*!
+             * コンストラクタ
+             */
+public:     Account();
+};
+
+/*!
+ *  \brief  アカウントロジッククラス
+ */
+class AccountLogic
 {
             /*!
              * アカウント操作結果
@@ -47,49 +95,44 @@ public:     enum class Result : int32_t
 private:    DB* mDB;
 
             /*!
-             * ID
-             */
-public:     int32_t id;
-
-            /*!
-             * ユーザー名
-             */
-            String name;
-
-            /*!
-             * パスワード
-             */
-            String passwd;
-
-            /*!
              * コンストラクタ
              */
-public:     Account();
+public:     AccountLogic();
 
             /*!
              * デストラクタ   
              */
-            ~Account();
+            ~AccountLogic();
 
             /*!
-             * 検証
+             * ユーザー名とパスワードでアカウントを取得する
              */
-            bool validate();
+            bool getByNamePassword(Account* account) const;
+
+            /*!
+             * ユーザーIDでアカウントを取得する
+             */
+            bool getById(Account* account) const;
+
+            /*!
+             * SQL準備
+             */
+private:   void prepare(Statement* stmt, Account* account, const char* where) const;
 
             /*!
              * アカウント更新可能かどうか
              */
-            Result canUpdate() const;
+public:    Result canUpdate(const Account* account) const;
 
             /*!
              * アカウント更新
              */
-            void update() const;
+            void update(const Account* account) const;
 
             /*!
              * ハッシュ化パスワード取得
              */
-private:    void getHashPassword(CoreString* hashPasswd) const;
+private:    bool getHashPassword(CoreString* hashPasswd, const CoreString* name, const CoreString* passwd, int32_t version) const;
 };
 
 } // namespace slog

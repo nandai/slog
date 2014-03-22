@@ -123,7 +123,8 @@ bool SequenceLogServiceWebServerResponse::login()
     mHttpRequest->getParam("passwd", &account.passwd);
 
     // ユーザー検証
-    bool pass = account.validate();
+    AccountLogic accountLogic;
+    bool pass =  accountLogic.getByNamePassword(&account);
 
     // 検索結果検証
     String result;

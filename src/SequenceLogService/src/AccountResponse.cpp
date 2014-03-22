@@ -85,31 +85,35 @@ void AccountResponse::initVariables()
  */
 bool AccountResponse::account()
 {
+    Account account;
+    account.id = getUserId();
+
+    AccountLogic accountLogic;
+
     if (mHttpRequest->getMethod() == HttpRequest::GET)
     {
         // アカウントページ表示
+        accountLogic.getById(&account);
+        mVariables.add("userNameValue", &account.name);
         return true;
     }
 
     String phase;
-    mHttpRequest->getParam("phase", &phase);
-
-    Account account;
-    account.id = getUserId();
+    mHttpRequest->getParam("phase",  &phase);
     mHttpRequest->getParam("name",   &account.name);
     mHttpRequest->getParam("passwd", &account.passwd);
 
     // アカウント変更
     Json* json = Json::getNewObject();
-    Account::Result res = account.canUpdate();
+    AccountLogic::Result res = accountLogic.canUpdate(&account);
 
     switch (res)
     {
-    case Account::Result::CANT_CHANGE_USER_NAME:
+    case AccountLogic::Result::CANT_CHANGE_USER_NAME:
         json->add("", "ユーザー名は変更できません。");
         break;
 
-    case Account::Result::ALREADY_USER_EXISTS:
+    case AccountLogic::Result::ALREADY_USER_EXISTS:
     {
         if (mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0)
             json->add("", "そのユーザー名は既に使われています。");
@@ -136,7 +140,7 @@ bool AccountResponse::account()
     }
     else
     {
-        if (res != Account::Result::OK)
+        if (res != AccountLogic::Result::OK)
         {
             // 通常であればまず検証し、問題なければログインとなるはずで、
             // この段階で検証に問題があるのはおかしいためnotFoundを返す
@@ -144,7 +148,7 @@ bool AccountResponse::account()
         }
         else
         {
-            account.update();
+            accountLogic.update(&account);
 
             String redirectUrl = "/";
             redirect(&redirectUrl);
