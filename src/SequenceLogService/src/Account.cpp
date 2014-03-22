@@ -19,18 +19,31 @@
  *  \brief  アカウントクラス
  *  \author Copyright 2014 printf.jp
  */
+#pragma execution_character_set("utf-8")
+
 #include "Account.h"
 
 #include "slog/SHA256.h"
 #include "slog/ByteBuffer.h"
 #include "slog/Util.h"
+#include "slog/SequenceLog.h"
 
-#include "SQLite.h"
+#define     USE_SQLITE
+#if defined(USE_SQLITE)
+    #include "SQLite.h"
+#else
+    #include "DB_MySQL.h"
+#endif
 
+#undef max
 #include <algorithm>
+
+#define LATEST_HASH_VERSION 1
 
 namespace slog
 {
+const char* AccountLogic::CLS_NAME = "AccountLogic";
+
 const int32_t Account::NAME_MIN =        4;
 const int32_t Account::NAME_MAX =       20;
 const int32_t Account::PASSWD_MIN =      8;
@@ -52,12 +65,18 @@ Account::Account()
  */
 AccountLogic::AccountLogic()
 {
+#if defined(USE_SQLITE)
     String dbPath;
     Util::getProcessPath(&dbPath);
     dbPath.append("/SequenceLogService.db");
+    const char* db = dbPath.getBuffer();
 
     mDB = new SQLite;
-    mDB->connect("", "", "", dbPath.getBuffer());
+#else
+    const char* db = "SequenceLogService";
+    mDB = new MySQL;
+#endif
+    mDB->connect("localhost", "slog", "DPdhE8iv1HQIe6nL", db);
 }
 
 /*!
@@ -77,6 +96,7 @@ AccountLogic::~AccountLogic()
  */
 bool AccountLogic::getByNamePassword(Account* account) const
 {
+    SLOG(CLS_NAME, "getByNamePassword");
     String passwd = account->passwd;
 
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
@@ -99,6 +119,12 @@ bool AccountLogic::getByNamePassword(Account* account) const
         res = account->passwd.equals(hashPasswd);
     }
 
+    SMSG(slog::DEBUG, "id:%d, name:%s, version:%d, admin:%d",
+        account->id,
+        account->name.getBuffer(),
+        account->version,
+        account->admin);
+
     return res;
 }
 
@@ -111,19 +137,26 @@ bool AccountLogic::getByNamePassword(Account* account) const
  */
 bool AccountLogic::getById(Account* account) const
 {
+    SLOG(CLS_NAME, "getById");
     String passwd = account->passwd;
 
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
     Statement* stmt =               mDB->newStatement();
 
     prepare(stmt, account, "id=?");
-    stmt->setIntParam(0, account->id);
+    stmt->setLongParam(0, account->id);
 
     stmt->bind();
     stmt->execute();
 
     bool res = stmt->fetch();
     delete stmt;
+
+    SMSG(slog::DEBUG, "id:%d, name:%s, version:%d, admin:%d",
+        account->id,
+        account->name.getBuffer(),
+        account->version,
+        account->admin);
 
     return res;
 }
@@ -155,7 +188,7 @@ void AccountLogic::prepare(Statement* stmt, Account* account, const char* where)
 
     stmt->setIntResult(   0, &account->id);
     stmt->setStringResult(1, &account->name,     Account::NAME_MAX);
-    stmt->setStringResult(2, &account->passwd,   Account::PASSWD_MAX);
+    stmt->setStringResult(2, &account->passwd,   64);
     stmt->setStringResult(3, &account->mailAddr, Account::MAIL_ADDR_MAX);
     stmt->setIntResult(   4, &account->version);
     stmt->setIntResult(   5, &account->admin);
@@ -170,12 +203,14 @@ void AccountLogic::prepare(Statement* stmt, Account* account, const char* where)
  */
 AccountLogic::Result AccountLogic::canUpdate(const Account* account) const
 {
+    SLOG(CLS_NAME, "canUpdate");
+
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
     Statement* stmt =               mDB->newStatement();
 
     Account nowAccount;
     prepare(stmt, &nowAccount, "id=?");
-    stmt->setIntParam(0, account->id);
+    stmt->setLongParam(0, account->id);
 
     stmt->bind();
     stmt->execute();
@@ -219,20 +254,31 @@ AccountLogic::Result AccountLogic::canUpdate(const Account* account) const
  */
 void AccountLogic::update(const Account* account) const
 {
-    String hashPasswd;
+    SLOG(CLS_NAME, "update");
 
-    if (getHashPassword(&hashPasswd, &account->name, &account->passwd, account->version) == false)
+    String hashPasswd;
+    Statement* stmt = nullptr;
+
+    if (getHashPassword(&hashPasswd, &account->name, &account->passwd, LATEST_HASH_VERSION) == false)
         return;
 
-//  std::unique_ptr<Statement> stmt(mDB->newStatement());
-    Statement* stmt =               mDB->newStatement();
-    stmt->prepare("update user set name=?, password=? where id=?");
-    stmt->setStringParam(0, &account->name);
-    stmt->setStringParam(1, &hashPasswd);
-    stmt->setIntParam(   2,  account->id);
+    try
+    {
+//      std::unique_ptr<Statement> stmt(mDB->newStatement());
+        stmt =                          mDB->newStatement();
+        stmt->prepare("update user set name=?, password=?, version=? where id=?");
+        stmt->setStringParam(0, &account->name);
+        stmt->setStringParam(1, &hashPasswd);
+        stmt->setParam(      2,  LATEST_HASH_VERSION);
+        stmt->setLongParam(  3,  account->id);
 
-    stmt->bind();
-    stmt->execute();
+        stmt->bind();
+        stmt->execute();
+    }
+    catch (Exception e)
+    {
+        SMSG(slog::DEBUG, "%s", e.getMessage());
+    }
 
     delete stmt;
 }
@@ -249,9 +295,12 @@ void AccountLogic::update(const Account* account) const
  */
 bool AccountLogic::getHashPassword(CoreString* hashPasswd, const CoreString* name, const CoreString* passwd, int32_t version) const
 {
-    if (version != 1)
+    SLOG(CLS_NAME, "getHashPassword");
+
+    if (version < 1 || LATEST_HASH_VERSION < version)
     {
         // 現状ハッシュバージョン１以外は不一致となるようにする
+        SMSG(slog::DEBUG, "バージョンエラー (%d)", version);
         hashPasswd->format("__%s__", passwd->getBuffer());
         return false;
     }

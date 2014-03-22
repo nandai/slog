@@ -79,6 +79,8 @@ public:     Account();
  */
 class AccountLogic
 {
+            static const char* CLS_NAME;
+
             /*!
              * アカウント操作結果
              */

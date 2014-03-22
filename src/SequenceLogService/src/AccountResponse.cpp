@@ -78,6 +78,9 @@ void AccountResponse::initVariables()
         mVariables.add("password",    "Password");
         mVariables.add("change",      "Change");
     }
+
+    mVariables.add("userNameMax", Account::NAME_MAX);
+    mVariables.add("passwordMax", Account::PASSWD_MAX);
 }
 
 /*!
