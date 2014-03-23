@@ -91,6 +91,7 @@ AccountLogic::AccountLogic()
 
     mDB->connect("localhost", "slog", "DPdhE8iv1HQIe6nL", db);
 
+    mAccount = nullptr;
     mJapanese = true;
     mJson = Json::getNewObject();
 
@@ -295,16 +296,24 @@ void AccountLogic::prepare(Statement* stmt, Account* account, const char* where)
  *
  * \return  アカウント操作結果
  */
-bool AccountLogic::canUpdate(const Account* account) const
+bool AccountLogic::canUpdate(const Account* account)
 {
     SLOG(CLS_NAME, "canUpdate");
+    mAccount = account;
+
+    ValidateList list;
+    list.add(new StringValidate(&mAccount->name,   Account::NAME_MIN,   Account::NAME_MAX));
+    list.add(new StringValidate(&mAccount->passwd, Account::PASSWD_MIN, Account::PASSWD_MAX));
+
+    if (list.execute(this) == false)
+        return false;
 
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
     Statement* stmt =               mDB->newStatement();
 
     Account nowAccount;
     prepare(stmt, &nowAccount, "id=?");
-    stmt->setLongParam(0, account->id);
+    stmt->setLongParam(0, mAccount->id);
 
     stmt->bind();
     stmt->execute();
@@ -313,7 +322,7 @@ bool AccountLogic::canUpdate(const Account* account) const
     delete stmt;
     stmt = nullptr;
 
-    if (nowAccount.admin != 1 && nowAccount.name.equals(account->name) == false)
+    if (nowAccount.admin != 1 && nowAccount.name.equals(mAccount->name) == false)
     {
         // 一般ユーザーはユーザー名の変更不可
         mJson->add("", "ユーザー名は変更できません。");
@@ -323,8 +332,8 @@ bool AccountLogic::canUpdate(const Account* account) const
     // 同名のユーザーが存在しないかチェック
     stmt = mDB->newStatement();
     stmt->prepare("select count(*) from user where id<>? and name=?");
-    stmt->setIntParam(   0,  account->id);
-    stmt->setStringParam(1, &account->name);
+    stmt->setIntParam(   0,  mAccount->id);
+    stmt->setStringParam(1, &mAccount->name);
 
     int32_t count = -1;
     stmt->setIntResult(0, &count);
@@ -344,6 +353,53 @@ bool AccountLogic::canUpdate(const Account* account) const
     }
 
     return (count == 0);
+}
+
+/*!
+ * \brief   検証失敗イベント
+ *
+ * \param[in]   value   
+ * \param[in]   result  
+ *
+ * \return  なし
+ */
+void AccountLogic::onInvalid(const void* value, const slog::Validate::Result* result)
+{
+    SLOG(CLS_NAME, "onInvalid");
+
+    String str;
+    const char* variableName = nullptr;
+    const char* displayName =  nullptr;
+
+    if (value == &mAccount->name)
+    {
+        variableName = "name";
+        displayName = "ユーザー名";
+    }
+
+    if (value == &mAccount->passwd)
+    {
+        variableName = "passwd";
+        displayName = "パスワード";
+    }
+
+    if (variableName)
+    {
+        if (result == slog::Validate::INVALID)
+            str.format("%sが正しくありません。", displayName);
+
+        else if (result == slog::Validate::EMPTY)
+            str.format("%sが入力されていません。", displayName);
+
+        else if (result == slog::Validate::TOO_SHORT)
+            str.format("%sの文字数が不足しています。", displayName);
+
+        else if (result == slog::Validate::TOO_LONG)
+            str.format("%sの文字数が上限を超えています。", displayName);
+
+        SMSG(slog::DEBUG, str.getBuffer());
+        mJson->add(variableName, &str);
+    }
 }
 
 /*!

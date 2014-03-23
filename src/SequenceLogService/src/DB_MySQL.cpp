@@ -185,7 +185,7 @@ void MySQLStatement::prepare(const char* sql) throw(Exception)
     SLOG(CLS_NAME, "prepare");
     SMSG(slog::DEBUG, "%s", sql);
 
-    if (mysql_stmt_prepare(mStmt, sql, strlen(sql)) != 0)
+    if (mysql_stmt_prepare(mStmt, sql, (int32_t)strlen(sql)) != 0)
         throwException();
 
     // パラメータ準備

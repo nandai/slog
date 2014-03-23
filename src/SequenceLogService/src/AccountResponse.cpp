@@ -22,10 +22,10 @@
 #pragma execution_character_set("utf-8")
 
 #include "AccountResponse.h"
-#include "Account.h"
 
 #include "slog/HttpRequest.h"
 #include "slog/Json.h"
+#include "slog/SequenceLog.h"
 
 namespace slog
 {
@@ -88,8 +88,8 @@ void AccountResponse::initVariables()
  */
 bool AccountResponse::account()
 {
-    Account account;
-    account.id = getUserId();
+    SLOG("AccountResponse", "account");
+    mAccount.id = getUserId();
 
     AccountLogic accountLogic;
     accountLogic.setJapanese(mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0);
@@ -97,19 +97,19 @@ bool AccountResponse::account()
     if (mHttpRequest->getMethod() == HttpRequest::GET)
     {
         // アカウントページ表示
-        accountLogic.getById(&account);
-        mVariables.add("userNameValue",    &account.name);
-        mVariables.add("userNameProperty", (account.admin == 1 ? "" : "readonly"));
+        accountLogic.getById(&mAccount);
+        mVariables.add("userNameValue",    &mAccount.name);
+        mVariables.add("userNameProperty", (mAccount.admin == 1 ? "" : "readonly"));
         return true;
     }
 
     String phase;
     mHttpRequest->getParam("phase",  &phase);
-    mHttpRequest->getParam("name",   &account.name);
-    mHttpRequest->getParam("passwd", &account.passwd);
+    mHttpRequest->getParam("name",   &mAccount.name);
+    mHttpRequest->getParam("passwd", &mAccount.passwd);
 
     // アカウント変更
-    bool res = accountLogic.canUpdate(&account);
+    bool res = accountLogic.canUpdate(&mAccount);
 
     // 検索結果検証
     if (phase.equals("validate"))
@@ -120,6 +120,7 @@ bool AccountResponse::account()
         if (result.getLength() == 0)
             result.copy("{}");
 
+//      SMSG(slog::DEBUG, result.getBuffer());
         send(nullptr, &result);
         return false;
     }
@@ -133,7 +134,7 @@ bool AccountResponse::account()
         }
         else
         {
-            accountLogic.update(&account);
+            accountLogic.update(&mAccount);
 
             String redirectUrl = "/";
             redirect(&redirectUrl);

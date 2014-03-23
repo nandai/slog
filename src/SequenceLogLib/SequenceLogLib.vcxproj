@@ -240,6 +240,7 @@
     <ClCompile Include="src\TimeSpan.cpp" />
     <ClCompile Include="src\Tokenizer.cpp" />
     <ClCompile Include="src\Util.cpp" />
+    <ClCompile Include="src\Validate.cpp" />
     <ClCompile Include="src\Variable.cpp" />
     <ClCompile Include="src\WebServerManager.cpp" />
     <ClCompile Include="src\WebServerResponseThread.cpp" />
@@ -269,6 +270,7 @@
     <ClInclude Include="..\..\include\slog\JavaString.h" />
     <ClInclude Include="..\..\include\slog\Json.h" />
     <ClInclude Include="..\..\include\slog\SHA256.h" />
+    <ClInclude Include="..\..\include\slog\Validate.h" />
     <ClInclude Include="src\Session.h" />
     <CustomBuild Include="src\Log.h" />
     <ClInclude Include="..\..\include\slog\MimeType.h" />

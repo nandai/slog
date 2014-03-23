@@ -22,6 +22,8 @@
 #pragma once
 
 #include "slog/String.h"
+#include "slog/Validate.h"
+
 #undef NAME_MAX
 
 namespace slog
@@ -80,7 +82,7 @@ public:     Account();
 /*!
  *  \brief  アカウントロジッククラス
  */
-class AccountLogic
+class AccountLogic : public slog::ValidateListener
 {
             static const char* CLS_NAME;
 
@@ -88,6 +90,11 @@ class AccountLogic
              * データベース
              */
             DB* mDB;
+
+            /*!
+             * アカウント
+             */
+            const Account* mAccount;
 
             /*!
              * 日本語フラグ
@@ -137,12 +144,17 @@ private:   void prepare(Statement* stmt, Account* account, const char* where) co
             /*!
              * アカウント更新可能かどうか
              */
-public:    bool canUpdate(const Account* account) const;
+public:    bool canUpdate(const Account* account);
+
+            /*!
+             * 検証失敗イベント
+             */
+private:    virtual void onInvalid(const void* value, const slog::Validate::Result* result) override;
 
             /*!
              * アカウント更新
              */
-            void update(const Account* account) const;
+public:     void update(const Account* account) const;
 
             /*!
              * ハッシュ化パスワード取得
