@@ -245,7 +245,7 @@ bool SequenceLogService::init()
 
         // 共有ファイルコンテナ取得
         SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-        mSharedFileContainer =  serviceMain->getSharedFileContainer(baseFileName);
+        mSharedFileContainer =  serviceMain->getSharedFileContainer(&baseFileName);
 
 //      openSeqLogFile(mFile);
         initBinaryOrText(&baseFileName);
@@ -445,7 +445,7 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
 
     str.format(
         "%s%c%s-%05d-%04d%02d%02d-%02d%02d%02d-%03d.%s",
-        serviceMain->getLogFolderName().getBuffer(),
+        serviceMain->getLogFolderName()->getBuffer(),
         PATH_DELIMITER,
         fileName.getBuffer(),
         mProcess.getId(),

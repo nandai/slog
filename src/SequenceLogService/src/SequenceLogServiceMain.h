@@ -152,7 +152,7 @@ public:     void printLog(const Buffer* text, int32_t len);
             /*!
              * 共有ファイルコンテナ情報
              */
-            SharedFileContainer* getSharedFileContainer(const CoreString& baseFileName);
+            SharedFileContainer* getSharedFileContainer(const CoreString* baseFileName);
             void releaseSharedFileContainer(SharedFileContainer* container);
 
             /*!
@@ -182,8 +182,8 @@ public:     void printLog(const Buffer* text, int32_t len);
             /*!
              * シーケンスログフォルダ名
              */
-            const CoreString& getLogFolderName() const;
-            void setLogFolderName(const CoreString& name);
+            const CoreString* getLogFolderName() const;
+            void setLogFolderName(const CoreString* name);
 
             /*!
              * 最大ファイルサイズ
@@ -274,9 +274,9 @@ inline void SequenceLogServiceMain::setStartRunTime(bool startRunTime)
 /*!
  *  \brief  シーケンスログフォルダ名取得
  */
-inline const CoreString& SequenceLogServiceMain::getLogFolderName() const
+inline const CoreString* SequenceLogServiceMain::getLogFolderName() const
 {
-    return mLogFolderName;
+    return &mLogFolderName;
 }
 
 } // namespace slog

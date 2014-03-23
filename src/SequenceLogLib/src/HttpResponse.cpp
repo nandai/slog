@@ -100,7 +100,7 @@ bool HttpResponse::analizeResponse()
 //          contentLen = Convert::toInt(str.getBuffer(), 16);
 
             mSocket->recv(&str);
-            mResponse.append(str);
+            mResponse.append(&str);
 
             if (str.getLength() == 0)
                 break;

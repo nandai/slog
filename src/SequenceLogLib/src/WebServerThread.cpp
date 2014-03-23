@@ -207,11 +207,11 @@ void WebServer::setSSLFileName(
     const CoreString* privateKey,
     const CoreString* certificateChain)
 {
-    mCertificate.copy(*certificate);
-    mPrivateKey. copy(*privateKey);
+    mCertificate.copy(certificate);
+    mPrivateKey. copy(privateKey);
 
     if (certificateChain && certificateChain->getLength())
-        mCertificateChain.copy(*certificateChain);
+        mCertificateChain.copy(certificateChain);
 }
 
 /*!
@@ -343,7 +343,7 @@ WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
 
         Session* session = SessionManager::get(ip, userAgent);
 
-        if (session == nullptr || session->getId()->equals(sessionId) == false)
+        if (session == nullptr || session->getId()->equals(&sessionId) == false)
             break;
 
         if (httpRequest->getMimeType()->type == MimeType::Type::HTML)

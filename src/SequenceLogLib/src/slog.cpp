@@ -56,7 +56,7 @@ extern "C" void noticeLog(const char* format, ...)
 
 #if defined(_WINDOWS)
     UTF16LE utf16le;
-    utf16le.conv(str);
+    utf16le.conv(&str);
     const wchar_t* p = utf16le.getBuffer();
 
     OutputDebugStringW(p);

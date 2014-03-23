@@ -77,7 +77,7 @@ const CoreString* VariableList::find(const CoreString* name) const
     {
         auto variable = *i;
 
-        if (name->equals(variable->name))
+        if (name->equals(&variable->name))
             return &variable->value;
     }
 

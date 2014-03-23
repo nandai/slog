@@ -43,8 +43,8 @@ static SessionManager sSessionManager;
 Session::Session(const CoreString* ip, const CoreString* userAgent)
 {
     mUserId = -1;
-    mIP.copy(*ip);
-    mUserAgent.copy(*userAgent);
+    mIP.copy(ip);
+    mUserAgent.copy(userAgent);
     mSecure = false;
 }
 
@@ -97,8 +97,8 @@ Session* SessionManager::get(const CoreString* ip, const CoreString* userAgent)
     {
         session = *i;
 
-        if (session->getIP()->       equals(*ip) &&
-            session->getUserAgent()->equals(*userAgent))
+        if (session->getIP()->       equals(ip) &&
+            session->getUserAgent()->equals(userAgent))
         {
             return session;
         }

@@ -56,9 +56,9 @@ private:    virtual void run() override;
  */
 SendSequenceLogThread::SendSequenceLogThread(const CoreString* ip, uint16_t port, const CoreString* path)
 {
-    mIP.copy(*ip);
+    mIP.copy(ip);
     mPort = port;
-    mLogFilePath.copy(*path);
+    mLogFilePath.copy(path);
 
     setListener(this);
 }

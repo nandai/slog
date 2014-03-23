@@ -65,7 +65,7 @@ static void appendPath(CoreString* path, const CoreString& name)
         path->append(DELIMITER, 1);
     }
 
-    path->append(name);
+    path->append(&name);
 }
 
 /*!
@@ -122,7 +122,7 @@ FileInfo::FileInfo(const CoreString* path)
     // 絶対パス
     else
     {
-        absolutePath.copy(*path);
+        absolutePath.copy(path);
     }
 
     Tokenizer tokenizer(PATH_DELIMITER);
@@ -132,8 +132,9 @@ FileInfo::FileInfo(const CoreString* path)
     // 正規のパス生成
     for (int32_t index = 0; index < tokenizer.getCount(); index++)
     {
+        const CoreString& value = tokenizer.getValue(index);
         String str;
-        str.copy(tokenizer.getValue(index));
+        str.copy(&value);
 
         if (str == ".")
             continue;
@@ -182,7 +183,7 @@ void FileInfo::update(bool aUsing)
 {
 #if defined(_WINDOWS)
     UTF16LE utf16le;
-    utf16le.conv(mData->mCanonicalPath);
+    utf16le.conv(&mData->mCanonicalPath);
 
     struct _stati64 buf;
     int32_t result = _wstati64(utf16le.getBuffer(), &buf);

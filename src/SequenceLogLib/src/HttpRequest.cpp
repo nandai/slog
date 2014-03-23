@@ -112,7 +112,7 @@ HttpRequest::HttpRequest(SCHEME scheme, Socket* socket, uint16_t port, const Cor
     mSocket = socket;
     mScheme = scheme;
     mPort = port;
-    mRootDir.copy(*rootDir);
+    mRootDir.copy(rootDir);
     mMethod = UNKNOWN;
     mAjax = false;
     mListener = &mDefaultListener;
@@ -400,7 +400,7 @@ void HttpRequest::setUrl(const char* url)
     mUrl.copy(url);
 
     String path = mRootDir;
-    path.append(mUrl);
+    path.append(&mUrl);
 
     int32_t len = path.getLength();
 
@@ -421,8 +421,8 @@ void HttpRequest::setUrl(const char* url)
  */
 void HttpRequest::getPath(CoreString* path)
 {
-    path->copy(mRootDir);
-    path->append(mUrl);
+    path->copy(&mRootDir);
+    path->append(&mUrl);
 }
 
 /*!
@@ -438,7 +438,7 @@ const MimeType* HttpRequest::getMimeType()
  */
 const CoreString* HttpRequest::getCookie(const char* name, CoreString* str)
 {
-    str->copy(mCookies[name]);
+    str->copy(&mCookies[name]);
     return str;
 }
 
@@ -447,7 +447,7 @@ const CoreString* HttpRequest::getCookie(const char* name, CoreString* str)
  */
 const CoreString* HttpRequest::getParam(const char* name, CoreString* str)
 {
-    str->copy(mParams[name]);
+    str->copy(&mParams[name]);
     return str;
 }
 

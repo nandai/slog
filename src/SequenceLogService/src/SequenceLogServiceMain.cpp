@@ -232,7 +232,7 @@ void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 /*!
  *  \brief  共有ファイルコンテナ取得
  */
-SharedFileContainer* SequenceLogServiceMain::getSharedFileContainer(const CoreString& baseFileName)
+SharedFileContainer* SequenceLogServiceMain::getSharedFileContainer(const CoreString* baseFileName)
 {
     SharedFileContainer* container;
 
@@ -287,7 +287,7 @@ void SequenceLogServiceMain::releaseSharedFileContainer(SharedFileContainer* con
 /*!
  *  \brief  シーケンスログフォルダ名設定
  */
-void SequenceLogServiceMain::setLogFolderName(const CoreString& name)
+void SequenceLogServiceMain::setLogFolderName(const CoreString* name)
 {
     deleteFileInfoArray();
     mLogFolderName.copy(name);

@@ -230,7 +230,7 @@ void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t con
         work.format(
 //          "Connection: Close\r\n"
             "Content-Length: %d\r\n", contentLen);
-        str.append(work);
+        str.append(&work);
     }
     else
     {
@@ -403,14 +403,14 @@ void WebServerResponse::appendCookiesString(CoreString* str) const
             cookie->name. getBuffer(),
             cookie->value.getBuffer(),
             cookie->path. getBuffer());
-        str->append(work);
+        str->append(&work);
 
         if (cookie->expires.getLength())
         {
             work.format(
                 "; expires=%s",
                 cookie->expires.getBuffer());
-            str->append(work);
+            str->append(&work);
         }
 
         if (cookie->secure)

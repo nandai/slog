@@ -63,7 +63,7 @@ void FileFind::exec(const CoreString* fileName) const
 
 #if defined(_WINDOWS)
     UTF16LE utf16le;
-    utf16le.conv(*canonicalPath);
+    utf16le.conv(canonicalPath);
 
     WIN32_FIND_DATAW fd;
     HANDLE handle = FindFirstFileExW(utf16le.getBuffer(), FindExInfoStandard, &fd, FindExSearchNameMatch, nullptr, 0);

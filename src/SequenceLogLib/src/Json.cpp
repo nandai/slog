@@ -231,13 +231,13 @@ void Json::serialize(CoreString* content) const
         (*i)->serialize(&tmp);
 
         work.append(&sep, 1);
-        work.append(tmp);
+        work.append(&tmp);
 
         sep = ',';
     }
 
     work.append(&mBracket[1], 1);
-    content->append(work);
+    content->append(&work);
 }
 
 } // namespace slog

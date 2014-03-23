@@ -223,9 +223,9 @@ void CoreString::formatV(const char* format, va_list arg) throw(Exception)
 /*!
  * \brief   比較
  */
-bool CoreString::equals(const CoreString& str) const
+bool CoreString::equals(const CoreString* str) const
 {
-    return (strcmp(getBuffer(), str.getBuffer()) == 0);
+    return (strcmp(getBuffer(), str->getBuffer()) == 0);
 }
 
 /*!

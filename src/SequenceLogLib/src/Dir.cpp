@@ -41,7 +41,7 @@ bool Dir::create(const CoreString* aDirName)
 
 #if defined(_WINDOWS)
     UTF16LE dirName;
-    dirName.conv(*aDirName);
+    dirName.conv(aDirName);
 
     res = (CreateDirectoryW(dirName.getBuffer(), nullptr) == TRUE);
 #else
@@ -60,7 +60,7 @@ bool Dir::remove(const CoreString* aDirName)
 
 #if defined(_WINDOWS)
     UTF16LE dirName;
-    dirName.conv(*aDirName);
+    dirName.conv(aDirName);
 
     res = (RemoveDirectoryW(dirName.getBuffer()) == TRUE);
 #else
@@ -97,7 +97,7 @@ bool Dir::setCurrent(const CoreString* aDirName)
 
 #if defined(_WINDOWS)
     UTF16LE dirName;
-    dirName.conv(*aDirName);
+    dirName.conv(aDirName);
 
     res = (SetCurrentDirectoryW(dirName.getBuffer()) == TRUE);
 #else

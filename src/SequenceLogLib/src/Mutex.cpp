@@ -64,7 +64,7 @@ Mutex::Mutex(bool create, const CoreString* name)
     throw(Exception)
 {
     UTF16LE utf16le;
-    utf16le.conv(*name);
+    utf16le.conv(name);
 
     if (create)
         mHandle = (int64_t)CreateMutexW(nullptr, TRUE, utf16le.getBuffer());

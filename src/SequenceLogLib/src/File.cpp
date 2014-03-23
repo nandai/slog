@@ -146,7 +146,7 @@ FileCache* FileCacheList::get(const CoreString* path) const
     {
         auto fileCache = *i;
 
-        if (fileCache->getFileInfo()->getCanonicalPath()->equals(*path))
+        if (fileCache->getFileInfo()->getCanonicalPath()->equals(path))
             return fileCache;
     }
 
@@ -275,7 +275,7 @@ bool File::FileIO::open(const CoreString* fileName, File::Mode mode)
 {
 #if defined(_WINDOWS)
     UTF16LE utf16le;
-    utf16le.conv(*fileName);
+    utf16le.conv(fileName);
 
     const wchar_t* p = utf16le.getBuffer();
     HANDLE handle;
@@ -768,7 +768,7 @@ void File::unlink(const CoreString* fileName) throw(Exception)
 
 #if defined(_WINDOWS)
     UTF16LE utf16le;
-    utf16le.conv(*fileName);
+    utf16le.conv(fileName);
 
     bool result = (::DeleteFileW(utf16le.getBuffer()) == TRUE);
 #else
@@ -867,10 +867,10 @@ bool File::copy(const CoreString* aSrc, const CoreString* aDst)
 {
 #if defined(_WINDOWS)
     UTF16LE src;
-    src.conv(*aSrc);
+    src.conv(aSrc);
 
     UTF16LE dst;
-    dst.conv(*aDst);
+    dst.conv(aDst);
 
     return (CopyFileW(src.getBuffer(), dst.getBuffer(), FALSE) == TRUE);
 #else
@@ -885,10 +885,10 @@ bool File::move(const CoreString* aSrc, const CoreString* aDst)
 {
 #if defined(_WINDOWS)
     UTF16LE src;
-    src.conv(*aSrc);
+    src.conv(aSrc);
 
     UTF16LE dst;
-    dst.conv(*aDst);
+    dst.conv(aDst);
 
     return (MoveFileExW(src.getBuffer(), dst.getBuffer(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED) == TRUE);
 #else

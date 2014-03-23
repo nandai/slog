@@ -211,7 +211,7 @@ bool AccountLogic::getByNamePassword(Account* account) const
         String hashPasswd;
         getHashPassword(&hashPasswd, &account->name, &passwd, account->version);
 
-        res = account->passwd.equals(hashPasswd);
+        res = account->passwd.equals(&hashPasswd);
     }
 
     SMSG(slog::DEBUG, "id:%d, name:%s, version:%d, admin:%d",
@@ -322,7 +322,7 @@ bool AccountLogic::canUpdate(const Account* account)
     delete stmt;
     stmt = nullptr;
 
-    if (nowAccount.admin != 1 && nowAccount.name.equals(mAccount->name) == false)
+    if (nowAccount.admin != 1 && nowAccount.name.equals(&mAccount->name) == false)
     {
         // 一般ユーザーはユーザー名の変更不可
         mJson->add("", "ユーザー名は変更できません。");

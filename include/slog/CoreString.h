@@ -41,21 +41,21 @@ private:    const CoreString& operator=(const char*);
 protected:  const CoreString& operator=(const CoreString& str)
             {
                 if (this != &str)
-                    copy(str);
+                    copy(&str);
 
                 return *this;
             }
 
             // コピー
 public:     void copy(const char* text, int32_t len = -1) throw(Exception);
-            void copy(const CoreString& str) throw(Exception)
+            void copy(const CoreString* str) throw(Exception)
             {
-                copy(str.getBuffer(), str.getLength());
+                copy(str->getBuffer(), str->getLength());
             }
 
             // 連結
             void append(const char* text, int32_t len = -1) throw(Exception);
-            void append(const CoreString& str) throw(Exception) {append(str.getBuffer(), str.getLength());}
+            void append(const CoreString* str) throw(Exception) {append(str->getBuffer(), str->getLength());}
 
             // 挿入
             void insert(int32_t pos, const char* text, int32_t len = -1) throw(Exception);
@@ -75,7 +75,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             void formatV(const char* format, va_list arg) throw(Exception);
 
             // 比較
-            bool equals(const CoreString& str) const;
+            bool equals(const CoreString* str) const;
             bool equals(const char* text) const;
 
             // 検索
@@ -137,7 +137,7 @@ public:      UTF16LE();
             int32_t getChars() const {return mChars;}
 
             void conv(const char* text);
-            void conv(const CoreString& str) {conv(str.getBuffer());}
+            void conv(const CoreString* str) {conv(str->getBuffer());}
 
 private:    void realloc(int32_t chars);
 };

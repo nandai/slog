@@ -102,7 +102,7 @@ HtmlGenerator::Param::Param(const CoreString* fileName, CoreString* writeBuffer,
  */
 HtmlGenerator::HtmlGenerator(const CoreString* rootDir)
 {
-    mRootDir.copy(*rootDir);
+    mRootDir.copy(rootDir);
 
     // appendの度にバッファ拡張処理させないように、ある程度の領域を確保しておく
     mHtml.setCapacity(1024 * 1024 * 2);
@@ -252,7 +252,7 @@ bool HtmlGenerator::replaceVariable(Param* param, const CoreString* var)
         if (value)
         {
             // 変数の値をappendする
-            param->writeBuffer->append(*value);
+            param->writeBuffer->append(value);
             return true;
         }
 
@@ -354,7 +354,7 @@ void HtmlGenerator::getIncludePath(Param* param, CoreString* path, const CoreStr
 {
     if (fileName->at(0) == '/')
     {
-        path->copy(mRootDir);
+        path->copy(&mRootDir);
     }
     else
     {
@@ -367,7 +367,7 @@ void HtmlGenerator::getIncludePath(Param* param, CoreString* path, const CoreStr
             path->copy(  param->fileName->getBuffer(), dirPos + 1);
     }
 
-    path->append(*fileName);
+    path->append(fileName);
 }
 
 /*!
@@ -464,9 +464,9 @@ bool HtmlGenerator::expand(const CoreString* fileName, CoreString* writeBuffer, 
             Util::encodeBase64(&readBuffer, buffer.getBuffer(), count);
 
             writeBuffer->append("data:", 5);
-            writeBuffer->append(mimeType.text);
+            writeBuffer->append(&mimeType.text);
             writeBuffer->append(";base64,", 8);
-            writeBuffer->append(readBuffer);
+            writeBuffer->append(&readBuffer);
             return true;
         }
         catch (Exception)
@@ -479,7 +479,7 @@ bool HtmlGenerator::expand(const CoreString* fileName, CoreString* writeBuffer, 
     {
         String tag;
         tag.format("<%s type=\"%s\">\n", mimeType.tag.getBuffer(), mimeType.text.getBuffer());
-        writeBuffer->append(tag);
+        writeBuffer->append(&tag);
     }
 
     Param param(fileName, writeBuffer, depth);
@@ -512,7 +512,7 @@ bool HtmlGenerator::expand(const CoreString* fileName, CoreString* writeBuffer, 
     {
         String tag;
         tag.format("</%s>\n", mimeType.tag.getBuffer());
-        writeBuffer->append(tag);
+        writeBuffer->append(&tag);
     }
 
     return result;
