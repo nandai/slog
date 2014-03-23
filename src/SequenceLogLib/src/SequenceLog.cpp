@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   SequenceLog.cpp
- *  \brief  シーケンスログクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    SequenceLog.cpp
+ * \brief   シーケンスログクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/slog.h"
 
@@ -133,7 +133,7 @@ static SequenceLogClient* sClient = nullptr;
 static bool sClientInitialized = false;
 
 /*!
- *  \brief  シーケンスログクライアントクラス
+ * \brief   シーケンスログクライアントクラス
  */
 class SequenceLogClient : public WebSocketListener
 {
@@ -169,7 +169,7 @@ public:     void sendItem(SequenceLogItem* item, uint32_t* seq = nullptr);
 };
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 inline SequenceLogClient::SequenceLogClient()
 {
@@ -178,7 +178,7 @@ inline SequenceLogClient::SequenceLogClient()
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 inline SequenceLogClient::~SequenceLogClient()
 {
@@ -187,7 +187,7 @@ inline SequenceLogClient::~SequenceLogClient()
 }
 
 /*!
- *  \brief  初期化
+ * \brief   初期化
  */
 void SequenceLogClient::init()
 {
@@ -207,11 +207,11 @@ void SequenceLogClient::init()
     url.format("%s/outputLog", sSequenceLogServiceAddress);
 
     mSocket.setListener(this);
-    mSocket.open(url);
+    mSocket.open(&url);
 }
 
 /*!
- * Web Socket onOpen
+ * \brief   Web Socket onOpen
  */
 void SequenceLogClient::onOpen()
 {
@@ -237,7 +237,7 @@ void SequenceLogClient::onOpen()
 }
 
 /*!
- * Web Socket onError
+ * \brief   Web Socket onError
  */
 void SequenceLogClient::onError(const char* message)
 {
@@ -245,7 +245,7 @@ void SequenceLogClient::onError(const char* message)
 }
 
 /*!
- *  \brief  シーケンスログアイテム生成
+ * \brief   シーケンスログアイテム生成
  */
 SequenceLogItem* SequenceLogClient::createItem()
 {
@@ -272,7 +272,7 @@ SequenceLogItem* SequenceLogClient::createItem()
 }
 
 /*!
- *  \brief  シーケンスログアイテム送信
+ * \brief   シーケンスログアイテム送信
  */
 void SequenceLogClient::sendItem(
     SequenceLogItem* item,  // 送信するシーケンスログアイテム
@@ -327,7 +327,7 @@ void SequenceLogClient::sendItem(
 }
 
 /*!
- *  \brief  シーケンスログクライアントデリータクラス
+ * \brief   シーケンスログクライアントデリータクラス
  */
 class SequenceLogClientDeleter
 {
@@ -347,7 +347,7 @@ static SequenceLogClientDeleter s_deleter;
 ******************************************************************************/
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 SequenceLog::SequenceLog(
     const char* className,              //!< クラス名
@@ -366,7 +366,7 @@ SequenceLog::SequenceLog(
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 //SequenceLog::SequenceLog(uint32_t classID, const char* funcName)//, SequenceLogOutputFlag outputFlag)
 //{
@@ -389,7 +389,7 @@ SequenceLog::SequenceLog(
 //}
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 //SequenceLog::SequenceLog(uint32_t classID, uint32_t funcID)//, SequenceLogOutputFlag outputFlag)
 //{
@@ -412,7 +412,7 @@ SequenceLog::SequenceLog(
 //}
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 SequenceLog::~SequenceLog()
 {
@@ -426,7 +426,7 @@ SequenceLog::~SequenceLog()
 }
 
 /*!
- *  \brief  初期化
+ * \brief   初期化
  */
 void SequenceLog::init(SequenceLogOutputFlag outputFlag)
 {
@@ -443,7 +443,7 @@ void SequenceLog::init(SequenceLogOutputFlag outputFlag)
 }
 
 /*!
- *  \brief  メッセージ出力
+ * \brief   メッセージ出力
  */
 void SequenceLog::message(SequenceLogLevel level, const char* format, ...)
 {
@@ -454,7 +454,7 @@ void SequenceLog::message(SequenceLogLevel level, const char* format, ...)
 }
 
 /*!
- *  \brief  メッセージ出力
+ * \brief   メッセージ出力
  */
 void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list arg)
 {
@@ -480,7 +480,7 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
 }
 
 /*!
- *  \brief  メッセージ出力
+ * \brief   メッセージ出力
  */
 //void SequenceLog::message(SequenceLogLevel level, uint32_t messageID)
 //{
@@ -496,7 +496,7 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
 //}
 
 /*!
- *  \brief  シーケンスログアイテム取得
+ * \brief   シーケンスログアイテム取得
  */
 void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item) throw(Exception)
 {
@@ -591,7 +591,7 @@ void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item) throw(Exce
 }
 
 /*!
- *  \brief  シーケンスログアイテム書き込み
+ * \brief   シーケンスログアイテム書き込み
  */
 uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, bool enableOutputFlag)
 {
@@ -680,7 +680,7 @@ uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, 
 } // namespace slog
 
 /*!
- *  \brief  シーケンスログファイル名を設定する
+ * \brief   シーケンスログファイル名を設定する
  */
 extern "C" void setSequenceLogFileName(const char* fileName)
 {
@@ -689,7 +689,7 @@ extern "C" void setSequenceLogFileName(const char* fileName)
 }
 
 /*!
- *  \brief  シーケンスログサービスのアドレスを設定する
+ * \brief   シーケンスログサービスのアドレスを設定する
  */
 extern "C" void setSequenceLogServiceAddress(const char* url)
 {
@@ -700,7 +700,7 @@ extern "C" void setSequenceLogServiceAddress(const char* url)
 }
 
 /*!
- *  \brief  ROOTの既定値を設定する
+ * \brief   ROOTの既定値を設定する
  */
 //extern "C" void setRootFlag(int32_t outputFlag)
 //{

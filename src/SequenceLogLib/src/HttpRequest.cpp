@@ -407,9 +407,9 @@ void HttpRequest::setUrl(const char* url)
     if (path[len - 1] == '/')
         path.deleteLast();
 
-    FileInfo info(path);
+    FileInfo info(&path);
 
-    if (info.isFile() == false && info.getMessage().getLength() == 0)
+    if (info.isFile() == false && info.getMessage()->getLength() == 0)
     {
         mUrl.copy(path.getBuffer() + mRootDir.getLength());
         mUrl.append("/index.html");

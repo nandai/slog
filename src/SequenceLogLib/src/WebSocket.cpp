@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2013-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   WebSocket.cpp
- *  \brief  Web Socket クラス
- *  \author Copyright 2013 printf.jp
+ * \file    WebSocket.cpp
+ * \brief   Web Socket クラス
+ * \author  Copyright 2013-2014 printf.jp
  */
 #pragma execution_character_set("utf-8")
 
@@ -31,7 +31,7 @@ namespace slog
 {
 
 /*!
- *  \brief  Web Socket 受信クラス
+ * \brief   Web Socket 受信クラス
  */
 class WebSocketReceiver : public Thread
 {
@@ -60,7 +60,7 @@ public:     void notifyClose();
 };
 
 /*!
- * スレッド実行
+ * \brief   スレッド実行
  */
 void WebSocketReceiver::run()
 {
@@ -109,7 +109,7 @@ void WebSocketReceiver::run()
 }
 
 /*!
- * リスナーにオープン通知
+ * \brief   リスナーにオープン通知
  */
 void WebSocketReceiver::notifyOpen()
 {
@@ -125,7 +125,7 @@ void WebSocketReceiver::notifyOpen()
 }
 
 /*!
- * リスナーにエラー通知
+ * \brief   リスナーにエラー通知
  */
 void WebSocketReceiver::notifyError(const char* message)
 {
@@ -141,7 +141,7 @@ void WebSocketReceiver::notifyError(const char* message)
 }
 
 /*!
- * リスナーにメッセージ通知
+ * \brief   リスナーにメッセージ通知
  */
 void WebSocketReceiver::notifyMessage(const ByteBuffer& buffer)
 {
@@ -157,7 +157,7 @@ void WebSocketReceiver::notifyMessage(const ByteBuffer& buffer)
 }
 
 /*!
- * リスナーにクローズ通知
+ * \brief   リスナーにクローズ通知
  */
 void WebSocketReceiver::notifyClose()
 {
@@ -173,7 +173,7 @@ void WebSocketReceiver::notifyClose()
 }
 
 /*!
- * コンストラクタ
+ * \brief   コンストラクタ
  */
 WebSocket::WebSocket(bool isServer)
 {
@@ -185,7 +185,7 @@ WebSocket::WebSocket(bool isServer)
 }
 
 /*!
- * デストラクタ
+ * \brief   デストラクタ
  */
 WebSocket::~WebSocket()
 {
@@ -197,7 +197,7 @@ WebSocket::~WebSocket()
 }
 
 /*!
- * 初期化
+ * \brief   初期化
  */
 void WebSocket::init()
 {
@@ -205,7 +205,7 @@ void WebSocket::init()
 }
 
 /*!
- * クローズ
+ * \brief   クローズ
  */
 int WebSocket::close()
 {
@@ -222,7 +222,7 @@ int WebSocket::close()
 }
 
 /*!
- * リスナー設定
+ * \brief   リスナー設定
  */
 void WebSocket::setListener(WebSocketListener* listener)
 {
@@ -230,7 +230,7 @@ void WebSocket::setListener(WebSocketListener* listener)
 }
 
 /*!
- * Web Socket ヘッダー送信
+ * \brief   Web Socket ヘッダー送信
  */
 void WebSocket::sendHeader(uint64_t payloadLen, bool isText) throw(Exception)
 {
@@ -249,7 +249,7 @@ void WebSocket::sendHeader(uint64_t payloadLen, bool isText) throw(Exception)
 }
 
 /*!
- * Web Socket ヘッダー送信
+ * \brief   Web Socket ヘッダー送信
  */
 void WebSocket::sendHeader(Socket* socket, uint64_t payloadLen, bool isText, bool toClient) throw(Exception)
 {
@@ -304,7 +304,7 @@ void WebSocket::sendHeader(Socket* socket, uint64_t payloadLen, bool isText, boo
 }
 
 /*!
- *  \brief  送信前チェック
+ * \brief   送信前チェック
  */
 void WebSocket::check(uint64_t len, bool isText) throw(Exception)
 {
@@ -333,7 +333,7 @@ void WebSocket::check(uint64_t len, bool isText) throw(Exception)
 }
 
 /*!
- *  \brief  バイナリ送信
+ * \brief   バイナリ送信
  */
 void WebSocket::send(const int32_t* value) const throw(Exception)
 {
@@ -354,7 +354,7 @@ void WebSocket::send(const int32_t* value) const throw(Exception)
 }
 
 /*!
- *  \brief  バイナリ送信
+ * \brief   バイナリ送信
  */
 void WebSocket::send(const uint32_t* value) const throw(Exception)
 {
@@ -375,7 +375,7 @@ void WebSocket::send(const uint32_t* value) const throw(Exception)
 }
 
 /*!
- *  \brief  バイナリ送信
+ * \brief   バイナリ送信
  */
 void WebSocket::send(const Buffer* buffer, int32_t len) const throw(Exception)
 {
@@ -395,7 +395,7 @@ void WebSocket::send(const Buffer* buffer, int32_t len) const throw(Exception)
 }
 
 /*!
- *  \brief  バイナリ送信
+ * \brief   バイナリ送信
  */
 void WebSocket::send(const char* buffer, int32_t len) const throw(Exception)
 {
@@ -415,28 +415,28 @@ void WebSocket::send(const char* buffer, int32_t len) const throw(Exception)
 }
 
 /*!
- * テキスト送信
+ * \brief   テキスト送信
  */
-void WebSocket::send(const CoreString& str) const throw(Exception)
+void WebSocket::send(const CoreString* str) const throw(Exception)
 {
     WebSocket* self = (WebSocket*)this;
-    int32_t len = str.getLength();
+    int32_t len = str->getLength();
 
     if (mPayloadLen == 0)
     {
         ScopedLock lock(mMutex);
         sendHeader(self, len, true, mIsServer);
-        Socket::send(&str, len);
+        Socket::send(str, len);
     }
     else
     {
         self->check(len, true);
-        Socket::send(&str, len);
+        Socket::send(str, len);
     }
 }
 
 /*!
- * 受信
+ * \brief   受信
  */
 ByteBuffer* WebSocket::recv(ByteBuffer* dataBuffer) const throw(Exception)
 {
@@ -551,7 +551,7 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
 }
 
 /*!
- * リスナーにオープン通知
+ * \brief   リスナーにオープン通知
  */
 void WebSocket::notifyOpen()
 {
@@ -559,7 +559,7 @@ void WebSocket::notifyOpen()
 }
 
 /*!
- * リスナーにエラー通知
+ * \brief   リスナーにエラー通知
  */
 void WebSocket::notifyError(const char* message)
 {

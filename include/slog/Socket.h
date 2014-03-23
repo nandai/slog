@@ -125,7 +125,7 @@ public:     Socket();
             /*!
              * 接続
              */
-            virtual void connect(const CoreString& ipAddress, unsigned short port) throw(Exception);
+            virtual void connect(const CoreString* ipAddress, unsigned short port) throw(Exception);
 
 #if defined(__ANDROID__)
             void bind(   const CoreString& path) throw(Exception);
@@ -175,12 +175,12 @@ public:     Socket();
             /*!
              * 接続元／先IPアドレス取得
              */
-            const CoreString& getInetAddress() const;
+            const CoreString* getInetAddress() const;
 
             /*!
              * 自IPアドレス取得
              */
-            const CoreString& getMyInetAddress() const;
+            const CoreString* getMyInetAddress() const;
 
             /*!
              * 送信
@@ -200,7 +200,7 @@ public:     Socket();
             /*!
              * 送信
              */
-            virtual void send(const char*   buffer, int32_t len) const throw(Exception);
+            virtual void send(const char* buffer, int32_t len) const throw(Exception);
 
             /*!
              * 受信

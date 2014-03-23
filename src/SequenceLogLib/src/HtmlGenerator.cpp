@@ -385,7 +385,7 @@ bool HtmlGenerator::readHtml(CoreString* readHtml, int32_t position, const CoreS
     try
     {
         File file;
-        file.open(*fileName, File::READ);
+        file.open(fileName, File::READ);
 
         uint64_t value = file.getLastWriteTime()->getValue();
 
@@ -448,7 +448,7 @@ bool HtmlGenerator::expand(const CoreString* fileName, CoreString* writeBuffer, 
         try
         {
             File file;
-            file.open(*fileName, File::READ);
+            file.open(fileName, File::READ);
 
             uint64_t value = file.getLastWriteTime()->getValue();
 

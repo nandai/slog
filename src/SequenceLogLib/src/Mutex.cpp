@@ -54,16 +54,17 @@ Mutex::Mutex() throw(Exception)
 
 #if defined(_WINDOWS)
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
+ *
+ * \param[in]   create  作成フラグ
+ * \param[in]   name    ミューテックス名
  */
-Mutex::Mutex(
-    bool create,                //!< 作成フラグ
-    const CoreString& name)     //!< ミューテックス名
+Mutex::Mutex(bool create, const CoreString* name)
 
     throw(Exception)
 {
     UTF16LE utf16le;
-    utf16le.conv(name);
+    utf16le.conv(*name);
 
     if (create)
         mHandle = (int64_t)CreateMutexW(nullptr, TRUE, utf16le.getBuffer());
@@ -73,7 +74,7 @@ Mutex::Mutex(
     if (mHandle == 0)
     {
         Exception e;
-        e.setMessage("Mutex::Mutex(create:%s, \"%s\")", (create ? "true" : "false"), name.getBuffer());
+        e.setMessage("Mutex::Mutex(create:%s, \"%s\")", (create ? "true" : "false"), name->getBuffer());
 
         throw e;
     }

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 
 /*!
- *  \file   Tokenizer.cpp
- *  \brief  文字列分割クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    Tokenizer.cpp
+ * \brief   文字列分割クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/Tokenizer.h"
+#include "slog/PointerString.h"
 
 #include <stdlib.h>
 #include <vector>
@@ -33,7 +34,7 @@ namespace slog
 {
 
 /*!
- *  \brief  文字列分割
+ * \brief   文字列分割
  */
 static const char* tokenize(
     CoreString* str,    //!< 結果を受け取るバッファ
@@ -105,17 +106,62 @@ Variant::operator int32_t() const
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  *
- *  \note   フォーマットはキーとなる文字列を'['と']'で囲い、']'の直後の文字をデリミタと解釈する
+ * \param[in]   format  フォーマット
+ */
+Tokenizer::Tokenizer(const char* format)
+{
+    PointerString str(format);
+    init(&str);
+}
+
+/*!
+ * \brief   コンストラクタ
+ *
+ * \param[in]   format  フォーマット
+ *
+ * \note    フォーマットはキーとなる文字列を'['と']'で囲い、']'の直後の文字をデリミタと解釈する
  *          例："[key1],[key2]/[key3] [key4]"
  */
-Tokenizer::Tokenizer(
-    const CoreString& format)   //!< フォーマット
+Tokenizer::Tokenizer(const CoreString* format)
+{
+    init(format);
+}
+
+/*!
+ * \brief   コンストラクタ
+ *
+ * \param[in]   delimiter   デリミタ
+ */
+Tokenizer::Tokenizer(char delimiter)
+{
+    mData = new Data;
+    mDelimiter = delimiter;
+}
+
+/*!
+ * \brief   デストラクタ
+ */
+Tokenizer::~Tokenizer()
+{
+    cleanUp();
+    delete mData;
+}
+
+/*!
+ * \brief   初期化
+ *
+ * \param[in]   format  フォーマット
+ *
+ * \note    フォーマットはキーとなる文字列を'['と']'で囲い、']'の直後の文字をデリミタと解釈する
+ *          例："[key1],[key2]/[key3] [key4]"
+ */
+void Tokenizer::init(const CoreString* format)
 {
     mData = new Data;
     mDelimiter = 0;
-    const char* p1 = format.getBuffer();
+    const char* p1 = format->getBuffer();
 
     while (true)
     {
@@ -146,26 +192,7 @@ Tokenizer::Tokenizer(
 }
 
 /*!
- *  \brief  コンストラクタ
- */
-Tokenizer::Tokenizer(
-    char delimiter)     //!< デリミタ
-{
-    mData = new Data;
-    mDelimiter = delimiter;
-}
-
-/*!
- *  \brief  デストラクタ
- */
-Tokenizer::~Tokenizer()
-{
-    cleanUp();
-    delete mData;
-}
-
-/*!
- *  \brief  クリーンアップ
+ * \brief   クリーンアップ
  */
 void Tokenizer::cleanUp()
 {
@@ -180,10 +207,22 @@ void Tokenizer::cleanUp()
 }
 
 /*!
- *  \brief  実行
+ * \brief   実行
+ *
+ * \param[in]   str 分割対象文字列
  */
-int32_t Tokenizer::exec(
-    const CoreString &str)      //!< 分割対象文字列
+int32_t Tokenizer::exec(const char* text)
+{
+    PointerString str(text);
+    return exec(&str);
+}
+
+/*!
+ * \brief   実行
+ *
+ * \param[in]   str 分割対象文字列
+ */
+int32_t Tokenizer::exec(const CoreString* str)
 {
     int32_t result;
 
@@ -196,12 +235,13 @@ int32_t Tokenizer::exec(
 }
 
 /*!
- *  \brief  実行
+ * \brief   実行
+ *
+ * \param[in]   str 分割対象文字列
  */
-int32_t Tokenizer::execNamed(
-    const CoreString &str)      //!< 分割対象文字列
+int32_t Tokenizer::execNamed(const CoreString* str)
 {
-    const char* p1 = str.getBuffer();
+    const char* p1 = str->getBuffer();
 
     for (auto i = mData->mElements.begin(); i != mData->mElements.end(); i++)
     {
@@ -219,18 +259,19 @@ int32_t Tokenizer::execNamed(
     }
 
     if (p1 == nullptr)
-        return str.getLength();
+        return str->getLength();
 
-    return (int32_t)(p1 - str.getBuffer());
+    return (int32_t)(p1 - str->getBuffer());
 }
 
 /*!
- *  \brief  実行
+ * \brief   実行
+ *
+ * \param[in]   str 分割対象文字列
  */
-int32_t Tokenizer::execIndexed(
-    const CoreString &str)      //!< 分割対象文字列
+int32_t Tokenizer::execIndexed(const CoreString* str)
 {
-    const char* p1 = str.getBuffer();
+    const char* p1 = str->getBuffer();
     String name;
     int32_t num = 1;
 
@@ -252,7 +293,7 @@ int32_t Tokenizer::execIndexed(
         p1 = tokenize(&element->variant.mStr, p1, mDelimiter);
     }
 
-    return str.getLength();
+    return str->getLength();
 }
 
 /*!

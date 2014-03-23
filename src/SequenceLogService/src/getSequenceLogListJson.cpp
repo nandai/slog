@@ -45,7 +45,7 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
     DateTime dateTime;
 
     // ログファイル名
-    const CoreString& strCanonicalPath = info->getCanonicalPath();
+    const CoreString* strCanonicalPath = info->getCanonicalPath();
 
     // 開始日時
     String strCreationTime = "Unknown";
@@ -59,9 +59,9 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
         DateTimeFormat::toString(&strCreationTime, dateTime, DateTimeFormat::DATE_TIME);
     }
 #else
-    PointerString fileName = strrchr(strCanonicalPath.getBuffer(), PATH_DELIMITER);
+    PointerString fileName = strrchr(strCanonicalPath->getBuffer(), PATH_DELIMITER);
     Tokenizer tokenizer('-');
-    tokenizer.exec(fileName);
+    tokenizer.exec(&fileName);
 
     if (4 <= tokenizer.getCount())
     {
@@ -99,7 +99,7 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
 
     // サイズ
     String strSize;
-    const CoreString& message = info->getMessage();
+    const CoreString* message = info->getMessage();
 
     if (info->isUsing() == false)
     {
@@ -107,25 +107,25 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
 
         if (size < 1024)
         {
-            strSize.format("%s %d byte(s)", message.getBuffer(), (int32_t)size);
+            strSize.format("%s %d byte(s)", message->getBuffer(), (int32_t)size);
         }
 
         else
         if (size < 1024 * 1024)
         {
-            strSize.format("%s %.1f KB", message.getBuffer(), size / 1024);
+            strSize.format("%s %.1f KB", message->getBuffer(), size / 1024);
         }
 
         else
         {
-            strSize.format("%s %.1f MB", message.getBuffer(), size / (1024 * 1024));
+            strSize.format("%s %.1f MB", message->getBuffer(), size / (1024 * 1024));
         }
     }
 
     // JSON作成
     json->add("creationTime",  &strCreationTime);
     json->add("lastWriteTime", &strLastWriteTime);
-    json->add("canonicalPath", &strCanonicalPath);
+    json->add("canonicalPath",  strCanonicalPath);
     json->add("size",          &strSize);
 }
 

@@ -45,7 +45,7 @@ class SendSequenceLogThread : public Thread, public ThreadListener
             uint16_t    mPort;
             String      mLogFilePath;
 
-public:     SendSequenceLogThread(const CoreString& ip, uint16_t port, const CoreString& path);
+public:     SendSequenceLogThread(const CoreString* ip, uint16_t port, const CoreString* path);
 
 private:    virtual void run() override;
             virtual void onTerminated(Thread* thread) override;
@@ -54,11 +54,11 @@ private:    virtual void run() override;
 /*!
  *  \brief  コンストラクタ
  */
-SendSequenceLogThread::SendSequenceLogThread(const CoreString& ip, uint16_t port, const CoreString& path)
+SendSequenceLogThread::SendSequenceLogThread(const CoreString* ip, uint16_t port, const CoreString* path)
 {
-    mIP.copy(ip);
+    mIP.copy(*ip);
     mPort = port;
-    mLogFilePath.copy(path);
+    mLogFilePath.copy(*path);
 
     setListener(this);
 }
@@ -78,14 +78,14 @@ void SendSequenceLogThread::run()
     {
         // ファイルオープン
         File file;
-        file.open(mLogFilePath, File::READ);
+        file.open(&mLogFilePath, File::READ);
 
         result = true;
 
         // ソケット準備
         Socket viewerSocket;
         viewerSocket.open();
-        viewerSocket.connect(mIP, mPort);
+        viewerSocket.connect(&mIP, mPort);
 
         // ファイル名送信
         viewerSocket.send(&len);
@@ -175,7 +175,7 @@ void GetLogResponse::run()
                     SendSequenceLogThread* thread = new SendSequenceLogThread(
                         socket->getInetAddress(),
                         serviceMain->getSequenceLogServerPort(),
-                        fileName);
+                        &fileName);
 
                     thread->start();
                 }

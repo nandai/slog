@@ -229,10 +229,13 @@ void Socket::bind(unsigned short port) throw(Exception)
 
 #if defined(__ANDROID__)
 /*!
- *  \brief  接続準備
+ * \brief   接続準備
+ *
+ * \param[in]   path    パス
+ *
+ * \return  なし
  */
-void Socket::bind(
-    const CoreString& path)     //!< パス
+void Socket::bind(const CoreString& path)
 
     throw(Exception)
 {
@@ -324,9 +327,7 @@ void Socket::accept(const Socket* servSocket) throw(Exception)
  *
  * \return  なし
  */
-void Socket::connect(
-    const CoreString& ipAddress,
-    unsigned short port)
+void Socket::connect(const CoreString* ipAddress, unsigned short port)
 
     throw(Exception)
 {
@@ -344,7 +345,7 @@ void Socket::connect(
 
     result = waitForSocket(action);
 #else
-    hostent* host = gethostbyname(ipAddress.getBuffer());
+    hostent* host = gethostbyname(ipAddress->getBuffer());
     sockaddr_in* addr = &mData->mAddr;
 
     addr->sin_family = AF_INET;
@@ -353,7 +354,7 @@ void Socket::connect(
     if (host == nullptr)
     {
 //      addr->sin_addr.S_un.S_addr = inet_addr(ipAddress);
-        addr->sin_addr.s_addr =      inet_addr(ipAddress.getBuffer());
+        addr->sin_addr.s_addr =      inet_addr(ipAddress->getBuffer());
     }
     else
     {
@@ -378,7 +379,7 @@ void Socket::connect(
     if (result != 0)
     {
         Exception e;
-        e.setMessage("Socket::connect(\"%s\", %u)", ipAddress.getBuffer(), port);
+        e.setMessage("Socket::connect(\"%s\", %u)", ipAddress->getBuffer(), port);
 
         throw e;
     }
@@ -389,10 +390,13 @@ void Socket::connect(
 #if defined(__ANDROID__)
 
 /*!
- *  \brief  接続
+ * \brief   接続
+ *
+ * \param[in]   path    パス
+ *
+ * \return  なし
  */
-void Socket::connect(
-    const CoreString& path)     //!< パス
+void Socket::connect(const CoreString& path)
 
     throw(Exception)
 {
@@ -627,7 +631,7 @@ int Socket::setNoDelay(bool noDelay)
 void Socket::getHostName(slog::CoreString* hostName) const
 {
     in_addr addr;
-    addr.s_addr = inet_addr(getInetAddress().getBuffer());
+    addr.s_addr = inet_addr(getInetAddress()->getBuffer());
 
     hostent* host = gethostbyaddr((const char*)&addr.s_addr, sizeof(addr.s_addr), AF_INET);
 
@@ -640,16 +644,16 @@ void Socket::getHostName(slog::CoreString* hostName) const
  *
  * \return  接続元／先IPアドレス
  */
-const CoreString& Socket::getInetAddress() const
+const CoreString* Socket::getInetAddress() const
 {
-    CoreString& inetAddress = (CoreString&)mData->mInetAddress;
+    CoreString* inetAddress = &mData->mInetAddress;
 
 #if defined(MODERN_UI)
 #else
     if (isOpen() == false)
-        inetAddress.setLength(0);
+        inetAddress->setLength(0);
     else
-        inetAddress.copy(inet_ntoa(mData->mAddr.sin_addr));
+        inetAddress->copy(inet_ntoa(mData->mAddr.sin_addr));
 #endif
 
     return inetAddress;
@@ -660,9 +664,9 @@ const CoreString& Socket::getInetAddress() const
  *
  * \return  自IPアドレス
  */
-const CoreString& Socket::getMyInetAddress() const
+const CoreString* Socket::getMyInetAddress() const
 {
-    CoreString& inetAddress = (CoreString&)mData->mMyInetAddress;
+    CoreString* inetAddress = &mData->mMyInetAddress;
     sockaddr_in addr;
 
 #if defined(_WINDOWS)
@@ -674,9 +678,9 @@ const CoreString& Socket::getMyInetAddress() const
 #endif
 
     if (isOpen() == false)
-        inetAddress.setLength(0);
+        inetAddress->setLength(0);
     else
-        inetAddress.copy(inet_ntoa(addr.sin_addr));
+        inetAddress->copy(inet_ntoa(addr.sin_addr));
 
     return inetAddress;
 }

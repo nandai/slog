@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2013-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   WebSocket.h
- *  \brief  Web Socket クラス
- *  \author Copyright 2013 printf.jp
+ * \file    WebSocket.h
+ * \brief   Web Socket クラス
+ * \author  Copyright 2013-2014 printf.jp
  */
 #pragma once
 
@@ -31,7 +31,7 @@ class WebSocketReceiver;
 class WebSocketListener;
 
 /*!
- *  \brief  Web Socket クラス
+ * \brief   Web Socket クラス
  */
 class SLOG_API WebSocket : public Socket
 {
@@ -84,7 +84,7 @@ public:     virtual void send(const  int32_t* value) const throw(Exception) over
             /*!
              * テキスト送信
              */
-            virtual void send(const CoreString& str) const throw(Exception);
+            virtual void send(const CoreString* str) const throw(Exception);
 
             /*!
              * 受信
@@ -105,7 +105,7 @@ protected:  void notifyOpen();
 };
 
 /*!
- *  \brief  Web Socket リスナークラス
+ * \brief   Web Socket リスナークラス
  */
 class SLOG_API WebSocketListener : public ThreadListener
 {

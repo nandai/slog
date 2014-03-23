@@ -338,10 +338,10 @@ WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
         if (0 == sessionId.getLength())
             break;
 
-        const CoreString& ip =        httpRequest->getSocket()->getInetAddress();
+        const CoreString* ip =        httpRequest->getSocket()->getInetAddress();
         const CoreString* userAgent = httpRequest->getUserAgent();
 
-        Session* session = SessionManager::get(&ip, userAgent);
+        Session* session = SessionManager::get(ip, userAgent);
 
         if (session == nullptr || session->getId()->equals(sessionId) == false)
             break;

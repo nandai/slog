@@ -65,15 +65,15 @@ WebServerResponse::~WebServerResponse()
  */
 void WebServerResponse::generateSession(int32_t userId)
 {
-    const CoreString& ip =        mHttpRequest->getSocket()->getInetAddress();
+    const CoreString* ip =        mHttpRequest->getSocket()->getInetAddress();
     const CoreString* userAgent = mHttpRequest->getUserAgent();
     bool secure =                (mHttpRequest->getScheme() == HttpRequest::SCHEME::HTTPS);
 
-    Session* session = SessionManager::get(&ip, userAgent);
+    Session* session = SessionManager::get(ip, userAgent);
 
     if (session == nullptr)
     {
-        session = new Session(&ip, userAgent);
+        session = new Session(ip, userAgent);
         SessionManager::add(session);
     }
 
@@ -164,7 +164,7 @@ void WebServerResponse::sendBinary(HtmlGenerator* generator, const CoreString* p
     try
     {
         File file;
-        file.open(*path, File::READ);
+        file.open(path, File::READ);
 
         int32_t len = (int32_t)file.getSize();
 

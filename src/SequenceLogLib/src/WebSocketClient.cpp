@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2013-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,11 @@
  */
 
 /*!
- *  \file   WebSocketClient.cpp
- *  \brief  Web Socket クライアントクラス
- *  \author Copyright 2013 printf.jp
+ * \file    WebSocketClient.cpp
+ * \brief   Web Socket クライアントクラス
+ * \author  Copyright 2013 printf.jp
  */
-#include "slog/slog.h"
-
-#if defined(_WINDOWS)
 #pragma execution_character_set("utf-8")
-#endif
 
 #include "slog/WebSocketClient.h"
 #include "slog/HttpResponse.h"
@@ -38,9 +34,9 @@ namespace slog
 {
 
 /*!
- *  \brief  接続
+ * \brief   接続
  */
-void WebSocketClient::open(const CoreString& url) throw(Exception)
+void WebSocketClient::open(const CoreString* url) throw(Exception)
 {
     String address;
     unsigned short port;
@@ -63,15 +59,15 @@ void WebSocketClient::open(const CoreString& url) throw(Exception)
     // ドメイン（or IPアドレス）、パス、ポート番号を取得
     for (i = 0; i < sizeof(candidate) / sizeof(candidate[0]); i++)
     {
-        int32_t index = url.indexOf(candidate[i].protocol);
+        int32_t index = url->indexOf(candidate[i].protocol);
 
         if (index == 0)
         {
             int32_t domainIndex = (int32_t)strlen(candidate[i].protocol);
-            int32_t portIndex = url.indexOf(":", domainIndex);
-            int32_t pathIndex = url.indexOf("/", domainIndex);
+            int32_t portIndex = url->indexOf(":", domainIndex);
+            int32_t pathIndex = url->indexOf("/", domainIndex);
 
-            const char* p = url.getBuffer();
+            const char* p = url->getBuffer();
 
             // ドメイン（or IPアドレス）
             if (0 < portIndex)
@@ -113,7 +109,7 @@ void WebSocketClient::open(const CoreString& url) throw(Exception)
 
     if (address.getLength() == 0)
     {
-        e.setMessage("URL '%s' が正しくありません。", url.getBuffer());
+        e.setMessage("URL '%s' が正しくありません。", url->getBuffer());
         throw e;
     }
 
@@ -126,7 +122,7 @@ void WebSocketClient::open(const CoreString& url) throw(Exception)
         setRecvTimeOut(3000);
         setReUseAddress(true);
         setNoDelay(true);
-        connect(address, port);
+        connect(&address, port);
 
         if (candidate[i].useSSL)
             useSSL();

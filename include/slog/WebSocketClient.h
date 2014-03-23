@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2013-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   WebSocketClient.h
- *  \brief  Web Socket クライアントクラス
- *  \author Copyright 2013 printf.jp
+ * \file    WebSocketClient.h
+ * \brief   Web Socket クライアントクラス
+ * \author  Copyright 2013-2014 printf.jp
  */
 #pragma once
 #include "slog/WebSocket.h"
@@ -38,7 +38,7 @@ public:     WebSocketClient() : WebSocket(false) {}
             /*!
              * 接続
              */
-            void open(const CoreString& url) throw(Exception);
+            void open(const CoreString* url) throw(Exception);
 };
 
 } // namespace slog

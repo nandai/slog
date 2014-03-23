@@ -52,7 +52,7 @@ class SLOG_API Mutex
 public:     Mutex() throw(Exception);
 
 #if defined(_WINDOWS)
-            Mutex(bool create, const CoreString& name) throw(Exception);
+            Mutex(bool create, const CoreString* name) throw(Exception);
 #else
             Mutex(bool create, pthread_mutex_t* mutex);
 #endif

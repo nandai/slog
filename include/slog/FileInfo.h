@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   FileInfo.h
- *  \brief  ファイル情報クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    FileInfo.h
+ * \brief   ファイル情報クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -28,23 +28,46 @@ namespace slog
 {
 
 /*!
- *  \brief  ファイル情報クラス
+ * \brief   ファイル情報クラス
  */
 class SLOG_API FileInfo
 {
             struct Data;
-
-            Data*                   mData;
-            DateTime                mCreationTime;      //!< 作成日時
-            DateTime                mLastWriteTime;     //!< 最終書込日時
-            uint32_t                mMode;              //!< ファイルモード
-            uint64_t                mSize;              //!< ファイルサイズ
-            bool                    mUsing;             //!< 使用中かどうか
+            Data* mData;
 
             /*!
-             * コンストラクタ／デストラクタ
+             * 作成日時
              */
-public:      FileInfo(const CoreString& path) throw(Exception);
+            DateTime mCreationTime;
+
+            /*!
+             * 最終書込日時
+             */
+            DateTime mLastWriteTime;
+
+            /*!
+             * ファイルモード
+             */
+            uint32_t mMode;
+
+            /*!
+             * ファイルサイズ
+             */
+            uint64_t mSize;
+
+            /*!
+             * 使用中かどうか
+             */
+            bool mUsing;
+
+            /*!
+             * コンストラクタ
+             */
+public:      FileInfo(const CoreString* path) throw(Exception);
+
+            /*!
+             * デストラクタ
+             */
             ~FileInfo();
 
             /*!
@@ -55,7 +78,7 @@ public:      FileInfo(const CoreString& path) throw(Exception);
             /*!
              * 正規のパス取得
              */
-            const CoreString& getCanonicalPath() const;
+            const CoreString* getCanonicalPath() const;
 
             /*!
              * 作成日時
@@ -87,7 +110,7 @@ public:      FileInfo(const CoreString& path) throw(Exception);
             /*!
              * メッセージ取得
              */
-            const CoreString& getMessage() const;
+            const CoreString* getMessage() const;
 
             /*!
              * ディレクトリ作成
@@ -96,7 +119,7 @@ public:      FileInfo(const CoreString& path) throw(Exception);
 };
 
 /*!
- *  \brief  作成日時取得
+ * \brief   作成日時取得
  */
 inline const DateTime& FileInfo::getCreationTime() const
 {
@@ -104,7 +127,7 @@ inline const DateTime& FileInfo::getCreationTime() const
 }
 
 /*!
- *  \brief  作成日時設定
+ * \brief   作成日時設定
  */
 inline void FileInfo::setCreationTime(const DateTime& dateTime)
 {
@@ -112,7 +135,7 @@ inline void FileInfo::setCreationTime(const DateTime& dateTime)
 }
 
 /*!
- *  \brief  最終書込日時取得
+ * \brief   最終書込日時取得
  */
 inline const DateTime& FileInfo::getLastWriteTime() const
 {
@@ -120,7 +143,7 @@ inline const DateTime& FileInfo::getLastWriteTime() const
 }
 
 /*!
- *  \brief  最終書込日時設定
+ * \brief   最終書込日時設定
  */
 inline void FileInfo::setLastWriteTime(const DateTime& dateTime)
 {
@@ -128,7 +151,7 @@ inline void FileInfo::setLastWriteTime(const DateTime& dateTime)
 }
 
 /*!
- *  \brief  ファイルサイズ取得
+ * \brief   ファイルサイズ取得
  */
 inline uint64_t FileInfo::getSize() const
 {

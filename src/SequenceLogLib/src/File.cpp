@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  */
 
 /*!
- *  \file   File.cpp
- *  \brief  ファイルクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    File.cpp
+ * \brief   ファイルクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/File.h"
 #include "slog/FileInfo.h"
-#include "slog/String.h"
+#include "slog/PointerString.h"
 #include "slog/ByteBuffer.h"
 
 #include <list>
@@ -72,7 +72,7 @@ public:     FileCache(const FileInfo* fileInfo);
 };
 
 /*!
- * コンストラクタ
+ * \brief   コンストラクタ
  */
 FileCache::FileCache(const FileInfo* fileInfo)
 {
@@ -81,7 +81,7 @@ FileCache::FileCache(const FileInfo* fileInfo)
 }
 
 /*!
- * デストラクタ
+ * \brief   デストラクタ
  */
 FileCache::~FileCache()
 {
@@ -90,7 +90,7 @@ FileCache::~FileCache()
 }
 
 /*!
- * バッファ設定
+ * \brief   バッファ設定
  */
 void FileCache::setBuffer(const ByteBuffer* buffer)
 {
@@ -119,7 +119,7 @@ public:     ~FileCacheList();
 };
 
 /*!
- * デストラクタ
+ * \brief   デストラクタ
  */
 FileCacheList::~FileCacheList()
 {
@@ -130,7 +130,7 @@ FileCacheList::~FileCacheList()
 }
 
 /*!
- * ファイルキャッシュ追加
+ * \brief   ファイルキャッシュ追加
  */
 void FileCacheList::add(FileCache* fileBuffer)
 {
@@ -138,7 +138,7 @@ void FileCacheList::add(FileCache* fileBuffer)
 }
 
 /*!
- * ファイルキャッシュ取得
+ * \brief   ファイルキャッシュ取得
  */
 FileCache* FileCacheList::get(const CoreString* path) const
 {
@@ -146,7 +146,7 @@ FileCache* FileCacheList::get(const CoreString* path) const
     {
         auto fileCache = *i;
 
-        if (fileCache->getFileInfo()->getCanonicalPath().equals(*path))
+        if (fileCache->getFileInfo()->getCanonicalPath()->equals(*path))
             return fileCache;
     }
 
@@ -165,7 +165,7 @@ public:     virtual bool isOpen() const = 0;
             /*!
              * オープン
              */
-            virtual bool open(const CoreString& fileName, File::Mode mode) = 0;
+            virtual bool open(const CoreString* fileName, File::Mode mode) = 0;
 
             /*!
              * クローズ
@@ -222,7 +222,7 @@ public:     FileIO();
             /*!
              * オープン
              */
-            virtual bool open(const CoreString& fileName, File::Mode mode);
+            virtual bool open(const CoreString* fileName, File::Mode mode);
 
             /*!
              * クローズ
@@ -256,7 +256,7 @@ public:     FileIO();
 };
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 File::FileIO::FileIO()
 {
@@ -264,13 +264,18 @@ File::FileIO::FileIO()
 }
 
 /*!
- *  \brief  オープン
+ * \brief   オープン
+ *
+ * \param[in]   fileName    ファイル名
+ * \param[in]   mode        オープンモード
+ *
+ * \return  成功したらtrue、失敗したらfalseを返す
  */
-bool File::FileIO::open(const CoreString& fileName, File::Mode mode)
+bool File::FileIO::open(const CoreString* fileName, File::Mode mode)
 {
 #if defined(_WINDOWS)
     UTF16LE utf16le;
-    utf16le.conv(fileName);
+    utf16le.conv(*fileName);
 
     const wchar_t* p = utf16le.getBuffer();
     HANDLE handle;
@@ -306,7 +311,7 @@ bool File::FileIO::open(const CoreString& fileName, File::Mode mode)
 }
 
 /*!
- *  \brief  クローズ
+ * \brief   クローズ
  */
 void File::FileIO::close()
 {
@@ -320,7 +325,7 @@ void File::FileIO::close()
 }
 
 /*!
- *  \brief  読み込み
+ * \brief   読み込み
  */
 int64_t File::FileIO::read(char* buffer, int64_t count)
 {
@@ -336,7 +341,7 @@ int64_t File::FileIO::read(char* buffer, int64_t count)
 }
 
 /*!
- *  \brief  書き込み
+ * \brief   書き込み
  */
 void File::FileIO::write(const char* buffer, int64_t count)
 {
@@ -349,7 +354,7 @@ void File::FileIO::write(const char* buffer, int64_t count)
 }
 
 /*!
- *  \brief  ファイルポインタの現在位置設定
+ * \brief   ファイルポインタの現在位置設定
  */
 void File::FileIO::setPosition(int64_t pos)
 {
@@ -364,7 +369,7 @@ void File::FileIO::setPosition(int64_t pos)
 }
 
 /*!
- *  \brief  ファイルポインタ移動
+ * \brief   ファイルポインタ移動
  */
 int64_t File::FileIO::movePosition(int64_t count)
 {
@@ -385,7 +390,7 @@ int64_t File::FileIO::movePosition(int64_t count)
 }
 
 /*!
- *  \brief  ファイルポインタ移動
+ * \brief   ファイルポインタ移動
  */
 int64_t File::FileIO::moveLastPosition()
 {
@@ -423,7 +428,7 @@ public:     CacheIO(const ByteBuffer* buffer);
             /*!
              * オープン
              */
-            virtual bool open(const CoreString& fileName, File::Mode mode);
+            virtual bool open(const CoreString* fileName, File::Mode mode);
 
             /*!
              * クローズ
@@ -457,7 +462,7 @@ public:     CacheIO(const ByteBuffer* buffer);
 };
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 File::CacheIO::CacheIO(const ByteBuffer* buffer)
 {
@@ -466,7 +471,7 @@ File::CacheIO::CacheIO(const ByteBuffer* buffer)
 }
 
 /*!
- * オープンしているか調べる
+ * \brief   オープンしているか調べる
  */
 bool File::CacheIO::isOpen() const
 {
@@ -474,22 +479,22 @@ bool File::CacheIO::isOpen() const
 }
 
 /*!
- *  \brief  オープン
+ * \brief   オープン
  */
-bool File::CacheIO::open(const CoreString& fileName, File::Mode /*mode*/)
+bool File::CacheIO::open(const CoreString* fileName, File::Mode /*mode*/)
 {
     return true;
 }
 
 /*!
- *  \brief  クローズ
+ * \brief   クローズ
  */
 void File::CacheIO::close()
 {
 }
 
 /*!
- *  \brief  読み込み
+ * \brief   読み込み
  */
 int64_t File::CacheIO::read(char* buffer, int64_t count)
 {
@@ -505,7 +510,7 @@ int64_t File::CacheIO::read(char* buffer, int64_t count)
 }
 
 /*!
- *  \brief  書き込み
+ * \brief   書き込み
  */
 void File::CacheIO::write(const char* buffer, int64_t count)
 {
@@ -513,7 +518,7 @@ void File::CacheIO::write(const char* buffer, int64_t count)
 }
 
 /*!
- *  \brief  ファイルポインタの現在位置設定
+ * \brief   ファイルポインタの現在位置設定
  */
 void File::CacheIO::setPosition(int64_t pos)
 {
@@ -521,7 +526,7 @@ void File::CacheIO::setPosition(int64_t pos)
 }
 
 /*!
- *  \brief  ファイルポインタ移動
+ * \brief   ファイルポインタ移動
  */
 int64_t File::CacheIO::movePosition(int64_t count)
 {
@@ -530,7 +535,7 @@ int64_t File::CacheIO::movePosition(int64_t count)
 }
 
 /*!
- *  \brief  ファイルポインタ移動
+ * \brief   ファイルポインタ移動
  */
 int64_t File::CacheIO::moveLastPosition()
 {
@@ -539,7 +544,7 @@ int64_t File::CacheIO::moveLastPosition()
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 File::File()
 {
@@ -548,7 +553,7 @@ File::File()
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 File::~File()
 {
@@ -557,7 +562,7 @@ File::~File()
 }
 
 /*!
- *  \brief  オープンしているか調べる
+ * \brief   オープンしているか調べる
  */
 bool File::isOpen() const
 {
@@ -565,16 +570,31 @@ bool File::isOpen() const
 }
 
 /*!
- *  \brief  オープン
+ * \brief   オープン
+ *
+ * \param[in]   fileName    ファイル名
+ * \param[in]   mode        オープンモード
+ *
+ * \return  なし
  */
-void File::open(
-    const CoreString& fileName,     //!< ファイル名
-    Mode mode)                      //!< オープンモード
+void File::open(const char* fileName, Mode mode) throw(Exception)
+{
+    PointerString str(fileName);
+    open(&str, mode);
+}
 
-    throw(Exception)
+/*!
+ * \brief   オープン
+ *
+ * \param[in]   fileName    ファイル名
+ * \param[in]   mode        オープンモード
+ *
+ * \return  なし
+ */
+void File::open(const CoreString* fileName, Mode mode) throw(Exception)
 {
     FileInfo* info = new FileInfo(fileName);
-    FileCache* fileCache = fileCacheList.get(&info->getCanonicalPath());
+    FileCache* fileCache = fileCacheList.get(info->getCanonicalPath());
 
     *mLastWriteTime = info->getLastWriteTime();
 
@@ -584,7 +604,7 @@ void File::open(
 
         if (mIO)
         {
-            e.setMessage("File::open(\"%s\") : already opened.", fileName.getBuffer());
+            e.setMessage("File::open(\"%s\") : already opened.", fileName->getBuffer());
             throw e;
         }
 
@@ -592,7 +612,7 @@ void File::open(
 
         if (mIO->open(fileName, mode) == false)
         {
-            e.setMessage("File::open(\"%s\")", fileName.getBuffer());
+            e.setMessage("File::open(\"%s\")", fileName->getBuffer());
             throw e;
         }
     }
@@ -629,7 +649,7 @@ void File::open(
 }
 
 /*!
- *  \brief  クローズ
+ * \brief   クローズ
  */
 void File::close()
 {
@@ -641,7 +661,7 @@ void File::close()
 }
 
 /*!
- *  \brief  読み込み
+ * \brief   読み込み
  */
 bool File::read(
     CoreString* str)    //!< 結果を受け取るバッファ
@@ -700,7 +720,7 @@ bool File::read(
 }
 
 /*!
- *  \brief  読み込み
+ * \brief   読み込み
  */
 int64_t File::read(Buffer* buffer, int64_t count) const throw(Exception)
 {
@@ -708,7 +728,7 @@ int64_t File::read(Buffer* buffer, int64_t count) const throw(Exception)
 }
 
 /*!
- *  \brief  読み込み
+ * \brief   読み込み
  */
 int64_t File::read(Buffer* buffer, int64_t position, int64_t count) const throw(Exception)
 {
@@ -720,7 +740,7 @@ int64_t File::read(Buffer* buffer, int64_t position, int64_t count) const throw(
 }
 
 /*!
- *  \brief  書き込み
+ * \brief   書き込み
  */
 void File::write(const Buffer* buffer, int64_t count) const throw(Exception)
 {
@@ -728,7 +748,7 @@ void File::write(const Buffer* buffer, int64_t count) const throw(Exception)
 }
 
 /*!
- *  \brief  書き込み
+ * \brief   書き込み
  */
 void File::write(const Buffer* buffer, int64_t position, int64_t count) const throw(Exception)
 {
@@ -740,15 +760,15 @@ void File::write(const Buffer* buffer, int64_t position, int64_t count) const th
 }
 
 /*!
- *  \brief  ファイル削除
+ * \brief   ファイル削除
  */
-void File::unlink(const CoreString& fileName) throw(Exception)
+void File::unlink(const CoreString* fileName) throw(Exception)
 {
-    const char* p = fileName.getBuffer();
+    const char* p = fileName->getBuffer();
 
 #if defined(_WINDOWS)
     UTF16LE utf16le;
-    utf16le.conv(fileName);
+    utf16le.conv(*fileName);
 
     bool result = (::DeleteFileW(utf16le.getBuffer()) == TRUE);
 #else
@@ -777,7 +797,7 @@ void File::unlink(const CoreString& fileName) throw(Exception)
 //}
 
 /*!
- * 
+ * \brief   
  */
 bool File::isEOF() const
 {
@@ -789,7 +809,7 @@ bool File::isEOF() const
 }
 
 /*!
- *  \brief  ファイルサイズ取得
+ * \brief   ファイルサイズ取得
  */
 int64_t File::getSize() const
 {
@@ -801,7 +821,7 @@ int64_t File::getSize() const
 }
 
 /*!
- *  \brief  ファイルポインタの現在位置取得
+ * \brief   ファイルポインタの現在位置取得
  */
 int64_t File::getPosition() const
 {
@@ -809,7 +829,7 @@ int64_t File::getPosition() const
 }
 
 /*!
- *  \brief  ファイルポインタの現在位置設定
+ * \brief   ファイルポインタの現在位置設定
  */
 void File::setPosition(int64_t pos) const
 {
@@ -817,7 +837,7 @@ void File::setPosition(int64_t pos) const
 }
 
 /*!
- *  \brief  ファイルポインタ移動
+ * \brief   ファイルポインタ移動
  */
 int64_t File::movePosition(int64_t count) const
 {
@@ -825,7 +845,7 @@ int64_t File::movePosition(int64_t count) const
 }
 
 /*!
- *  \brief  ファイルポインタ移動
+ * \brief   ファイルポインタ移動
  */
 int64_t File::moveLastPosition() const
 {
@@ -833,7 +853,7 @@ int64_t File::moveLastPosition() const
 }
 
 /*!
- * 最終書込日時取得
+ * \brief   最終書込日時取得
  */
 const DateTime* File::getLastWriteTime() const
 {
@@ -859,7 +879,7 @@ bool File::copy(const CoreString* aSrc, const CoreString* aDst)
 }
 
 /*!
- * ファイル移動
+ * \brief   ファイル移動
  */
 bool File::move(const CoreString* aSrc, const CoreString* aDst)
 {

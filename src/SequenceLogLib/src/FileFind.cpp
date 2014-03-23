@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   FileFind.cpp
  *  \brief  ファイル検索クラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #include "slog/FileFind.h"
 #include "slog/FileInfo.h"
@@ -41,7 +41,7 @@ namespace slog
 {
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 FileFind::FileFind()
 {
@@ -49,18 +49,21 @@ FileFind::FileFind()
 }
 
 /*!
- *  \brief  検索実行
+ * \brief   検索実行
+ *
+ * \param[in]   fileName    検索パス
+ *
+ * \return  なし
  */
-void FileFind::exec(
-    const CoreString& fileName) const   //!< 検索パス
+void FileFind::exec(const CoreString* fileName) const
 {
-    FileInfo info = fileName;
-    const CoreString& canonicalPath = info.getCanonicalPath();
-    const char* p =   canonicalPath.getBuffer();
+    FileInfo info(fileName);
+    const CoreString* canonicalPath = info.getCanonicalPath();
+    const char* p =   canonicalPath->getBuffer();
 
 #if defined(_WINDOWS)
     UTF16LE utf16le;
-    utf16le.conv(canonicalPath);
+    utf16le.conv(*canonicalPath);
 
     WIN32_FIND_DATAW fd;
     HANDLE handle = FindFirstFileExW(utf16le.getBuffer(), FindExInfoStandard, &fd, FindExSearchNameMatch, nullptr, 0);

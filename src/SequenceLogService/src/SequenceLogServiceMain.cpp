@@ -65,8 +65,8 @@ struct CompareFileInfo
             return false;
 
         int32_t result = strcmp(
-            info1->getCanonicalPath().getBuffer(),
-            info2->getCanonicalPath().getBuffer());
+            info1->getCanonicalPath()->getBuffer(),
+            info2->getCanonicalPath()->getBuffer());
 
         if (result < 0)
             return true;
@@ -297,10 +297,10 @@ void SequenceLogServiceMain::setLogFolderName(const CoreString& name)
     find.setListener(this);
 
     path.format("%s%c*.slog", mLogFolderName.getBuffer(), PATH_DELIMITER);
-    find.exec(path);
+    find.exec(&path);
 
     path.format("%s%c*.log",  mLogFolderName.getBuffer(), PATH_DELIMITER);
-    find.exec(path);
+    find.exec(&path);
 
     mFileInfoArray.sort(CompareFileInfo());
 }
@@ -419,7 +419,7 @@ void SequenceLogServiceMain::setSequenceLogServerPort(uint16_t port)
  */
 void SequenceLogServiceMain::onFind(const CoreString& path)
 {
-    FileInfo* info = new FileInfo(path);
+    FileInfo* info = new FileInfo(&path);
 
     if (info->isFile() == false)
     {

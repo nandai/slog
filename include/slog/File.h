@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   File.h
- *  \brief  ファイルクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    File.h
+ * \brief   ファイルクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -30,7 +30,7 @@ namespace slog
 class DateTime;
 
 /*!
- *  \brief  ファイルクラス
+ * \brief   ファイルクラス
  */
 class SLOG_API File
 {
@@ -65,7 +65,8 @@ public:     File();
             ~File();
 
             bool isOpen() const;
-            void open(const CoreString& fileName, Mode mode) throw(Exception);
+            void open(const char* fileName, Mode mode) throw(Exception);
+            void open(const CoreString* fileName, Mode mode) throw(Exception);
             void close();
 
             void write(const Buffer* buffer, int64_t count) const throw(Exception);
@@ -112,7 +113,7 @@ public:     File();
             /*!
              * ファイル削除
              */
-            static void unlink(const CoreString& fileName) throw(Exception);
+            static void unlink(const CoreString* fileName) throw(Exception);
 
             /*!
              * ファイルコピー

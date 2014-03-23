@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   FileFind.h
- *  \brief  ファイル検索クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    FileFind.h
+ * \brief   ファイル検索クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 #include "slog/CoreString.h"
@@ -26,7 +26,7 @@ namespace slog
 {
 
 /*!
- *  \brief  ファイル検索リスナークラス
+ * \brief   ファイル検索リスナークラス
  */
 class SLOG_API FileFindListener
 {
@@ -34,21 +34,38 @@ public:     virtual void onFind(const CoreString& path) {}
 };
 
 /*!
- *  \brief  ファイル検索クラス
+ * \brief   ファイル検索クラス
  */
 class SLOG_API FileFind
 {
-            FileFindListener    mDefaultListener;   //!< デフォルトリスナー
-            FileFindListener*   mListener;          //!< リスナー
+            /*!
+             * デフォルトリスナー
+             */
+            FileFindListener mDefaultListener;
 
+            /*!
+             * リスナー
+             */
+            FileFindListener* mListener;
+
+            /*!
+             * コンストラクタ
+             */
 public:     FileFind();
 
-            void exec(const CoreString& fileName) const;
+            /*!
+             * 検索実行
+             */
+            void exec(const CoreString* fileName) const;
+
+            /*!
+             * リスナー設定
+             */
             void setListener(FileFindListener* listener);
 };
 
 /*!
- *  \brief  リスナー設定
+ * \brief   リスナー設定
  */
 inline void FileFind::setListener(FileFindListener* listener)
 {

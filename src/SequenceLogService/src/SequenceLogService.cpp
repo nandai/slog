@@ -469,7 +469,7 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
     }
 
     // 新たなファイル情報を生成
-    fileInfo = new FileInfo(str);
+    fileInfo = new FileInfo(&str);
     fileInfo->setCreationTime(dateTime);
 
     // 共有ファイルコンテナにセット
@@ -480,8 +480,8 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
     serviceMain->addFileInfo(fileInfo);
 
     // ファイル作成
-    const CoreString& canonicalPath = fileInfo->getCanonicalPath();
-//  noticeLog("    openSeqLogFile(): '%s'\n", canonicalPath.getBuffer());
+    const CoreString* canonicalPath = fileInfo->getCanonicalPath();
+//  noticeLog("    openSeqLogFile(): '%s'\n", canonicalPath->getBuffer());
 
     fileInfo->mkdir();
     file.open(canonicalPath, File::WRITE);

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   FileInfo.cpp
- *  \brief  ファイル情報クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    FileInfo.cpp
+ * \brief   ファイル情報クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/FileInfo.h"
 #include "slog/File.h"
@@ -47,11 +47,14 @@ struct FileInfo::Data
 };
 
 /*!
- *  \brief  パスの末尾に追加する
+ * \brief   パスの末尾に追加する
+ *
+ * \param[out]  path    パス（結果を受け取るバッファ）
+ * \param[in]   name    追加するパス
+ *
+ * \return  なし
  */
-static void appendPath(
-    CoreString* path,           //!< パス（結果を受け取るバッファ）
-    const CoreString& name)     //!< 追加するパス
+static void appendPath(CoreString* path, const CoreString& name)
 {
     const char DELIMITER[] = {PATH_DELIMITER, 0};
 
@@ -66,17 +69,18 @@ static void appendPath(
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
+ *
+ * \param[in]   path    パス（ディレクトリは末尾に'\'、または'/'が必要）
  */
-FileInfo::FileInfo(
-    const CoreString& path)     //!< パス（ディレクトリは末尾に'\'、または'/'が必要）
+FileInfo::FileInfo(const CoreString* path)
 
     throw(Exception)
 {
     mData = new Data;
 
     String absolutePath;
-    const char* pszPath = path.getBuffer();
+    const char* pszPath = path->getBuffer();
     String str;
 
     // ホームディレクトリ取得
@@ -118,11 +122,11 @@ FileInfo::FileInfo(
     // 絶対パス
     else
     {
-        absolutePath.copy(path);
+        absolutePath.copy(*path);
     }
 
     Tokenizer tokenizer(PATH_DELIMITER);
-    tokenizer.exec(absolutePath);
+    tokenizer.exec(&absolutePath);
     mData->mNames.clear();
 
     // 正規のパス生成
@@ -164,7 +168,7 @@ FileInfo::FileInfo(
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 FileInfo::~FileInfo()
 {
@@ -172,7 +176,7 @@ FileInfo::~FileInfo()
 }
 
 /*!
- *  \brief  ファイル情報更新
+ * \brief   ファイル情報更新
  */
 void FileInfo::update(bool aUsing)
 {
@@ -211,15 +215,15 @@ void FileInfo::update(bool aUsing)
 }
 
 /*!
- *  \brief  正規のパス取得
+ * \brief   正規のパス取得
  */
-const CoreString& FileInfo::getCanonicalPath() const
+const CoreString* FileInfo::getCanonicalPath() const
 {
-    return mData->mCanonicalPath;
+    return &mData->mCanonicalPath;
 }
 
 /*!
- *  \brief  ディレクトリ作成
+ * \brief   ディレクトリ作成
  */
 void FileInfo::mkdir() const
 
@@ -269,14 +273,14 @@ void FileInfo::mkdir() const
     appendPath(&path, name);
 
     File file;
-    file.open(path, File::WRITE);
+    file.open(&path, File::WRITE);
     file.close();
 
-    File::unlink(path);
+    File::unlink(&path);
 }
 
 /*!
- *  \brief  ファイルかどうか調べる
+ * \brief   ファイルかどうか調べる
  */
 bool FileInfo::isFile() const
 {
@@ -284,7 +288,7 @@ bool FileInfo::isFile() const
 }
 
 /*!
- *  \brief  使用中かどうか調べる
+ * \brief   使用中かどうか調べる
  */
 bool FileInfo::isUsing() const
 {
@@ -292,11 +296,11 @@ bool FileInfo::isUsing() const
 }
 
 /*!
- *  \brief  メッセージ取得
+ * \brief   メッセージ取得
  */
-const CoreString& FileInfo::getMessage() const
+const CoreString* FileInfo::getMessage() const
 {
-    return mData->mMessage;
+    return &mData->mMessage;
 }
 
 } // namespace slog

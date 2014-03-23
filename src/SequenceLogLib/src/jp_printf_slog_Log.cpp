@@ -369,7 +369,7 @@ static void JNICALL ws_open(JNIEnv* env, jobject thiz, jstring aURL)
     JavaWebSocketClient* client = new JavaWebSocketClient(env, thiz);
     JavaString url(env, aURL);
 
-    client->open(url);
+    client->open(&url);
 }
 
 /*!
@@ -388,7 +388,7 @@ static void JNICALL ws_sendText(JNIEnv* env, jobject thiz, jstring aStr)
 {
     JavaWebSocketClient* client = getClient(env, thiz);
     JavaString str(env, aStr);
-    client->send(str);
+    client->send(&str);
 }
 
 /*!

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   Tokenizer.h
- *  \brief  文字列分割クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    Tokenizer.h
+ * \brief   文字列分割クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 #include "slog/String.h"
@@ -26,7 +26,7 @@ namespace slog
 {
 
 /*!
- *  \brief  バリアントクラス
+ * \brief   バリアントクラス
  */
 class SLOG_API Variant
 {
@@ -42,29 +42,76 @@ public:     operator int32_t() const;
 };
 
 /*!
- *  \brief  文字列分割クラス
+ * \brief   文字列分割クラス
  */
 class SLOG_API Tokenizer
 {
             struct Data;
+            Data* mData;
 
-            Data*       mData;
-            Variant     mEmpty;         //!< 空要素
-            char        mDelimiter;     //!< デリミタ
+            /*!
+             * 空要素
+             */
+            Variant mEmpty;
 
-            // 初期化／後処理
-public:      Tokenizer(const CoreString& format);
+            /*!
+             * デリミタ
+             */
+            char mDelimiter;
+
+            /*!
+             * コンストラクタ
+             */
+public:      Tokenizer(const char* format);
+
+             /*!
+             * コンストラクタ
+             */
+             Tokenizer(const CoreString* format);
+
+            /*!
+             * コンストラクタ
+             */
              Tokenizer(char delimiter);
+
+            /*!
+             * デストラクタ
+             */
             ~Tokenizer();
 
-private:    void cleanUp();
+            /*!
+             * 初期化
+             */
+private:    void init(const CoreString* format);
 
-            // 実行
-public:     int32_t exec(       const CoreString& str);
-private:    int32_t execNamed(  const CoreString& str);
-            int32_t execIndexed(const CoreString& str);
+            /*!
+             * クリーンアップ
+             */
+            void cleanUp();
 
-            // 取得
+            /*!
+             * 実行
+             */
+public:     int32_t exec(const char* text);
+
+            /*!
+             * 実行
+             */
+            int32_t exec(const CoreString* str);
+
+            /*!
+             * 実行
+             */
+private:    int32_t execNamed(const CoreString* str);
+
+            /*!
+             * 実行
+             */
+            int32_t execIndexed(const CoreString* str);
+
+            /*!
+             * 値取得
+             */
 public:     const Variant& getValue(const char* key) const;
             const Variant& getValue(int32_t index) const;
 
