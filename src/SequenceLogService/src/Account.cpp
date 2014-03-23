@@ -37,6 +37,8 @@
 #endif
 
 #undef max
+#undef NAME_MAX
+
 #include <algorithm>
 
 #define LATEST_HASH_VERSION 1
@@ -70,7 +72,14 @@ AccountLogic::AccountLogic()
 
 #if defined(USE_SQLITE)
     String dbPath;
-    Util::getProcessPath(&dbPath);
+
+    #if defined(_WINDOWS) || defined(__ANDROID__)
+        Util::getProcessPath(&dbPath);
+    #else
+        char* home = getenv("HOME");
+        dbPath.copy(home ? home : "");
+    #endif
+
     dbPath.append("/SequenceLogService.db");
     const char* db = dbPath.getBuffer();
 

@@ -20,7 +20,9 @@
  *  \author Copyright 2014 printf.jp
  */
 #pragma once
+
 #include "slog/String.h"
+#undef NAME_MAX
 
 namespace slog
 {

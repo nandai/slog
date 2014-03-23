@@ -153,7 +153,6 @@ public class App extends android.app.Application
         install("web/login.pcss",    "login.pcss",    "644");
         install("web/account.pcss",  "login.pcss",    "644");
 
-        install("bin/SequenceLogService.db",   "SequenceLogService.db",   "644");
         install("web/SequenceLogService.pcss", "SequenceLogService.pcss", "644");
         install("web/SequenceLogService.js",   "SequenceLogService.js",   "644");
 
