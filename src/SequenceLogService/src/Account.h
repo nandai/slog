@@ -26,6 +26,7 @@ namespace slog
 {
 class DB;
 class Statement;
+class Json;
 
 /*!
  *  \brief  アカウントクラス
@@ -82,19 +83,19 @@ class AccountLogic
             static const char* CLS_NAME;
 
             /*!
-             * アカウント操作結果
-             */
-public:     enum class Result : int32_t
-            {
-                OK,
-                CANT_CHANGE_USER_NAME,
-                ALREADY_USER_EXISTS,
-            };
-
-            /*!
              * データベース
              */
-private:    DB* mDB;
+            DB* mDB;
+
+            /*!
+             * 日本語フラグ
+             */
+            bool mJapanese;
+
+            /*!
+             * JSON
+             */
+            slog::Json* mJson;
 
             /*!
              * コンストラクタ
@@ -105,6 +106,16 @@ public:     AccountLogic();
              * デストラクタ   
              */
             ~AccountLogic();
+
+            /*!
+             * 日本語フラグ設定
+             */
+            void setJapanese(bool japanese) {mJapanese = japanese;}
+
+            /*!
+             * JSON取得
+             */
+            const slog::Json* getJSON() const {return mJson;}
 
             /*!
              * ユーザー名とパスワードでアカウントを取得する
@@ -124,7 +135,7 @@ private:   void prepare(Statement* stmt, Account* account, const char* where) co
             /*!
              * アカウント更新可能かどうか
              */
-public:    Result canUpdate(const Account* account) const;
+public:    bool canUpdate(const Account* account) const;
 
             /*!
              * アカウント更新

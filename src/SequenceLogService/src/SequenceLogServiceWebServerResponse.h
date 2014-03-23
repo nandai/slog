@@ -20,7 +20,9 @@
  *  \author Copyright 2013-2014 printf.jp
  */
 #pragma once
+
 #include "slog/WebServerResponseThread.h"
+#include "Account.h"
 
 namespace slog
 {
@@ -30,6 +32,16 @@ namespace slog
  */
 class SequenceLogServiceWebServerResponse : public WebServerResponse
 {
+            /*!
+             * アカウント
+             */
+            Account mAccount;
+
+            /*!
+             * アカウントロジック
+             */
+            AccountLogic mAccountLogic;
+
             /*!
              * コンストラクタ
              */

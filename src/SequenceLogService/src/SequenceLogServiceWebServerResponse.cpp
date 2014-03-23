@@ -22,7 +22,6 @@
 #pragma execution_character_set("utf-8")
 
 #include "SequenceLogServiceWebServerResponse.h"
-#include "Account.h"
 
 #include "slog/HttpRequest.h"
 #include "slog/Json.h"
@@ -43,6 +42,8 @@ SequenceLogServiceWebServerResponse::SequenceLogServiceWebServerResponse(HttpReq
  */
 void SequenceLogServiceWebServerResponse::run()
 {
+    mAccountLogic.setJapanese(mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0);
+
     if (mHttpRequest->getMimeType()->type == MimeType::Type::HTML ||
         mHttpRequest->getMimeType()->type == MimeType::Type::JSON)
     {
@@ -53,7 +54,9 @@ void SequenceLogServiceWebServerResponse::run()
         }
         else
         {
-            mVariables.add("userId", getUserId());
+            mAccount.id = getUserId();
+            mAccountLogic.getById(&mAccount);
+            mVariables.add("userNameValue", &mAccount.name);
 
             if (mHttpRequest->getUrl()->equals("logout"))
             {
@@ -118,13 +121,11 @@ bool SequenceLogServiceWebServerResponse::login()
     String phase;
     mHttpRequest->getParam("phase", &phase);
 
-    Account account;
-    mHttpRequest->getParam("name",   &account.name);
-    mHttpRequest->getParam("passwd", &account.passwd);
+    mHttpRequest->getParam("name",   &mAccount.name);
+    mHttpRequest->getParam("passwd", &mAccount.passwd);
 
     // ユーザー検証
-    AccountLogic accountLogic;
-    bool pass =  accountLogic.getByNamePassword(&account);
+    bool pass = mAccountLogic.getByNamePassword(&mAccount);
 
     // 検索結果検証
     String result;
@@ -163,8 +164,8 @@ bool SequenceLogServiceWebServerResponse::login()
         }
         else
         {
-            generateSession(account.id);
-            mVariables.add("userId", getUserId());
+            generateSession(mAccount.id);
+            mVariables.add("userNameValue", &mAccount.name);
         }
     }
 

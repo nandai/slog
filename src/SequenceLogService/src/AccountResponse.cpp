@@ -92,12 +92,14 @@ bool AccountResponse::account()
     account.id = getUserId();
 
     AccountLogic accountLogic;
+    accountLogic.setJapanese(mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0);
 
     if (mHttpRequest->getMethod() == HttpRequest::GET)
     {
         // アカウントページ表示
         accountLogic.getById(&account);
-        mVariables.add("userNameValue", &account.name);
+        mVariables.add("userNameValue",    &account.name);
+        mVariables.add("userNameProperty", (account.admin == 1 ? "" : "readonly"));
         return true;
     }
 
@@ -107,34 +109,14 @@ bool AccountResponse::account()
     mHttpRequest->getParam("passwd", &account.passwd);
 
     // アカウント変更
-    Json* json = Json::getNewObject();
-    AccountLogic::Result res = accountLogic.canUpdate(&account);
-
-    switch (res)
-    {
-    case AccountLogic::Result::CANT_CHANGE_USER_NAME:
-        json->add("", "ユーザー名は変更できません。");
-        break;
-
-    case AccountLogic::Result::ALREADY_USER_EXISTS:
-    {
-        if (mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0)
-            json->add("", "そのユーザー名は既に使われています。");
-        else
-            json->add("", "That user name is already in use.");
-
-        break;
-    }
-    }
-
-    String result;
-    json->serialize(&result);
-
-    delete json;
+    bool res = accountLogic.canUpdate(&account);
 
     // 検索結果検証
     if (phase.equals("validate"))
     {
+        String result;
+        accountLogic.getJSON()->serialize(&result);
+
         if (result.getLength() == 0)
             result.copy("{}");
 
@@ -143,7 +125,7 @@ bool AccountResponse::account()
     }
     else
     {
-        if (res != AccountLogic::Result::OK)
+        if (res == false)
         {
             // 通常であればまず検証し、問題なければログインとなるはずで、
             // この段階で検証に問題があるのはおかしいためnotFoundを返す

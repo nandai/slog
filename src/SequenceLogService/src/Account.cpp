@@ -23,6 +23,7 @@
 
 #include "Account.h"
 
+#include "slog/Json.h"
 #include "slog/SHA256.h"
 #include "slog/ByteBuffer.h"
 #include "slog/Util.h"
@@ -65,6 +66,8 @@ Account::Account()
  */
 AccountLogic::AccountLogic()
 {
+    SLOG(CLS_NAME, "AccountLogic");
+
 #if defined(USE_SQLITE)
     String dbPath;
     Util::getProcessPath(&dbPath);
@@ -76,7 +79,88 @@ AccountLogic::AccountLogic()
     const char* db = "SequenceLogService";
     mDB = new MySQL;
 #endif
+
     mDB->connect("localhost", "slog", "DPdhE8iv1HQIe6nL", db);
+
+    mJapanese = true;
+    mJson = Json::getNewObject();
+
+#if 1 // とりあえずここでテスト
+    int32_t version = 0;
+    Statement* stmt = nullptr;
+
+    try
+    {
+        const char* sql = "select version from version_info";
+        stmt = mDB->newStatement();
+        stmt->prepare(sql);
+
+        stmt->setIntResult(0, &version);
+
+        stmt->bind();
+        stmt->execute();
+        stmt->fetch();
+    }
+    catch (Exception e)
+    {
+        // 初回起動時などテーブルが存在しない場合もあるので、
+        // 例外が発生しても何もすることはない
+        SMSG(slog::DEBUG, "%s", e.getMessage());
+    }
+
+    delete stmt;
+    stmt = nullptr;
+
+    if (version == 0)
+    {
+        try
+        {
+            // バージョン情報テーブル
+            mDB->query(
+                "create table version_info("
+                "    version   int     not null);");
+
+            stmt = mDB->newStatement();
+            stmt->prepare("insert into version_info (version) values (1)");
+            stmt->execute();
+
+            delete stmt;
+            stmt = nullptr;
+
+            // アカウントテーブル
+#if defined(USE_SQLITE)
+            mDB->query(
+                "create table user("
+                "    id        integer     primary key autoincrement,"
+                "    name      varchar     not null unique,"
+                "    password  varchar     not null,"
+                "    mail_addr varchar,"
+                "    version   int         not null default 1,"
+                "    admin     int         not null default 0);");
+#else
+            mDB->query(
+                "create table user("
+                "    id        int         primary key auto_increment,"
+                "    name      varchar(20) not null unique,"
+                "    password  varchar(64) not null,"
+                "    mail_addr varchar(256),"
+                "    version   tinyint     not null default 1,"
+                "    admin     tinyint     not null default 0);");
+#endif
+
+            stmt = mDB->newStatement();
+            stmt->prepare("insert into user (name, password, admin) values ('slog', 'RrtQzcEv7FQ1QaazVN+ZXHHAS/5F/MVuDUffTotnFKk=', 1)");
+            stmt->execute();
+        }
+        catch (Exception e)
+        {
+            SMSG(slog::DEBUG, "%s", e.getMessage());
+        }
+
+        delete stmt;
+        stmt = nullptr;
+    }
+#endif
 }
 
 /*!
@@ -85,6 +169,7 @@ AccountLogic::AccountLogic()
 AccountLogic::~AccountLogic()
 {
     delete mDB;
+    delete mJson;
 }
 
 /*!
@@ -201,7 +286,7 @@ void AccountLogic::prepare(Statement* stmt, Account* account, const char* where)
  *
  * \return  アカウント操作結果
  */
-AccountLogic::Result AccountLogic::canUpdate(const Account* account) const
+bool AccountLogic::canUpdate(const Account* account) const
 {
     SLOG(CLS_NAME, "canUpdate");
 
@@ -222,7 +307,8 @@ AccountLogic::Result AccountLogic::canUpdate(const Account* account) const
     if (nowAccount.admin != 1 && nowAccount.name.equals(account->name) == false)
     {
         // 一般ユーザーはユーザー名の変更不可
-        return Result::CANT_CHANGE_USER_NAME;
+        mJson->add("", "ユーザー名は変更できません。");
+        return false;
     }
 
     // 同名のユーザーが存在しないかチェック
@@ -240,9 +326,15 @@ AccountLogic::Result AccountLogic::canUpdate(const Account* account) const
 
     delete stmt;
 
-    return (count == 0
-        ? Result::OK
-        : Result::ALREADY_USER_EXISTS);
+    if (count != 0)
+    {
+        if (mJapanese)
+            mJson->add("", "そのユーザー名は既に使われています。");
+        else
+            mJson->add("", "That user name is already in use.");
+    }
+
+    return (count == 0);
 }
 
 /*!

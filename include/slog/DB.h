@@ -56,6 +56,11 @@ public:     virtual ~DB() {}
              * insert文のauto incrementを取得
              */
             virtual int64_t getInsertID() const = 0;
+
+            /*!
+             * クエリー実行
+             */
+            virtual void query(const char* sql) const throw(Exception) = 0;
 };
 
 /*!

@@ -442,4 +442,18 @@ int64_t MySQL::getInsertID() const
     return mysql_insert_id(mConn);
 }
 
+/*!
+ * クエリー実行
+ */
+void MySQL::query(const char* sql) const throw (Exception)
+{
+    if (mysql_query(mConn, sql) != 0)
+    {
+        Exception e;
+        e.setMessage("クエリー実行に失敗しました。");
+
+        throw e;
+    }
+}
+
 } // namespace slog

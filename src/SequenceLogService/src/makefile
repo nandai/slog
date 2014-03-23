@@ -36,8 +36,6 @@ install:
 	cp slogsvc                       $(INSTALLDIR)/
 	mkdir -p                         $(INSTALLDIR)/SequenceLogServiceWeb
 	cp ../SequenceLogServiceWeb/*.*  $(INSTALLDIR)/SequenceLogServiceWeb/
-	cp ../SequenceLogService.db      $(INSTALLDIR)/
-	chmod 666 $(INSTALLDIR)/SequenceLogService.db
 
 clean:
 	$(RM) slogsvc $(objs) depend.inc

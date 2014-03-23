@@ -170,9 +170,9 @@ const char* SQLiteStatement::CLS_NAME = "SQLiteStatement";
 SQLiteStatement::SQLiteStatement(const DB* db) : Statement(db)
 {
     mStmt = nullptr;
-
     mParamCount = 0;
     mResultCount = 0;
+    mResult = nullptr;
 }
 
 /*!
@@ -367,7 +367,7 @@ void SQLite::connect(const char* host, const char* user, const char* password, c
         throw e;
     }
 
-    if (sqlite3_open_v2(db, &mConn, SQLITE_OPEN_READWRITE | SQLITE_OPEN_NOMUTEX, nullptr) != SQLITE_OK)
+    if (sqlite3_open_v2(db, &mConn, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_NOMUTEX, nullptr) != SQLITE_OK)
     {
         e.setMessage("%s", sqlite3_errmsg(mConn));
         throw e;
@@ -404,6 +404,20 @@ void SQLite::getErrorMessage(CoreString* str) const
 int64_t SQLite::getInsertID() const
 {
     return sqlite3_last_insert_rowid(mConn);
+}
+
+/*!
+ * クエリー実行
+ */
+void SQLite::query(const char* sql) const throw (Exception)
+{
+    if (sqlite3_exec(mConn, sql, nullptr, nullptr, nullptr) != SQLITE_OK)
+    {
+        Exception e;
+        e.setMessage("クエリー実行に失敗しました。");
+
+        throw e;
+    }
 }
 
 } // namespace slog

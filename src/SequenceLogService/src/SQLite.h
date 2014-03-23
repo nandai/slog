@@ -64,6 +64,11 @@ public:     SQLite() : mConn(nullptr) {}
              * insert文のauto incrementを取得
              */
             virtual int64_t getInsertID() const override;
+
+            /*!
+             * クエリー実行
+             */
+            virtual void query(const char* sql) const throw (Exception) override;
 };
 
 } // namespace slog
