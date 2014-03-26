@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   AccountResponse.h
- *  \brief  アカウント応答クラス
- *  \author Copyright 2014 printf.jp
+ * \file    AccountResponse.h
+ * \brief   アカウント応答クラス
+ * \author  Copyright 2014 printf.jp
  */
 #pragma once
 

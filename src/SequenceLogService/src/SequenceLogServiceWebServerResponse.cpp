@@ -19,15 +19,16 @@
  *  \brief  シーケンスログサービスWEBサーバー応答クラス
  *  \author Copyright 2013-2014 printf.jp
  */
-#pragma execution_character_set("utf-8")
-
 #include "SequenceLogServiceWebServerResponse.h"
+#include "R.h"
 
 #include "slog/HttpRequest.h"
 #include "slog/Json.h"
+#include "slog/SequenceLog.h"
 
 namespace slog
 {
+const char* SequenceLogServiceWebServerResponse::CLS_NAME = "SequenceLogServiceWebServerResponse";
 
 /*!
  *  \brief  コンストラクタ
@@ -42,7 +43,10 @@ SequenceLogServiceWebServerResponse::SequenceLogServiceWebServerResponse(HttpReq
  */
 void SequenceLogServiceWebServerResponse::run()
 {
-    mAccountLogic.setJapanese(mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0);
+    SLOG(CLS_NAME, "run");
+
+    R r(mHttpRequest->getAcceptLanguage());
+    mAccountLogic.setResource(&r);
 
     if (mHttpRequest->getMimeType()->type == MimeType::Type::HTML ||
         mHttpRequest->getMimeType()->type == MimeType::Type::JSON)
@@ -74,35 +78,22 @@ void SequenceLogServiceWebServerResponse::run()
  */
 void SequenceLogServiceWebServerResponse::initVariables()
 {
-    mVariables.add("domain", "printf.jp");
-//  mVariables.add("domain", "localhost");
+    R r(mHttpRequest->getAcceptLanguage());
 
-    if (mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0)
-    {
-        mVariables.add("login",       "ログイン");
-        mVariables.add("userName",    "ユーザー名");
-        mVariables.add("password",    "パスワード");
+    mVariables.add("domain",      "printf.jp");
+//  mVariables.add("domain",      "localhost");
 
-        mVariables.add("account",     "アカウント");
-        mVariables.add("logout",      "ログアウト");
-        mVariables.add("startTime",   "開始日時");
-        mVariables.add("endTime",     "終了日時");
-        mVariables.add("logFileName", "ログファイル名");
-        mVariables.add("logFileSize", "サイズ");
-    }
-    else
-    {
-        mVariables.add("login",       "Login");
-        mVariables.add("userName",    "User name");
-        mVariables.add("password",    "Password");
+    mVariables.add("login",       r.string(R::login));
+    mVariables.add("userName",    r.string(R::user_name));
+    mVariables.add("password",    r.string(R::password));
 
-        mVariables.add("account",     "Account");
-        mVariables.add("logout",      "Logout");
-        mVariables.add("startTime",   "Start time");
-        mVariables.add("endTime",     "End time");
-        mVariables.add("logFileName", "Log file name");
-        mVariables.add("logFileSize", "Size");
-    }
+    mVariables.add("account",     r.string(R::account));
+    mVariables.add("logout",      r.string(R::logout));
+
+    mVariables.add("startTime",   r.string(R::start_time));
+    mVariables.add("endTime",     r.string(R::end_time));
+    mVariables.add("logFileName", r.string(R::log_file_name));
+    mVariables.add("logFileSize", r.string(R::log_file_size));
 }
 
 /*!
@@ -110,6 +101,8 @@ void SequenceLogServiceWebServerResponse::initVariables()
  */
 bool SequenceLogServiceWebServerResponse::login()
 {
+    SLOG(CLS_NAME, "login");
+
     if (mHttpRequest->getMethod() == HttpRequest::GET)
     {
         // ログインページ表示
@@ -132,15 +125,11 @@ bool SequenceLogServiceWebServerResponse::login()
 
     if (pass == false)
     {
-        String message;
-
-        if (mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0)
-            message.copy("ユーザー名、またはパスワードが正しくありません。");
-        else
-            message.copy("The username or password you entered is incorrect.");
+        R r(mHttpRequest->getAcceptLanguage());
+        const char* message = r.string(R::msg001);
 
         Json* json = Json::getNewObject();
-        json->add("", &message);
+        json->add("", message);
         json->serialize(&result);
 
         delete json;

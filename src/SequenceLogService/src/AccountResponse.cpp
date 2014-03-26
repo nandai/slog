@@ -15,13 +15,12 @@
  */
 
 /*!
- *  \file   AccountResponse.cpp
- *  \brief  アカウント応答クラス
- *  \author Copyright 2014 printf.jp
+ * \file    AccountResponse.cpp
+ * \brief   アカウント応答クラス
+ * \author  Copyright 2014 printf.jp
  */
-#pragma execution_character_set("utf-8")
-
 #include "AccountResponse.h"
+#include "R.h"
 
 #include "slog/HttpRequest.h"
 #include "slog/Json.h"
@@ -64,20 +63,12 @@ void AccountResponse::initVariables()
     mVariables.add("domain", "printf.jp");
 //  mVariables.add("domain", "localhost");
 
-    if (mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0)
-    {
-        mVariables.add("account",     "アカウント");
-        mVariables.add("userName",    "ユーザー名");
-        mVariables.add("password",    "パスワード");
-        mVariables.add("change",      "変更");
-    }
-    else
-    {
-        mVariables.add("account",     "Account");
-        mVariables.add("userName",    "User name");
-        mVariables.add("password",    "Password");
-        mVariables.add("change",      "Change");
-    }
+    R r(mHttpRequest->getAcceptLanguage());
+
+    mVariables.add("account",  r.string(R::account));
+    mVariables.add("userName", r.string(R::user_name));
+    mVariables.add("password", r.string(R::password));
+    mVariables.add("change",   r.string(R::change));
 
     mVariables.add("userNameMax", Account::NAME_MAX);
     mVariables.add("passwordMax", Account::PASSWD_MAX);
@@ -91,8 +82,9 @@ bool AccountResponse::account()
     SLOG("AccountResponse", "account");
     mAccount.id = getUserId();
 
+    R r(mHttpRequest->getAcceptLanguage());
     AccountLogic accountLogic;
-    accountLogic.setJapanese(mHttpRequest->getAcceptLanguage()->indexOf("ja") == 0);
+    accountLogic.setResource(&r);
 
     if (mHttpRequest->getMethod() == HttpRequest::GET)
     {

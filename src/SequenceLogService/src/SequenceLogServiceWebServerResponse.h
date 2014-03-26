@@ -32,6 +32,8 @@ namespace slog
  */
 class SequenceLogServiceWebServerResponse : public WebServerResponse
 {
+            static const char* CLS_NAME;
+
             /*!
              * アカウント
              */

@@ -22,11 +22,13 @@
 #pragma execution_character_set("utf-8")
 
 #include "Account.h"
+#include "R.h"
 
 #include "slog/Json.h"
 #include "slog/SHA256.h"
 #include "slog/ByteBuffer.h"
 #include "slog/Util.h"
+#include "slog/FileInfo.h"
 #include "slog/SequenceLog.h"
 
 #define     USE_SQLITE
@@ -70,14 +72,20 @@ AccountLogic::AccountLogic()
 {
     SLOG(CLS_NAME, "AccountLogic");
 
+    mAccount = nullptr;
+    mJson = Json::getNewObject();
+    r = nullptr;
+
 #if defined(USE_SQLITE)
     String dbPath;
 
-    #if defined(_WINDOWS) || defined(__ANDROID__)
+    #if defined(__ANDROID__)
         Util::getProcessPath(&dbPath);
     #else
-        char* home = getenv("HOME");
-        dbPath.copy(home ? home : "");
+        dbPath.copy("~");
+        FileInfo fileInfo(&dbPath);
+
+        dbPath.copy(fileInfo.getCanonicalPath());
     #endif
 
     dbPath.append("/SequenceLogService.db");
@@ -89,11 +97,19 @@ AccountLogic::AccountLogic()
     mDB = new MySQL;
 #endif
 
-    mDB->connect("localhost", "slog", "DPdhE8iv1HQIe6nL", db);
+    try
+    {
+        mDB->connect("localhost", "slog", "DPdhE8iv1HQIe6nL", db);
+    }
+    catch (Exception e)
+    {
+        SMSG(slog::DEBUG, "%s", e.getMessage());
 
-    mAccount = nullptr;
-    mJapanese = true;
-    mJson = Json::getNewObject();
+        delete mDB;
+        mDB = nullptr;
+
+        return;
+    }
 
 #if 1 // とりあえずここでテスト
     int32_t version = 0;
@@ -178,6 +194,8 @@ AccountLogic::AccountLogic()
  */
 AccountLogic::~AccountLogic()
 {
+    SLOG(CLS_NAME, "~AccountLogic");
+
     delete mDB;
     delete mJson;
 }
@@ -192,6 +210,10 @@ AccountLogic::~AccountLogic()
 bool AccountLogic::getByNamePassword(Account* account) const
 {
     SLOG(CLS_NAME, "getByNamePassword");
+
+    if (mDB == nullptr)
+        return false;
+
     String passwd = account->passwd;
 
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
@@ -233,6 +255,10 @@ bool AccountLogic::getByNamePassword(Account* account) const
 bool AccountLogic::getById(Account* account) const
 {
     SLOG(CLS_NAME, "getById");
+
+    if (mDB == nullptr)
+        return false;
+
     String passwd = account->passwd;
 
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
@@ -299,6 +325,10 @@ void AccountLogic::prepare(Statement* stmt, Account* account, const char* where)
 bool AccountLogic::canUpdate(const Account* account)
 {
     SLOG(CLS_NAME, "canUpdate");
+
+    if (mDB == nullptr)
+        return false;
+
     mAccount = account;
 
     ValidateList list;
@@ -325,7 +355,7 @@ bool AccountLogic::canUpdate(const Account* account)
     if (nowAccount.admin != 1 && nowAccount.name.equals(&mAccount->name) == false)
     {
         // 一般ユーザーはユーザー名の変更不可
-        mJson->add("", "ユーザー名は変更できません。");
+        mJson->add("", r->string(R::msg003));
         return false;
     }
 
@@ -345,12 +375,7 @@ bool AccountLogic::canUpdate(const Account* account)
     delete stmt;
 
     if (count != 0)
-    {
-        if (mJapanese)
-            mJson->add("", "そのユーザー名は既に使われています。");
-        else
-            mJson->add("", "That user name is already in use.");
-    }
+        mJson->add("", r->string(R::msg002));
 
     return (count == 0);
 }
@@ -374,28 +399,28 @@ void AccountLogic::onInvalid(const void* value, const slog::Validate::Result* re
     if (value == &mAccount->name)
     {
         variableName = "name";
-        displayName = "ユーザー名";
+        displayName = r->string(R::user_name);
     }
 
     if (value == &mAccount->passwd)
     {
         variableName = "passwd";
-        displayName = "パスワード";
+        displayName = r->string(R::password);
     }
 
     if (variableName)
     {
         if (result == slog::Validate::INVALID)
-            str.format("%sが正しくありません。", displayName);
+            str.format(r->string(R::msg004), displayName);
 
         else if (result == slog::Validate::EMPTY)
-            str.format("%sが入力されていません。", displayName);
+            str.format(r->string(R::msg005), displayName);
 
         else if (result == slog::Validate::TOO_SHORT)
-            str.format("%sの文字数が不足しています。", displayName);
+            str.format(r->string(R::msg006), displayName);
 
         else if (result == slog::Validate::TOO_LONG)
-            str.format("%sの文字数が上限を超えています。", displayName);
+            str.format(r->string(R::msg007), displayName);
 
         SMSG(slog::DEBUG, str.getBuffer());
         mJson->add(variableName, &str);
@@ -412,6 +437,9 @@ void AccountLogic::onInvalid(const void* value, const slog::Validate::Result* re
 void AccountLogic::update(const Account* account) const
 {
     SLOG(CLS_NAME, "update");
+
+    if (mDB == nullptr)
+        return;
 
     String hashPasswd;
     Statement* stmt = nullptr;

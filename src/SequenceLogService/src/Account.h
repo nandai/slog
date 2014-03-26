@@ -31,6 +31,7 @@ namespace slog
 class DB;
 class Statement;
 class Json;
+class R;
 
 /*!
  *  \brief  アカウントクラス
@@ -97,14 +98,14 @@ class AccountLogic : public slog::ValidateListener
             const Account* mAccount;
 
             /*!
-             * 日本語フラグ
-             */
-            bool mJapanese;
-
-            /*!
              * JSON
              */
             slog::Json* mJson;
+
+            /*!
+             * リソース
+             */
+            const R* r;
 
             /*!
              * コンストラクタ
@@ -117,9 +118,9 @@ public:     AccountLogic();
             ~AccountLogic();
 
             /*!
-             * 日本語フラグ設定
+             * リソース設定
              */
-            void setJapanese(bool japanese) {mJapanese = japanese;}
+            void setResource(const R* resource) {r = resource;}
 
             /*!
              * JSON取得
