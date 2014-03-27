@@ -22,21 +22,14 @@
 #pragma execution_character_set("utf-8")
 
 #include "Account.h"
+#include "SequenceLogServiceDB.h"
 #include "R.h"
 
 #include "slog/Json.h"
 #include "slog/SHA256.h"
 #include "slog/ByteBuffer.h"
 #include "slog/Util.h"
-#include "slog/FileInfo.h"
 #include "slog/SequenceLog.h"
-
-#define     USE_SQLITE
-#if defined(USE_SQLITE)
-    #include "SQLite.h"
-#else
-    #include "DB_MySQL.h"
-#endif
 
 #undef max
 #undef NAME_MAX
@@ -72,121 +65,10 @@ AccountLogic::AccountLogic()
 {
     SLOG(CLS_NAME, "AccountLogic");
 
+    mDB = new SequenceLogServiceDB;
     mAccount = nullptr;
     mJson = Json::getNewObject();
     r = nullptr;
-
-#if defined(USE_SQLITE)
-    String dbPath;
-
-    #if defined(__ANDROID__)
-        Util::getProcessPath(&dbPath);
-    #else
-        dbPath.copy("~");
-        FileInfo fileInfo(&dbPath);
-
-        dbPath.copy(fileInfo.getCanonicalPath());
-    #endif
-
-    dbPath.append("/SequenceLogService.db");
-    const char* db = dbPath.getBuffer();
-
-    mDB = new SQLite;
-#else
-    const char* db = "SequenceLogService";
-    mDB = new MySQL;
-#endif
-
-    try
-    {
-        mDB->connect("localhost", "slog", "DPdhE8iv1HQIe6nL", db);
-    }
-    catch (Exception e)
-    {
-        SMSG(slog::DEBUG, "%s", e.getMessage());
-
-        delete mDB;
-        mDB = nullptr;
-
-        return;
-    }
-
-#if 1 // とりあえずここでテスト
-    int32_t version = 0;
-    Statement* stmt = nullptr;
-
-    try
-    {
-        const char* sql = "select version from version_info";
-        stmt = mDB->newStatement();
-        stmt->prepare(sql);
-
-        stmt->setIntResult(0, &version);
-
-        stmt->bind();
-        stmt->execute();
-        stmt->fetch();
-    }
-    catch (Exception e)
-    {
-        // 初回起動時などテーブルが存在しない場合もあるので、
-        // 例外が発生しても何もすることはない
-        SMSG(slog::DEBUG, "%s", e.getMessage());
-    }
-
-    delete stmt;
-    stmt = nullptr;
-
-    if (version == 0)
-    {
-        try
-        {
-            // バージョン情報テーブル
-            mDB->query(
-                "create table version_info("
-                "    version   int     not null);");
-
-            stmt = mDB->newStatement();
-            stmt->prepare("insert into version_info (version) values (1)");
-            stmt->execute();
-
-            delete stmt;
-            stmt = nullptr;
-
-            // アカウントテーブル
-#if defined(USE_SQLITE)
-            mDB->query(
-                "create table user("
-                "    id        integer     primary key autoincrement,"
-                "    name      varchar     not null unique,"
-                "    password  varchar     not null,"
-                "    mail_addr varchar,"
-                "    version   int         not null default 1,"
-                "    admin     int         not null default 0);");
-#else
-            mDB->query(
-                "create table user("
-                "    id        int         primary key auto_increment,"
-                "    name      varchar(20) not null unique,"
-                "    password  varchar(64) not null,"
-                "    mail_addr varchar(256),"
-                "    version   tinyint     not null default 1,"
-                "    admin     tinyint     not null default 0);");
-#endif
-
-            stmt = mDB->newStatement();
-            stmt->prepare("insert into user (name, password, admin) values ('slog', 'RrtQzcEv7FQ1QaazVN+ZXHHAS/5F/MVuDUffTotnFKk=', 1)");
-            stmt->execute();
-        }
-        catch (Exception e)
-        {
-            SMSG(slog::DEBUG, "%s", e.getMessage());
-        }
-
-        delete stmt;
-        stmt = nullptr;
-    }
-#endif
 }
 
 /*!

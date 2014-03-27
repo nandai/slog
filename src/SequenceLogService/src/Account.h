@@ -34,7 +34,7 @@ class Json;
 class R;
 
 /*!
- *  \brief  アカウントクラス
+ * \brief   アカウントクラス
  */
 class Account
 {

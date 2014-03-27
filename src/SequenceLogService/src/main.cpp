@@ -21,6 +21,7 @@
  */
 #include "SequenceLogServiceMain.h"
 #include "SequenceLogService.h"
+#include "SequenceLogServiceDB.h"
 
 #include "slog/Util.h"
 #include "slog/PointerString.h"
@@ -245,6 +246,9 @@ void Application::main(int argc, char** argv)
     }
     else
     {
+        SequenceLogServiceDB db;
+        db.init();
+
         serviceMain.setListener(this);
         serviceMain.setLogFolderName(logOutputDir);
         serviceMain.setMaxFileSize(size);
