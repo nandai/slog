@@ -20,9 +20,7 @@
  * \author  Copyright 2014 printf.jp
  */
 #pragma once
-
 #include "slog/DB.h"
-#include "mysql.h"
 
 namespace slog
 {
@@ -32,12 +30,13 @@ namespace slog
  */
 class MySQL : public slog::DB
 {
-            MYSQL* mConn;
+            class  Data;
+            Data* mData;
 
             /*!
              * コンストラクタ
              */
-public:     MySQL() : mConn(nullptr) {}
+public:     MySQL();
 
             /*!
              * デストラクタ

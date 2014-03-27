@@ -21,11 +21,12 @@
  */
 #pragma execution_character_set("utf-8")
 
-#include "DB_MySQL.h"
+#include "slog/MySQL.h"
 #include "slog/String.h"
 #include "slog/SequenceLog.h"
 
 #include <string.h>
+#include <mysql.h>
 
 namespace slog
 {
@@ -377,12 +378,29 @@ bool MySQLStatement::fetch() const
 }
 
 /*!
+ * \brief   MySQLクラスのデータ
+ */
+class MySQL::Data
+{
+public:     MYSQL* conn;
+};
+
+/*!
+ * \brief   コンストラクタ
+ */
+MySQL::MySQL()
+{
+    mData = new Data;
+    mData->conn = nullptr;
+}
+
+/*!
  * \brief   デストラクタ
  */
 MySQL::~MySQL()
 {
-    if (mConn)
-        mysql_close(mConn);
+    if (mData->conn)
+        mysql_close(mData->conn);
 }
 
 /*!
@@ -392,21 +410,21 @@ void MySQL::connect(const char* host, const char* user, const char* password, co
 {
     Exception e;
 
-    if (mConn != nullptr)
+    if (mData->conn != nullptr)
     {
         e.setMessage("既に接続しています。");
         throw e;
     }
 
-    mConn = mysql_init(nullptr);
+    mData->conn = mysql_init(nullptr);
 
-    if (mysql_real_connect(mConn, host, user, password, db, 0, nullptr, 0) == nullptr)
+    if (mysql_real_connect(mData->conn, host, user, password, db, 0, nullptr, 0) == nullptr)
     {
-        e.setMessage("%s", mysql_error(mConn));
+        e.setMessage("%s", mysql_error(mData->conn));
         throw e;
     }
 
-    mysql_set_character_set(mConn, "utf8");
+    mysql_set_character_set(mData->conn, "utf8");
 }
 
 /*!
@@ -416,13 +434,13 @@ Statement* MySQL::newStatement() const throw(Exception)
 {
     Exception e;
 
-    if (mConn == nullptr)
+    if (mData->conn == nullptr)
     {
         e.setMessage("接続していません。");
         throw e;
     }
 
-    auto stmt = mysql_stmt_init(mConn);
+    auto stmt = mysql_stmt_init(mData->conn);
     return (new MySQLStatement(this, stmt));
 }
 
@@ -431,7 +449,7 @@ Statement* MySQL::newStatement() const throw(Exception)
  */
 void MySQL::getErrorMessage(CoreString* str) const
 {
-    str->copy(mysql_error(mConn));
+    str->copy(mysql_error(mData->conn));
 }
 
 /*!
@@ -439,7 +457,7 @@ void MySQL::getErrorMessage(CoreString* str) const
  */
 int64_t MySQL::getInsertID() const
 {
-    return mysql_insert_id(mConn);
+    return mysql_insert_id(mData->conn);
 }
 
 /*!
@@ -447,7 +465,7 @@ int64_t MySQL::getInsertID() const
  */
 void MySQL::query(const char* sql) const throw (Exception)
 {
-    if (mysql_query(mConn, sql) != 0)
+    if (mysql_query(mData->conn, sql) != 0)
     {
         Exception e;
         e.setMessage("クエリー実行に失敗しました。");

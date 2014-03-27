@@ -25,7 +25,7 @@
 #if defined(USE_SQLITE)
     #include "SQLite.h"
 #else
-    #include "DB_MySQL.h"
+    #include "slog/MySQL.h"
 #endif
 
 

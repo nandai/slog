@@ -146,7 +146,7 @@ void SequenceLogServiceDB::updateVersion1() const throw(Exception)
         // バージョン情報テーブル作成
         query(
             "create table version_info("
-            "    version   int     not null);");
+            "    version int not null);");
 
         // バージョン登録
         stmt = newStatement();
