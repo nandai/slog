@@ -68,6 +68,7 @@ $(function()
 
     $('#logout').on('click', function()
     {
-        location.href = 'logout';
+//      location.href = 'logout';
+        location.href = 'logoff';
     });
 });

@@ -90,7 +90,8 @@ void WebServerResponse::generateSession(int32_t userId)
  */
 void WebServerResponse::removeSession()
 {
-    mCookies.remove(Session::NAME, "/");
+    bool secure = (mHttpRequest->getScheme() == HttpRequest::SCHEME::HTTPS);
+    mCookies.remove(Session::NAME, "/", secure, true);
 }
 
 /*!

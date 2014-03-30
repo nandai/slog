@@ -107,9 +107,20 @@ void CookieList::add(const char* name, const CoreString* value, const char* path
  *
  * \return  ‚È‚µ
  */
-void CookieList::remove(const char* name, const char* path)
+void CookieList::remove(const char* name, const char* path, bool secure, bool httpOnly)
 {
-    mList.push_back(new Cookie(name, "", path, "Mon, 31-Dec-2001 23:59:59 GMT", false, false));
+    for (auto i = mList.begin(); i != mList.end(); i++)
+    {
+        auto variable = *i;
+
+        if (variable->name.equals(name))
+        {
+            mList.erase(i);
+            break;
+        }
+    }
+
+    mList.push_back(new Cookie(name, "", path, "Mon, 31-Dec-2001 23:59:59 GMT", secure, httpOnly));
 }
 
 } // namespace slog

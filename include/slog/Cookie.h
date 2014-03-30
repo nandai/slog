@@ -105,7 +105,7 @@ public:     ~CookieList();
             /*!
              * Cookieを削除する
              */
-            void remove(const char* name, const char* path);
+            void remove(const char* name, const char* path, bool secure = false, bool httpOnly = false);
 };
 
 } // namespace slog

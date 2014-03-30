@@ -62,7 +62,8 @@ void SequenceLogServiceWebServerResponse::run()
             mAccountLogic.getById(&mAccount);
             mVariables.add("userNameValue", &mAccount.name);
 
-            if (mHttpRequest->getUrl()->equals("logout"))
+//          if (mHttpRequest->getUrl()->equals("logout"))
+            if (mHttpRequest->getUrl()->equals("logoff"))
             {
                 logout();
                 return;
