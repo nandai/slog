@@ -10,7 +10,9 @@ LOCAL_SRC_FILES	:= \
 	../src/Account.cpp \
 	../src/AccountResponse.cpp \
 	../src/GetLogResponse.cpp \
+	../src/R.cpp \
 	../src/SequenceLogService.cpp \
+	../src/SequenceLogServiceDB.cpp \
 	../src/SequenceLogServiceMain.cpp \
 	../src/SequenceLogServiceWebServer.cpp \
 	../src/SequenceLogServiceWebServerResponse.cpp \

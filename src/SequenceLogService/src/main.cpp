@@ -107,7 +107,7 @@ static bool isDirectoryPermissionAllow(const CoreString& dirName)
 
     try
     {
-        FileInfo fileInfo(path);
+        FileInfo fileInfo(&path);
         fileInfo.mkdir();
     }
     catch (Exception)
@@ -172,59 +172,59 @@ void Application::main(int argc, char** argv)
 
     // コンフィグファイル読み込み
     File file;
-    file.open(PointerString(conf), File::READ);
+    file.open(conf, File::READ);
 
     String str;
     String fmt1 = "[key] [value1] [value2]";
-    Tokenizer tokenizer(fmt1);
+    Tokenizer tokenizer(&fmt1);
 
     while (file.read(&str))
     {
-        tokenizer.exec(str);
+        tokenizer.exec(&str);
 
-        const CoreString& key = tokenizer.getValue("key");
+        const CoreString* key = tokenizer.getValue("key");
         const Variant& value1 = tokenizer.getValue("value1");
 
-        if (key == "LOG_OUTPUT_DIR")
+        if (key->equals("LOG_OUTPUT_DIR"))
             logOutputDir.copy(value1);
 
-        if (key == "MAX_FILE_SIZE")
+        if (key->equals("MAX_FILE_SIZE"))
         {
-            const CoreString& value2 = tokenizer.getValue("value2");
+            const CoreString* value2 = tokenizer.getValue("value2");
             size = value1;
 
-            if (value2 == "KB")
+            if (value2->equals("KB"))
                 size *= 1024;
 
-            if (value2 == "MB")
+            if (value2->equals("MB"))
                 size *= (1024 * 1024);
         }
 
-        if (key == "MAX_FILE_COUNT")
+        if (key->equals("MAX_FILE_COUNT"))
             count = value1;
 
-        if (key == "OUTPUT_SCREEN")
-            outputScreen = (value1 == "true");
+        if (key->equals("OUTPUT_SCREEN"))
+            outputScreen = (((const CoreString*)value1)->equals("true"));
 
-        if (key == "WEB_SERVER_PORT")
+        if (key->equals("WEB_SERVER_PORT"))
             webServerPort = value1;
 
-        if (key == "WEB_SERVER_PORT_SSL")
+        if (key->equals("WEB_SERVER_PORT_SSL"))
             webServerPortSSL = value1;
 
-        if (key == "SEQUENCE_LOG_SERVER_PORT")
+        if (key->equals("SEQUENCE_LOG_SERVER_PORT"))
             sequenceLogServerPort = value1;
 
-        if (key == "CERTIFICATE")
+        if (key->equals("CERTIFICATE"))
             certificate.copy(value1);
 
-        if (key == "PRIVATE_KEY")
+        if (key->equals("PRIVATE_KEY"))
             privateKey.copy(value1);
 
-        if (key == "USER")
+        if (key->equals("USER"))
             user.copy(value1);
 
-        if (key == "GROUP")
+        if (key->equals("GROUP"))
             group.copy(value1);
     }
 
@@ -250,7 +250,7 @@ void Application::main(int argc, char** argv)
         db.init();
 
         serviceMain.setListener(this);
-        serviceMain.setLogFolderName(logOutputDir);
+        serviceMain.setLogFolderName(&logOutputDir);
         serviceMain.setMaxFileSize(size);
         serviceMain.setMaxFileCount(count);
         serviceMain.setOutputScreen(outputScreen);
@@ -297,7 +297,7 @@ void Application::onInitialized(Thread* thread)
     FixedString<(int32_t)DateTimeFormat::Length::YYYYMMDDHHMISS> str;
     DateTimeFormat::toString(&str, dateTime, DateTimeFormat::Format::YYYYMMDDHHMISS);
 
-    noticeLog("start %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
+    noticeLog("start %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath()->getBuffer());
 }
 
 /*!
@@ -326,11 +326,11 @@ void Application::onTerminated(Thread* thread)
         FixedString<(int32_t)DateTimeFormat::Length::YYYYMMDDHHMISS> str;
         DateTimeFormat::toString(&str, dateTime, DateTimeFormat::Format::YYYYMMDDHHMISS);
 
-        noticeLog("end   %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath().getBuffer());
+        noticeLog("end   %s %s\n", str.getBuffer(), fileInfo->getCanonicalPath()->getBuffer());
     }
     else
     {
-        noticeLog("%s %s\n", fileInfo->getMessage().getBuffer(), fileInfo->getCanonicalPath().getBuffer());
+        noticeLog("%s %s\n", fileInfo->getMessage()->getBuffer(), fileInfo->getCanonicalPath()->getBuffer());
     }
 }
 

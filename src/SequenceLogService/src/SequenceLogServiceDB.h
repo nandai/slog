@@ -56,7 +56,7 @@ public:     SequenceLogServiceDB();
             /*!
              * データベース名取得
              */
-private:    static void SequenceLogServiceDB::getName(CoreString* name);
+private:    static void getName(CoreString* name);
 
             /*!
              * データベースバージョン取得

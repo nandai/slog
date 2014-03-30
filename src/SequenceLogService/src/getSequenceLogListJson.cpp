@@ -65,13 +65,13 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
 
     if (4 <= tokenizer.getCount())
     {
-        const CoreString& strDate = tokenizer.getValue(2);
-        const CoreString& strTime = tokenizer.getValue(3);
+        const CoreString* strDate = tokenizer.getValue(2);
+        const CoreString* strTime = tokenizer.getValue(3);
 
-        if (strDate.getLength() == 8 && strTime.getLength() == 6)
+        if (strDate->getLength() == 8 && strTime->getLength() == 6)
         {
-            const char* pDate = strDate.getBuffer();
-            const char* pTime = strTime.getBuffer();
+            const char* pDate = strDate->getBuffer();
+            const char* pTime = strTime->getBuffer();
 
             strCreationTime.format("%.4s/%.2s/%.2s %.2s:%.2s:%.2s",
                 pDate + 0,

@@ -132,9 +132,9 @@ FileInfo::FileInfo(const CoreString* path)
     // 正規のパス生成
     for (int32_t index = 0; index < tokenizer.getCount(); index++)
     {
-        const CoreString& value = tokenizer.getValue(index);
+        const CoreString* value = tokenizer.getValue(index);
         String str;
-        str.copy(&value);
+        str.copy(value);
 
         if (str == ".")
             continue;

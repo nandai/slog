@@ -357,7 +357,6 @@ void WebServerResponse::run()
         privateRootDir.format("%s../private", mHttpRequest->getRootDir()->getBuffer());
 #else
         privateRootDir.copy(mHttpRequest->getRootDir());
-        privateRootDir.deleteLast();
 #endif
 
         HtmlGenerator generator(&privateRootDir);

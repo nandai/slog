@@ -38,7 +38,7 @@ public:     String  mStr;
 //          }
 
 public:     operator int32_t() const;
-            operator const CoreString&() const {return mStr;}
+            operator const CoreString*() const {return &mStr;}
 };
 
 /*!

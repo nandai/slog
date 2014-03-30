@@ -297,7 +297,7 @@ bool File::FileIO::open(const CoreString* fileName, File::Mode mode)
 
     mHandle = handle;
 #else
-    const char* p =  fileName.getBuffer();
+    const char* p =  fileName->getBuffer();
     const char* _mode = (mode == READ ? "r" : "w");
     FILE* handle = fopen(p, _mode);
 

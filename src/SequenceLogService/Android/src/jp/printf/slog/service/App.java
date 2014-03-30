@@ -152,6 +152,7 @@ public class App extends android.app.Application
         install("web/login.js",      "login.js",      "644");
         install("web/login.pcss",    "login.pcss",    "644");
         install("web/account.pcss",  "login.pcss",    "644");
+        install("web/wait.gif",      "wait.gif",      "644");
 
         install("web/SequenceLogService.pcss", "SequenceLogService.pcss", "644");
         install("web/SequenceLogService.js",   "SequenceLogService.js",   "644");

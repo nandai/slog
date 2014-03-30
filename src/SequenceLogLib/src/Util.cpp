@@ -64,7 +64,8 @@ void Util::getProcessPath(CoreString* path)
     linkPath.format("/proc/%d/exe", getpid());
 
     char buffer[MAX_PATH];
-    readlink(linkPath.getBuffer(), buffer, sizeof(buffer));
+    int32_t len = readlink(linkPath.getBuffer(), buffer, sizeof(buffer));
+    buffer[len] = '\0';
 #endif
 
     char* fileName = strrchr(buffer, PATH_DELIMITER);

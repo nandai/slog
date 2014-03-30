@@ -43,6 +43,7 @@ objs = \
 	Thread.o \
 	Tokenizer.o \
 	Util.o \
+	Validate.o \
 	Variable.o \
 	WebServerManager.o \
 	WebServerThread.o \

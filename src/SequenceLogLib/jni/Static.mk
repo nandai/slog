@@ -32,6 +32,7 @@ LOCAL_SRC_FILES := \
     ../src/Thread.cpp \
     ../src/Tokenizer.cpp \
     ../src/Util.cpp \
+    ../src/Validate.cpp \
     ../src/Variable.cpp \
     ../src/WebServerManager.cpp \
     ../src/WebServerThread.cpp \
