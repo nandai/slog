@@ -353,7 +353,12 @@ void WebServerResponse::run()
             mimeType->analize(url);
 
         String privateRootDir;
+#if !defined(__ANDROID__)
         privateRootDir.format("%s../private", mHttpRequest->getRootDir()->getBuffer());
+#else
+        privateRootDir.copy(mHttpRequest->getRootDir());
+        privateRootDir.deleteLast();
+#endif
 
         HtmlGenerator generator(&privateRootDir);
         String path;

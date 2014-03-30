@@ -34,7 +34,7 @@ namespace slog
 SequenceLogServiceWebServer::SequenceLogServiceWebServer()
 {
 #if !defined(__ANDROID__)
-    setRootDir("SequenceLogServiceWeb");
+    setRootDir("SequenceLogServiceWeb/public");
 #else
     setRootDir("");
 #endif

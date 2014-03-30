@@ -28,7 +28,6 @@
     #include "slog/MySQL.h"
 #endif
 
-
 namespace slog
 {
 
