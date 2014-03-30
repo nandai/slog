@@ -346,11 +346,15 @@ WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
         if (session == nullptr || session->getId()->equals(&sessionId) == false)
             break;
 
-        if (httpRequest->getMimeType()->type == MimeType::Type::HTML)
+        if (userAgent->indexOf("Firefox") == -1)    // Firefoxの場合、再生成すると以降のアクセス時にセッションIDが一致しないので（原因不明）
+                                                    // 再生成しないようにする
         {
-            // アクセス毎にセッションIDを再生成する
-            session->generate();
-            response->getCookieList()->add(Session::NAME, session->getId(), "/", nullptr, session->isSecure(), true);
+            if (httpRequest->getMimeType()->type == MimeType::Type::HTML)
+            {
+                // アクセス毎にセッションIDを再生成する
+                session->generate();
+                response->getCookieList()->add(Session::NAME, session->getId(), "/", nullptr, session->isSecure(), true);
+            }
         }
 
         response->setUserId(session->getUserId());
