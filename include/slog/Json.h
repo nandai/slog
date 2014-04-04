@@ -52,7 +52,7 @@ public:     virtual ~JsonAbstract() {}
             /*!
              * シリアライズ
              */
-            virtual void serialize(CoreString* content) const = 0;
+            virtual void serializeChild(CoreString* content) const = 0;
 };
 
 /*!
@@ -106,7 +106,12 @@ public:     virtual ~Json() override;
             /*!
              * シリアライズ
              */
-            virtual void serialize(CoreString* content) const override;
+            void serialize(CoreString* content) const;
+
+            /*!
+             * シリアライズ
+             */
+private:    virtual void serializeChild(CoreString* content) const override;
 };
 
 } // namespace slog

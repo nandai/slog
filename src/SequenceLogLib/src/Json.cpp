@@ -112,7 +112,7 @@ public:     JsonValue(const char* name, const char* value);
             /*!
              * シリアライズ
              */
-            virtual void serialize(CoreString* content) const override;
+private:    virtual void serializeChild(CoreString* content) const override;
 };
 
 /*!
@@ -133,7 +133,7 @@ JsonValue::JsonValue(const char* name, const char* value) : JsonAbstract(name)
  *
  * \return  なし
  */
-void JsonValue::serialize(CoreString* content) const
+void JsonValue::serializeChild(CoreString* content) const
 {
     content->format("\"%s\":\"%s\"", mName.getBuffer(), mValue.getBuffer());
 }
@@ -208,6 +208,22 @@ void Json::add(Json* json)
  */
 void Json::serialize(CoreString* content) const
 {
+    content->setLength(0);
+    serializeChild(content);
+
+    if (content->getLength() == 0)
+        content->copy("{}");
+}
+
+/*!
+ * \brief   シリアライズ
+ *
+ * \param[out]  content JSON形式の文字列を返す
+ *
+ * \return  なし
+ */
+void Json::serializeChild(CoreString* content) const
+{
     if (mList.size() == 0)
         return;
 
@@ -228,7 +244,7 @@ void Json::serialize(CoreString* content) const
     for (auto i = mList.begin(); i != mList.end(); i++)
     {
         tmp.setLength(0);
-        (*i)->serialize(&tmp);
+        (*i)->serializeChild(&tmp);
 
         work.append(&sep, 1);
         work.append(&tmp);

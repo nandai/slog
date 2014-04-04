@@ -122,24 +122,22 @@ bool SequenceLogServiceWebServerResponse::login()
     bool pass = mAccountLogic.getByNamePassword(&mAccount);
 
     // 検索結果検証
-    String result;
-
-    if (pass == false)
+    if (phase.equals("validate"))
     {
-        R r(mHttpRequest->getAcceptLanguage());
-        const char* message = r.string(R::msg001);
-
         Json* json = Json::getNewObject();
-        json->add("", message);
+
+        if (pass == false)
+        {
+            R r(mHttpRequest->getAcceptLanguage());
+            const char* message = r.string(R::msg001);
+
+            json->add("", message);
+        }
+
+        String result;
         json->serialize(&result);
 
         delete json;
-    }
-
-    if (phase.equals("validate"))
-    {
-        if (result.getLength() == 0)
-            result.copy("{}");
 
         send(nullptr, &result);
         return false;
