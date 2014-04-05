@@ -55,10 +55,13 @@ const WebServer::CREATE* SequenceLogServiceWebServer::getCreateList() const
 {
     static const CREATE creates[] =
     {
-        {"getLog",       "", createGetLogResponse},
-        {"outputLog",    "", createSequenceLogService},
-        {"account.html", "", createAccountResponse},
-        {"",             "", createSequenceLogServiceWebServerResponse}
+        {"getLog",                "",              createGetLogResponse},
+        {"outputLog",             "",              createSequenceLogService},
+        {"account.html",          "",              createAccountResponse},
+        {"slogsvc",               "notFound.html", createSequenceLogServiceWebServerResponse},
+        {"slog.conf",             "notFound.html", createSequenceLogServiceWebServerResponse},
+        {"SequenceLogService.db", "notFound.html", createSequenceLogServiceWebServerResponse},
+        {"",                      "",              createSequenceLogServiceWebServerResponse}
     };
     return creates;
 }

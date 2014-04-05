@@ -26,6 +26,8 @@
 #include "slog/Json.h"
 #include "slog/SequenceLog.h"
 
+using namespace std;
+
 namespace slog
 {
 
@@ -44,8 +46,7 @@ void AccountResponse::run()
 {
     if (getUserId() < 0)
     {
-        String redirectUrl = "/";
-        redirect(&redirectUrl);
+        redirect("/");
         return;
     }
 
@@ -65,10 +66,13 @@ void AccountResponse::initVariables()
 
     R r(mHttpRequest->getAcceptLanguage());
 
-    mVariables.add("account",  r.string(R::account));
-    mVariables.add("userName", r.string(R::user_name));
-    mVariables.add("password", r.string(R::password));
-    mVariables.add("change",   r.string(R::change));
+    mVariables.add("account",    r.string(R::account));
+    mVariables.add("userName",   r.string(R::user_name));
+    mVariables.add("password",   r.string(R::password));
+    mVariables.add("change",     r.string(R::change));
+    mVariables.add("newAccount", r.string(R::new_account));
+    mVariables.add("back",       r.string(R::back));
+    mVariables.add("admin",      r.string(R::administrator));
 
     mVariables.add("userNameMax", Account::NAME_MAX);
     mVariables.add("passwordMax", Account::PASSWD_MAX);
@@ -85,32 +89,68 @@ bool AccountResponse::account()
     R r(mHttpRequest->getAcceptLanguage());
     AccountLogic accountLogic;
     accountLogic.setResource(&r);
+    accountLogic.getById(&mAccount);
 
     if (mHttpRequest->getMethod() == HttpRequest::GET)
     {
         // アカウントページ表示
-        accountLogic.getById(&mAccount);
-        mVariables.add("userNameValue",    &mAccount.name);
-        mVariables.add("userNameProperty", (mAccount.admin == 1 ? "" : "readonly"));
+        mVariables.add("userNameValue",      &mAccount.name);
+        mVariables.add("userNameProperty",   (mAccount.admin == 1 ? "" : "readonly"));
+        mVariables.add("displayAccountList", (mAccount.admin == 1 ? "block" : "none"));
+
+        // アカウントリスト表示
+        Json* json = Json::getNewObject();
+
+        if (mAccount.admin == 1)
+        {
+            list<Account*> accountList;
+            accountLogic.getList(&accountList);
+
+            for (auto i = accountList.begin(); i != accountList.end(); i++)
+            {
+                Account* account = *i;
+                Json* jsonAccount = Json::getNewObject();
+
+                String id;
+                id.format("%d", account->id);
+
+                jsonAccount->add("id",       &id);
+                jsonAccount->add("userName", &account->name);
+                jsonAccount->add("admin",    (account->admin ? "Y" : ""));
+                json->add(jsonAccount);
+            }
+        }
+
+        String accountListValue;
+        json->serialize(&accountListValue);
+
+        delete json;
+
+        mVariables.add("accountList", &accountListValue);
         return true;
     }
 
     String phase;
+    String id;
+    Account changeAccount;
+
     mHttpRequest->getParam("phase",  &phase);
-    mHttpRequest->getParam("name",   &mAccount.name);
-    mHttpRequest->getParam("passwd", &mAccount.passwd);
+    mHttpRequest->getParam("id",     &id);
+    mHttpRequest->getParam("name",   &changeAccount.name);
+    mHttpRequest->getParam("passwd", &changeAccount.passwd);
+
+    changeAccount.id = (id.getLength() == 0
+        ? mAccount.id
+        : atoi(id.getBuffer()));
 
     // アカウント変更
-    bool res = accountLogic.canUpdate(&mAccount);
+    bool res = accountLogic.canUpdate(&changeAccount, &mAccount);
 
     // 検索結果検証
     if (phase.equals("validate"))
     {
         String result;
         accountLogic.getJSON()->serialize(&result);
-
-        if (result.getLength() == 0)
-            result.copy("{}");
 
 //      SMSG(slog::DEBUG, result.getBuffer());
         send(nullptr, &result);
@@ -126,10 +166,13 @@ bool AccountResponse::account()
         }
         else
         {
-            accountLogic.update(&mAccount);
+            if (changeAccount.id == -1)
+                accountLogic.insert(&changeAccount);
+            else
+                accountLogic.update(&changeAccount);
 
-            String redirectUrl = "/";
-            redirect(&redirectUrl);
+            redirect("/");
+
             return false;
         }
     }

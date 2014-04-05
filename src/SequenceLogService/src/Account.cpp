@@ -92,10 +92,6 @@ AccountLogic::~AccountLogic()
 bool AccountLogic::getByNamePassword(Account* account) const
 {
     SLOG(CLS_NAME, "getByNamePassword");
-
-    if (mDB == nullptr)
-        return false;
-
     String passwd = account->passwd;
 
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
@@ -138,11 +134,6 @@ bool AccountLogic::getById(Account* account) const
 {
     SLOG(CLS_NAME, "getById");
 
-    if (mDB == nullptr)
-        return false;
-
-    String passwd = account->passwd;
-
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
     Statement* stmt =               mDB->newStatement();
 
@@ -162,6 +153,23 @@ bool AccountLogic::getById(Account* account) const
         account->admin);
 
     return res;
+}
+
+/*!
+ * アカウントリスト取得
+ */
+void AccountLogic::getList(std::list<Account*>* accountList) const
+{
+    Statement* stmt = mDB->newStatement();
+    Account account;
+
+    prepare(stmt, &account, nullptr);
+
+    stmt->bind();
+    stmt->execute();
+
+    while (stmt->fetch())
+        accountList->push_back(new Account(account));
 }
 
 /*!
@@ -200,18 +208,22 @@ void AccountLogic::prepare(Statement* stmt, Account* account, const char* where)
 /*!
  * \brief   アカウント更新可能かどうか
  *
- * \param[in]   account アカウント
+ * \param[in]   account     アカウント
+ * \param[in]   aOperator   更新を実行するユーザーのアカウント
  *
  * \return  アカウント操作結果
  */
-bool AccountLogic::canUpdate(const Account* account)
+bool AccountLogic::canUpdate(const Account* account, const Account* aOperator)
 {
     SLOG(CLS_NAME, "canUpdate");
-
-    if (mDB == nullptr)
-        return false;
-
     mAccount = account;
+
+    if (aOperator->admin != 1 && aOperator->id != mAccount->id)
+    {
+        // 不正アクセス
+        mJson->add("", r->string(R::msg008));
+        return false;
+    }
 
     ValidateList list;
     list.add(new StringValidate(&mAccount->name,   Account::NAME_MIN,   Account::NAME_MAX));
@@ -223,22 +235,25 @@ bool AccountLogic::canUpdate(const Account* account)
 //  std::unique_ptr<Statement> stmt(mDB->newStatement());
     Statement* stmt =               mDB->newStatement();
 
-    Account nowAccount;
-    prepare(stmt, &nowAccount, "id=?");
-    stmt->setLongParam(0, mAccount->id);
-
-    stmt->bind();
-    stmt->execute();
-    stmt->fetch();
-
-    delete stmt;
-    stmt = nullptr;
-
-    if (nowAccount.admin != 1 && nowAccount.name.equals(&mAccount->name) == false)
+    if (mAccount->id != -1)
     {
-        // 一般ユーザーはユーザー名の変更不可
-        mJson->add("", r->string(R::msg003));
-        return false;
+        Account nowAccount;
+        prepare(stmt, &nowAccount, "id=?");
+        stmt->setLongParam(0, mAccount->id);
+
+        stmt->bind();
+        stmt->execute();
+        stmt->fetch();
+
+        delete stmt;
+        stmt = nullptr;
+
+        if (nowAccount.admin != 1 && nowAccount.name.equals(&mAccount->name) == false)
+        {
+            // 一般ユーザーの名前は変更不可
+            mJson->add("", r->string(R::msg003));
+            return false;
+        }
     }
 
     // 同名のユーザーが存在しないかチェック
@@ -292,7 +307,7 @@ void AccountLogic::onInvalid(const void* value, const slog::Validate::Result* re
 
     if (variableName)
     {
-        if (result == slog::Validate::INVALID)
+        if      (result == slog::Validate::INVALID)
             str.format(r->string(R::msg004), displayName);
 
         else if (result == slog::Validate::EMPTY)
@@ -310,6 +325,43 @@ void AccountLogic::onInvalid(const void* value, const slog::Validate::Result* re
 }
 
 /*!
+ * \brief   アカウント作成
+ *
+ * \param[in]   account アカウント
+ *
+ * \return  なし
+ */
+void AccountLogic::insert(const Account* account) const
+{
+    SLOG(CLS_NAME, "insert");
+
+    String hashPasswd;
+    Statement* stmt = nullptr;
+
+    if (getHashPassword(&hashPasswd, &account->name, &account->passwd, LATEST_HASH_VERSION) == false)
+        return;
+
+    try
+    {
+//      std::unique_ptr<Statement> stmt(mDB->newStatement());
+        stmt =                          mDB->newStatement();
+        stmt->prepare("insert into user (name, password, version, admin) values (?, ?, ?, 0)");
+        stmt->setStringParam(0, &account->name);
+        stmt->setStringParam(1, &hashPasswd);
+        stmt->setParam(      2,  LATEST_HASH_VERSION);
+
+        stmt->bind();
+        stmt->execute();
+    }
+    catch (Exception e)
+    {
+        SMSG(slog::DEBUG, "%s", e.getMessage());
+    }
+
+    delete stmt;
+}
+
+/*!
  * \brief   アカウント更新
  *
  * \param[in]   account アカウント
@@ -319,9 +371,6 @@ void AccountLogic::onInvalid(const void* value, const slog::Validate::Result* re
 void AccountLogic::update(const Account* account) const
 {
     SLOG(CLS_NAME, "update");
-
-    if (mDB == nullptr)
-        return;
 
     String hashPasswd;
     Statement* stmt = nullptr;

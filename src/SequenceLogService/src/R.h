@@ -36,17 +36,21 @@ public:     static const int32_t login =          0;
             static const int32_t user_name =      3;
             static const int32_t password =       4;
             static const int32_t change =         5;
-            static const int32_t start_time =     6;
-            static const int32_t end_time =       7;
-            static const int32_t log_file_name =  8;
-            static const int32_t log_file_size =  9;
-            static const int32_t msg001 =        10;
-            static const int32_t msg002 =        11;
-            static const int32_t msg003 =        12;
-            static const int32_t msg004 =        13;
-            static const int32_t msg005 =        14;
-            static const int32_t msg006 =        15;
-            static const int32_t msg007 =        16;
+            static const int32_t new_account =    6;
+            static const int32_t back =           7;
+            static const int32_t start_time =     8;
+            static const int32_t end_time =       9;
+            static const int32_t log_file_name = 10;
+            static const int32_t log_file_size = 11;
+            static const int32_t administrator = 12;
+            static const int32_t msg001 =        13;
+            static const int32_t msg002 =        14;
+            static const int32_t msg003 =        15;
+            static const int32_t msg004 =        16;
+            static const int32_t msg005 =        17;
+            static const int32_t msg006 =        18;
+            static const int32_t msg007 =        19;
+            static const int32_t msg008 =        20;
 
             /*!
              * コンストラクタ

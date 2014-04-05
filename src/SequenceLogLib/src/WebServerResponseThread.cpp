@@ -27,6 +27,7 @@
 #include "slog/FileInfo.h"
 #include "slog/ByteBuffer.h"
 #include "slog/SHA1.h"
+#include "slog/PointerString.h"
 
 #include "Session.h"
 
@@ -288,6 +289,19 @@ void WebServerResponse::sendContent(const Buffer* content) const
 
         socket->send(&str, str.getLength());
     }
+}
+
+/*!
+ * \brief   リダイレクト
+ *
+ * \param[in]   url リダイレクト先URL
+ *
+ * \return  なし
+ */
+void WebServerResponse::redirect(const char* url) const
+{
+    PointerString str = url;
+    redirect(&str);
 }
 
 /*!

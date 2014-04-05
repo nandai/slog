@@ -166,9 +166,7 @@ bool SequenceLogServiceWebServerResponse::login()
 void SequenceLogServiceWebServerResponse::logout()
 {
     removeSession();
-
-    String redirectUrl = "/";
-    redirect(&redirectUrl);
+    redirect("/");
 }
 
 } // namespace slog

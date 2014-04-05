@@ -38,10 +38,13 @@ static const char* en[] =
     "User name",
     "Password",
     "Change",
+    "New account",
+    "Back",
     "Start time",
     "End time",
     "Log file name",
     "Size",
+    "Administrator",
     "The username or password you entered is incorrect.",
     "That user name is already in use.",
     "You can not change the user name.",
@@ -49,6 +52,7 @@ static const char* en[] =
     "The %s has not been entered.",
     "Number of characters of the %s is missing.",
     "Number of characters of the %s exceeds the upper limit.",
+    "Account does not match.",
 };
 
 /*!
@@ -62,10 +66,13 @@ static const char* ja[] =
     "ユーザー名",
     "パスワード",
     "変更",
+    "新規作成",
+    "戻る",
     "開始日時",
     "終了日時",
     "ログファイル名",
     "サイズ",
+    "管理者",
     "ユーザー名、またはパスワードが正しくありません。",
     "そのユーザー名は既に使われています。",
     "ユーザー名は変更できません。",
@@ -73,6 +80,7 @@ static const char* ja[] =
     "%sが入力されていません。",
     "%sの文字数が不足しています。",
     "%sの文字数が上限を超えています。",
+    "アカウントが一致しません。",
 };
 
 /*!
@@ -86,10 +94,13 @@ static const char* zh_TW[] =
     "用戶名",
     "密碼",
     "變化",
+    "新賬戶",
+    "回歸",
     "開始日期及時間",
     "結束日期及時間",
     "日誌文件名",
     "大小",
+    "管理員",
     "用戶名或密碼不正確",
     "該用戶名已被使用",
     "您不能更改用戶名",
@@ -97,6 +108,7 @@ static const char* zh_TW[] =
     "%s尚未進入",
     "%s的字符數是缺少",
     "%s的字符數超過了上限值",
+    "賬戶不符",
 };
 
 /*!

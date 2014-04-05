@@ -138,6 +138,11 @@ public:     AccountLogic();
             bool getById(Account* account) const;
 
             /*!
+             * アカウントリスト取得
+             */
+            void getList(std::list<Account*>* accountList) const;
+
+            /*!
              * SQL準備
              */
 private:   void prepare(Statement* stmt, Account* account, const char* where) const;
@@ -145,12 +150,17 @@ private:   void prepare(Statement* stmt, Account* account, const char* where) co
             /*!
              * アカウント更新可能かどうか
              */
-public:    bool canUpdate(const Account* account);
+public:    bool canUpdate(const Account* account, const Account* aOperator);
 
             /*!
              * 検証失敗イベント
              */
 private:    virtual void onInvalid(const void* value, const slog::Validate::Result* result) override;
+
+            /*!
+             * アカウント作成
+             */
+public:     void insert(const Account* account) const;
 
             /*!
              * アカウント更新

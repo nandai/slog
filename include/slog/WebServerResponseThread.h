@@ -130,6 +130,11 @@ protected:  virtual void initVariables() {}
             /*!
              * リダイレクト
              */
+            void redirect(const char* url) const;
+
+            /*!
+             * リダイレクト
+             */
             void redirect(const CoreString* url) const;
 
             /*!
