@@ -148,9 +148,9 @@ public:     AccountLogic();
 private:   void prepare(Statement* stmt, Account* account, const char* where) const;
 
             /*!
-             * アカウント更新可能かどうか
+             * 正当性検証
              */
-public:    bool canUpdate(const Account* account, const Account* aOperator);
+public:    bool validate(const Account* account, const Account* aOperator);
 
             /*!
              * 検証失敗イベント

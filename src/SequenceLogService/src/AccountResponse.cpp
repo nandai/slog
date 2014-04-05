@@ -20,7 +20,6 @@
  * \author  Copyright 2014 printf.jp
  */
 #include "AccountResponse.h"
-#include "R.h"
 
 #include "slog/HttpRequest.h"
 #include "slog/Json.h"
@@ -30,13 +29,23 @@ using namespace std;
 
 namespace slog
 {
+const char* AccountResponse::CLS_NAME = "AccountResponse";
 
 /*!
  *  \brief  コンストラクタ
  */
-AccountResponse::AccountResponse(HttpRequest* httpRequest) :
-    WebServerResponse(httpRequest)
+AccountResponse::AccountResponse(HttpRequest* httpRequest) : WebServerResponse(httpRequest),
+    r(httpRequest->getAcceptLanguage())
 {
+    mAccountLogic = nullptr;
+}
+
+/*!
+ * デストラクタ
+ */
+AccountResponse::~AccountResponse()
+{
+    delete mAccountLogic;
 }
 
 /*!
@@ -44,8 +53,11 @@ AccountResponse::AccountResponse(HttpRequest* httpRequest) :
  */
 void AccountResponse::run()
 {
+    SLOG(CLS_NAME, "run");
+
     if (getUserId() < 0)
     {
+        // 未ログイン
         redirect("/");
         return;
     }
@@ -61,10 +73,10 @@ void AccountResponse::run()
  */
 void AccountResponse::initVariables()
 {
+    SLOG(CLS_NAME, "initVariables");
+
     mVariables.add("domain", "printf.jp");
 //  mVariables.add("domain", "localhost");
-
-    R r(mHttpRequest->getAcceptLanguage());
 
     mVariables.add("account",    r.string(R::account));
     mVariables.add("userName",   r.string(R::user_name));
@@ -79,105 +91,137 @@ void AccountResponse::initVariables()
 }
 
 /*!
- * \brief   アカウント
+ * \brief   アカウント処理
  */
 bool AccountResponse::account()
 {
-    SLOG("AccountResponse", "account");
-    mAccount.id = getUserId();
-
-    R r(mHttpRequest->getAcceptLanguage());
-    AccountLogic accountLogic;
-    accountLogic.setResource(&r);
-    accountLogic.getById(&mAccount);
+    SLOG(CLS_NAME, "account");
+    initMembers();
 
     if (mHttpRequest->getMethod() == HttpRequest::GET)
     {
-        // アカウントページ表示
-        mVariables.add("userNameValue",      &mAccount.name);
-        mVariables.add("userNameProperty",   (mAccount.admin == 1 ? "" : "readonly"));
-        mVariables.add("displayAccountList", (mAccount.admin == 1 ? "block" : "none"));
-
-        // アカウントリスト表示
-        Json* json = Json::getNewObject();
-
-        if (mAccount.admin == 1)
-        {
-            list<Account*> accountList;
-            accountLogic.getList(&accountList);
-
-            for (auto i = accountList.begin(); i != accountList.end(); i++)
-            {
-                Account* account = *i;
-                Json* jsonAccount = Json::getNewObject();
-
-                String id;
-                id.format("%d", account->id);
-
-                jsonAccount->add("id",       &id);
-                jsonAccount->add("userName", &account->name);
-                jsonAccount->add("admin",    (account->admin ? "Y" : ""));
-                json->add(jsonAccount);
-            }
-        }
-
-        String accountListValue;
-        json->serialize(&accountListValue);
-
-        delete json;
-
-        mVariables.add("accountList", &accountListValue);
+        showPage();
         return true;
     }
 
-    String phase;
-    String id;
-    Account changeAccount;
+    // パラメータから情報を取得
+    getParams();
 
-    mHttpRequest->getParam("phase",  &phase);
-    mHttpRequest->getParam("id",     &id);
-    mHttpRequest->getParam("name",   &changeAccount.name);
-    mHttpRequest->getParam("passwd", &changeAccount.passwd);
+    // 正当性検証
+    bool validate = mAccountLogic->validate(&mChangeAccount, &mAccount);
 
-    changeAccount.id = (id.getLength() == 0
-        ? mAccount.id
-        : atoi(id.getBuffer()));
-
-    // アカウント変更
-    bool res = accountLogic.canUpdate(&changeAccount, &mAccount);
-
-    // 検索結果検証
-    if (phase.equals("validate"))
+    if (mPhase.equals("validate"))
     {
-        String result;
-        accountLogic.getJSON()->serialize(&result);
-
-//      SMSG(slog::DEBUG, result.getBuffer());
-        send(nullptr, &result);
+        sendValidateResult();
         return false;
     }
-    else
+
+    if (validate == false)
     {
-        if (res == false)
-        {
-            // 通常であればまず検証し、問題なければログインとなるはずで、
-            // この段階で検証に問題があるのはおかしいためnotFoundを返す
-            mHttpRequest->setUrl("notFound.html");
-        }
-        else
-        {
-            if (changeAccount.id == -1)
-                accountLogic.insert(&changeAccount);
-            else
-                accountLogic.update(&changeAccount);
+        // 通常であればまず検証し、問題があればここまで来ることはなく、
+        // この段階で検証に問題があるのはおかしい
+        mHttpRequest->setUrl("notFound.html");
+        return true;
+    }
 
-            redirect("/");
+    // アカウント更新
+    update();
+    return false;
+}
 
-            return false;
+/*!
+ * \brief   初期処理
+ */
+void AccountResponse::initMembers()
+{
+    mAccount.id = getUserId();
+
+    mAccountLogic = new AccountLogic;
+    mAccountLogic->setResource(&r);
+    mAccountLogic->getById(&mAccount);
+}
+
+/*!
+ * \brief   パラメータから情報を取得
+ */
+void AccountResponse::getParams()
+{
+    String id;
+
+    mHttpRequest->getParam("phase",  &mPhase);
+    mHttpRequest->getParam("id",     &id);
+    mHttpRequest->getParam("name",   &mChangeAccount.name);
+    mHttpRequest->getParam("passwd", &mChangeAccount.passwd);
+
+    mChangeAccount.id = (id.getLength() == 0
+        ? mAccount.id
+        : atoi(id.getBuffer()));
+}
+
+/*!
+ * \brief   画面表示
+ */
+void AccountResponse::showPage()
+{
+    mVariables.add("userNameValue",      &mAccount.name);
+    mVariables.add("userNameProperty",   (mAccount.admin == 1 ? ""       : "readonly"));
+    mVariables.add("displayNewAccount",  (mAccount.admin == 1 ? "inline" : "none"));
+    mVariables.add("displayAccountList", (mAccount.admin == 1 ? "block"  : "none"));
+
+    // JSONアカウントリスト作成
+    Json* json = Json::getNewObject();
+
+    if (mAccount.admin == 1)
+    {
+        list<Account*> accountList;
+        mAccountLogic->getList(&accountList);
+
+        for (auto i = accountList.begin(); i != accountList.end(); i++)
+        {
+            Account* account = *i;
+            Json* jsonAccount = Json::getNewObject();
+
+            String id;
+            id.format("%d", account->id);
+
+            jsonAccount->add("id",       &id);
+            jsonAccount->add("userName", &account->name);
+            jsonAccount->add("admin",    (account->admin ? "Y" : ""));
+            json->add(jsonAccount);
         }
     }
 
-    return true;
+    String accountListValue;
+    json->serialize(&accountListValue);
+
+    delete json;
+
+    mVariables.add("accountList", &accountListValue);
+}
+
+/*!
+ * \brief   検証結果送信
+ */
+void AccountResponse::sendValidateResult() const
+{
+    String result;
+    mAccountLogic->getJSON()->serialize(&result);
+
+//  SMSG(slog::DEBUG, result.getBuffer());
+    send(nullptr, &result);
+}
+
+/*!
+ * \brief   アカウント更新
+ */
+void AccountResponse::update() const
+{
+    if (mChangeAccount.id == -1)
+        mAccountLogic->insert(&mChangeAccount);
+    else
+        mAccountLogic->update(&mChangeAccount);
+
+    redirect("/");
 }
 
 } // namespace slog

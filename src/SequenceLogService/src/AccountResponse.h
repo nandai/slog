@@ -22,6 +22,8 @@
 #pragma once
 
 #include "slog/WebServerResponseThread.h"
+
+#include "R.h"
 #include "Account.h"
 
 namespace slog
@@ -32,15 +34,42 @@ namespace slog
  */
 class AccountResponse : public WebServerResponse
 {
+            static const char* CLS_NAME;
+
+            /*!
+             * リソース
+             */
+            R r;
+
+            /*!
+             * アカウントロジック
+             */
+            AccountLogic* mAccountLogic;
+
             /*!
              * アカウント
              */
             Account mAccount;
 
             /*!
+             * 変更対象アカウント
+             */
+            Account mChangeAccount;
+
+            /*!
+             * 実行フェーズ
+             */
+            String mPhase;
+
+            /*!
              * コンストラクタ
              */
 public:     AccountResponse(HttpRequest* httpRequest);
+
+            /*!
+             * デストラクタ
+             */
+            virtual ~AccountResponse() override;
 
             /*!
              * 実行
@@ -50,12 +79,37 @@ private:    virtual void run() override;
             /*!
              * 変数初期化
              */
-            virtual void initVariables();
+            virtual void initVariables() override;
 
             /*!
-             * アカウント
+             * アカウント処理
              */
             bool account();
+
+            /*!
+             * 初期処理
+             */
+            void initMembers();
+
+            /*!
+             * パラメータから情報を取得
+             */
+            void getParams();
+
+            /*!
+             * 画面表示
+             */
+            void showPage();
+
+            /*!
+             * 検証結果送信
+             */
+            void sendValidateResult() const;
+
+            /*!
+             * アカウント更新
+             */
+            void update() const;
 };
 
 } // namespace slog

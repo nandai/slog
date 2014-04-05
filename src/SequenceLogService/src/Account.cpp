@@ -206,16 +206,16 @@ void AccountLogic::prepare(Statement* stmt, Account* account, const char* where)
 }
 
 /*!
- * \brief   アカウント更新可能かどうか
+ * \brief   正当性検証
  *
  * \param[in]   account     アカウント
  * \param[in]   aOperator   更新を実行するユーザーのアカウント
  *
- * \return  アカウント操作結果
+ * \return  全て正常ならtrue、そうでなければfalseを返す
  */
-bool AccountLogic::canUpdate(const Account* account, const Account* aOperator)
+bool AccountLogic::validate(const Account* account, const Account* aOperator)
 {
-    SLOG(CLS_NAME, "canUpdate");
+    SLOG(CLS_NAME, "validate");
     mAccount = account;
 
     if (aOperator->admin != 1 && aOperator->id != mAccount->id)
