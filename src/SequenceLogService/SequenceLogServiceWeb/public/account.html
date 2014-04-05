@@ -7,17 +7,90 @@
 <link type="text/css" rel="stylesheet" href="login.pcss" media="screen" />
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script type="text/javascript" src="login.js"></script>
+
+<script>
+$(function()
+{
+    function setForm(args)
+    {
+        var account = $.extend(
+        {
+            id      : -1,
+            userName: '',
+            admin   : '',
+        }, args);
+
+        var readonlyUserName = (account.admin !== 'Y' && account.id !== -1);
+
+        $('#id').    val(account.id);
+        $('#name').  val(account.userName);
+        $('#passwd').val('');
+
+        $('#name').attr('readonly', readonlyUserName);
+
+        if (account.id === -1)
+            $('#name').focus();
+        else
+            $('#passwd').focus();
+    };
+
+    $('#new_account').on('click', function()
+    {
+        setForm();
+    });
+
+    $('#back').on('click', function()
+    {
+        history.back();
+    });
+
+    var accountList = @accountList;;
+    var contents = '';
+
+    $.each(accountList, function(i, obj)
+    {
+        contents = contents +
+            '<tr>' +
+                '<td>'                + obj.userName  + '</td>' +
+                '<td align="center">' + obj.admin     + '</td>' +
+            '</tr>';
+    });
+
+    $('#accountList').append(contents);
+
+    $('#accountList tr').click(function()
+    {
+        var i = $(this).index() - 1;
+        var account = accountList[i];
+
+        setForm(account);
+        return false;
+    });
+});
+</script>
 </head>
 
 <body>
-<h1>Sequence Log Service</h1>
+<div style="float:left">
+    <h1>Sequence Log Service</h1>
+</div>
+
+<div style="float:right">
+    <input id="new_account" type="button" value="@newAccount;" style="display:@displayAccountList;" />
+    <input id="back"        type="button" value="@back;" />
+</div>
+
+<div style="clear: both"></div>
+
 <div align="center">
     <form method="post" class="form-container">
+        <input type="hidden" name="id" id="id" />
+
         <div class="form-title">@userName;</div>
-        <input class="form-field" type="text" name="name" maxlength="@userNameMax;" value="@userNameValue;" @userNameProperty; /><br />
+        <input class="form-field" type="text" name="name" id="name" maxlength="@userNameMax;" value="@userNameValue;" @userNameProperty; /><br />
 
         <div class="form-title">@password;</div>
-        <input class="form-field" type="password" maxlength="@passwordMax;" name="passwd" autofocus /><br />
+        <input class="form-field" type="password" name="passwd" id="passwd" maxlength="@passwordMax;" autofocus /><br />
 
         <div class="submit-container">
         <input type="submit" value="@change;" />
@@ -28,6 +101,17 @@
     <div id="waiting"></div>
 </div>
 <br />
+
+<div align="center" style="display:@displayAccountList;">
+    <table id="accountList">
+        <tr>
+            <th>@userName;</th>
+            <th>@admin;</th>
+        </tr>
+    </table>
+</div>
+<br />
+
 <div align="right">
     Copyright (c) 2013-2014 <a href="http://@domain;" target="_blank">@domain;</a> All rights reserved.
 </div>
