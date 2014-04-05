@@ -81,20 +81,21 @@ void SequenceLogServiceWebServerResponse::initVariables()
 {
     R r(mHttpRequest->getAcceptLanguage());
 
-    mVariables.add("domain",      "printf.jp");
-//  mVariables.add("domain",      "localhost");
+    mVariables.add("domain",        "printf.jp");
+//  mVariables.add("domain",        "localhost");
 
-    mVariables.add("login",       r.string(R::login));
-    mVariables.add("userName",    r.string(R::user_name));
-    mVariables.add("password",    r.string(R::password));
+    mVariables.add("login",         r.string(R::login));
+    mVariables.add("userName",      r.string(R::user_name));
+    mVariables.add("password",      r.string(R::password));
+    mVariables.add("canNotConnect", r.string(R::msg010));
 
-    mVariables.add("account",     r.string(R::account));
-    mVariables.add("logout",      r.string(R::logout));
+    mVariables.add("account",       r.string(R::account));
+    mVariables.add("logout",        r.string(R::logout));
 
-    mVariables.add("startTime",   r.string(R::start_time));
-    mVariables.add("endTime",     r.string(R::end_time));
-    mVariables.add("logFileName", r.string(R::log_file_name));
-    mVariables.add("logFileSize", r.string(R::log_file_size));
+    mVariables.add("startTime",     r.string(R::start_time));
+    mVariables.add("endTime",       r.string(R::end_time));
+    mVariables.add("logFileName",   r.string(R::log_file_name));
+    mVariables.add("logFileSize",   r.string(R::log_file_size));
 }
 
 /*!

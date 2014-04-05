@@ -6,7 +6,7 @@
 <link type="text/css" rel="stylesheet" href="SequenceLogService.pcss" media="screen" />
 <link type="text/css" rel="stylesheet" href="login.pcss" media="screen" />
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<script type="text/javascript" src="login.js"></script>
+<script type="text/javascript" src="login.pjs"></script>
 
 <script>
 $(function()
@@ -37,6 +37,7 @@ $(function()
     $('#new_account').on('click', function()
     {
         setForm();
+        $('input[type=submit]').val('@newAccount;');
     });
 
     $('#back').on('click', function()
@@ -51,8 +52,9 @@ $(function()
     {
         contents = contents +
             '<tr>' +
-                '<td>'                + obj.userName  + '</td>' +
-                '<td align="center">' + obj.admin     + '</td>' +
+                '<td>' + obj.userName + '</td>' +
+                '<td align="center">' + obj.admin + '</td>' +
+                '<td><a href="#">@delete;</a></td>' +
             '</tr>';
     });
 
@@ -64,6 +66,59 @@ $(function()
         var account = accountList[i];
 
         setForm(account);
+        $('input[type=submit]').val('@change;');
+        return false;
+    });
+
+    $('a[href=#]').click(function()
+    {
+        var tr = $(this).closest('tr');
+        var i = tr.index() - 1;
+        var id = accountList[i].id;
+
+        $('#message').html('');
+        $('#waiting').html('<img src="/wait.gif" width="24" height="24" alt="Wait..." />');
+
+        $.ajax(
+        {
+            type: 'POST',
+            dataType: 'json',
+            data: 'id=' + id + '&phase=delete',
+            timeout: 10000,
+
+            // 通信成功時の処理
+            success: function(result, textStatus, xhr)
+            {
+                var message = '';
+                var sep = '';
+
+                $.each(result, function(key, value)
+                {
+                    message += sep + value + '<br />';
+                    sep = '<br />';
+                });
+
+                if (message.length == 0)
+                {
+                    $('#waiting').html('');
+                    accountList.splice(i, 1);
+                    tr.remove();
+                }
+                else
+                {
+                    $('#message').html('<br />' + message);
+                    $('#waiting').html('');
+                }
+            },
+
+            // 通信失敗時の処理
+            error: function(xhr, textStatus, error)
+            {
+                $('#message').html('<br />@canNotConnect;');
+                $('#waiting').html('');
+            }
+        });
+
         return false;
     });
 });
@@ -107,6 +162,7 @@ $(function()
         <tr>
             <th>@userName;</th>
             <th>@admin;</th>
+            <th>@delete;</th>
         </tr>
     </table>
 </div>

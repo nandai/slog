@@ -39,6 +39,7 @@ static const char* en[] =
     "Password",
     "Change",
     "New account",
+    "Delete",
     "Back",
     "Start time",
     "End time",
@@ -47,12 +48,14 @@ static const char* en[] =
     "Administrator",
     "The username or password you entered is incorrect.",
     "That user name is already in use.",
-    "You can not change the user name.",
+    "Can not change the user name.",
     "Incorrect %s",
     "The %s has not been entered.",
     "Number of characters of the %s is missing.",
     "Number of characters of the %s exceeds the upper limit.",
     "Account does not match.",
+    "Can not delete.",
+    "It was not possible to connect to the server.",
 };
 
 /*!
@@ -67,6 +70,7 @@ static const char* ja[] =
     "パスワード",
     "変更",
     "新規作成",
+    "削除",
     "戻る",
     "開始日時",
     "終了日時",
@@ -81,6 +85,8 @@ static const char* ja[] =
     "%sの文字数が不足しています。",
     "%sの文字数が上限を超えています。",
     "アカウントが一致しません。",
+    "削除はできません。",
+    "サーバーに接続できませんでした。",
 };
 
 /*!
@@ -95,6 +101,7 @@ static const char* zh_TW[] =
     "密碼",
     "變化",
     "新賬戶",
+    "刪除",
     "回歸",
     "開始日期及時間",
     "結束日期及時間",
@@ -109,6 +116,8 @@ static const char* zh_TW[] =
     "%s的字符數是缺少",
     "%s的字符數超過了上限值",
     "賬戶不符",
+    "您無法刪除",
+    "這是不可能連接到服務器",
 };
 
 /*!

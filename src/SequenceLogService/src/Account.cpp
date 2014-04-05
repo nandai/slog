@@ -278,6 +278,25 @@ bool AccountLogic::validate(const Account* account, const Account* aOperator)
 }
 
 /*!
+ * \brief   削除の正当性検証
+ *
+ * \param[in]   account     アカウント
+ * \param[in]   aOperator   更新を実行するユーザーのアカウント
+ *
+ * \return  全て正常ならtrue、そうでなければfalseを返す
+ */
+bool AccountLogic::validateDelete(const Account* account, const Account* aOperator)
+{
+    if (aOperator->admin != 1 || aOperator->id == account->id)
+    {
+        mJson->add("", r->string(R::msg009));
+        return false;
+    }
+
+    return true;
+}
+
+/*!
  * \brief   検証失敗イベント
  *
  * \param[in]   value   
@@ -387,6 +406,32 @@ void AccountLogic::update(const Account* account) const
         stmt->setStringParam(1, &hashPasswd);
         stmt->setParam(      2,  LATEST_HASH_VERSION);
         stmt->setLongParam(  3,  account->id);
+
+        stmt->bind();
+        stmt->execute();
+    }
+    catch (Exception e)
+    {
+        SMSG(slog::DEBUG, "%s", e.getMessage());
+    }
+
+    delete stmt;
+}
+
+/*!
+ * \brief   アカウント削除
+ */
+void AccountLogic::del(const Account* account) const
+{
+    SLOG(CLS_NAME, "del");
+    Statement* stmt = nullptr;
+
+    try
+    {
+//      std::unique_ptr<Statement> stmt(mDB->newStatement());
+        stmt =                          mDB->newStatement();
+        stmt->prepare("delete from user where id=?");
+        stmt->setLongParam(0,  account->id);
 
         stmt->bind();
         stmt->execute();

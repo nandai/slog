@@ -153,6 +153,11 @@ private:   void prepare(Statement* stmt, Account* account, const char* where) co
 public:    bool validate(const Account* account, const Account* aOperator);
 
             /*!
+             * 削除の正当性検証
+             */
+           bool validateDelete(const Account* account, const Account* aOperator);
+
+            /*!
              * 検証失敗イベント
              */
 private:    virtual void onInvalid(const void* value, const slog::Validate::Result* result) override;
@@ -165,7 +170,12 @@ public:     void insert(const Account* account) const;
             /*!
              * アカウント更新
              */
-public:     void update(const Account* account) const;
+            void update(const Account* account) const;
+
+            /*!
+             * アカウント削除
+             */
+            void del(const Account* account) const;
 
             /*!
              * ハッシュ化パスワード取得

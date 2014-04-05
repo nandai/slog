@@ -78,13 +78,15 @@ void AccountResponse::initVariables()
     mVariables.add("domain", "printf.jp");
 //  mVariables.add("domain", "localhost");
 
-    mVariables.add("account",    r.string(R::account));
-    mVariables.add("userName",   r.string(R::user_name));
-    mVariables.add("password",   r.string(R::password));
-    mVariables.add("change",     r.string(R::change));
-    mVariables.add("newAccount", r.string(R::new_account));
-    mVariables.add("back",       r.string(R::back));
-    mVariables.add("admin",      r.string(R::administrator));
+    mVariables.add("account",       r.string(R::account));
+    mVariables.add("userName",      r.string(R::user_name));
+    mVariables.add("password",      r.string(R::password));
+    mVariables.add("change",        r.string(R::change));
+    mVariables.add("newAccount",    r.string(R::new_account));
+    mVariables.add("delete",        r.string(R::del));
+    mVariables.add("back",          r.string(R::back));
+    mVariables.add("admin",         r.string(R::administrator));
+    mVariables.add("canNotConnect", r.string(R::msg010));
 
     mVariables.add("userNameMax", Account::NAME_MAX);
     mVariables.add("passwordMax", Account::PASSWD_MAX);
@@ -106,6 +108,12 @@ bool AccountResponse::account()
 
     // パラメータから情報を取得
     getParams();
+
+    if (mPhase.equals("delete"))
+    {
+        del();
+        return false;
+    }
 
     // 正当性検証
     bool validate = mAccountLogic->validate(&mChangeAccount, &mAccount);
@@ -222,6 +230,20 @@ void AccountResponse::update() const
         mAccountLogic->update(&mChangeAccount);
 
     redirect("/");
+}
+
+/*!
+ * \brief   アカウント削除
+ */
+void AccountResponse::del() const
+{
+    if (mAccountLogic->validateDelete(&mChangeAccount, &mAccount))
+        mAccountLogic->del(&mChangeAccount);
+
+    String result;
+    mAccountLogic->getJSON()->serialize(&result);
+
+    send(nullptr, &result);
 }
 
 } // namespace slog

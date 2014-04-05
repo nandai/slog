@@ -110,6 +110,11 @@ private:    virtual void run() override;
              * アカウント更新
              */
             void update() const;
+
+            /*!
+             * アカウント削除
+             */
+            void del() const;
 };
 
 } // namespace slog

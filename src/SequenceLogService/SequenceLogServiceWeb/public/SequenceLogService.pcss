@@ -155,3 +155,17 @@ input[type=submit]:active
     background-image: -ms-linear-gradient(top, @submitBackgroundTo; 0%, @submitBackgroundFrom; 100%);
     color: #FFF;
 }
+
+input[type=button]:disabled,
+input[type=submit]:disabled
+{
+    border: 1px solid @submitBorder;;
+    background: @submitBackgroundTo;;
+    background:   -webkit-gradient(linear, left top, left bottom, from(@submitBackgroundTo;), to(@submitBackgroundTo;));
+    background:   -webkit-linear-gradient(top, @submitBackgroundTo;,    @submitBackgroundTo;);
+    background:      -moz-linear-gradient(top, @submitBackgroundTo;,    @submitBackgroundTo;);
+    background:       -ms-linear-gradient(top, @submitBackgroundTo;,    @submitBackgroundTo;);
+    background:        -o-linear-gradient(top, @submitBackgroundTo;,    @submitBackgroundTo;);
+    background-image: -ms-linear-gradient(top, @submitBackgroundTo; 0%, @submitBackgroundTo; 100%);
+    color: @submitTextColor;;
+}
