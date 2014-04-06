@@ -17,27 +17,11 @@ extern "C" {
 #define jp_printf_slog_Log_ERROR 3L
 /*
  * Class:     jp_printf_slog_Log
- * Method:    setFileName
+ * Method:    loadConfig
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_jp_printf_slog_Log_setFileName
+JNIEXPORT void JNICALL Java_jp_printf_slog_Log_loadConfig
   (JNIEnv *, jclass, jstring);
-
-/*
- * Class:     jp_printf_slog_Log
- * Method:    setServiceAddress
- * Signature: (Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_jp_printf_slog_Log_setServiceAddress
-  (JNIEnv *, jclass, jstring);
-
-/*
- * Class:     jp_printf_slog_Log
- * Method:    enableOutput
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_jp_printf_slog_Log_enableOutput
-  (JNIEnv *, jclass, jboolean);
 
 /*
  * Class:     jp_printf_slog_Log

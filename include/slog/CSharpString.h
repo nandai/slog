@@ -20,7 +20,9 @@
  *  \author Copyright 2011-2013 printf.jp
  */
 #pragma once
-#include "slog/PointerString.h"
+
+#include "slog/String.h"
+#include "slog/Util.h"
 
 using namespace System;
 using namespace System::Runtime::InteropServices;
@@ -31,21 +33,22 @@ namespace slog
 /*!
  *  \brief  C#文字列クラス
  */
-class CSharpString : public PointerString
+class CSharpString : public slog::String
 {
-public:     CSharpString(String^ str);
+public:     CSharpString(System::String^ str);
             virtual ~CSharpString();
 };
 
 /*!
  *  \brief  コンストラクタ
  */
-inline CSharpString::CSharpString(String^ str)
+inline CSharpString::CSharpString(System::String^ str)
 {
     IntPtr p = Marshal::StringToHGlobalAnsi(str);
     char* _p = (char*)p.ToPointer();
 
-    init(_p);
+    Util::shiftJIStoUTF8(this, _p);
+    Marshal::FreeHGlobal(p);
 }
 
 /*!
@@ -53,8 +56,6 @@ inline CSharpString::CSharpString(String^ str)
  */
 inline CSharpString::~CSharpString()
 {
-    IntPtr p(getBuffer());
-    Marshal::FreeHGlobal(p);
 }
 
 } // namespace slog

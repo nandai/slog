@@ -90,34 +90,13 @@ static JNIEnv* getJNIEnv()
 
 /*
  * Class:     jp_printf_slog_Log
- * Method:    setFileName
+ * Method:    loadConfig
  * Signature: (Ljava/lang/String;)V
  */
-static void JNICALL setFileName(JNIEnv* env, jclass, jstring aFileName)
+static void JNICALL loadConfig(JNIEnv* env, jclass, jstring aFileName)
 {
     JavaString fileName(env, aFileName);
-    setSequenceLogFileName(fileName.getBuffer());
-}
-
-/*
- * Class:     jp_printf_slog_Log
- * Method:    setServiceAddress
- * Signature: (Ljava/lang/String;)V
- */
-static void JNICALL setServiceAddress(JNIEnv* env, jclass, jstring aAddress)
-{
-    JavaString address(env, aAddress);
-    setSequenceLogServiceAddress(address.getBuffer());
-}
-
-/*
- * Class:     jp_printf_slog_Log
- * Method:    enableOutput
- * Signature: (Z)V
- */
-static void JNICALL enableOutputJNI(JNIEnv* env, jclass, jboolean enable)
-{
-    enableOutput(enable == 1);
+    loadSequenceLogConfig(fileName.getBuffer());
 }
 
 /*
@@ -406,17 +385,13 @@ static void JNICALL ws_sendBinary(JNIEnv* env, jobject thiz, jobject data)
 // JNIメソッド配列
 static JNINativeMethodEx sSlogMethods[] =
 {
-    {"setFileName",       "(Ljava/lang/String;)V",                    (void*)setFileName      },
-    {"setServiceAddress", "(Ljava/lang/String;)V",                    (void*)setServiceAddress},
-//  {"setRootFlag",       "(I)V",                                     (void*)setRootFlagJNI   },
-    {"enableOutput",      "(Z)V",                                     (void*)enableOutputJNI  },
+    {"loadConfig",        "(Ljava/lang/String;)V",                    (void*)loadConfig       },
     {"stepIn",            "(Ljava/lang/String;Ljava/lang/String;)J",  (void*)stepIn1          },
 //  {"stepIn",            "(ILjava/lang/String;)J",                   (void*)stepIn2          },
 //  {"stepIn",            "(II)J",                                    (void*)stepIn3          },
     {"stepOut",           "(J)V",                                     (void*)stepOut          },
     {"message",           "(ILjava/lang/String;J)V",                  (void*)message1         },
 //  {"message",           "(IIJ)V",                                   (void*)message2         },
-
     {"message",           "(ILjava/lang/String;Ljava/lang/String;)V", (void*)message3         },
 };
 

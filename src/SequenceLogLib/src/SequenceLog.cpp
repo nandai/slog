@@ -19,12 +19,7 @@
  * \brief   シーケンスログクラス
  * \author  Copyright 2011-2014 printf.jp
  */
-#include "slog/slog.h"
-
-#if defined(_WINDOWS)
 #pragma execution_character_set("utf-8")
-#include <windows.h>
-#endif
 
 #if defined(__unix__)
 #include <string.h>
@@ -37,7 +32,8 @@
 #include "slog/WebSocketClient.h"
 #include "slog/Process.h"
 #include "slog/FixedString.h"
-
+#include "slog/File.h"
+#include "slog/Tokenizer.h"
 #include "slog/WebServerResponseThread.h"
 
 /******************************************************************************
@@ -682,7 +678,7 @@ uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, 
 /*!
  * \brief   シーケンスログファイル名を設定する
  */
-extern "C" void setSequenceLogFileName(const char* fileName)
+static void setSequenceLogFileName(const char* fileName)
 {
     if (strlen(fileName) <= sizeof(slog::sSequenceLogFileName) - 1)
         strcpy(slog::sSequenceLogFileName, fileName);
@@ -691,23 +687,59 @@ extern "C" void setSequenceLogFileName(const char* fileName)
 /*!
  * \brief   シーケンスログサービスのアドレスを設定する
  */
-extern "C" void setSequenceLogServiceAddress(const char* url)
+static void setSequenceLogServiceAddress(const char* url)
 {
     if (strlen(url) <= sizeof(slog::sSequenceLogServiceAddress) - 1)
-    {
         strcpy(slog::sSequenceLogServiceAddress, url);
-    }
+}
+
+static void enableOutput(int32_t enable)
+{
+    slog::sRootFlag = (enable != 0 ? slog::ROOT : slog::KEEP);
 }
 
 /*!
- * \brief   ROOTの既定値を設定する
+ * \brief   シーケンスログコンフィグを読み込む
  */
-//extern "C" void setRootFlag(int32_t outputFlag)
-//{
-//    slog::sRootFlag = (slog::SequenceLogOutputFlag)outputFlag;
-//}
-
-extern "C" void enableOutput(int32_t enable)
+extern "C" void loadSequenceLogConfig(const char* fileName)
 {
-    slog::sRootFlag = (enable != 0 ? slog::ROOT : slog::KEEP);
+    try
+    {
+        slog::String url;
+        slog::String logFileName;
+        slog::String logLevel;
+
+        slog::File file;
+        file.open(fileName, slog::File::READ);
+
+        slog::String str;
+        slog::String fmt1 = "[key] [value1]";
+        slog::Tokenizer tokenizer(&fmt1);
+
+        while (file.read(&str))
+        {
+            tokenizer.exec(&str);
+
+            const slog::CoreString* key = tokenizer.getValue("key");
+            const slog::Variant& value1 = tokenizer.getValue("value1");
+
+            if (key->equals("SEQUENCE_LOG_SERVICE"))
+                url.copy(value1);
+
+            if (key->equals("LOG_FILE_NAME"))
+                logFileName.copy(value1);
+
+            if (key->equals("LOG_LEVEL"))
+                logLevel.copy(value1);
+        }
+
+        setSequenceLogServiceAddress(url.getBuffer());
+        setSequenceLogFileName(logFileName.getBuffer());
+        enableOutput(logLevel.equals("ALL"));   // TODO: 現状に合わせた仮実装。
+                                                // のちのちALL, DEBUG, INFO, WARN, ERROR, NONEの６つに対応する
+    }
+    catch (slog::Exception e)
+    {
+        noticeLog("%s", e.getMessage());
+    }
 }

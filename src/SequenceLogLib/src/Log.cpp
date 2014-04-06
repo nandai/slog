@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   Log.cpp
- *  \brief  シーケンスログ（C#）
- *  \author Copyright 2011-2013 printf.jp
+ * \file    Log.cpp
+ * \brief   シーケンスログ（C#）
+ * \author  Copyright 2011-2013 printf.jp
  */
 #include "slog/SequenceLog.h"
 
@@ -33,48 +33,21 @@ namespace Slog
 {
 
 /*!
- *  \brief  シーケンスログファイル名を設定する
+ * \brief   シーケンスログコンフィグを読み込む
  */
-void Log::SetFileName(String^ aName)
+void Log::LoadConfig(String^ aFileName)
 {
 #if !defined(MODERN_UI)
-    slog::CSharpString name = aName;
+    slog::CSharpString fileName = aFileName;
 #else
-    slog::String name;
-    name.conv(aName->Data());
+    slog::String fileName;
+    fileName.conv(aFileName->getBuffer());
 #endif
-    setSequenceLogFileName(name.getBuffer());
+    loadSequenceLogConfig(fileName.getBuffer());
 }
 
 /*!
- *  \brief  シーケンスログサービスのアドレスを設定する
- */
-void Log::SetServiceAddress(String^ aAddress)
-{
-#if !defined(MODERN_UI)
-    slog::CSharpString address = aAddress;
-#else
-    slog::String address;
-    address.conv(aAddress->Data());
-#endif
-    setSequenceLogServiceAddress(address.getBuffer());
-}
-
-/*!
- *  \brief  ROOTの既定値を設定する
- */
-//void Log::SetRootFlag(int32_t outputFlag)
-//{
-//    setRootFlag(outputFlag);
-//}
-
-void Log::EnableOutput(bool enable)
-{
-    enableOutput(enable);
-}
-
-/*!
- *  \brief  ステップイン
+ * \brief   ステップイン
  */
 int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag)
 {
@@ -94,7 +67,7 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag
 }
 
 /*!
- *  \brief  ステップイン
+ * \brief   ステップイン
  */
 //int64_t Log::StepIn(int32_t classID, String^ aFuncName)//, int32_t outputFlag)
 //{
@@ -110,7 +83,7 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag
 //}
 
 /*!
- *  \brief  ステップイン
+ * \brief   ステップイン
  */
 //int64_t Log::StepIn(int32_t classID, int32_t funcID)//, int32_t outputFlag)
 //{
@@ -119,7 +92,7 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag
 //}
 
 /*!
- *  \brief  ステップアウト
+ * \brief   ステップアウト
  */
 void Log::StepOut(int64_t slog)
 {
@@ -128,7 +101,7 @@ void Log::StepOut(int64_t slog)
 }
 
 /*!
- *  \brief  メッセージ
+ * \brief   メッセージ
  */
 void Log::Message(int32_t level, String^ aMessage, int64_t slog)
 {
@@ -145,7 +118,7 @@ void Log::Message(int32_t level, String^ aMessage, int64_t slog)
 }
 
 /*!
- *  \brief  メッセージ
+ * \brief   メッセージ
  */
 //void Log::Message(int32_t level, int32_t messageID, int64_t slog)
 //{
