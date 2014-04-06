@@ -70,15 +70,15 @@ void WebServerResponse::generateSession(int32_t userId)
     const CoreString* userAgent = mHttpRequest->getUserAgent();
     bool secure =                (mHttpRequest->getScheme() == HttpRequest::SCHEME::HTTPS);
 
-    Session* session = SessionManager::get(ip, userAgent);
+    Session* session = SessionManager::get(userId, userAgent);
 
     if (session == nullptr)
     {
-        session = new Session(ip, userAgent);
+        session = new Session(userId, userAgent);
         SessionManager::add(session);
     }
 
-    session->setUserId(userId);
+    session->setIP(ip);
     session->setSecure(secure);
     session->generate();
 

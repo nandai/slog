@@ -40,10 +40,9 @@ static SessionManager sSessionManager;
 /*!
  * \brief   コンストラクタ
  */
-Session::Session(const CoreString* ip, const CoreString* userAgent)
+Session::Session(int32_t userId, const CoreString* userAgent)
 {
-    mUserId = -1;
-    mIP.copy(ip);
+    mUserId = userId;
     mUserAgent.copy(userAgent);
     mSecure = false;
 }
@@ -87,8 +86,13 @@ void SessionManager::clear()
 
 /*!
  * \brief   セッション取得
+ *
+ * \param[in]   userId      ユーザーID
+ * \param[in]   userAgent   ユーザーエージェント
+ *
+ * \return  セッション
  */
-Session* SessionManager::get(const CoreString* ip, const CoreString* userAgent)
+Session* SessionManager::get(int32_t userId, const CoreString* userAgent)
 {
     ScopedLock lock(&sSessionManager.mSessionMutex);
     Session* session;
@@ -97,11 +101,46 @@ Session* SessionManager::get(const CoreString* ip, const CoreString* userAgent)
     {
         session = *i;
 
-        if (session->getIP()->       equals(ip) &&
-            session->getUserAgent()->equals(userAgent))
-        {
-            return session;
-        }
+        if (session->getUserId() != userId)
+            continue;
+
+        if (session->getUserAgent()->equals(userAgent) == false)
+            continue;
+
+        return session;
+    }
+
+    return nullptr;
+}
+
+/*!
+ * \brief   セッション取得
+ *
+ * \param[in]   id          セッションID
+ * \param[in]   ip          IPアドレス
+ * \param[in]   userAgent   ユーザーエージェント
+ *
+ * \return  セッション
+ */
+Session* SessionManager::get(const CoreString* id, const CoreString* ip, const CoreString* userAgent)
+{
+    ScopedLock lock(&sSessionManager.mSessionMutex);
+    Session* session;
+
+    for (auto i = sSessionManager.mSessionList.begin(); i != sSessionManager.mSessionList.end(); i++)
+    {
+        session = *i;
+
+        if (session->getId()->equals(id) == false)
+            continue;
+
+        if (session->getIP()->equals(ip) == false)
+            continue;
+
+        if (session->getUserAgent()->equals(userAgent) == false)
+            continue;
+
+        return session;
     }
 
     return nullptr;
@@ -109,6 +148,10 @@ Session* SessionManager::get(const CoreString* ip, const CoreString* userAgent)
 
 /*!
  * \brief   セッション追加
+ *
+ * \param[in]   session セッション
+ *
+ * \return  なし
  */
 void SessionManager::add(Session* session)
 {

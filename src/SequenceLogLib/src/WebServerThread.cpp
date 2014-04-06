@@ -341,9 +341,9 @@ WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
         const CoreString* ip =        httpRequest->getSocket()->getInetAddress();
         const CoreString* userAgent = httpRequest->getUserAgent();
 
-        Session* session = SessionManager::get(ip, userAgent);
+        Session* session = SessionManager::get(&sessionId, ip, userAgent);
 
-        if (session == nullptr || session->getId()->equals(&sessionId) == false)
+        if (session == nullptr)
             break;
 
         if (userAgent->indexOf("Firefox") == -1)    // Firefoxの場合、再生成すると以降のアクセス時にセッションIDが一致しないので（原因不明）
