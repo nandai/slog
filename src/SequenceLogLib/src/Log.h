@@ -43,14 +43,9 @@ private:    Log() {}
 
 public:     static void LoadConfig(String^ aFileName);
 
-            static int64_t StepIn(String^ aClassName, String^ aFuncName);// {return StepIn(aClassName, aFuncName, KEEP);}
-//          static int64_t StepIn(String^ aClassName, String^ aFuncName, int32_t outputFlag);
-
-//          static int64_t StepIn(int32_t classID,    String^ aFuncName);// {return StepIn(classID,    aFuncName, KEEP);}
-//          static int64_t StepIn(int32_t classID,    String^ aFuncName, int32_t outputFlag);
-
-//          static int64_t StepIn(int32_t classID,    int32_t funcID);//    {return StepIn(classID,    funcID,    KEEP);}
-//          static int64_t StepIn(int32_t classID,    int32_t funcID,    int32_t outputFlag);
+            static int64_t StepIn(String^ aClassName, String^ aFuncName);
+//          static int64_t StepIn(int32_t classID,    String^ aFuncName);
+//          static int64_t StepIn(int32_t classID,    int32_t funcID);
 
             static void StepOut(int64_t slog);
 

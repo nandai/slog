@@ -42,11 +42,8 @@
         #define SMSG    _slog.message
     #endif
 
-//  #define SLOG_STEPIN( className, funcName, outputFlag)   void* _slog = _slog_stepIn( className, funcName, outputFlag)
     #define SLOG_STEPIN( className, funcName)               void* _slog = _slog_stepIn( className, funcName)
-//  #define SLOG_STEPIN2(classID,   funcName, outputFlag)   void* _slog = _slog_stepIn2(classID,   funcName, outputFlag)
 //  #define SLOG_STEPIN2(classID,   funcName)               void* _slog = _slog_stepIn2(classID,   funcName)
-//  #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = _slog_stepIn3(classID,   funcID,   outputFlag)
 //  #define SLOG_STEPIN3(classID,   funcID)                 void* _slog = _slog_stepIn3(classID,   funcID)
     #define SLOG_STEPOUT                _slog_stepOut( _slog)
     #define SMSGC( level, format, ...)  _slog_message( _slog, level, format, ##__VA_ARGS__)
@@ -58,11 +55,8 @@
         #define SMSG
     #endif
 
-//  #define SLOG_STEPIN( className, funcName, outputFlag)   void* _slog = 0
     #define SLOG_STEPIN( className, funcName)               void* _slog = 0
-//  #define SLOG_STEPIN2(classID,   funcName, outputFlag)   void* _slog = 0
 //  #define SLOG_STEPIN2(classID,   funcName)               void* _slog = 0
-//  #define SLOG_STEPIN3(classID,   funcID,   outputFlag)   void* _slog = 0
 //  #define SLOG_STEPIN3(classID,   funcID)                 void* _slog = 0
     #define SLOG_STEPOUT
     #define SMSGC( level, format, ...)

@@ -25,6 +25,8 @@
 #include "slog/Json.h"
 #include "slog/SequenceLog.h"
 
+#include <stdlib.h>
+
 using namespace std;
 
 namespace slog

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,8 @@ public final class Log
      * ステップイン
      */
     public  native static long stepIn(String className, String funcName);
-//  public  native static long stepIn(String className, String funcName, int outputFlag);
-
 //  public  native static long stepIn(int classID,      String funcName);
-//  public  native static long stepIn(int classID,      String funcName, int outputFlag);
-
 //  public  native static long stepIn(int classID,      int    funcID);
-//  public  native static long stepIn(int classID,      int    funcID,   int outputFlag);
 
     /**
      * ステップアウト

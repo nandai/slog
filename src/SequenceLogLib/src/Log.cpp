@@ -17,7 +17,7 @@
 /*!
  * \file    Log.cpp
  * \brief   シーケンスログ（C#）
- * \author  Copyright 2011-2013 printf.jp
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/SequenceLog.h"
 
@@ -49,7 +49,7 @@ void Log::LoadConfig(String^ aFileName)
 /*!
  * \brief   ステップイン
  */
-int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag)
+int64_t Log::StepIn(String^ aClassName, String^ aFuncName)
 {
 #if !defined(MODERN_UI)
     slog::CSharpString className = aClassName;
@@ -69,7 +69,7 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag
 /*!
  * \brief   ステップイン
  */
-//int64_t Log::StepIn(int32_t classID, String^ aFuncName)//, int32_t outputFlag)
+//int64_t Log::StepIn(int32_t classID, String^ aFuncName)
 //{
 //#if !defined(MODERN_UI)
 //    slog::CSharpString funcName = aFuncName;
@@ -85,7 +85,7 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag
 /*!
  * \brief   ステップイン
  */
-//int64_t Log::StepIn(int32_t classID, int32_t funcID)//, int32_t outputFlag)
+//int64_t Log::StepIn(int32_t classID, int32_t funcID)
 //{
 //    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcID);
 //    return (int64_t)slogObj;

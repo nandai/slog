@@ -25,17 +25,17 @@
 
 namespace slog
 {
-static const Validate::Success  sSuccess;
-static const Validate::Invalid  sInvalid;
-static const Validate::Empty    sEmpty;
-static const Validate::TooShort sTooShort;
-static const Validate::TooLong  sTooLong;
+static Validate::Success  sSuccess;
+static Validate::Invalid  sInvalid;
+static Validate::Empty    sEmpty;
+static Validate::TooShort sTooShort;
+static Validate::TooLong  sTooLong;
 
-const Validate::Success*  Validate::SUCCESS =   &sSuccess;
-const Validate::Invalid*  Validate::INVALID =   &sInvalid;
-const Validate::Empty*    Validate::EMPTY =     &sEmpty;
-const Validate::TooShort* Validate::TOO_SHORT = &sTooShort;
-const Validate::TooLong*  Validate::TOO_LONG =  &sTooLong;
+const  Validate::Success*  Validate::SUCCESS =   &sSuccess;
+const  Validate::Invalid*  Validate::INVALID =   &sInvalid;
+const  Validate::Empty*    Validate::EMPTY =     &sEmpty;
+const  Validate::TooShort* Validate::TOO_SHORT = &sTooShort;
+const  Validate::TooLong*  Validate::TOO_LONG =  &sTooLong;
 
 /*!
  * \brief   コンストラクタ

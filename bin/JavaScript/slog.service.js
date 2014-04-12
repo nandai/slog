@@ -100,5 +100,5 @@
         for (var i = 0; i < exports.slog.service.logViews.length; i++)
             exports.slog.service.logViews[i].draw();
     },
-    100);
+    50);
 })(this);
