@@ -123,9 +123,7 @@ public class App extends android.app.Application
     {
         {
             System.loadLibrary("slog");
-            Log.setFileName("SequenceLogServiceForAndroid.slog");
-            Log.setServiceAddress("ws://192.168.0.2:8080");     // 自分自身以外の端末を指定する
-            Log.enableOutput(false);
+            Log.loadConfig("/sdcard/SequenceLogService.log.config");
         }
 
         long TAG = Log.stepIn(CLS_NAME, "onCreate");
@@ -147,9 +145,9 @@ public class App extends android.app.Application
 
         install("bin/slogsvc",       "slogsvc",       "755");
         install("web/index.html",    "index.html",    "644");
-        install("web/notfound.html", "notfound.html", "644");
+        install("web/notFound.html", "notFound.html", "644");
         install("web/login.html",    "login.html",    "644");
-        install("web/login.js",      "login.js",      "644");
+        install("web/login.pjs",     "login.pjs",     "644");
         install("web/login.pcss",    "login.pcss",    "644");
         install("web/account.html",  "account.html",  "644");
         install("web/wait.gif",      "wait.gif",      "644");
