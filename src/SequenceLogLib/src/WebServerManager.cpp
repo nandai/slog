@@ -21,8 +21,7 @@
  */
 #include "slog/WebServerManager.h"
 #include "slog/WebServerThread.h"
-
-#include "Session.h"
+#include "slog/Session.h"
 
 namespace slog
 {

@@ -138,6 +138,11 @@ public:     AccountLogic();
             bool getById(Account* account) const;
 
             /*!
+             * ユーザー名でアカウントを取得する
+             */
+            bool getByName(Account* account) const;
+
+            /*!
              * アカウントリスト取得
              */
             void getList(std::list<Account*>* accountList) const;

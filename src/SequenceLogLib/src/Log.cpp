@@ -62,7 +62,7 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag
     funcName. conv(aFuncName-> Data());
 #endif
 
-    slog::SequenceLog* slogObj = new slog::SequenceLog(className.getBuffer(), funcName.getBuffer());//, (slog::SequenceLogOutputFlag)outputFlag);
+    slog::SequenceLog* slogObj = new slog::SequenceLog(className.getBuffer(), funcName.getBuffer());
     return (int64_t)slogObj;
 }
 
@@ -78,7 +78,7 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag
 //    funcName.conv(aFuncName->Data());
 //#endif
 //
-//    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcName.getBuffer());//, (slog::SequenceLogOutputFlag)outputFlag);
+//    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcName.getBuffer());
 //    return (int64_t)slogObj;
 //}
 
@@ -87,7 +87,7 @@ int64_t Log::StepIn(String^ aClassName, String^ aFuncName)//, int32_t outputFlag
  */
 //int64_t Log::StepIn(int32_t classID, int32_t funcID)//, int32_t outputFlag)
 //{
-//    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcID);//, (slog::SequenceLogOutputFlag)outputFlag);
+//    slog::SequenceLog* slogObj = new slog::SequenceLog(classID, funcID);
 //    return (int64_t)slogObj;
 //}
 

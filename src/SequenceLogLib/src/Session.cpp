@@ -19,8 +19,7 @@
  *  \brief  セッションクラス
  *  \author Copyright 2014 printf.jp
  */
-#include "Session.h"
-
+#include "slog/Session.h"
 #include "slog/DateTime.h"
 #include "slog/SHA1.h"
 
@@ -92,37 +91,61 @@ void SessionManager::clear()
  *
  * \return  セッション
  */
-Session* SessionManager::get(int32_t userId, const CoreString* userAgent)
+Session* SessionManager::getByUserId(int32_t userId, const CoreString* userAgent)
 {
-    ScopedLock lock(&sSessionManager.mSessionMutex);
-    Session* session;
+    if (userId == -1 || userAgent == nullptr)
+        return nullptr;
 
-    for (auto i = sSessionManager.mSessionList.begin(); i != sSessionManager.mSessionList.end(); i++)
-    {
-        session = *i;
-
-        if (session->getUserId() != userId)
-            continue;
-
-        if (session->getUserAgent()->equals(userAgent) == false)
-            continue;
-
-        return session;
-    }
-
-    return nullptr;
+    Session* session = find(nullptr, userId, nullptr, userAgent);
+    return   session;
 }
 
 /*!
  * \brief   セッション取得
  *
- * \param[in]   id          セッションID
+ * \param[in]   userId      ユーザーID
+ * \param[in]   ip          IPアドレス
+ *
+ * \return  セッション
+ */
+Session* SessionManager::getByUserIdAndIp(int32_t userId, const CoreString* ip)
+{
+    if (userId == -1 || ip == nullptr)
+        return nullptr;
+
+    Session* session = find(nullptr, userId, ip, nullptr);
+    return   session;
+}
+
+/*!
+ * \brief   セッション取得
+ *
+ * \param[in]   id          セッションID（null可）
  * \param[in]   ip          IPアドレス
  * \param[in]   userAgent   ユーザーエージェント
  *
  * \return  セッション
  */
-Session* SessionManager::get(const CoreString* id, const CoreString* ip, const CoreString* userAgent)
+Session* SessionManager::getBySessionIdAndIp(const CoreString* id, const CoreString* ip, const CoreString* userAgent)
+{
+    if (ip == nullptr || userAgent == nullptr)
+        return nullptr;
+
+    Session* session = find(id, -1, ip, userAgent);
+    return   session;
+}
+
+/*!
+ * \brief   セッション取得
+ *
+ * \param[in]   id          セッションID        （null: 無条件）
+ * \param[in]   userId      ユーザーID          （-1  : 無条件）
+ * \param[in]   ip          IPアドレス          （null: 無条件）
+ * \param[in]   userAgent   ユーザーエージェント（null: 無条件）
+ *
+ * \return  セッション
+ */
+Session* SessionManager::find(const CoreString* id, int32_t userId, const CoreString* ip, const CoreString* userAgent)
 {
     ScopedLock lock(&sSessionManager.mSessionMutex);
     Session* session;
@@ -131,13 +154,16 @@ Session* SessionManager::get(const CoreString* id, const CoreString* ip, const C
     {
         session = *i;
 
-        if (session->getId()->equals(id) == false)
+        if (id         && session->getId()->equals(id) == false)
             continue;
 
-        if (session->getIP()->equals(ip) == false)
+        if (userId > 0 && session->getUserId() != userId)
             continue;
 
-        if (session->getUserAgent()->equals(userAgent) == false)
+        if (ip         && session->getIP()->equals(ip) == false)
+            continue;
+
+        if (userAgent  && session->getUserAgent()->equals(userAgent) == false)
             continue;
 
         return session;
@@ -157,6 +183,19 @@ void SessionManager::add(Session* session)
 {
     ScopedLock lock(&sSessionManager.mSessionMutex);
     sSessionManager.mSessionList.push_back(session);
+}
+
+/*!
+ * \brief   セッション削除
+ *
+ * \param[in]   session セッション
+ *
+ * \return  なし
+ */
+void SessionManager::remove(Session* session)
+{
+    ScopedLock lock(&sSessionManager.mSessionMutex);
+    sSessionManager.mSessionList.remove(session);
 }
 
 } // namespace slog

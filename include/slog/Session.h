@@ -25,6 +25,7 @@
 #include "slog/Mutex.h"
 
 #include <list>
+#pragma warning(disable:4251)
 
 namespace slog
 {
@@ -113,7 +114,7 @@ public:     Session(int32_t userId, const CoreString* userAgent);
 /*!
  *  \brief  セッションマネージャークラス
  */
-class SessionManager
+class SLOG_API SessionManager
 {
             /*!
              * セッションミューテックス
@@ -133,17 +134,32 @@ public:     static void clear();
             /*
              * セッション取得
              */
-            static Session* get(int32_t userId, const CoreString* userAgent);
+            static Session* getByUserId(int32_t userId, const CoreString* userAgent);
 
             /*
              * セッション取得
              */
-            static Session* get(const CoreString* id, const CoreString* ip, const CoreString* userAgent);
+            static Session* getByUserIdAndIp(int32_t userId, const CoreString* ip);
+
+            /*
+             * セッション取得
+             */
+            static Session* getBySessionIdAndIp(const CoreString* id, const CoreString* ip, const CoreString* userAgent);
+
+            /*
+             * セッション検索
+             */
+private:    static Session* find(const CoreString* id, int32_t userId, const CoreString* ip, const CoreString* userAgent);
 
             /*!
              * セッション追加
              */
-            static void add(Session* session);
+public:     static void add(Session* session);
+
+            /*!
+             * セッション削除
+             */
+            static void remove(Session* session);
 };
 
 } // namespace slog

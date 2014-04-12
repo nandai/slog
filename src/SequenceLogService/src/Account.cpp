@@ -94,32 +94,13 @@ bool AccountLogic::getByNamePassword(Account* account) const
     SLOG(CLS_NAME, "getByNamePassword");
     String passwd = account->passwd;
 
-//  std::unique_ptr<Statement> stmt(mDB->newStatement());
-    Statement* stmt =               mDB->newStatement();
+    if (getByName(account) == false)
+        return false;
 
-    prepare(stmt, account, "name=?");
-    stmt->setStringParam(0, &account->name);
+    String hashPasswd;
+    getHashPassword(&hashPasswd, &account->name, &passwd, account->version);
 
-    stmt->bind();
-    stmt->execute();
-
-    bool res = stmt->fetch();
-    delete stmt;
-
-    if (res)
-    {
-        String hashPasswd;
-        getHashPassword(&hashPasswd, &account->name, &passwd, account->version);
-
-        res = account->passwd.equals(&hashPasswd);
-    }
-
-    SMSG(slog::DEBUG, "id:%d, name:%s, version:%d, admin:%d",
-        account->id,
-        account->name.getBuffer(),
-        account->version,
-        account->admin);
-
+    bool res = account->passwd.equals(&hashPasswd);
     return res;
 }
 
@@ -139,6 +120,38 @@ bool AccountLogic::getById(Account* account) const
 
     prepare(stmt, account, "id=?");
     stmt->setLongParam(0, account->id);
+
+    stmt->bind();
+    stmt->execute();
+
+    bool res = stmt->fetch();
+    delete stmt;
+
+    SMSG(slog::DEBUG, "id:%d, name:%s, version:%d, admin:%d",
+        account->id,
+        account->name.getBuffer(),
+        account->version,
+        account->admin);
+
+    return res;
+}
+
+/*!
+ * \brief   ユーザー名でアカウントを取得する
+ *
+ * \param[in,out]   account アカウント
+ *
+ * \return  取得できた場合はtrue、できなかった場合はfalseを返す
+ */
+bool AccountLogic::getByName(Account* account) const
+{
+    SLOG(CLS_NAME, "getByName");
+
+//  std::unique_ptr<Statement> stmt(mDB->newStatement());
+    Statement* stmt =               mDB->newStatement();
+
+    prepare(stmt, account, "name=?");
+    stmt->setStringParam(0, &account->name);
 
     stmt->bind();
     stmt->execute();

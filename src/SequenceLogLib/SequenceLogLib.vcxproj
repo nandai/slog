@@ -269,9 +269,9 @@
     <ClInclude Include="..\..\include\slog\HttpResponse.h" />
     <ClInclude Include="..\..\include\slog\JavaString.h" />
     <ClInclude Include="..\..\include\slog\Json.h" />
+    <ClInclude Include="..\..\include\slog\Session.h" />
     <ClInclude Include="..\..\include\slog\SHA256.h" />
     <ClInclude Include="..\..\include\slog\Validate.h" />
-    <ClInclude Include="src\Session.h" />
     <CustomBuild Include="src\Log.h" />
     <ClInclude Include="..\..\include\slog\MimeType.h" />
     <ClInclude Include="..\..\include\slog\Mutex.h" />

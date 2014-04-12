@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   SequenceLog.h
  *  \brief  シーケンスログクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -81,18 +81,7 @@ namespace slog
 #endif
 
 /*!
- *  \brief  出力フラグ
- */
-enum SequenceLogOutputFlag
-{
-    KEEP =       0,     //!< シーケンスログの出力をキープする
-    OUTPUT_ALL = 1,     //!< キープ中のシーケンスログも含め出力する
-    ALWAYS =     2,     //!< キープ中のシーケンスログを出力し、さらに配下のシーケンスログは即座に出力する
-    ROOT =       3,     //!< シーケンスログサービスでルートをオンにするとALWAYSとして、オフにするとKEEPとして扱う
-};
-
-/*!
- *  \brief  ログレベル
+ * \brief   ログレベル
  */
 enum SequenceLogLevel
 {
@@ -117,10 +106,8 @@ extern "C" {
 typedef int32_t bool;
 #endif
 
-//OG_API void* _slog_stepIn( const char* className, const char* funcName, SequenceLogOutputFlag outputFlag);
-SLOG_API void* _slog_stepIn( const char* className, const char* funcName);//, int32_t           outputFlag);
-//OG_API void* _slog_stepIn2(uint32_t    classID,   const char* funcName);//, int32_t           outputFlag);
-//OG_API void* _slog_stepIn3(uint32_t    classID,   uint32_t    funcID);//,   int32_t           outputFlag);
+SLOG_API void* _slog_stepIn( const char* className, const char* funcName);
+//OG_API void* _slog_stepIn3(uint32_t    classID,   uint32_t    funcID);
 SLOG_API void  _slog_stepOut(void* p);
 //OG_API void  _slog_message( void* p, SequenceLogLevel level, const char* format, ...);
 SLOG_API void  _slog_message( void* p, int32_t          level, const char* format, ...);
@@ -152,18 +139,19 @@ namespace slog
  */
 class SLOG_API SequenceLog
 {
-            uint32_t                mSeqNo;         //!< シーケンス番号
-            SequenceLogOutputFlag   mOutputFlag;    //!< 出力フラグ
+            /*!
+             * シーケンス番号
+             */
+            uint32_t mSeqNo;
 
             //
             // コンストラクタ / デストラクタ
             //
-public:      SequenceLog(const char* className, const char* funcName);//, SequenceLogOutputFlag outputFlag = KEEP);
-//           SequenceLog(uint32_t    classID,   const char* funcName);//, SequenceLogOutputFlag outputFlag = KEEP);
-//           SequenceLog(uint32_t    classID,   uint32_t    funcID);//,   SequenceLogOutputFlag outputFlag = KEEP);
+public:      SequenceLog(const char* className, const char* funcName);
+//           SequenceLog(uint32_t    classID,   uint32_t    funcID);
             ~SequenceLog();
 
-private:    void init(SequenceLogOutputFlag outputFlag);
+private:    void init();
 
             //
             // メッセージ出力

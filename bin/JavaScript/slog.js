@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,20 @@
 
 (function(exports)
 {
+    var STEP_IN =  0;
+    var STEP_OUT = 1;
+    var MESSAGE =  2;
+
+    var DEBUG = 0;  // デバッグ
+    var INFO =  1;  // 情報
+    var WARN =  2;  // 警告
+    var ERROR = 3;  // エラー
+
     var SequenceLogClient = function()
     {
         this.ws;
-        this.name;
-        this.rootFlag = this.ROOT;
+        this.fileName;
+        this.logLevel;
         this.seqNo = 0;
 
         this.itemList = []; // 接続が完了する前に出力されたログを貯めておく
@@ -28,30 +37,69 @@
 
     SequenceLogClient.prototype =
     {
-        KEEP: 0,
-        ROOT: 3,
-
-        setFileName: function(name)
+        setConfig: function(serviceAddr, fileName, logLevel)
         {
-            this.name = name;
+            this.fileName = fileName;
+
+            if (logLevel === 'ALL')   this.logLevel = DEBUG - 1;
+            if (logLevel === 'DEBUG') this.logLevel = DEBUG;
+            if (logLevel === 'INFO')  this.logLevel = INFO;
+            if (logLevel === 'WARN')  this.logLevel = WARN;
+            if (logLevel === 'ERROR') this.logLevel = ERROR;
+            if (logLevel === 'NONE')  this.logLevel = ERROR + 1;
+
+            this.setServiceAddress(serviceAddr);
         },
 
         setServiceAddress: function(address)
         {
+            if (this.logLevel === ERROR + 1)
+                return;
+
             var self = this;
             this.ws = new WebSocket(address + '/outputLog');
             this.ws.binaryType = 'arraybuffer';
 
             this.ws.onopen = function()
             {
-                var len = self.getStringBytes(self.name) + 1;
-                var buffer = new ArrayBuffer(4 + 4 + len);
+                var fileNameLen = self.getStringBytes(self.fileName) + 1;
+
+                var buffer = new ArrayBuffer(
+                    4 +
+                    4 + 1 +
+                    4 + 1 +
+                    4 + fileNameLen +
+                    4);
+
                 var dataView = new DataView(buffer);
+                var pos = 0;
 
-                dataView.setUint32(0, 1);       // プロセスID
-                dataView.setUint32(4, len);     // ファイル名の長さ
-                self.setStringToDataView(dataView, 8, self.name);
+                // プロセスID（1固定）
+                dataView.setUint32(pos, 1);
+                pos += 4;
 
+                // ユーザー名（なし）
+                dataView.setUint32(pos, 1);
+                pos += 4;
+                pos += 1;
+
+                // パスワード（なし）
+                dataView.setUint32(pos, 1);
+                pos += 4;
+                pos += 1;
+
+                // シーケンスログファイル名
+                dataView.setUint32(pos, fileNameLen);
+                pos += 4;
+
+                self.setStringToDataView(dataView, pos, self.fileName);
+                pos += fileNameLen;
+
+                // ログレベル
+                dataView.setUint32(pos, self.logLevel);
+                pos += 4;
+
+                // 送信
                 self.ws.send(dataView.buffer);
                 self.sendAllItems();
             };
@@ -71,11 +119,6 @@
             {
                 console.info('close slog WebSocket');
             };
-        },
-
-        enableOutput: function(enable)
-        {
-            this.rootFlag = (enable ? this.ROOT : this.KEEP);
         },
 
         getSequenceNo: function()
@@ -171,6 +214,9 @@
 
         sendItem: function(item)
         {
+            if (this.logLevel === ERROR + 1)
+                return;
+
             if (this.ws.readyState === WebSocket.CONNECTING)
             {
                 this.itemList[this.itemList.length] = item;
@@ -288,12 +334,6 @@
                     break;
                 }
 
-                // 出力フラグ
-                if (dataView) {
-                    dataView.setUint32(pos,  item.outputFlag);
-                }
-                pos += 4;
-
                 // 先頭にレコード長
                 if (dataView) {
                     dataView.setUint16(0, pos);
@@ -335,8 +375,6 @@
 //      this.classId;           // クラスID                      20: uint32_t
 //      this.funcId;            // メソッドID                    24: uint32_t
 
-        this.outputFlag;        // 出力フラグ                    28: uint32_t
-
         this.level = 0;         // ログレベル                    32: uint32_t
 //      this.messageId;         // メッセージID                  36: uint32_t
 
@@ -365,22 +403,10 @@
         }
     };
 
-    // 定数定義
-    var STEP_IN =  0;
-    var STEP_OUT = 1;
-    var MESSAGE =  2;
-
-    var DEBUG = 0;  // デバッグ
-    var INFO =  1;  // 情報
-    var WARN =  2;  // 警告
-    var ERROR = 3;  // エラー
-
     // シーケンスログ
     var SequenceLog = function(className, funcName)
     {
         this.seqNo;
-        this.outputFlag;
-
         stepIn(this, className, funcName);
     };
 
@@ -391,7 +417,6 @@
             var item = new SequenceLogItem();
             item.seqNo = this.seqNo;
             item.type = STEP_OUT;
-            item.outputFlag = this.outputFlag;
 
             client.sendItem(item);
         },
@@ -404,13 +429,11 @@
 
     function stepIn(log, className, funcName)
     {
-        log.seqNo =      client.getSequenceNo();
-        log.outputFlag = client.rootFlag;
+        log.seqNo = client.getSequenceNo();
 
         var item = new SequenceLogItem();
         item.seqNo = log.seqNo;
         item.type = STEP_IN;
-        item.outputFlag = log.outputFlag;
         item.className = className;
         item.funcName = funcName;
 
@@ -422,7 +445,6 @@
         var item = new SequenceLogItem();
         item.seqNo = log.seqNo;
         item.type = MESSAGE;
-        item.outputFlag = log.outputFlag;
         item.level = level;
         item.message = msg;
 
@@ -435,8 +457,13 @@
     if (exports.slog === undefined)
         exports.slog = {};
 
-    exports.slog.setFileName =       function(name)          {client.setFileName(name);},
-    exports.slog.setServiceAddress = function(address)       {client.setServiceAddress(address);},
-    exports.slog.enableOutput =      function(enable)        {client.enableOutput(enable);},
-    exports.slog.stepIn =            function(className, funcName) {return new SequenceLog(className, funcName);}
+    exports.slog.setConfig = function(serviceAddr, fileName, logLevel)
+    {
+        client.setConfig(serviceAddr, fileName, logLevel);
+    };
+
+    exports.slog.stepIn = function(className, funcName)
+    {
+        return new SequenceLog(className, funcName);
+    };
 })(this);

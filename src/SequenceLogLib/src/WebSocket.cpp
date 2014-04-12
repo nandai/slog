@@ -522,7 +522,6 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
 
     if (payloadLen != 0)
     {
-//      socket->recv(dataBuffer, payloadLen);   どうするか検討
         socket->recv(dataBuffer, (int32_t)payloadLen);
 
         if (mask)

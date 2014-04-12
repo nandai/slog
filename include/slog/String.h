@@ -96,6 +96,15 @@ inline String::String(const String& str) : CoreString(str)
  */
 inline String::String(const char* text, int16_t len)
 {
+    for (int16_t i = 0; i < len; i++)
+    {
+        if (text[i] == '\0')
+        {
+            len = i;
+            break;
+        }
+    }
+
     init(text, len);
 }
 

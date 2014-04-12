@@ -28,6 +28,9 @@
 #include "slog/FileInfo.h"
 #include "slog/DateTimeFormat.h"
 #include "slog/HttpRequest.h"
+#include "slog/Session.h"
+
+#include "Account.h"
 
 #if defined(_WINDOWS)
     #pragma warning(disable:4996)
@@ -176,13 +179,11 @@ inline void ItemList::merge(ItemList& list)
  */
 class ItemQueue
 {
-public:     long        mAlwaysCount;       //!< 常出力カウンタ（1以上の時はmOutputFlagがKEEPでも即出力する）
-            ItemList    mList;              //!< シーケンスログアイテムリスト
+public:     ItemList    mList;              //!< シーケンスログアイテムリスト
             ItemList    mStepOutList;       //!< STEP_IN処理時にあらかじめ作成しておくSTEP_OUT用アイテムリスト
 
             ItemQueue()
             {
-                mAlwaysCount = 0;
             }
 };
 
@@ -227,12 +228,46 @@ bool SequenceLogService::init()
         uint32_t id = buffer->getInt();
         mProcess.setId(id);
 
+        // ユーザー名取得
+        int32_t userNameLen = buffer->getInt();
+        String  userName(buffer->get(userNameLen), userNameLen);
+
+        // パスワード取得
+        int32_t passwdLen = buffer->getInt();
+        String  passwd(buffer->get(passwdLen), passwdLen);
+
         // シーケンスログファイル名取得
         int32_t len = buffer->getInt();
         String baseFileName(buffer->get(len), len);
 
+        // ログレベル取得
+        mLogLevel = buffer->getInt();
+
         // バッファ削除
         delete buffer;
+
+        // アカウント存在チェック
+        if (userName.getLength() == 0 && passwd.getLength() == 0)
+        {
+            // セッション存在チェック
+            const CoreString* ip = socket->getInetAddress();
+            const CoreString* userAgent = mHttpRequest->getUserAgent();
+            Session* session = SessionManager::getBySessionIdAndIp(nullptr, ip, userAgent);
+
+            if (session == nullptr)
+                return false;
+        }
+        else
+        {
+            Account account;
+            account.name.  copy(&userName);
+            account.passwd.copy(&passwd);
+
+            AccountLogic accountLogic;
+
+            if (accountLogic.getByNamePassword(&account) == false)
+                return false;
+        }
 
         // ファイル名チェック
 //      if (baseFileName[len - 1] != '\0')
@@ -496,7 +531,7 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
  */
 void SequenceLogService::writeSeqLogFile(File& file, SequenceLogItem* item)
 {
-    uint32_t size = mFileOutputBuffer.putSequenceLogItem(item, false);
+    uint32_t size = mFileOutputBuffer.putSequenceLogItem(item);
     file.write(&mFileOutputBuffer, size);
 
     // シーケンスログプリントにログを送信
@@ -619,36 +654,27 @@ void SequenceLogService::divideItems()
 
         ItemQueue* queue = getItemQueue(src);
         SequenceLogItem* item = createSequenceLogItem(queue, src);
-        bool isKeep = false;
 
         if (item == nullptr)
             continue;
 
-        if (item->mOutputFlag == slog::ROOT)
-            item->mOutputFlag =  slog::ALWAYS;
-
         if (item->mType == SequenceLogItem::STEP_IN)
         {
-            isKeep = true;
-
             // あらかじめSTEP_OUTのアイテムを作成しておく
             SequenceLogItem* stepOutItem = popStockItem();
-            stepOutItem->init(item->mSeqNo, item->mOutputFlag);
+            stepOutItem->init(item->mSeqNo);
             stepOutItem->mThreadId = item->mThreadId;
 
             queue->mStepOutList.push_back(stepOutItem);
+
+            if (mLogLevel >= slog::DEBUG)
+            {
+                keep(queue, item);
+                continue;
+            }
         }
 
-        if (item->mType == SequenceLogItem::MESSAGE)
-        {
-            if (item->mLevel == slog::DEBUG)
-                isKeep = true;
-        }
-
-        if (isKeep)
-            keep(   queue, item);
-        else
-            forward(queue, item);
+        forward(queue, item);
     }
     while (false);
 
@@ -676,43 +702,10 @@ void SequenceLogService::divideItems()
 }
 
 /*!
- *  \brief  シーケンスログアイテムをキープする
+ * \brief   シーケンスログアイテムをキープする
  */
 void SequenceLogService::keep(ItemQueue* queue, SequenceLogItem* item)
 {
-    bool bForward = false;
-
-    if (queue->mAlwaysCount ||
-        (item->mOutputFlag & slog::ALWAYS))
-    {
-        // 常出力カウンタが1以上、または出力指示なのでキープせずに出力する
-        bForward = true;
-    }
-
-    else
-    if ( item->mType == SequenceLogItem::STEP_IN &&
-        (item->mOutputFlag & slog::OUTPUT_ALL))
-    {
-        bForward = true;
-    }
-
-    if (bForward)
-    {
-        forward(queue, item);
-
-//      if (item->mOutputFlag & slog::ALWAYS)
-        if (item->mOutputFlag & slog::ALWAYS && item->mType == SequenceLogItem::STEP_IN)
-        {
-            queue->mAlwaysCount++;
-//          TRACE("keep(): mSeqNo=%d, mAlwaysCount=%d\n", item->mSeqNo, queue->mAlwaysCount);
-        }
-
-        return;
-    }
-
-    //
-    // キープ
-    //
     queue->mList.push_back(item);
 }
 
@@ -724,16 +717,7 @@ void SequenceLogService::forward(ItemQueue* queue, SequenceLogItem* item)
     do
     {
         if (item->mType != SequenceLogItem::STEP_OUT)
-        {
-            mOutputList->merge(queue->mList);
             break;
-        }
-
-        if (item->mOutputFlag & slog::ALWAYS)
-        {
-            queue->mAlwaysCount--;
-//          TRACE("forward(): mSeqNo=%d, mAlwaysCount=%d\n", item->mSeqNo, queue->mAlwaysCount);
-        }
 
         if (queue->mList.empty())
             break;
@@ -774,7 +758,16 @@ void SequenceLogService::forward(ItemQueue* queue, SequenceLogItem* item)
     }
     while (false);
 
-    mOutputList->push_back(item);
+    if (item->mType == SequenceLogItem::MESSAGE && (int32_t)item->mLevel < mLogLevel)
+    {
+        // ログレベル以下のメッセージログは出力せずストックに戻す
+        pushStockItem(item);
+    }
+    else
+    {
+        mOutputList->merge(queue->mList);
+        mOutputList->push_back(item);
+    }
 }
 
 /*!
@@ -795,11 +788,12 @@ ItemQueue* SequenceLogService::getItemQueue(const SequenceLogItem& item) const
 }
 
 /*!
- *  \brief  シーケンスログアイテム作成
+ * \brief   シーケンスログアイテム作成
+ *
+ * \param[in,out]   queue   シーケンスログアイテムキュー
+ * \param[in        src     作成元シーケンスログアイテム
  */
-SequenceLogItem* SequenceLogService::createSequenceLogItem(
-    ItemQueue* queue,               //!< シーケンスログアイテムキュー
-    const SequenceLogItem& src)     //!< 作成元シーケンスログアイテム
+SequenceLogItem* SequenceLogService::createSequenceLogItem(ItemQueue* queue, const SequenceLogItem& src)
 {
     SequenceLogItem* item;
 

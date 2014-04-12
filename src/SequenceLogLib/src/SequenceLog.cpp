@@ -32,6 +32,7 @@
 #include "slog/WebSocketClient.h"
 #include "slog/Process.h"
 #include "slog/FixedString.h"
+#include "slog/PointerString.h"
 #include "slog/File.h"
 #include "slog/Tokenizer.h"
 #include "slog/WebServerResponseThread.h"
@@ -46,28 +47,27 @@ extern "C"
     /*!
      *  \brief  ステップイン時のログ出力
      */
-//  void* _slog_stepIn(const char* className, const char* funcName, SequenceLogOutputFlag outputFlag)
-    void* _slog_stepIn(const char* className, const char* funcName)//, int32_t            outputFlag)
+    void* _slog_stepIn(const char* className, const char* funcName)
     {
-        slog::SequenceLog* slog = new slog::SequenceLog(className, funcName);//, (slog::SequenceLogOutputFlag)outputFlag);
+        slog::SequenceLog* slog = new slog::SequenceLog(className, funcName);
         return slog;
     }
 
     /*!
      *  \brief  ステップイン時のログ出力
      */
-//  void* _slog_stepIn2(uint32_t classID, const char* funcName)//, int32_t outputFlag)
+//  void* _slog_stepIn2(uint32_t classID, const char* funcName)
 //  {
-//      slog::SequenceLog* slog = new slog::SequenceLog(classID, funcName);//, (slog::SequenceLogOutputFlag)outputFlag);
+//      slog::SequenceLog* slog = new slog::SequenceLog(classID, funcName);
 //      return slog;
 //  }
 
     /*!
      *  \brief  ステップイン時のログ出力
      */
-//  void* _slog_stepIn3(uint32_t classID, uint32_t funcID)//, int32_t outputFlag)
+//  void* _slog_stepIn3(uint32_t classID, uint32_t funcID)
 //  {
-//      slog::SequenceLog* slog = new slog::SequenceLog(classID, funcID);//, (slog::SequenceLogOutputFlag)outputFlag);
+//      slog::SequenceLog* slog = new slog::SequenceLog(classID, funcID);
 //      return slog;
 //  }
 
@@ -118,8 +118,14 @@ static char sSequenceLogFileName[MAX_PATH + 1] = "";
 //!< シーケンスログサービスアドレス
 static char sSequenceLogServiceAddress[255 + 1] = "ws://127.0.0.1:8080";
 
-//!< 出力フラグ
-static SequenceLogOutputFlag sRootFlag = ROOT;
+//!< ユーザー名
+static char sSequenceLogUserName[20 + 1] = "";
+
+//!< パスワード
+static char sSequenceLogPasswd[32 + 1] = "";
+
+//!< ログレベル
+static int32_t sLogLevel = DEBUG - 1;
 
 //!< シーケンスログクライアントオブジェクト
 class  SequenceLogClient;
@@ -133,13 +139,24 @@ static bool sClientInitialized = false;
  */
 class SequenceLogClient : public WebSocketListener
 {
-            WebSocketClient mSocket;    //!< Web Socket
-            uint32_t        mSeqNo;     //!< シーケンス番号
+            /*!
+             * Web Socket
+             */
+            WebSocketClient mSocket;
 
             /*!
-             * コンストラクタ／デストラクタ
+             * シーケンス番号
+             */
+            uint32_t mSeqNo;
+
+            /*!
+             * コンストラクタ
              */
 public:      SequenceLogClient();
+
+             /*!
+             * デストラクタ
+             */
             ~SequenceLogClient();
 
             /*!
@@ -189,6 +206,9 @@ void SequenceLogClient::init()
 {
     noticeLog("client initialize.\n");
 
+    if (sLogLevel == ERROR + 1/*NONE*/)
+        return;
+
     // シーケンスログファイル名取得
     const char* p = sSequenceLogFileName;
 
@@ -211,25 +231,45 @@ void SequenceLogClient::init()
  */
 void SequenceLogClient::onOpen()
 {
-    const char* p = sSequenceLogFileName;
-
     // WebSocketヘッダー送信
     Process process;
     uint32_t pid = process.getId();
 
-    FixedString<MAX_PATH> name = p;
-    int32_t len = name.getLength() + 1;
+//  PointerString   userName = sSequenceLogUserName;
+    FixedString<20> userName = sSequenceLogUserName;
+    int32_t userNameLen = userName.getLength() + 1;
+
+    FixedString<32> passwd = sSequenceLogPasswd;
+    int32_t passwdLen = passwd.getLength() + 1;
+
+    FixedString<MAX_PATH> fileName = sSequenceLogFileName;
+    int32_t fileNameLen = fileName.getLength() + 1;
 
     mSocket.sendHeader(
-        sizeof(pid) + sizeof(len) + len,
+        sizeof(pid) +
+        sizeof(userNameLen) + userNameLen +
+        sizeof(passwdLen)   + passwdLen +
+        sizeof(fileNameLen) + fileNameLen +
+        sizeof(sLogLevel),
         false);
 
     // プロセスID送信
     mSocket.send(&pid);
 
+    // ユーザー名送信
+    mSocket.send(&userNameLen);
+    mSocket.send(&userName, userNameLen);
+
+    // パスワード送信
+    mSocket.send(&passwdLen);
+    mSocket.send(&passwd, passwdLen);
+
     // シーケンスログファイル名送信
-    mSocket.send(&len);
-    mSocket.send(&name, len);
+    mSocket.send(&fileNameLen);
+    mSocket.send(&fileName, fileNameLen);
+
+    // ログレベル送信
+    mSocket.send(&sLogLevel);
 }
 
 /*!
@@ -296,7 +336,7 @@ void SequenceLogClient::sendItem(
         }
 
         SequenceLogByteBuffer buffer(capacity);
-        uint32_t size = buffer.putSequenceLogItem(item, true);
+        uint32_t size = buffer.putSequenceLogItem(item);
 
         // シーケンスログアイテム送信
         mSocket.sendHeader(size, false);
@@ -344,19 +384,18 @@ static SequenceLogClientDeleter s_deleter;
 
 /*!
  * \brief   コンストラクタ
+ *
+ * \param[in]   className   クラス名
+ * \param[in]   funcName    メソッド名
  */
-SequenceLog::SequenceLog(
-    const char* className,              //!< クラス名
-    const char* funcName)               //!< メソッド名
-//  SequenceLogOutputFlag outputFlag)   //!< 出力フラグ
+SequenceLog::SequenceLog(const char* className, const char* funcName)
 {
-    SequenceLogOutputFlag outputFlag = ROOT;
-    init(outputFlag);
+    init();
     SequenceLogItem* item = sClient->createItem();
 
     if (item)
     {
-        item->init(mSeqNo, mOutputFlag, className, funcName);
+        item->init(mSeqNo, className, funcName);
         sClient->sendItem(item, &mSeqNo);
     }
 }
@@ -364,7 +403,7 @@ SequenceLog::SequenceLog(
 /*!
  * \brief   コンストラクタ
  */
-//SequenceLog::SequenceLog(uint32_t classID, const char* funcName)//, SequenceLogOutputFlag outputFlag)
+//SequenceLog::SequenceLog(uint32_t classID, const char* funcName)
 //{
 //    SequenceLogOutputFlag outputFlag = ROOT;
 //    init(outputFlag);
@@ -387,7 +426,7 @@ SequenceLog::SequenceLog(
 /*!
  * \brief   コンストラクタ
  */
-//SequenceLog::SequenceLog(uint32_t classID, uint32_t funcID)//, SequenceLogOutputFlag outputFlag)
+//SequenceLog::SequenceLog(uint32_t classID, uint32_t funcID)
 //{
 //    SequenceLogOutputFlag outputFlag = ROOT;
 //    init(outputFlag);
@@ -416,7 +455,7 @@ SequenceLog::~SequenceLog()
 
     if (item)
     {
-        item->init(mSeqNo, mOutputFlag);
+        item->init(mSeqNo);
         sClient->sendItem(item);
     }
 }
@@ -424,7 +463,7 @@ SequenceLog::~SequenceLog()
 /*!
  * \brief   初期化
  */
-void SequenceLog::init(SequenceLogOutputFlag outputFlag)
+void SequenceLog::init()
 {
     if (sClientInitialized == false)
     {
@@ -435,7 +474,6 @@ void SequenceLog::init(SequenceLogOutputFlag outputFlag)
     }
 
     mSeqNo = 0;
-    mOutputFlag = (outputFlag != ROOT ? outputFlag : sRootFlag);
 }
 
 /*!
@@ -458,7 +496,7 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
 
     if (item)
     {
-        item->init(mSeqNo, mOutputFlag, level);
+        item->init(mSeqNo, level);
         item->mMessageId = 0;
 
         try
@@ -577,8 +615,6 @@ void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item) throw(Exce
         throw e;
     }
 
-    item->mOutputFlag = getInt();
-
     if (getPosition() != size)
     {
         e.setMessage("データが異常です(%d, %d)。シーケンスログアイテムを設定できませんでした。", getPosition(), size);
@@ -589,7 +625,7 @@ void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item) throw(Exce
 /*!
  * \brief   シーケンスログアイテム書き込み
  */
-uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, bool enableOutputFlag)
+uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item)
 {
     unsigned short size;
     int32_t len;
@@ -661,9 +697,6 @@ uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, 
         break;
     }
 
-    if (enableOutputFlag)
-        putInt(item->mOutputFlag);
-
     // 先頭にレコード長
     size = getPosition();
 
@@ -678,24 +711,50 @@ uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, 
 /*!
  * \brief   シーケンスログファイル名を設定する
  */
-static void setSequenceLogFileName(const char* fileName)
+static void setSequenceLogFileName(const slog::CoreString* fileName)
 {
-    if (strlen(fileName) <= sizeof(slog::sSequenceLogFileName) - 1)
-        strcpy(slog::sSequenceLogFileName, fileName);
+    if (fileName->getLength() <= sizeof(slog::sSequenceLogFileName) - 1)
+        strcpy(slog::sSequenceLogFileName, fileName->getBuffer());
 }
 
 /*!
  * \brief   シーケンスログサービスのアドレスを設定する
  */
-static void setSequenceLogServiceAddress(const char* url)
+static void setSequenceLogServiceAddress(const slog::CoreString* url)
 {
-    if (strlen(url) <= sizeof(slog::sSequenceLogServiceAddress) - 1)
-        strcpy(slog::sSequenceLogServiceAddress, url);
+    if (url->getLength() <= sizeof(slog::sSequenceLogServiceAddress) - 1)
+        strcpy(slog::sSequenceLogServiceAddress, url->getBuffer());
 }
 
-static void enableOutput(int32_t enable)
+/*!
+ * \brief   ユーザー名を設定する
+ */
+static void setSequenceLogUserName(const slog::CoreString* userName)
 {
-    slog::sRootFlag = (enable != 0 ? slog::ROOT : slog::KEEP);
+    if (userName->getLength() <= sizeof(slog::sSequenceLogUserName) - 1)
+        strcpy(slog::sSequenceLogUserName, userName->getBuffer());
+}
+
+/*!
+ * \brief   パスワードを設定する
+ */
+static void setSequenceLogPassword(const slog::CoreString* passwd)
+{
+    if (passwd->getLength() <= sizeof(slog::sSequenceLogPasswd) - 1)
+        strcpy(slog::sSequenceLogPasswd, passwd->getBuffer());
+}
+
+/*!
+ * \brief   ログレベルを設定する
+ */
+static void setLogLevel(const slog::CoreString* logLevel)
+{
+    if (logLevel->equals("ALL"))   slog::sLogLevel = slog::DEBUG - 1;
+    if (logLevel->equals("DEBUG")) slog::sLogLevel = slog::DEBUG;
+    if (logLevel->equals("INFO"))  slog::sLogLevel = slog::INFO;
+    if (logLevel->equals("WARN"))  slog::sLogLevel = slog::WARN;
+    if (logLevel->equals("ERROR")) slog::sLogLevel = slog::ERROR;
+    if (logLevel->equals("NONE"))  slog::sLogLevel = slog::ERROR + 1;
 }
 
 /*!
@@ -706,6 +765,8 @@ extern "C" void loadSequenceLogConfig(const char* fileName)
     try
     {
         slog::String url;
+        slog::String userName;
+        slog::String passwd;
         slog::String logFileName;
         slog::String logLevel;
 
@@ -726,6 +787,12 @@ extern "C" void loadSequenceLogConfig(const char* fileName)
             if (key->equals("SEQUENCE_LOG_SERVICE"))
                 url.copy(value1);
 
+            if (key->equals("USER_NAME"))
+                userName.copy(value1);
+
+            if (key->equals("PASSWORD"))
+                passwd.copy(value1);
+
             if (key->equals("LOG_FILE_NAME"))
                 logFileName.copy(value1);
 
@@ -733,10 +800,11 @@ extern "C" void loadSequenceLogConfig(const char* fileName)
                 logLevel.copy(value1);
         }
 
-        setSequenceLogServiceAddress(url.getBuffer());
-        setSequenceLogFileName(logFileName.getBuffer());
-        enableOutput(logLevel.equals("ALL"));   // TODO: 現状に合わせた仮実装。
-                                                // のちのちALL, DEBUG, INFO, WARN, ERROR, NONEの６つに対応する
+        setSequenceLogServiceAddress(&url);
+        setSequenceLogUserName(&userName);
+        setSequenceLogPassword(&passwd);
+        setSequenceLogFileName(&logFileName);
+        setLogLevel(&logLevel);
     }
     catch (slog::Exception e)
     {

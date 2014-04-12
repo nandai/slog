@@ -23,8 +23,7 @@
 #include "slog/WebServerResponseThread.h"
 #include "slog/Socket.h"
 #include "slog/Util.h"
-
-#include "Session.h"
+#include "slog/Session.h"
 
 namespace slog
 {
@@ -341,7 +340,7 @@ WebServerResponse* WebServer::createResponse(HttpRequest* httpRequest)
         const CoreString* ip =        httpRequest->getSocket()->getInetAddress();
         const CoreString* userAgent = httpRequest->getUserAgent();
 
-        Session* session = SessionManager::get(&sessionId, ip, userAgent);
+        Session* session = SessionManager::getBySessionIdAndIp(&sessionId, ip, userAgent);
 
         if (session == nullptr)
             break;

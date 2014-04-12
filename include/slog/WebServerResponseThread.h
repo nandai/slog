@@ -100,7 +100,7 @@ protected:  virtual void initVariables() {}
             /*!
              * セッション削除
              */
-            void removeSession();
+            void removeSession(int32_t userId);
 
             /*!
              * 送信

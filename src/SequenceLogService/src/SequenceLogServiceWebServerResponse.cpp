@@ -166,7 +166,7 @@ bool SequenceLogServiceWebServerResponse::login()
  */
 void SequenceLogServiceWebServerResponse::logout()
 {
-    removeSession();
+    removeSession(mAccount.id);
     redirect("/");
 }
 

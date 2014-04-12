@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   SequenceLogItem.h
- *  \brief  シーケンスログアイテムクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    SequenceLogItem.h
+ * \brief   シーケンスログアイテムクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -34,7 +34,7 @@ static const unsigned short SERVICE_PORT = 59106;
 
 #pragma pack(push, 4)
 /*!
- *  \brief  シーケンスログアイテムクラス
+ * \brief   シーケンスログアイテムクラス
  */
 class SequenceLogItemCore
 {
@@ -60,12 +60,6 @@ public:     uint32_t                    mSeqNo;             //!< シーケンス
 public:     uint32_t                    mClassId;           //!< クラスID
 
 public:     uint32_t                    mFuncId;            //!< メソッドID
-
-            //
-            // STEP_IN, STEP_OUT, MESSAGE
-            //
-//blic:     SequenceLogOutputFlag       mOutputFlag;
-public:     uint32_t                    mOutputFlag;        //!< 出力フラグ
 
             //
             // MESSAGE
@@ -96,11 +90,11 @@ public:     uint64_t                    mPrev;              //!< 前のシーケ
 
 public:     SequenceLogItem();
 
-            void init(uint32_t seq, uint32_t outputFlag, const char* className, const char* funcName);
-            void init(uint32_t seq, uint32_t outputFlag, uint32_t    classID,   const char* funcName);
-            void init(uint32_t seq, uint32_t outputFlag, uint32_t    classID,   uint32_t    funcID);
-            void init(uint32_t seq, uint32_t outputFlag);
-            void init(uint32_t seq, uint32_t outputFlag, SequenceLogLevel level);
+            void init(uint32_t seq, const char* className, const char* funcName);
+            void init(uint32_t seq, uint32_t    classID,   const char* funcName);
+            void init(uint32_t seq, uint32_t    classID,   uint32_t    funcID);
+            void init(uint32_t seq);
+            void init(uint32_t seq, SequenceLogLevel level);
 
             CoreString* getClassName() const;
             CoreString* getFuncName() const;
@@ -109,7 +103,7 @@ public:     SequenceLogItem();
 #pragma pack(pop)
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 inline SequenceLogItemCore::SequenceLogItemCore()
 {
@@ -121,7 +115,7 @@ inline SequenceLogItemCore::SequenceLogItemCore()
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 inline SequenceLogItem::SequenceLogItem() : SequenceLogItemCore()
 {
@@ -130,14 +124,15 @@ inline SequenceLogItem::SequenceLogItem() : SequenceLogItemCore()
 }
 
 /*!
- *  \brief  初期化
+ * \brief   初期化
+ *
+ * \param[in]   seq         シーケンス番号
+ * \param[in]   className   クラス名
+ * \param[in]   funcName    メソッド名
+ *
+ * \return  なし
  */
-inline void SequenceLogItem::init(
-    uint32_t seq,                       //!< シーケンス番号
-//  SequenceLogOutputFlag outputFlag,
-    uint32_t              outputFlag,   //!< 出力フラグ
-    const char* className,              //!< クラス名
-    const char* funcName)               //!< メソッド名
+inline void SequenceLogItem::init(uint32_t seq, const char* className, const char* funcName)
 {
     if (this == nullptr)
         return;
@@ -149,18 +144,18 @@ inline void SequenceLogItem::init(
     mClassName.copy(className);
     mFuncId =     0;
     mFuncName. copy(funcName);
-    mOutputFlag = outputFlag;
 }
 
 /*!
- *  \brief  初期化
+ * \brief   初期化
+ *
+ * \param[in]   seq         シーケンス番号
+ * \param[in]   classID     クラスID
+ * \param[in]   funcName    メソッド名
+ *
+ * \return  なし
  */
-inline void SequenceLogItem::init(
-    uint32_t seq,                       //!< シーケンス番号
-//  SequenceLogOutputFlag outputFlag,
-    uint32_t              outputFlag,   //!< 出力フラグ
-    uint32_t classID,                   //!< クラスID
-    const char* funcName)               //!< メソッド名
+inline void SequenceLogItem::init(uint32_t seq, uint32_t classID, const char* funcName)
 {
     if (this == nullptr)
         return;
@@ -171,18 +166,18 @@ inline void SequenceLogItem::init(
     mClassId =    classID;
     mFuncId =     0;
     mFuncName.copy(funcName);
-    mOutputFlag = outputFlag;
 }
 
 /*!
- *  \brief  初期化
+ * \brief   初期化
+ *
+ * \param[in]   seq         シーケンス番号
+ * \param[in]   classID     クラス名
+ * \param[in]   funcID      メソッド名
+ *
+ * \return  なし
  */
-inline void SequenceLogItem::init(
-    uint32_t seq,                       //!< シーケンス番号
-//  SequenceLogOutputFlag outputFlag,
-    uint32_t              outputFlag,   //!< 出力フラグ
-    uint32_t classID,                   //!< クラスID
-    uint32_t funcID)                    //!< メソッドID
+inline void SequenceLogItem::init(uint32_t seq, uint32_t classID, uint32_t funcID)
 {
     if (this == nullptr)
         return;
@@ -192,16 +187,16 @@ inline void SequenceLogItem::init(
 //  mThreadId =   Thread::getCurrentId();
     mClassId =    classID;
     mFuncId =     funcID;
-    mOutputFlag = outputFlag;
 }
 
 /*!
- *  \brief  初期化
+ * \brief   初期化
+ *
+ * \param[in]   seq         シーケンス番号
+ *
+ * \return  なし
  */
-inline void SequenceLogItem::init(
-    uint32_t seq,                       //!< シーケンス番号
-//  SequenceLogOutputFlag outputFlag)
-    uint32_t              outputFlag)   //!< 出力フラグ
+inline void SequenceLogItem::init(uint32_t seq)
 {
     if (this == nullptr)
         return;
@@ -209,17 +204,17 @@ inline void SequenceLogItem::init(
     mSeqNo =      seq;
     mType =       STEP_OUT;
 //  mThreadId =   Thread::getCurrentId();
-    mOutputFlag = outputFlag;
 }
 
 /*!
- *  \brief  初期化
+ * \brief   初期化
+ *
+ * \param[in]   seq         シーケンス番号
+ * \param[in]   level       ログレベル
+ *
+ * \return  なし
  */
-inline void SequenceLogItem::init(
-    uint32_t seq,                       //!< シーケンス番号
-//  SequenceLogOutputFlag outputFlag,
-    uint32_t              outputFlag,   //!< 出力フラグ
-    SequenceLogLevel level)             //!< ログレベル
+inline void SequenceLogItem::init(uint32_t seq, SequenceLogLevel level)
 {
     if (this == nullptr)
         return;
@@ -227,12 +222,11 @@ inline void SequenceLogItem::init(
     mSeqNo =      seq;
     mType =       MESSAGE;
 //  mThreadId =   Thread::getCurrentId();
-    mOutputFlag = outputFlag;
     mLevel =      level;
 }
 
 /*!
- *  \brief  現在日時設定
+ * \brief   現在日時設定
  */
 inline void SequenceLogItemCore::setCurrentDateTime()
 {
@@ -252,7 +246,7 @@ struct SLOG_SHM
 #pragma pack(pop)
 
 /*!
- *  \brief  シーケンスログバイトバッファクラス
+ * \brief   シーケンスログバイトバッファクラス
  */
 class SLOG_API SequenceLogByteBuffer : public ByteBuffer
 {
@@ -265,7 +259,7 @@ public:     SequenceLogByteBuffer(uint32_t capacity) : ByteBuffer(capacity) {}
              * シーケンスログ読み込み／書き込み
              */
             void     getSequenceLogItem(      SequenceLogItem* item) throw(Exception);
-            uint32_t putSequenceLogItem(const SequenceLogItem* item, bool enableOutputFlag);
+            uint32_t putSequenceLogItem(const SequenceLogItem* item);
 };
 
 } // namespace slog

@@ -28,8 +28,7 @@
 #include "slog/ByteBuffer.h"
 #include "slog/SHA1.h"
 #include "slog/PointerString.h"
-
-#include "Session.h"
+#include "slog/Session.h"
 
 #undef __SLOG__
 #include "slog/SequenceLog.h"
@@ -70,7 +69,7 @@ void WebServerResponse::generateSession(int32_t userId)
     const CoreString* userAgent = mHttpRequest->getUserAgent();
     bool secure =                (mHttpRequest->getScheme() == HttpRequest::SCHEME::HTTPS);
 
-    Session* session = SessionManager::get(userId, userAgent);
+    Session* session = SessionManager::getByUserId(userId, userAgent);
 
     if (session == nullptr)
     {
@@ -89,8 +88,17 @@ void WebServerResponse::generateSession(int32_t userId)
 /*!
  * \brief   セッション削除
  */
-void WebServerResponse::removeSession()
+void WebServerResponse::removeSession(int32_t userId)
 {
+    const CoreString* userAgent = mHttpRequest->getUserAgent();
+    Session* session = SessionManager::getByUserId(userId, userAgent);
+
+    if (session)
+    {
+        SessionManager::remove(session);
+        delete session;
+    }
+
     bool secure = (mHttpRequest->getScheme() == HttpRequest::SCHEME::HTTPS);
     mCookies.remove(Session::NAME, "/", secure, true);
 }

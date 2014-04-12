@@ -104,12 +104,12 @@ static void JNICALL loadConfig(JNIEnv* env, jclass, jstring aFileName)
  * Method:    stepIn
  * Signature: (Ljava/lang/String;Ljava/lang/String;I)J
  */
-static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aFuncName)//, jint outputFlag)
+static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aFuncName)
 {
     JavaString className(env, aClassName);
     JavaString funcName( env, aFuncName);
 
-    SequenceLog* slogObj = new SequenceLog(className.getBuffer(), funcName.getBuffer());//, (SequenceLogOutputFlag)outputFlag);
+    SequenceLog* slogObj = new SequenceLog(className.getBuffer(), funcName.getBuffer());
     return (jlong)slogObj;
 }
 
@@ -118,11 +118,11 @@ static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aF
  * Method:    stepIn
  * Signature: (ILjava/lang/String;I)J
  */
-//static jlong JNICALL stepIn2(JNIEnv* env, jclass, jint classID, jstring aFuncName)//, jint outputFlag)
+//static jlong JNICALL stepIn2(JNIEnv* env, jclass, jint classID, jstring aFuncName)
 //{
 //    JavaString funcName( env, aFuncName);
 //
-//    SequenceLog* slogObj = new SequenceLog(classID, funcName.getBuffer());//, (SequenceLogOutputFlag)outputFlag);
+//    SequenceLog* slogObj = new SequenceLog(classID, funcName.getBuffer());
 //    return (jlong)slogObj;
 //}
 
@@ -131,9 +131,9 @@ static jlong JNICALL stepIn1(JNIEnv* env, jclass, jstring aClassName, jstring aF
  * Method:    stepIn
  * Signature: (III)J
  */
-//static jlong JNICALL stepIn3(JNIEnv* env, jclass, jint classID, jint funcID)//, jint outputFlag)
+//static jlong JNICALL stepIn3(JNIEnv* env, jclass, jint classID, jint funcID)
 //{
-//    SequenceLog* slogObj = new SequenceLog(classID, funcID);//, (SequenceLogOutputFlag)outputFlag);
+//    SequenceLog* slogObj = new SequenceLog(classID, funcID);
 //    return (jlong)slogObj;
 //}
 

@@ -65,6 +65,11 @@ private:    SLOG_SHM* mSHM;
             SequenceLogByteBuffer mFileOutputBuffer;
 
             /*!
+             * ログレベル
+             */
+            int32_t mLogLevel;
+
+            /*!
              * シーケンスログファイルタイプ
              */
             bool mBinaryLog;
