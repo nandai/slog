@@ -81,7 +81,7 @@ public:     Account();
 };
 
 /*!
- *  \brief  アカウントロジッククラス
+ * \brief   アカウントロジッククラス
  */
 class AccountLogic : public slog::ValidateListener
 {

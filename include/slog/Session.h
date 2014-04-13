@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   Session.h
- *  \brief  セッションクラス
- *  \author Copyright 2014 printf.jp
+ * \file    Session.h
+ * \brief   セッションクラス
+ * \author  Copyright 2014 printf.jp
  */
 #pragma once
 
@@ -31,7 +31,7 @@ namespace slog
 {
 
 /*!
- *  \brief  セッションクラス
+ * \brief   セッションクラス
  */
 class Session
 {
@@ -112,7 +112,7 @@ public:     Session(int32_t userId, const CoreString* userAgent);
 };
 
 /*!
- *  \brief  セッションマネージャークラス
+ * \brief   セッションマネージャークラス
  */
 class SLOG_API SessionManager
 {

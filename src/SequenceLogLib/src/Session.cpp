@@ -77,6 +77,8 @@ void Session::generate()
  */
 void SessionManager::clear()
 {
+    ScopedLock lock(&sSessionManager.mSessionMutex);
+
     for (auto i = sSessionManager.mSessionList.begin(); i != sSessionManager.mSessionList.end(); i++)
         delete *i;
 

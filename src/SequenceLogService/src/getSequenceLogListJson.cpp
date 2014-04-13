@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2013-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   getSequenceLogListJson.cpp
- *  \brief  シーケンスログリスト（JSON）取得
- *  \author Copyright 2013 printf.jp
+ * \file    getSequenceLogListJson.cpp
+ * \brief   シーケンスログリスト（JSON）取得
+ * \author  Copyright 2013-2014 printf.jp
  */
 #include "getSequenceLogListJson.h"
 #include "SequenceLogServiceMain.h"
@@ -59,14 +59,14 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
         DateTimeFormat::toString(&strCreationTime, dateTime, DateTimeFormat::DATE_TIME);
     }
 #else
-    PointerString fileName = strrchr(strCanonicalPath->getBuffer(), PATH_DELIMITER);
+    PointerString fileName = strrchr(strCanonicalPath->getBuffer(), PATH_DELIMITER) + 1;
     Tokenizer tokenizer('-');
     tokenizer.exec(&fileName);
 
     if (4 <= tokenizer.getCount())
     {
-        const CoreString* strDate = tokenizer.getValue(2);
-        const CoreString* strTime = tokenizer.getValue(3);
+        const CoreString* strDate = tokenizer.getValue(tokenizer.getCount() - 3);
+        const CoreString* strTime = tokenizer.getValue(tokenizer.getCount() - 2);
 
         if (strDate->getLength() == 8 && strTime->getLength() == 6)
         {
@@ -126,6 +126,8 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
     json->add("creationTime",  &strCreationTime);
     json->add("lastWriteTime", &strLastWriteTime);
     json->add("canonicalPath",  strCanonicalPath);
+//  json->add("canonicalPath", &fileName);  // TODO シーケンスログサーバーにファイルを転送する際に、ブラウザから渡されたファイルパスをそのまま使っているので
+                                            // このままでは落ちる。実装変更検討中。
     json->add("size",          &strSize);
 }
 
@@ -137,10 +139,10 @@ void getSequenceLogListJson(String* content)
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     ScopedLock lock(serviceMain->getMutex());
 
-    FileInfoArray* sum = serviceMain->getFileInfoArray();
+    auto sum = serviceMain->getFileInfoArray();
     Json* json = Json::getNewObject();
 
-    for (FileInfoArray::iterator i = sum->begin(); i != sum->end(); i++)
+    for (auto i = sum->begin(); i != sum->end(); i++)
     {
         Json* jsonSequenceLogInfo = Json::getNewObject();
 

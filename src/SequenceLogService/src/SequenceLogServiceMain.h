@@ -22,7 +22,6 @@
 #pragma once
 
 #include "slog/Thread.h"
-#include "slog/FileFind.h"
 #include "slog/Socket.h"
 #include "slog/FixedString.h"
 #include "slog/String.h"
@@ -32,18 +31,16 @@
 
 namespace slog
 {
-class FileInfo;
 class Mutex;
 class WebServerResponse;
 class SequenceLogService;
 class SequenceLogServiceThreadListener;
+class SequenceLogFileManagerList;
 class SharedFileContainer;
-
-typedef std::list<SharedFileContainer*> SharedFileContainerArray;
-typedef std::list<FileInfo*>            FileInfoArray;
+class FileInfo;
 
 /*!
- *  \brief  シーケンスログサービスリスナークラス
+ * \brief   シーケンスログサービスリスナークラス
  */
 class SequenceLogServiceThreadListener : public ThreadListener
 {
@@ -52,11 +49,10 @@ public:     virtual void onLogFileChanged(Thread* thread) {}
 };
 
 /*!
- *  \brief  シーケンスログサービスメインクラス
+ * \brief   シーケンスログサービスメインクラス
  */
 class SequenceLogServiceMain :
     public Thread,
-    public FileFindListener,
     public SequenceLogServiceThreadListener
 {
             /*!
@@ -75,14 +71,9 @@ class SequenceLogServiceMain :
             int32_t mMaxFileCount;
 
             /*!
-             * 共有ファイルコンテナ情報
+             * シーケンスログファイルマネージャーリスト
              */
-            SharedFileContainerArray mSharedFileContainerArray;
-
-            /*!
-             * シーケンスログファイル情報
-             */
-            FileInfoArray mFileInfoArray;
+            SequenceLogFileManagerList* mSequenceLogFileManagerList;
 
             /*!
              * クリーンアップフラグ
@@ -158,8 +149,7 @@ public:     void printLog(const Buffer* text, int32_t len);
             /*!
              * シーケンスログファイル情報
              */
-            FileInfoArray* getFileInfoArray() const;
-            void        deleteFileInfoArray();
+            std::list<FileInfo*>* getFileInfoArray() const;
             void addFileInfo(FileInfo* info);
 
             /*!
@@ -216,20 +206,11 @@ public:     void printLog(const Buffer* text, int32_t len);
             uint16_t getSequenceLogServerPort() const;
             void     setSequenceLogServerPort(uint16_t port);
 
-private:    virtual void onFind(const CoreString& path)   override;
-            virtual void onInitialized(   Thread* thread) override;
+private:    virtual void onInitialized(   Thread* thread) override;
             virtual void onTerminated(    Thread* thread) override;
             virtual void onLogFileChanged(Thread* thread) override;
             virtual void onUpdateLog(const Buffer* text)  override;
 };
-
-/*!
- *  \brief  シーケンスログファイル情報取得
- */
-inline FileInfoArray* SequenceLogServiceMain::getFileInfoArray() const
-{
-    return (FileInfoArray*)&mFileInfoArray;
-}
 
 /*!
  *  \brief  ミューテックス取得
