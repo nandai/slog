@@ -134,12 +134,12 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
 /*!
  *  \brief  シーケンスログリスト（JSON）取得
  */
-void getSequenceLogListJson(String* content)
+void getSequenceLogListJson(String* content, int32_t userId)
 {
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
     ScopedLock lock(serviceMain->getMutex());
 
-    auto sum = serviceMain->getFileInfoArray();
+    auto sum = serviceMain->getFileInfoArray(userId);
     Json* json = Json::getNewObject();
 
     for (auto i = sum->begin(); i != sum->end(); i++)

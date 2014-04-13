@@ -256,6 +256,8 @@ bool SequenceLogService::init()
 
             if (session == nullptr)
                 return false;
+
+            setUserId(session->getUserId());
         }
         else
         {
@@ -267,6 +269,8 @@ bool SequenceLogService::init()
 
             if (accountLogic.getByNamePassword(&account) == false)
                 return false;
+
+            setUserId(account.id);
         }
 
         // ファイル名チェック
@@ -280,7 +284,7 @@ bool SequenceLogService::init()
 
         // 共有ファイルコンテナ取得
         SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-        mSharedFileContainer =  serviceMain->getSharedFileContainer(&baseFileName);
+        mSharedFileContainer =  serviceMain->getSharedFileContainer(&baseFileName, getUserId());
 
 //      openSeqLogFile(mFile);
         initBinaryOrText(&baseFileName);
@@ -430,7 +434,7 @@ void SequenceLogService::cleanUp()
 
     // シーケンスログ共有ファイルコンテナリリース
     SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-    serviceMain->releaseSharedFileContainer(mSharedFileContainer);
+    serviceMain->releaseSharedFileContainer(mSharedFileContainer, getUserId());
 
 //  mSharedFileContainer = nullptr;
 }
@@ -479,8 +483,10 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
     FixedString<MAX_PATH> str;
 
     str.format(
-        "%s%c%s-%05d-%04d%02d%02d-%02d%02d%02d-%03d.%s",
+        "%s%c%08d%c%s-%05d-%04d%02d%02d-%02d%02d%02d-%03d.%s",
         serviceMain->getLogFolderName()->getBuffer(),
+        PATH_DELIMITER,
+        getUserId(),
         PATH_DELIMITER,
         fileName.getBuffer(),
         mProcess.getId(),
@@ -512,7 +518,7 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
 
     // SequenceLogServiceMainにもセット
     ScopedLock lock(serviceMain->getMutex());
-    serviceMain->addFileInfo(fileInfo);
+    serviceMain->addFileInfo(fileInfo, getUserId());
 
     // ファイル作成
     const CoreString* canonicalPath = fileInfo->getCanonicalPath();

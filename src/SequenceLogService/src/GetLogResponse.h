@@ -37,7 +37,7 @@ class GetLogResponse :
             /*!
              * コンストラクタ
              */
-public:     GetLogResponse(HttpRequest* httpRequest) : WebServerResponse(httpRequest) {}
+public:     GetLogResponse(HttpRequest* httpRequest);
 
             /*!
              * デストラクタ

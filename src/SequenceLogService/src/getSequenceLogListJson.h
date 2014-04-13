@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013 printf.jp
+ * Copyright (C) 2013-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,17 @@
  */
 
 /*!
- *  \file   getSequenceLogListJson.h
- *  \brief  シーケンスログリスト（JSON）取得
- *  \author Copyright 2013 printf.jp
+ * \file    getSequenceLogListJson.h
+ * \brief   シーケンスログリスト（JSON）取得
+ * \author  Copyright 2013-2014 printf.jp
  */
 #pragma once
+#include "slog/slog.h"
 
 namespace slog
 {
 class String;
 
-void getSequenceLogListJson(String* content);
+void getSequenceLogListJson(String* content, int32_t userId);
 
 } // namespace slog

@@ -47,7 +47,7 @@ class SequenceLogService : public WebServerResponse
             /*!
              * ログバッファ（旧 - 共有メモリ）
              */
-private:    SLOG_SHM* mSHM;
+            SLOG_SHM* mSHM;
 
             /*!
              * プロセスオブジェクト

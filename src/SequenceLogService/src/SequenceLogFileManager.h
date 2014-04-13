@@ -35,9 +35,9 @@ class FileInfo;
 class SequenceLogFileManager : public FileFindListener
 {
             /*!
-             * アカウントID
+             * ユーザーID
              */
-            int32_t mAccountId;
+            int32_t mUserId;
 
             /*!
              * 最大ファイルサイズ
@@ -62,7 +62,7 @@ class SequenceLogFileManager : public FileFindListener
             /*!
              * コンストラクタ
              */
-public:     SequenceLogFileManager(int32_t accountId, uint32_t maxFileSize, int32_t maxFileCount);
+public:     SequenceLogFileManager(int32_t userId, uint32_t maxFileSize, int32_t maxFileCount);
 
             /*!
              * デストラクタ
@@ -70,9 +70,9 @@ public:     SequenceLogFileManager(int32_t accountId, uint32_t maxFileSize, int3
             ~SequenceLogFileManager();
 
             /*!
-             * アカウントID取得
+             * ユーザーID取得
              */
-            int32_t getAccountId() const {return mAccountId;}
+            int32_t getUserId() const {return mUserId;}
 
             /*!
              * 最大ファイルサイズ設定
@@ -102,7 +102,7 @@ public:     SequenceLogFileManager(int32_t accountId, uint32_t maxFileSize, int3
             /*!
              * シーケンスログファイル情報取得
              */
-            std::list<FileInfo*>* getFileInfoList() const {return (std::list<FileInfo*>*)&mFileInfoArray;}
+            std::list<FileInfo*>* getFileInfoList() const;
 
             /*!
              * 
@@ -149,6 +149,16 @@ public:     ~SequenceLogFileManagerList() {clear();}
              * クリア
              */
             void clear();
+
+            /*!
+             * 最大ファイルサイズ設定
+             */
+            void setMaxFileSize(uint32_t maxFileSize);
+
+            /*!
+             * 最大ファイル数設定
+             */
+            void setMaxFileCount(int32_t maxFileCount);
 };
 
 } // namespace slog

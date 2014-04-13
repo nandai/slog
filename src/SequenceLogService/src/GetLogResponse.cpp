@@ -37,7 +37,7 @@ namespace slog
 {
 
 /*!
- *  \brief  シーケンスログ送信スレッド
+ * \brief   シーケンスログ送信スレッド
  */
 class SendSequenceLogThread : public Thread, public ThreadListener
 {
@@ -52,7 +52,7 @@ private:    virtual void run() override;
 };
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 SendSequenceLogThread::SendSequenceLogThread(const CoreString* ip, uint16_t port, const CoreString* path)
 {
@@ -64,7 +64,7 @@ SendSequenceLogThread::SendSequenceLogThread(const CoreString* ip, uint16_t port
 }
 
 /*!
- *  \brief  実行
+ * \brief   実行
  */
 void SendSequenceLogThread::run()
 {
@@ -116,7 +116,7 @@ void SendSequenceLogThread::run()
 }
 
 /*!
- *  \brief  スレッド終了通知
+ * \brief   スレッド終了通知
  */
 void SendSequenceLogThread::onTerminated(Thread* thread)
 {
@@ -124,20 +124,30 @@ void SendSequenceLogThread::onTerminated(Thread* thread)
 }
 
 /*!
- *  \brief	デストラクタ
+ * \brief   コンストラクタ
+ */
+GetLogResponse::GetLogResponse(HttpRequest* httpRequest) : WebServerResponse(httpRequest)
+{
+}
+
+/*!
+ * \brief   デストラクタ
  */
 GetLogResponse::~GetLogResponse()
 {
 }
 
 /*!
- *  \brief	実行
+ * \brief   実行
  */
 void GetLogResponse::run()
 {
     setListener(this);
 
     if (upgradeWebSocket() == false)
+        return;
+
+    if (getUserId() < 0)
         return;
 
     try
@@ -191,7 +201,7 @@ void GetLogResponse::run()
 }
 
 /*!
- *  \brief  スレッド終了通知
+ * \brief   スレッド終了通知
  */
 void GetLogResponse::onTerminated(Thread* thread)
 {
@@ -207,18 +217,18 @@ void GetLogResponse::onTerminated(Thread* thread)
 }
 
 /*!
- *  \brief	シーケンスログ更新通知
+ * \brief   シーケンスログ更新通知
  */
 void GetLogResponse::onLogFileChanged(Thread* thread)
 {
     String content;
-    getSequenceLogListJson(&content);
+    getSequenceLogListJson(&content, getUserId());
 
     send("0001", &content);
 }
 
 /*!
- *  \brief	シーケンスログ更新通知
+ * \brief   シーケンスログ更新通知
  */
 void GetLogResponse::onUpdateLog(const Buffer* text)
 {
@@ -226,7 +236,7 @@ void GetLogResponse::onUpdateLog(const Buffer* text)
 }
 
 /*!
- *  \brief	取得ログ送信
+ * \brief   取得ログ送信
  */
 void GetLogResponse::send(const char* commandNo, const Buffer* payloadData)
 {

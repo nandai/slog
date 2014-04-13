@@ -53,7 +53,6 @@ SequenceLogServiceMain::SequenceLogServiceMain()
     mMaxFileCount = 10;
 
     mSequenceLogFileManagerList = new SequenceLogFileManagerList;
-    mSequenceLogFileManagerList->add(new SequenceLogFileManager(0, mMaxFileSize, mMaxFileCount));    // TODO 仮実装
 
     mCleanupFlag = false;
 
@@ -71,7 +70,7 @@ SequenceLogServiceMain::SequenceLogServiceMain()
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 SequenceLogServiceMain::~SequenceLogServiceMain()
 {
@@ -82,12 +81,28 @@ SequenceLogServiceMain::~SequenceLogServiceMain()
 }
 
 /*!
+ * \brief   
+ */
+SequenceLogFileManager* SequenceLogServiceMain::getSequenceLogFileManager(int32_t userId) const
+{
+    SequenceLogFileManager* sequenceLogFileManager = mSequenceLogFileManagerList->get(userId);
+
+    if (sequenceLogFileManager == nullptr)
+    {
+        sequenceLogFileManager = new SequenceLogFileManager(userId, mMaxFileSize, mMaxFileCount);
+        mSequenceLogFileManagerList->add(sequenceLogFileManager);
+    }
+
+    return sequenceLogFileManager;
+}
+
+/*!
  *  \brief  シーケンスログファイル情報登録
  */
-void SequenceLogServiceMain::addFileInfo(FileInfo* info)
+void SequenceLogServiceMain::addFileInfo(FileInfo* info, int32_t userId)
 {
     // シーケンスログファイル情報登録
-    SequenceLogFileManager* sequenceLogFileManager = mSequenceLogFileManagerList->get(0);
+    SequenceLogFileManager* sequenceLogFileManager = getSequenceLogFileManager(userId);
     sequenceLogFileManager->addFileInfo(info);
 }
 
@@ -145,27 +160,28 @@ void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
 /*!
  *  \brief  共有ファイルコンテナ取得
  */
-SharedFileContainer* SequenceLogServiceMain::getSharedFileContainer(const CoreString* baseFileName)
+SharedFileContainer* SequenceLogServiceMain::getSharedFileContainer(const CoreString* baseFileName, int32_t userId)
 {
-    SequenceLogFileManager* sequenceLogFileManager = mSequenceLogFileManagerList->get(0);
+    SequenceLogFileManager* sequenceLogFileManager = getSequenceLogFileManager(userId);
     return sequenceLogFileManager->getSharedFileContainer(baseFileName);
 }
 
 /*!
  *  \brief  共有ファイルコンテナリリース
  */
-void SequenceLogServiceMain::releaseSharedFileContainer(SharedFileContainer* container)
+void SequenceLogServiceMain::releaseSharedFileContainer(SharedFileContainer* container, int32_t userId)
 {
-    SequenceLogFileManager* sequenceLogFileManager = mSequenceLogFileManagerList->get(0);
+    SequenceLogFileManager* sequenceLogFileManager = getSequenceLogFileManager(userId);
     sequenceLogFileManager->releaseSharedFileContainer(container);
 }
 
 /*!
  * \brief   シーケンスログファイル情報取得
  */
-std::list<FileInfo*>* SequenceLogServiceMain::getFileInfoArray() const
+std::list<FileInfo*>* SequenceLogServiceMain::getFileInfoArray(int32_t userId) const
 {
-    SequenceLogFileManager* sequenceLogFileManager = mSequenceLogFileManagerList->get(0);
+    SequenceLogFileManager* sequenceLogFileManager = getSequenceLogFileManager(userId);
+    sequenceLogFileManager->enumFileInfoList(&mLogFolderName);
     return sequenceLogFileManager->getFileInfoList();
 }
 
@@ -175,9 +191,6 @@ std::list<FileInfo*>* SequenceLogServiceMain::getFileInfoArray() const
 void SequenceLogServiceMain::setLogFolderName(const CoreString* name)
 {
     mLogFolderName.copy(name);
-
-    SequenceLogFileManager* sequenceLogFileManager = mSequenceLogFileManagerList->get(0);
-    sequenceLogFileManager->enumFileInfoList(name);
 }
 
 /*!
@@ -194,9 +207,7 @@ uint32_t SequenceLogServiceMain::getMaxFileSize() const
 void SequenceLogServiceMain::setMaxFileSize(uint32_t size)
 {
     mMaxFileSize = size;
-
-    SequenceLogFileManager* sequenceLogFileManager = mSequenceLogFileManagerList->get(0);
-    sequenceLogFileManager->setMaxFileSize(size);
+    mSequenceLogFileManagerList->setMaxFileSize(size);
 }
 
 /*!
@@ -213,9 +224,7 @@ int32_t SequenceLogServiceMain::getMaxFileCount() const
 void SequenceLogServiceMain::setMaxFileCount(int32_t count)
 {
     mMaxFileCount = count;
-
-    SequenceLogFileManager* sequenceLogFileManager = mSequenceLogFileManagerList->get(0);
-    sequenceLogFileManager->setMaxFileCount(count);
+    mSequenceLogFileManagerList->setMaxFileCount(count);
 }
 
 /*!

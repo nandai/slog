@@ -66,9 +66,9 @@ struct CompareFileInfo
 /*!
  * \brief   コンストラクタ
  */
-SequenceLogFileManager::SequenceLogFileManager(int32_t accountId, uint32_t maxFileSize, int32_t maxFileCount)
+SequenceLogFileManager::SequenceLogFileManager(int32_t userId, uint32_t maxFileSize, int32_t maxFileCount)
 {
-    mAccountId = accountId;
+    mUserId = userId;
     mMaxFileSize = maxFileSize;
     mMaxFileCount = maxFileCount;
 }
@@ -197,6 +197,14 @@ void SequenceLogFileManager::addFileInfo(FileInfo* info)
 }
 
 /*!
+ * シーケンスログファイル情報取得
+ */
+std::list<FileInfo*>* SequenceLogFileManager::getFileInfoList() const
+{
+    return (std::list<FileInfo*>*)&mFileInfoArray;
+}
+
+/*!
  * \brief   
  */
 void SequenceLogFileManager::clearFileInfoList()
@@ -212,16 +220,17 @@ void SequenceLogFileManager::clearFileInfoList()
  */
 void SequenceLogFileManager::enumFileInfoList(const CoreString* dirName)
 {
-    clearFileInfoList();
+    if (mFileInfoArray.size() > 0)
+        return;
 
     FixedString<MAX_PATH> path;
     FileFind find;
     find.setListener(this);
 
-    path.format("%s%c*.slog", dirName->getBuffer(), PATH_DELIMITER);
+    path.format("%s%c%08d%c*.slog", dirName->getBuffer(), PATH_DELIMITER, mUserId, PATH_DELIMITER);
     find.exec(&path);
 
-    path.format("%s%c*.log",  dirName->getBuffer(), PATH_DELIMITER);
+    path.format("%s%c%08d%c*.log",  dirName->getBuffer(), PATH_DELIMITER, mUserId, PATH_DELIMITER);
     find.exec(&path);
 
     mFileInfoArray.sort(CompareFileInfo());
@@ -260,7 +269,7 @@ SequenceLogFileManager* SequenceLogFileManagerList::get(int32_t accountId)
     {
         SequenceLogFileManager* sequenceLogFileManager = *i;
 
-        if (sequenceLogFileManager->getAccountId() == accountId)
+        if (sequenceLogFileManager->getUserId() == accountId)
             return sequenceLogFileManager;
     }
 
@@ -276,6 +285,24 @@ void SequenceLogFileManagerList::clear()
         delete *i;
 
     mList.clear();
+}
+
+/*!
+ * \brief   最大ファイルサイズ設定
+ */
+void SequenceLogFileManagerList::setMaxFileSize(uint32_t maxFileSize)
+{
+    for (auto i = mList.begin(); i != mList.end(); i++)
+        (*i)->setMaxFileSize(maxFileSize);
+}
+
+/*!
+ * \brief   最大ファイル数設定
+ */
+void SequenceLogFileManagerList::setMaxFileCount(int32_t maxFileCount)
+{
+    for (auto i = mList.begin(); i != mList.end(); i++)
+        (*i)->setMaxFileCount(maxFileCount);
 }
 
 } // namespace slog

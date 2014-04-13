@@ -36,6 +36,7 @@ class WebServerResponse;
 class SequenceLogService;
 class SequenceLogServiceThreadListener;
 class SequenceLogFileManagerList;
+class SequenceLogFileManager;
 class SharedFileContainer;
 class FileInfo;
 
@@ -121,9 +122,14 @@ public:     SequenceLogServiceMain();
             static SequenceLogServiceMain* getInstance();
 
             /*!
+             * 
+             */
+private:    SequenceLogFileManager* getSequenceLogFileManager(int32_t userId) const;
+
+            /*!
              * 実行
              */
-private:    virtual void run() override;
+            virtual void run() override;
 
             /*!
              * 
@@ -143,14 +149,14 @@ public:     void printLog(const Buffer* text, int32_t len);
             /*!
              * 共有ファイルコンテナ情報
              */
-            SharedFileContainer* getSharedFileContainer(const CoreString* baseFileName);
-            void releaseSharedFileContainer(SharedFileContainer* container);
+            SharedFileContainer* getSharedFileContainer(const CoreString* baseFileName, int32_t userId);
+            void releaseSharedFileContainer(SharedFileContainer* container, int32_t userId);
 
             /*!
              * シーケンスログファイル情報
              */
-            std::list<FileInfo*>* getFileInfoArray() const;
-            void addFileInfo(FileInfo* info);
+            std::list<FileInfo*>* getFileInfoArray(int32_t userId) const;
+            void addFileInfo(FileInfo* info, int32_t accountId);
 
             /*!
              * ミューテックス取得
