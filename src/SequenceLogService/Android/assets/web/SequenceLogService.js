@@ -23,7 +23,9 @@ $(function()
 
         $('a[href=#]').click(function()
         {
-            slog.service.openLog($(this).text());
+            var tr = $(this).closest('tr');
+            var i = tr.index() - 1;
+            slog.service.openLog(i, $(this).text());
             return false;
         });
     }

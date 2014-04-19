@@ -51,8 +51,8 @@ private:    virtual void run() override;
 
 public:     virtual void onInitialized(   Thread* thread) override {}
             virtual void onTerminated(    Thread* thread) override;
-            virtual void onLogFileChanged(Thread* thread) override;
-            virtual void onUpdateLog(const Buffer* text)  override;
+            virtual void onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId) override;
+            virtual void onUpdateLog(const Buffer* text,  int32_t userId) override;
 
             void send(const char* commandNo, const Buffer* payloadData);
 };

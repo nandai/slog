@@ -45,8 +45,8 @@ class FileInfo;
  */
 class SequenceLogServiceThreadListener : public ThreadListener
 {
-public:     virtual void onLogFileChanged(Thread* thread) {}
-            virtual void onUpdateLog(const Buffer* text) {}
+public:     virtual void onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId) {}
+            virtual void onUpdateLog(const Buffer* text,  int32_t userId) {}
 };
 
 /*!
@@ -90,11 +90,6 @@ class SequenceLogServiceMain :
              * 実行時にサービスを開始するかどうか
              */
             bool mStartRunTime;
-
-            /*!
-             * ログを画面に表示するかどうか
-             */
-            bool mOutputScreen;
 
             /*!
              * WEBサーバーマネージャー
@@ -144,7 +139,7 @@ private:    void cleanup();
             /*!
              * シーケンスログプリント関連
              */
-public:     void printLog(const Buffer* text, int32_t len);
+public:     void printLog(const Buffer* text, int32_t len, int32_t userId);
 
             /*!
              * 共有ファイルコンテナ情報
@@ -168,12 +163,6 @@ public:     void printLog(const Buffer* text, int32_t len);
              */
             bool  isStartRunTime() const;
             void setStartRunTime(bool startRunTime);
-
-            /*!
-             * ログを画面に表示するかどうか
-             */
-            bool  isOutputScreen() const;
-            void setOutputScreen(bool outputScreen);
 
             /*!
              * シーケンスログフォルダ名
@@ -214,8 +203,8 @@ public:     void printLog(const Buffer* text, int32_t len);
 
 private:    virtual void onInitialized(   Thread* thread) override;
             virtual void onTerminated(    Thread* thread) override;
-            virtual void onLogFileChanged(Thread* thread) override;
-            virtual void onUpdateLog(const Buffer* text)  override;
+            virtual void onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId) override;
+            virtual void onUpdateLog(const Buffer* text,  int32_t userId) override;
 };
 
 /*!
@@ -224,22 +213,6 @@ private:    virtual void onInitialized(   Thread* thread) override;
 inline Mutex* SequenceLogServiceMain::getMutex() const
 {
     return mMutex;
-}
-
-/*!
- *  \brief  ログを画面に表示するかどうか調べる
- */
-inline bool SequenceLogServiceMain::isOutputScreen() const
-{
-    return mOutputScreen;
-}
-
-/*!
- *  \brief  ログを画面に表示するかどうか設定する
- */
-inline void SequenceLogServiceMain::setOutputScreen(bool always)
-{
-    mOutputScreen = always;
 }
 
 /*!

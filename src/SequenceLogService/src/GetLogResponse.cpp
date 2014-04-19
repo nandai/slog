@@ -28,6 +28,8 @@
 #include "slog/ByteBuffer.h"
 #include "slog/File.h"
 #include "slog/WebSocket.h"
+#include "slog/Mutex.h"
+#include "slog/FileInfo.h"
 
 #if defined(__unix__)
     #include <string.h>
@@ -156,7 +158,7 @@ void GetLogResponse::run()
         serviceMain->setListener(this);
 
         Socket* socket = mHttpRequest->getSocket();
-        onLogFileChanged(nullptr);
+        onLogFileChanged(nullptr, nullptr, getUserId());
 
         while (true)
         {
@@ -170,13 +172,27 @@ void GetLogResponse::run()
 
             ByteBuffer* buffer = WebSocket::recv(socket, nullptr);
 
-            if (buffer)
-            {
-                int32_t cmd = buffer->getInt();
+            if (buffer == nullptr)
+                continue;
 
-                if (cmd == 1)
+            int32_t cmd = buffer->getInt();
+
+            if (cmd == 1)
+            {
+                SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+                ScopedLock lock(serviceMain->getMutex());
+
+                auto sum = serviceMain->getFileInfoArray(getUserId());
+                int32_t index = buffer->getInt();
+
+                if (0 <= index && index < (int32_t)sum->size())
                 {
-                    // シーケンスログサーバーにファイル名を送信
+                    auto i = sum->begin();
+                    advance(i, index);
+
+                    const FileInfo* fileInfo = *i;
+
+                    // シーケンスログサーバーにシーケンスログを送信
                     int32_t len = buffer->getInt();
 
                     String fileName;
@@ -185,13 +201,14 @@ void GetLogResponse::run()
                     SendSequenceLogThread* thread = new SendSequenceLogThread(
                         socket->getInetAddress(),
                         serviceMain->getSequenceLogServerPort(),
-                        &fileName);
+//                      &fileName);
+                        fileInfo->getCanonicalPath());
 
                     thread->start();
                 }
-
-                delete buffer;
             }
+
+            delete buffer;
         }
     }
     catch (Exception& e)
@@ -212,15 +229,18 @@ void GetLogResponse::onTerminated(Thread* thread)
     }
     else
     {
-        onLogFileChanged(thread);
+        onLogFileChanged(thread, nullptr, getUserId());
     }
 }
 
 /*!
  * \brief   シーケンスログ更新通知
  */
-void GetLogResponse::onLogFileChanged(Thread* thread)
+void GetLogResponse::onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId)
 {
+    if (getUserId() != userId)
+        return;
+
     String content;
     getSequenceLogListJson(&content, getUserId());
 
@@ -230,8 +250,11 @@ void GetLogResponse::onLogFileChanged(Thread* thread)
 /*!
  * \brief   シーケンスログ更新通知
  */
-void GetLogResponse::onUpdateLog(const Buffer* text)
+void GetLogResponse::onUpdateLog(const Buffer* text, int32_t userId)
 {
+    if (getUserId() != userId)
+        return;
+
     send("0002", text);
 }
 

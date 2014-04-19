@@ -60,7 +60,7 @@ void AccountResponse::run()
     if (getUserId() < 0)
     {
         // 未ログイン
-        redirect("/");
+        redirect("/login.html");
         return;
     }
 

@@ -342,15 +342,15 @@ void SequenceLogService::writeMain()
 
         if (file->isOpen() == false)
         {
-            openSeqLogFile(*file);
-            callLogFileChanged();
+            const FileInfo* fileInfo = openSeqLogFile(file);
+            callLogFileChanged(fileInfo->getCanonicalPath());
         }
 
         // 書き込み
         if (mBinaryLog)
-            writeSeqLogFile(    *file, item);
+            writeSeqLogFile(    file, item);
         else
-            writeSeqLogFileText(*file, item);
+            writeSeqLogFileText(file, item);
 
         // ローテーション
         uint32_t maxSize = serviceMain->getMaxFileSize();
@@ -360,8 +360,8 @@ void SequenceLogService::writeMain()
         {
             file->close();
 
-            openSeqLogFile(*file);
-            callLogFileChanged();
+            const FileInfo* fileInfo = openSeqLogFile(file);
+            callLogFileChanged(fileInfo->getCanonicalPath());
         }
 
         // 次のシーケンスログアイテムを取得
@@ -378,14 +378,14 @@ void SequenceLogService::writeMain()
 /*!
 *  \brief  リスナーのonLogFileChanged()をコール
  */
-void SequenceLogService::callLogFileChanged()
+void SequenceLogService::callLogFileChanged(const CoreString* fileName)
 {
     ThreadListeners* listeners = getListeners();
 
     for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
     {
         SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
-        listener->onLogFileChanged(this);
+        listener->onLogFileChanged(this, fileName, getUserId());
     }
 }
 
@@ -463,9 +463,9 @@ const char* SequenceLogService::initBinaryOrText(CoreString* fileName)
 }
 
 /*!
- *  \brief  シーケンスログファイルオープン
+ * \brief   シーケンスログファイルオープン
  */
-void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
+const FileInfo* SequenceLogService::openSeqLogFile(File* file) throw(Exception)
 {
     // ベースファイル名取得
     FixedString<MAX_PATH> fileName = mSharedFileContainer->getBaseFileName()->getBuffer();
@@ -525,34 +525,31 @@ void SequenceLogService::openSeqLogFile(File& file) throw(Exception)
 //  noticeLog("    openSeqLogFile(): '%s'\n", canonicalPath->getBuffer());
 
     fileInfo->mkdir();
-    file.open(canonicalPath, File::WRITE);
+    file->open(canonicalPath, File::WRITE);
 
     // ファイル情報更新
     fileInfo->update(true);
     fileInfo->setLastWriteTime(DateTime());
+
+    return fileInfo;
 }
 
 /*!
- *  \brief  シーケンスログファイルに書き込む
+ * \brief   シーケンスログファイルに書き込む
  */
-void SequenceLogService::writeSeqLogFile(File& file, SequenceLogItem* item)
+void SequenceLogService::writeSeqLogFile(File* file, SequenceLogItem* item)
 {
     uint32_t size = mFileOutputBuffer.putSequenceLogItem(item);
-    file.write(&mFileOutputBuffer, size);
+    file->write(&mFileOutputBuffer, size);
 
     // シーケンスログプリントにログを送信
-    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-
-    if (serviceMain->isOutputScreen())
-    {
-        writeSeqLogFileText(file, item);
-    }
+    writeSeqLogFileText(nullptr, item);
 }
 
 /*!
- *  \brief  シーケンスログファイルに書き込む
+ * \brief   シーケンスログファイルに書き込む
  */
-void SequenceLogService::writeSeqLogFileText(File& file, SequenceLogItem* item)
+void SequenceLogService::writeSeqLogFileText(File* file, SequenceLogItem* item)
 {
     char levelChars[] = "diwe"; // Debug, Info, Warn, Error
     char lc = levelChars[1];
@@ -630,11 +627,10 @@ void SequenceLogService::writeSeqLogFileText(File& file, SequenceLogItem* item)
     int32_t len = str.getLength();
 
     if (mBinaryLog == false)
-        file.write(&str, 1, len - 1);
+        file->write(&str, 1, len - 1);
 
     ScopedLock lock(serviceMain->getMutex());
-//  serviceMain->printLog(&str, len);
-    serviceMain->printLog(&str, str.getCapacity());
+    serviceMain->printLog(&str, str.getCapacity(), getUserId());
 }
 
 /*!

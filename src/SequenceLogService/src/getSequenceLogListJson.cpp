@@ -125,9 +125,8 @@ static void createSequenceLogListJson(Json* json, FileInfo* info)
     // JSON作成
     json->add("creationTime",  &strCreationTime);
     json->add("lastWriteTime", &strLastWriteTime);
-    json->add("canonicalPath",  strCanonicalPath);
-//  json->add("canonicalPath", &fileName);  // TODO シーケンスログサーバーにファイルを転送する際に、ブラウザから渡されたファイルパスをそのまま使っているので
-                                            // このままでは落ちる。実装変更検討中。
+//  json->add("canonicalPath",  strCanonicalPath);
+    json->add("canonicalPath", &fileName);
     json->add("size",          &strSize);
 }
 

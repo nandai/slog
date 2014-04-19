@@ -15,8 +15,8 @@
  */
 
 /*!
- *  \file   SequenceLogServiceWebServerResponse.h
- *  \brief  シーケンスログサービスWEBサーバー応答クラス
+ *  \file   LoginResponse.h
+ *  \brief  ログイン応答クラス
  *  \author Copyright 2013-2014 printf.jp
  */
 #pragma once
@@ -30,7 +30,7 @@ namespace slog
 /*!
  *  \brief  シーケンスログサービスWEBサーバー応答クラス
  */
-class SequenceLogServiceWebServerResponse : public WebServerResponse
+class LoginResponse : public WebServerResponse
 {
             static const char* CLS_NAME;
 
@@ -47,7 +47,7 @@ class SequenceLogServiceWebServerResponse : public WebServerResponse
             /*!
              * コンストラクタ
              */
-public:     SequenceLogServiceWebServerResponse(HttpRequest* httpRequest);
+public:     LoginResponse(HttpRequest* httpRequest);
 
             /*!
              * 実行
@@ -60,9 +60,9 @@ private:    virtual void run() override;
             virtual void initVariables();
 
             /*!
-             * ログアウト
+             * ログイン
              */
-            void logout();
+            bool login();
 };
 
 } // namespace slog

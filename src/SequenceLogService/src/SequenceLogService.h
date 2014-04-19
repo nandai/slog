@@ -114,7 +114,7 @@ public:     FileInfo* getFileInfo() const;
              */
 private:    virtual void run() override;
             void writeMain();
-            void callLogFileChanged();
+            void callLogFileChanged(const CoreString* fileName);
             void cleanUp();
 
             /*!
@@ -136,9 +136,20 @@ private:    void divideItems();
              */
 private:    const char* initBinaryOrText(CoreString* fileName);
 
-            void  openSeqLogFile(    File& file) throw(Exception);
-            void writeSeqLogFile(    File& file, SequenceLogItem*);
-            void writeSeqLogFileText(File& file, SequenceLogItem*);
+            /*!
+             * シーケンスログファイルオープン
+             */
+            const FileInfo* openSeqLogFile(File* file) throw(Exception);
+
+            /*!
+             * シーケンスログファイルに書き込む
+             */
+            void writeSeqLogFile(File* file, SequenceLogItem*);
+
+            /*!
+             * シーケンスログファイルに書き込む
+             */
+            void writeSeqLogFileText(File* file, SequenceLogItem*);
 
             /*!
              * 受信メイン

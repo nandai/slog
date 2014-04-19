@@ -21,6 +21,7 @@
  */
 #include "SequenceLogServiceWebServer.h"
 #include "SequenceLogServiceWebServerResponse.h"
+#include "LoginResponse.h"
 #include "AccountResponse.h"
 #include "GetLogResponse.h"
 #include "SequenceLogService.h"
@@ -44,6 +45,7 @@ SequenceLogServiceWebServer::SequenceLogServiceWebServer()
  * \brief   WEBサーバー応答スレッドオブジェクト生成リスト取得
  */
 static WebServerResponse* createSequenceLogServiceWebServerResponse(HttpRequest* httpRequest) {return new SequenceLogServiceWebServerResponse(httpRequest);}
+static WebServerResponse* createLoginResponse(                      HttpRequest* httpRequest) {return new LoginResponse(                      httpRequest);}
 static WebServerResponse* createAccountResponse(                    HttpRequest* httpRequest) {return new AccountResponse(                    httpRequest);}
 static WebServerResponse* createGetLogResponse(                     HttpRequest* httpRequest) {return new GetLogResponse(                     httpRequest);}
 static WebServerResponse* createSequenceLogService(                 HttpRequest* httpRequest) {return new SequenceLogService(                 httpRequest);}
@@ -57,6 +59,7 @@ const WebServer::CREATE* SequenceLogServiceWebServer::getCreateList() const
     {
         {"getLog",                "",              createGetLogResponse},
         {"outputLog",             "",              createSequenceLogService},
+        {"login.html",            "",              createLoginResponse},
         {"account.html",          "",              createAccountResponse},
         {"slogsvc",               "notFound.html", createSequenceLogServiceWebServerResponse},
         {"slog.conf",             "notFound.html", createSequenceLogServiceWebServerResponse},

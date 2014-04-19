@@ -60,7 +60,6 @@ SequenceLogServiceMain::SequenceLogServiceMain()
     ScopedLock lock(mMutex, false);
 
     mStartRunTime = false;
-    mOutputScreen = true;
 
     mWebServerManager.setWebServer(new SequenceLogServiceWebServer, false);
 
@@ -90,6 +89,8 @@ SequenceLogFileManager* SequenceLogServiceMain::getSequenceLogFileManager(int32_
     if (sequenceLogFileManager == nullptr)
     {
         sequenceLogFileManager = new SequenceLogFileManager(userId, mMaxFileSize, mMaxFileCount);
+        sequenceLogFileManager->enumFileInfoList(&mLogFolderName);
+
         mSequenceLogFileManagerList->add(sequenceLogFileManager);
     }
 
@@ -150,10 +151,10 @@ SequenceLogServiceMain* SequenceLogServiceMain::getInstance()
 /*!
  * \brief   シーケンスログプリントに出力（送信）
  */
-void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len)
+void SequenceLogServiceMain::printLog(const Buffer* text, int32_t len, int32_t userId)
 {
 #if !defined(__ANDROID__) || defined(__EXEC__)
-    onUpdateLog(text);
+    onUpdateLog(text, userId);
 #endif
 }
 
@@ -181,7 +182,6 @@ void SequenceLogServiceMain::releaseSharedFileContainer(SharedFileContainer* con
 std::list<FileInfo*>* SequenceLogServiceMain::getFileInfoArray(int32_t userId) const
 {
     SequenceLogFileManager* sequenceLogFileManager = getSequenceLogFileManager(userId);
-    sequenceLogFileManager->enumFileInfoList(&mLogFolderName);
     return sequenceLogFileManager->getFileInfoList();
 }
 
@@ -354,7 +354,7 @@ void SequenceLogServiceMain::onTerminated(Thread* thread)
 /*!
  *  \brief	シーケンスログファイル変更通知
  */
-void SequenceLogServiceMain::onLogFileChanged(Thread* thread)
+void SequenceLogServiceMain::onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId)
 {
     SLOG(CLS_NAME, "onLogFileChanged");
     ThreadListeners* listeners = getListeners();
@@ -364,14 +364,14 @@ void SequenceLogServiceMain::onLogFileChanged(Thread* thread)
         SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
 
         if (listener)
-            listener->onLogFileChanged(thread);
+            listener->onLogFileChanged(thread, fileName, userId);
     }
 }
 
 /*!
  *  \brief	シーケンスログ更新通知
  */
-void SequenceLogServiceMain::onUpdateLog(const Buffer* text)
+void SequenceLogServiceMain::onUpdateLog(const Buffer* text, int32_t userId)
 {
 //  SLOG(CLS_NAME, "onUpdateLog");
     ThreadListeners* listeners = getListeners();
@@ -381,7 +381,7 @@ void SequenceLogServiceMain::onUpdateLog(const Buffer* text)
         SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
 
         if (listener)
-            listener->onUpdateLog(text);
+            listener->onUpdateLog(text, userId);
     }
 }
 

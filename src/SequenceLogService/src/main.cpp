@@ -125,10 +125,10 @@ class Application : public SequenceLogServiceThreadListener
 {
 public:     void main(int argc, char** argv);
 
-            virtual void onInitialized(   Thread* thread);
-            virtual void onTerminated(    Thread* thread);
-            virtual void onLogFileChanged(Thread* thread);
-            virtual void onUpdateLog(const Buffer* text);
+            virtual void onInitialized(   Thread* thread) override;
+            virtual void onTerminated(    Thread* thread) override;
+            virtual void onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId) override;
+            virtual void onUpdateLog(const Buffer* text, int32_t userId) override;
 };
 
 /*!
@@ -161,7 +161,6 @@ void Application::main(int argc, char** argv)
     String logOutputDir = "/var/log/slog";
     uint32_t size = 0;
     int32_t count = 0;
-    bool outputScreen = true;
     uint16_t webServerPort = 8080;
     uint16_t webServerPortSSL = 8443;
     uint16_t sequenceLogServerPort = 8081;
@@ -202,9 +201,6 @@ void Application::main(int argc, char** argv)
 
         if (key->equals("MAX_FILE_COUNT"))
             count = value1;
-
-        if (key->equals("OUTPUT_SCREEN"))
-            outputScreen = (((const CoreString*)value1)->equals("true"));
 
         if (key->equals("WEB_SERVER_PORT"))
             webServerPort = value1;
@@ -249,11 +245,10 @@ void Application::main(int argc, char** argv)
         SequenceLogServiceDB db;
         db.init();
 
-        serviceMain.setListener(this);
+//      serviceMain.setListener(this);
         serviceMain.setLogFolderName(&logOutputDir);
         serviceMain.setMaxFileSize(size);
         serviceMain.setMaxFileCount(count);
-        serviceMain.setOutputScreen(outputScreen);
         serviceMain.setWebServerPort(false, webServerPort);
         serviceMain.setWebServerPort(true,  webServerPortSSL);
         serviceMain.setSSLFileName(&certificate, &privateKey);
@@ -337,7 +332,7 @@ void Application::onTerminated(Thread* thread)
 /*!
  *  \brief  シーケンスログファイル変更通知
  */
-void Application::onLogFileChanged(Thread* thread)
+void Application::onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId)
 {
     onInitialized(thread);
 }
@@ -345,7 +340,7 @@ void Application::onLogFileChanged(Thread* thread)
 /*!
  *  \brief  シーケンスログ更新通知
  */
-void Application::onUpdateLog(const Buffer* text)
+void Application::onUpdateLog(const Buffer* text, int32_t userId)
 {
     const char* p = text->getBuffer();
 
