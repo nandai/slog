@@ -4,7 +4,7 @@
 <link rel="shortcut icon" href="http://@domain;/images/SequenceLogService.ico">
 <title>Sequence Log Service</title>
 <link type="text/css" rel="stylesheet" href="SequenceLogService.pcss" media="screen" />
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 <script type="text/javascript" src="//@domain;/js/jquery.mousewheel-3.0.6.pack.js"></script>
 <script type="text/javascript" src="//@domain;/js/slog.service.js"></script>
 <script type="text/javascript" src="//@domain;/js/slog.utils.js"></script>
@@ -12,27 +12,20 @@
 </head>
 
 <body>
-<div style="float:left">
-    <h1>Sequence Log Service</h1>
-</div>
-
-<div style="float:right">
-    <input id="account" type="button" value="@account;" />
-    <input id="logout"  type="button" value="@logout;" />
-</div>
-
-<div style="clear: both"></div>
-
-<!-- シーケンスログファイル一覧 -->
-<div align="center">
-    <table id="logFileList">
-        <tr>
-            <th>@startTime;</th>
-            <th>@endTime;</th>
-            <th>@logFileName;</th>
-            <th>@logFileSize;</th>
-        </tr>
-    </table>
+<div id="navigation">
+    <div style="float: left">
+        <ul>
+            <li><div>Sequence Log Service | @userNameValue;</div></li>
+        </ul>
+    </div>
+    <div style="float: right">
+        <ul>
+            <li><div class="naviMenu" id="showLogFileList">@logFileList;</div></li>
+            <li><div class="naviMenu" id="account">@account;</div></li>
+            <li><div class="naviMenu" id="logout">@logout;</div></li>
+        </ul>
+    </div>
+    <div style="clear: both"></div>
 </div>
 <br />
 
@@ -45,9 +38,22 @@
 -->
 
 <!-- フッター -->
-<hr />
-<div align="right">
-    @userNameValue; / Copyright (c) 2013-2014 <a href="http://@domain;" target="_blank">@domain;</a> All rights reserved.
+<div id="footer" align="right">
+    Copyright (c) 2013-2014 <a href="http://@domain;" target="_blank">@domain;</a> All rights reserved.
 </div>
+
+<!-- シーケンスログファイル一覧 -->
+<div id="modalPanel">&nbsp;</div>
+<div align="center" id="logFileListPanel">
+    <table id="logFileList">
+        <tr>
+            <th>@startTime;</th>
+            <th>@endTime;</th>
+            <th>@logFileName;</th>
+            <th>@logFileSize;</th>
+        </tr>
+    </table>
+</div>
+<br />
 </body>
 </html>

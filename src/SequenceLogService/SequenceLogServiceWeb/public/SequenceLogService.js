@@ -34,7 +34,9 @@ $(function()
     function onSize(view)
     {
         var canvas =    view.get(0);
-        canvas.width =  view.parent().width() * 95 / 100;
+        view.member.visibleLineCount = (window.innerHeight - 125) / view.member.size.height;
+
+        canvas.width =  view.parent().width() * 98 / 100;
         canvas.height = view.member.size.height * view.member.visibleLineCount;
 
         view.draw();
@@ -62,6 +64,21 @@ $(function()
     // テスト用
 //  var logView2 = $('#logView2');
 //  settingLogView(logView2);
+
+    $('#showLogFileList').on('click', function()
+    {
+        $('#modalPanel').fadeIn('fast');
+        $('#logFileListPanel')
+            .css('top',  ($('body').height() - $('#logFileListPanel').height()) / 2)
+            .css('left', ($('body').width()  - $('#logFileListPanel').width())  / 2)
+            .fadeIn('fast');
+    });
+
+    $('#modalPanel').on('click', function()
+    {
+        $('#modalPanel').fadeOut('fast');
+        $('#logFileListPanel').fadeOut('fast');
+    });
 
     $('#account').on('click', function()
     {

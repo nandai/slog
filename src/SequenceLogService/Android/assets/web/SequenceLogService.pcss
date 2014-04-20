@@ -1,3 +1,9 @@
+*
+{
+    margin:0;
+    padding:0;
+}
+
 body
 {
     font-family: 'Lucida Grande', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;;
@@ -168,4 +174,80 @@ input[type=submit]:disabled
     background:        -o-linear-gradient(top, @submitBackgroundTo;,    @submitBackgroundTo;);
     background-image: -ms-linear-gradient(top, @submitBackgroundTo; 0%, @submitBackgroundTo; 100%);
     color: @submitTextColor;;
+}
+
+div#navigation
+{
+    background: @submitBackgroundTo;;
+    background:   -webkit-gradient(linear, left top, left bottom, from(@submitBackgroundFrom;), to(@submitBackgroundTo;));
+    background:   -webkit-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
+    background:      -moz-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
+    background:       -ms-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
+    background:        -o-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
+    background-image: -ms-linear-gradient(top, @submitBackgroundFrom; 0%, @submitBackgroundTo; 100%);
+    width: 100%;
+}
+
+ul
+{
+    overflow: hidden;
+    list-style: none;
+}
+
+li
+{
+    float: left;
+}
+
+li div
+{
+    color: #FFF;
+    padding: 10px 15px;
+    cursor: default;
+    text-shadow: 5px 5px 10px #000;
+}
+
+.naviMenu
+{
+    cursor: pointer;
+    -webkit-transition: 0.3s;
+       -moz-transition: 0.3s;
+        -ms-transition: 0.3s;
+            transition: 0.3s;
+}
+
+.naviMenu:hover
+{
+    text-shadow: -5px -5px 10px #FFF, 5px 5px 10px #FFF;
+}
+
+#modalPanel
+{
+    background: #000;
+    opacity: 0.5;
+    width: 100%;
+    height: 9999px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: none;
+    z-index: 50;
+}
+
+#logFileListPanel
+{
+    position: fixed;
+    display: none;
+    z-index: 60;
+}
+
+#footer
+{
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    background-color: #F5F5F5;
+    border-top-color: #888;
+    border-top-style: solid;
+    border-top-width: 1px;
 }

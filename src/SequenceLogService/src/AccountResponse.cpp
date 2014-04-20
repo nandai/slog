@@ -174,9 +174,9 @@ void AccountResponse::getParams()
 void AccountResponse::showPage()
 {
     mVariables.add("userNameValue",      &mAccount.name);
-    mVariables.add("userNameProperty",   (mAccount.admin == 1 ? ""       : "readonly"));
-    mVariables.add("displayNewAccount",  (mAccount.admin == 1 ? "inline" : "none"));
-    mVariables.add("displayAccountList", (mAccount.admin == 1 ? "block"  : "none"));
+    mVariables.add("userNameProperty",   (mAccount.admin == 1 ? ""      : "readonly"));
+    mVariables.add("displayNewAccount",  (mAccount.admin == 1 ? "block" : "none"));
+    mVariables.add("displayAccountList", (mAccount.admin == 1 ? "block" : "none"));
 
     // JSONアカウントリスト作成
     Json* json = Json::getNewObject();

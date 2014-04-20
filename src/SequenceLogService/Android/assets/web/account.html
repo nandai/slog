@@ -126,16 +126,21 @@ $(function()
 </head>
 
 <body>
-<div style="float:left">
-    <h1>Sequence Log Service</h1>
+<div id="navigation">
+    <div style="float: left">
+        <ul>
+            <li><div>Sequence Log Service | @userNameValue;</div></li>
+        </ul>
+    </div>
+    <div style="float: right">
+        <ul>
+            <li><div class="naviMenu" id="new_account" style="display:@displayNewAccount;">@newAccount;</div></li>
+            <li><div class="naviMenu" id="back">@back;</div></li>
+        </ul>
+    </div>
+    <div style="clear: both"></div>
 </div>
-
-<div style="float:right">
-    <input id="new_account" type="button" value="@newAccount;" style="display:@displayNewAccount;" />
-    <input id="back"        type="button" value="@back;" />
-</div>
-
-<div style="clear: both"></div>
+<br />
 
 <div align="center">
     <form method="post" class="form-container">
@@ -168,7 +173,7 @@ $(function()
 </div>
 <br />
 
-<div align="right">
+<div id="footer" align="right">
     Copyright (c) 2013-2014 <a href="http://@domain;" target="_blank">@domain;</a> All rights reserved.
 </div>
 </body>

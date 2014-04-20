@@ -32,28 +32,29 @@ class R
 
 public:     static const int32_t login =          0;
             static const int32_t logout =         1;
-            static const int32_t account =        2;
-            static const int32_t user_name =      3;
-            static const int32_t password =       4;
-            static const int32_t change =         5;
-            static const int32_t new_account =    6;
-            static const int32_t del =            7;
-            static const int32_t back =           8;
-            static const int32_t start_time =     9;
-            static const int32_t end_time =      10;
-            static const int32_t log_file_name = 11;
-            static const int32_t log_file_size = 12;
-            static const int32_t administrator = 13;
-            static const int32_t msg001 =        14;
-            static const int32_t msg002 =        15;
-            static const int32_t msg003 =        16;
-            static const int32_t msg004 =        17;
-            static const int32_t msg005 =        18;
-            static const int32_t msg006 =        19;
-            static const int32_t msg007 =        20;
-            static const int32_t msg008 =        21;
-            static const int32_t msg009 =        22;
-            static const int32_t msg010 =        23;
+            static const int32_t logFileList =    2;
+            static const int32_t account =        3;
+            static const int32_t user_name =      4;
+            static const int32_t password =       5;
+            static const int32_t change =         6;
+            static const int32_t new_account =    7;
+            static const int32_t del =            8;
+            static const int32_t back =           9;
+            static const int32_t start_time =    10;
+            static const int32_t end_time =      11;
+            static const int32_t log_file_name = 12;
+            static const int32_t log_file_size = 13;
+            static const int32_t administrator = 14;
+            static const int32_t msg001 =        15;
+            static const int32_t msg002 =        16;
+            static const int32_t msg003 =        17;
+            static const int32_t msg004 =        18;
+            static const int32_t msg005 =        19;
+            static const int32_t msg006 =        20;
+            static const int32_t msg007 =        21;
+            static const int32_t msg008 =        22;
+            static const int32_t msg009 =        23;
+            static const int32_t msg010 =        24;
 
             /*!
              * コンストラクタ

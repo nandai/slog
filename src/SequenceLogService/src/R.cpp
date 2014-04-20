@@ -34,6 +34,7 @@ static const char* en[] =
 {
     "Login",
     "Logout",
+    "Log file list",
     "Account",
     "User name",
     "Password",
@@ -65,6 +66,7 @@ static const char* ja[] =
 {
     "ログイン",
     "ログアウト",
+    "ログファイルリスト",
     "アカウント",
     "ユーザー名",
     "パスワード",
@@ -96,6 +98,7 @@ static const char* zh_TW[] =
 {
     "註冊",
     "註銷",
+    "日誌文件列表",
     "帳戶",
     "用戶名",
     "密碼",

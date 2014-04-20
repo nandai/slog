@@ -80,9 +80,10 @@ void SequenceLogServiceWebServerResponse::initVariables()
 {
     R r(mHttpRequest->getAcceptLanguage());
 
-//  mVariables.add("domain",        "printf.jp");
-    mVariables.add("domain",        "localhost");
+    mVariables.add("domain",        "printf.jp");
+//  mVariables.add("domain",        "localhost");
 
+    mVariables.add("logFileList",   r.string(R::logFileList));
     mVariables.add("account",       r.string(R::account));
     mVariables.add("logout",        r.string(R::logout));
 
