@@ -19,9 +19,11 @@ objs = \
 	Account.o \
 	AccountResponse.o \
 	GetLogResponse.o \
+        LoginResponse.o \
 	R.o \
 	SequenceLogService.o \
 	SequenceLogServiceDB.o \
+	SequenceLogFileManager.o \
 	SequenceLogServiceMain.o \
 	SequenceLogServiceWebServer.o \
 	SequenceLogServiceWebServerResponse.o \

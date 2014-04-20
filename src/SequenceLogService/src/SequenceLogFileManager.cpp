@@ -24,6 +24,11 @@
 
 #include "slog/FileInfo.h"
 
+#if defined(__unix__)
+    #include <string.h>
+    #include <algorithm>
+#endif
+
 namespace slog
 {
 
