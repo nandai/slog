@@ -1,3 +1,6 @@
+@headerHeight: 45px;
+@footerHeight: 25px;
+
 *
 {
     margin:0;
@@ -178,6 +181,10 @@ input[type=submit]:disabled
 
 div#navigation
 {
+    position: fixed;
+    width: 100%;
+    height: @headerHeight;;
+    z-index: 40;
     background: @submitBackgroundTo;;
     background:   -webkit-gradient(linear, left top, left bottom, from(@submitBackgroundFrom;), to(@submitBackgroundTo;));
     background:   -webkit-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
@@ -185,7 +192,6 @@ div#navigation
     background:       -ms-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
     background:        -o-linear-gradient(top, @submitBackgroundFrom;,    @submitBackgroundTo;);
     background-image: -ms-linear-gradient(top, @submitBackgroundFrom; 0%, @submitBackgroundTo; 100%);
-    width: 100%;
 }
 
 ul
@@ -234,17 +240,35 @@ li div
     z-index: 50;
 }
 
-#logFileListPanel
+#mainPanel
 {
     position: fixed;
     display: none;
     z-index: 60;
 }
 
+#logFileListPanel
+{
+    background: #FFF;
+    overflow-y: scroll;
+}
+
+#contents
+{
+    position: relative;
+    top: @headerHeight;;
+}
+
+#footerMargin
+{
+    height: @footerHeight;;
+}
+
 #footer
 {
     width: 100%;
-    position: absolute;
+    height: @footerHeight;;
+    position: fixed;
     bottom: 0;
     background-color: #F5F5F5;
     border-top-color: #888;

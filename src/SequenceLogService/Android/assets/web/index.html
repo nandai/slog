@@ -27,15 +27,20 @@
     </div>
     <div style="clear: both"></div>
 </div>
-<br />
 
-<!-- 受信ログ表示エリア -->
-<div class="logViewFrame"><canvas class="logView" id="logView"></canvas></div>
-<br />
-<!--
-<div class="logViewFrame"><canvas class="logView" id="logView2"></canvas></div>
-<br />
--->
+<div id="contents">
+    <br />
+
+    <!-- 受信ログ表示エリア -->
+    <div class="logViewFrame"><canvas class="logView" id="logView"></canvas></div>
+    <br />
+    <!--
+    <div class="logViewFrame"><canvas class="logView" id="logView2"></canvas></div>
+    <br />
+    -->
+
+    <div id="footerMargin"></div>
+</div>
 
 <!-- フッター -->
 <div id="footer" align="right">
@@ -44,8 +49,13 @@
 
 <!-- シーケンスログファイル一覧 -->
 <div id="modalPanel">&nbsp;</div>
-<div align="center" id="logFileListPanel">
-    <table id="logFileList">
+
+<div id="mainPanel">
+    <table id="testList">
+        <col width="200">
+        <col width="200">
+        <col width="480">
+        <col width="137">
         <tr>
             <th>@startTime;</th>
             <th>@endTime;</th>
@@ -53,7 +63,16 @@
             <th>@logFileSize;</th>
         </tr>
     </table>
+    <div id="logFileListPanel">
+        <table id="logFileList">
+            <col width="200">
+            <col width="200">
+            <col width="480">
+            <col width="120">
+        </table>
+    </div>
 </div>
+
 <br />
 </body>
 </html>

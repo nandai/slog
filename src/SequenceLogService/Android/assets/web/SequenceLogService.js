@@ -11,10 +11,10 @@ $(function()
         {
             list = list +
                 '<tr>' +
-                    '<td>'               + obj.creationTime  + '</td>' +
-                    '<td>'               + obj.lastWriteTime + '</td>' +
-                    '<td><a href="#">'   + obj.canonicalPath + '</a></td>' +
-                    '<td align="right">' + obj.size          + '</td>' +
+                    '<td align="center">' + obj.creationTime  + '</td>' +
+                    '<td align="center">' + obj.lastWriteTime + '</td>' +
+                    '<td><a href="#">'    + obj.canonicalPath + '</a></td>' +
+                    '<td align="right">'  + obj.size          + '</td>' +
                 '</tr>';
         });
 
@@ -34,7 +34,7 @@ $(function()
     function onSize(view)
     {
         var canvas =    view.get(0);
-        view.member.visibleLineCount = (window.innerHeight - 125) / view.member.size.height;
+        view.member.visibleLineCount = (window.innerHeight - 130) / view.member.size.height;
 
         canvas.width =  view.parent().width() * 98 / 100;
         canvas.height = view.member.size.height * view.member.visibleLineCount;
@@ -67,17 +67,23 @@ $(function()
 
     $('#showLogFileList').on('click', function()
     {
+        var body = $('body');
+        var logFileListPanelHeight = body.height() - 120;
+
+        $('#logFileListPanel').height(logFileListPanelHeight);
+
+        $('#mainPanel')
+            .css('top',  (body.height() - logFileListPanelHeight)  / 2)
+            .css('left', (body.width()  - $('#mainPanel').width()) / 2);
+
         $('#modalPanel').fadeIn('fast');
-        $('#logFileListPanel')
-            .css('top',  ($('body').height() - $('#logFileListPanel').height()) / 2)
-            .css('left', ($('body').width()  - $('#logFileListPanel').width())  / 2)
-            .fadeIn('fast');
+        $('#mainPanel'). fadeIn('fast');
     });
 
     $('#modalPanel').on('click', function()
     {
         $('#modalPanel').fadeOut('fast');
-        $('#logFileListPanel').fadeOut('fast');
+        $('#mainPanel').fadeOut('fast');
     });
 
     $('#account').on('click', function()

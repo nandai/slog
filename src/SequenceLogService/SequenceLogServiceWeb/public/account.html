@@ -140,38 +140,42 @@ $(function()
     </div>
     <div style="clear: both"></div>
 </div>
-<br />
 
-<div align="center">
-    <form method="post" class="form-container">
-        <input type="hidden" name="id" id="id" />
-
-        <div class="form-title">@userName;</div>
-        <input class="form-field" type="text" name="name" id="name" maxlength="@userNameMax;" value="@userNameValue;" @userNameProperty; /><br />
-
-        <div class="form-title">@password;</div>
-        <input class="form-field" type="password" name="passwd" id="passwd" maxlength="@passwordMax;" autofocus /><br />
-
-        <div class="submit-container">
-        <input type="submit" value="@change;" />
-        </div>
-        <div id="message"></div>
-    </form>
+<div id="contents">
     <br />
-    <div id="waiting"></div>
-</div>
-<br />
+    <div align="center">
+        <form method="post" class="form-container">
+            <input type="hidden" name="id" id="id" />
 
-<div align="center" style="display:@displayAccountList;">
-    <table id="accountList">
-        <tr>
-            <th>@userName;</th>
-            <th>@admin;</th>
-            <th>@delete;</th>
-        </tr>
-    </table>
+            <div class="form-title">@userName;</div>
+            <input class="form-field" type="text" name="name" id="name" maxlength="@userNameMax;" value="@userNameValue;" @userNameProperty; /><br />
+
+            <div class="form-title">@password;</div>
+            <input class="form-field" type="password" name="passwd" id="passwd" maxlength="@passwordMax;" autofocus /><br />
+
+            <div class="submit-container">
+            <input type="submit" value="@change;" />
+            </div>
+            <div id="message"></div>
+        </form>
+        <br />
+        <div id="waiting"></div>
+    </div>
+    <br />
+
+    <div align="center" style="display:@displayAccountList;">
+        <table id="accountList">
+            <tr>
+                <th>@userName;</th>
+                <th>@admin;</th>
+                <th>@delete;</th>
+            </tr>
+        </table>
+    </div>
+    <br />
+
+    <div id="footerMargin"></div>
 </div>
-<br />
 
 <div id="footer" align="right">
     Copyright (c) 2013-2014 <a href="http://@domain;" target="_blank">@domain;</a> All rights reserved.
