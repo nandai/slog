@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   Thread.h
- *  \brief  スレッドクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    Thread.h
+ * \brief   スレッドクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -38,56 +38,113 @@ class Thread;
 typedef std::list<ThreadListener*> ThreadListeners;
 
 /*!
- *  \brief  スレッドリスナークラス
+ * \brief   スレッドリスナークラス
  */
 class SLOG_API ThreadListener
 {
-public:     virtual void onInitialized(Thread* thread) {}   //!< スレッド初期化完了通知
-            virtual void onTerminated( Thread* thread) {}   //!< スレッド終了通知
+            /*!
+             * スレッド初期化完了通知
+             */
+public:     virtual void onThreadInitialized(Thread* thread) {}
+
+            /*!
+             * スレッド終了通知
+             */
+            virtual void onThreadTerminated(Thread* thread) {}
 };
 
 /*!
- *  \brief  スレッドクラス
+ * \brief   スレッドクラス
  */
 class SLOG_API Thread
 {
+            /*!
+             * スレッドハンドル
+             */
 #if defined(_WINDOWS)
-            int64_t         mHandle;            //!< スレッドハンドル
+            int64_t mHandle;
 #else
-            pthread_t       mHandle;            //!< スレッドハンドル
+            pthread_t mHandle;
 #endif
 
-            bool            mInterrupted;       //!< 割り込みフラグ
-            bool            mAlive;             //!< 生存フラグ
-
-            ThreadListener  mDefaultListener;   //!< デフォルトリスナー
-            ThreadListeners mListeners;         //!< リスナーリスト
+            /*!
+             * 割り込みフラグ
+             */
+            bool mInterrupted;
 
             /*!
-             * コンストラクタ／デストラクタ
+             * 生存フラグ
+             */
+            bool mAlive;
+
+            /*!
+             * リスナーリスト
+             */
+            ThreadListeners mListeners;
+
+            /*!
+             * コンストラクタ
              */
 public:     Thread();
+
+            /*!
+             * デストラクタ
+             */
             virtual ~Thread();
 
+            /*!
+             * スレッド開始
+             */
             void start();
+
+            /*!
+             * スレッド終了待ち
+             */
             void join();
 
-private:    virtual bool init() {return true;}  //!< 初期化
-            virtual void run() = 0;             //!< スレッド実行
+            /*!
+             * 初期化
+             */
+private:    virtual bool init() {return true;}
 
+            /*!
+             * スレッド実行
+             */
+            virtual void run() = 0;
+
+            /*!
+             * 割り込み
+             */
 public:     virtual void interrupt();
+
+            /*!
+             * 割り込まれているか調べる
+             */
             bool isInterrupted() const;
+
+            /*!
+             * 生存しているか調べる
+             */
             bool isAlive() const;
 
             /*!
-             * リスナー
+             * リスナー追加
              */
-            ThreadListener* getListener() const;
-            void setListener(ThreadListener* listener);
+            void addThreadListener(ThreadListener* listener);
 
+            /*!
+             * リスナー解除
+             */
+           void removeThreadListener(ThreadListener* listener);
+
+            /*!
+             * リスナーリスト取得
+             */
             ThreadListeners* getListeners() const;
-            void removeListener(ThreadListener* listener);
 
+            /*!
+             * スレッドメイン
+             */
 private:
 #if defined(_WINDOWS)
             static unsigned int __stdcall main(void* param);
@@ -95,12 +152,19 @@ private:
             static void* main(void* param);
 #endif
 
+            /*!
+             * カレントスレッドID取得
+             */
 public:     static uint32_t getCurrentId();
+
+            /*!
+             * スリープ
+             */
             static void sleep(uint32_t ms);
 };
 
 /*!
- *  \brief  割り込まれているか調べる
+ * \brief   割り込まれているか調べる
  */
 inline bool Thread::isInterrupted() const
 {
@@ -108,7 +172,7 @@ inline bool Thread::isInterrupted() const
 }
 
 /*!
- *  \brief  生存確認
+ * \brief   生存確認
  */
 inline bool Thread::isAlive() const
 {
@@ -116,27 +180,15 @@ inline bool Thread::isAlive() const
 }
 
 /*!
- *  \brief  リスナー取得
+ * \brief   リスナー追加
  */
-inline ThreadListener* Thread::getListener() const
+inline void Thread::addThreadListener(ThreadListener* listener)
 {
-    if (mListeners.empty())
-        return (ThreadListener*)&mDefaultListener;
-
-    return mListeners.front();
+    mListeners.push_back(listener);
 }
 
 /*!
- *  \brief  リスナー設定
- */
-inline void Thread::setListener(ThreadListener* listener)
-{
-    if (listener)
-        mListeners.push_back(listener);
-}
-
-/*!
- *  \brief  リスナーリスト取得
+ * \brief   リスナーリスト取得
  */
 inline ThreadListeners* Thread::getListeners() const
 {

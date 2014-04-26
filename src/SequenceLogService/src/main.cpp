@@ -121,7 +121,7 @@ static bool isDirectoryPermissionAllow(const CoreString& dirName)
 /*!
  *  \brief  アプリケーションクラス
  */
-class Application : public SequenceLogServiceThreadListener
+class Application : public SequenceLogServiceListener
 {
 public:     void main(int argc, char** argv);
 

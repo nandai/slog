@@ -41,16 +41,21 @@ namespace slog
 /*!
  * \brief   シーケンスログ送信スレッド
  */
-class SendSequenceLogThread : public Thread, public ThreadListener
+class SendSequenceLogThread : public Thread
 {
             String      mIP;
             uint16_t    mPort;
             String      mLogFilePath;
 
+            /*!
+             * コンストラクタ
+             */
 public:     SendSequenceLogThread(const CoreString* ip, uint16_t port, const CoreString* path);
 
+            /*!
+             * スレッド実行
+             */
 private:    virtual void run() override;
-            virtual void onTerminated(Thread* thread) override;
 };
 
 /*!
@@ -61,8 +66,6 @@ SendSequenceLogThread::SendSequenceLogThread(const CoreString* ip, uint16_t port
     mIP.copy(ip);
     mPort = port;
     mLogFilePath.copy(path);
-
-    setListener(this);
 }
 
 /*!
@@ -118,18 +121,11 @@ void SendSequenceLogThread::run()
 }
 
 /*!
- * \brief   スレッド終了通知
- */
-void SendSequenceLogThread::onTerminated(Thread* thread)
-{
-    delete this;
-}
-
-/*!
  * \brief   コンストラクタ
  */
 GetLogResponse::GetLogResponse(HttpRequest* httpRequest) : WebServerResponse(httpRequest)
 {
+    mSendSequenceLogThread = nullptr;
 }
 
 /*!
@@ -144,21 +140,23 @@ GetLogResponse::~GetLogResponse()
  */
 void GetLogResponse::run()
 {
-    setListener(this);
-
     if (upgradeWebSocket() == false)
         return;
 
     if (getUserId() < 0)
         return;
 
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    serviceMain->addThreadListener(this);
+    serviceMain->addSequenceLogServiceListener(this);
+
     try
     {
-        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-        serviceMain->setListener(this);
-
-        Socket* socket = mHttpRequest->getSocket();
+        // シーケンスログファイル変更通知によりログファイルリストをブラウザに送信する
         onLogFileChanged(nullptr, nullptr, getUserId());
+
+        // シーケンスログ送信ループ
+        Socket* socket = mHttpRequest->getSocket();
 
         while (true)
         {
@@ -177,7 +175,7 @@ void GetLogResponse::run()
 
             int32_t cmd = buffer->getInt();
 
-            if (cmd == 1)
+            if (cmd == 1 && (mSendSequenceLogThread == nullptr || mSendSequenceLogThread->isAlive() == false))
             {
                 SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
                 ScopedLock lock(serviceMain->getMutex());
@@ -198,13 +196,14 @@ void GetLogResponse::run()
                     String fileName;
                     fileName.copy(buffer->get(len), len);
 
-                    SendSequenceLogThread* thread = new SendSequenceLogThread(
+                    delete mSendSequenceLogThread;
+                    mSendSequenceLogThread = new SendSequenceLogThread(
                         socket->getInetAddress(),
                         serviceMain->getSequenceLogServerPort(),
 //                      &fileName);
                         fileInfo->getCanonicalPath());
 
-                    thread->start();
+                    mSendSequenceLogThread->start();
                 }
             }
 
@@ -215,26 +214,33 @@ void GetLogResponse::run()
     {
         noticeLog("GetLogResponse: %s", e.getMessage());
     }
+
+    // シーケンスログ送信スレッド終了待ち
+    if (mSendSequenceLogThread)
+    {
+        mSendSequenceLogThread->join();
+
+        delete mSendSequenceLogThread;
+        mSendSequenceLogThread = nullptr;
+    }
+
+    // シーケンスログサービスメインへのリスナー登録を解除
+    serviceMain->removeThreadListener(this);
+    serviceMain->removeSequenceLogServiceListener(this);
 }
 
 /*!
  * \brief   スレッド終了通知
  */
-void GetLogResponse::onTerminated(Thread* thread)
+void GetLogResponse::onThreadTerminated(Thread* thread)
 {
-    if (thread == this)
-    {
-        SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
-        serviceMain->removeListener(this);
-    }
-    else
-    {
-        onLogFileChanged(thread, nullptr, getUserId());
-    }
+    // ログ出力スレッドの終了時もシーケンスログファイル変更通知を行う
+    // thread != this
+    onLogFileChanged(nullptr, nullptr, getUserId());
 }
 
 /*!
- * \brief   シーケンスログ更新通知
+ * \brief   シーケンスログファイル変更通知
  */
 void GetLogResponse::onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId)
 {

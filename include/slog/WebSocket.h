@@ -20,9 +20,7 @@
  * \author  Copyright 2013-2014 printf.jp
  */
 #pragma once
-
 #include "slog/Socket.h"
-#include "slog/Thread.h"
 
 namespace slog
 {
@@ -58,9 +56,9 @@ protected:  void init();
 public:     virtual int close() override;
 
             /*!
-             * リスナー設定
+             * リスナー追加
              */
-            void setListener(WebSocketListener* listener);
+            void addWebSocketListener(WebSocketListener* listener);
 
             /*!
              * Web Socket ヘッダー送信
@@ -107,11 +105,26 @@ protected:  void notifyOpen();
 /*!
  * \brief   Web Socket リスナークラス
  */
-class SLOG_API WebSocketListener : public ThreadListener
+class SLOG_API WebSocketListener
 {
+            /*!
+             * オープン通知
+             */
 public:     virtual void onOpen() {}
+
+            /*!
+             * エラー通知
+             */
             virtual void onError(const char* message) {}
+
+            /*!
+             * メッセージ通知
+             */
             virtual void onMessage(const ByteBuffer& buffer) {}
+
+            /*!
+             * クローズ通知
+             */
             virtual void onClose() {}
 };
 

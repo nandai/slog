@@ -128,7 +128,14 @@ void SequenceLogServiceMain::run()
 void SequenceLogServiceMain::onResponseStart(WebServerResponse* response)
 {
     SLOG(CLS_NAME, "onResponseStart");
-    response->setListener(this);
+
+    SequenceLogService* sequenceLogService = dynamic_cast<SequenceLogService*>(response);
+
+    if (sequenceLogService)
+    {
+        sequenceLogService->addThreadListener(this);
+        sequenceLogService->addSequenceLogServiceListener(this);
+    }
 }
 
 /*!
@@ -307,7 +314,7 @@ void SequenceLogServiceMain::setSequenceLogServerPort(uint16_t port)
 /*!
  *  \brief	シーケンスログサービススレッド初期化完了通知
  */
-void SequenceLogServiceMain::onInitialized(Thread* thread)
+void SequenceLogServiceMain::onThreadInitialized(Thread* thread)
 {
     SLOG(CLS_NAME, "onInitialized");
     SequenceLogService* response = dynamic_cast<SequenceLogService*>(thread);
@@ -317,19 +324,14 @@ void SequenceLogServiceMain::onInitialized(Thread* thread)
 
     ThreadListeners* listeners = getListeners();
 
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
-    {
-        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
-
-        if (listener)
-            listener->onInitialized(thread);
-    }
+    for (auto i = listeners->begin(); i != listeners->end(); i++)
+        (*i)->onThreadInitialized(thread);
 }
 
 /*!
  *  \brief	シーケンスログサービススレッド終了通知
  */
-void SequenceLogServiceMain::onTerminated(Thread* thread)
+void SequenceLogServiceMain::onThreadTerminated(Thread* thread)
 {
     SLOG(CLS_NAME, "onTerminated");
     SequenceLogService* response = dynamic_cast<SequenceLogService*>(thread);
@@ -342,13 +344,8 @@ void SequenceLogServiceMain::onTerminated(Thread* thread)
 
     ThreadListeners* listeners = getListeners();
 
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
-    {
-        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
-
-        if (listener)
-            listener->onTerminated(thread);
-    }
+    for (auto i = listeners->begin(); i != listeners->end(); i++)
+        (*i)->onThreadTerminated(thread);
 }
 
 /*!
@@ -357,15 +354,9 @@ void SequenceLogServiceMain::onTerminated(Thread* thread)
 void SequenceLogServiceMain::onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId)
 {
     SLOG(CLS_NAME, "onLogFileChanged");
-    ThreadListeners* listeners = getListeners();
 
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
-    {
-        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
-
-        if (listener)
-            listener->onLogFileChanged(thread, fileName, userId);
-    }
+    for (auto i = mListeners.begin(); i != mListeners.end(); i++)
+        (*i)->onLogFileChanged(thread, fileName, userId);
 }
 
 /*!
@@ -374,15 +365,9 @@ void SequenceLogServiceMain::onLogFileChanged(Thread* thread, const CoreString* 
 void SequenceLogServiceMain::onUpdateLog(const Buffer* text, int32_t userId)
 {
 //  SLOG(CLS_NAME, "onUpdateLog");
-    ThreadListeners* listeners = getListeners();
 
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
-    {
-        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
-
-        if (listener)
-            listener->onUpdateLog(text, userId);
-    }
+    for (auto i = mListeners.begin(); i != mListeners.end(); i++)
+        (*i)->onUpdateLog(text, userId);
 }
 
 } // namespace slog

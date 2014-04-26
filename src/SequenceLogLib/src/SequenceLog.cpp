@@ -167,8 +167,8 @@ public:     void init();
             /*!
              * Web Socket ハンドラ
              */
-public:     virtual void onOpen();
-            virtual void onError(const char* message);
+public:     virtual void onOpen() override;
+            virtual void onError(const char* message) override;
 
             /*!
              * シーケンスログアイテム生成
@@ -222,7 +222,7 @@ void SequenceLogClient::init()
     String url;
     url.format("%s/outputLog", sSequenceLogServiceAddress);
 
-    mSocket.setListener(this);
+    mSocket.addWebSocketListener(this);
     mSocket.open(&url);
 }
 

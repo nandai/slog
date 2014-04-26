@@ -26,14 +26,21 @@
 
 namespace slog
 {
+class SendSequenceLogThread;
 
 /*!
  *  \brief  取得ログ送信クラス
  */
 class GetLogResponse :
     public WebServerResponse,
-    public SequenceLogServiceThreadListener
+    public ThreadListener,
+    public SequenceLogServiceListener
 {
+            /*!
+             * シーケンスログ送信スレッド
+             */
+            SendSequenceLogThread* mSendSequenceLogThread;
+
             /*!
              * コンストラクタ
              */
@@ -49,8 +56,16 @@ public:     GetLogResponse(HttpRequest* httpRequest);
              */
 private:    virtual void run() override;
 
-public:     virtual void onInitialized(   Thread* thread) override {}
-            virtual void onTerminated(    Thread* thread) override;
+            /*!
+             * スレッド初期化完了通知
+             */
+public:     virtual void onThreadInitialized(Thread* thread) override {}
+
+            /*!
+             * スレッド終了通知
+             */
+            virtual void onThreadTerminated(Thread* thread) override;
+
             virtual void onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId) override;
             virtual void onUpdateLog(const Buffer* text,  int32_t userId) override;
 

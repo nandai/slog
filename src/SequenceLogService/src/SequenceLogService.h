@@ -36,6 +36,7 @@ class FileInfo;
 class ItemQueue;
 class ItemList;
 class SharedFileContainer;
+class SequenceLogServiceListener;
 
 typedef std::map<uint32_t, ItemQueue*> ItemQueueManager;        // キーはスレッドID
 
@@ -90,6 +91,11 @@ class SequenceLogService : public WebServerResponse
             SharedFileContainer* mSharedFileContainer;
 
             /*!
+             * リスナーリスト
+             */
+            std::list<SequenceLogServiceListener*> mListeners;
+
+            /*!
              * コンストラクタ
              */
 public:     SequenceLogService(HttpRequest* httpRequest);
@@ -110,6 +116,11 @@ private:    virtual bool init() override;
 public:     FileInfo* getFileInfo() const;
 
             /*!
+             * リスナー追加
+             */
+            void addSequenceLogServiceListener(SequenceLogServiceListener* listener) {mListeners.push_back(listener);}
+
+            /*!
              * シーケンスログスレッド関連
              */
 private:    virtual void run() override;
@@ -120,7 +131,7 @@ private:    virtual void run() override;
             /*!
              * シーケンスログアイテムキープ / 追加
              */
-private:    void divideItems();
+            void divideItems();
 
             void keep(   ItemQueue* queue, SequenceLogItem* item);
             void forward(ItemQueue* queue, SequenceLogItem* item);
@@ -134,7 +145,7 @@ private:    void divideItems();
             /*!
              * シーケンスログファイル関連
              */
-private:    const char* initBinaryOrText(CoreString* fileName);
+            const char* initBinaryOrText(CoreString* fileName);
 
             /*!
              * シーケンスログファイルオープン

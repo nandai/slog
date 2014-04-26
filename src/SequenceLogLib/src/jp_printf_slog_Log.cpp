@@ -222,18 +222,22 @@ private:    static jmethodID    mOnOpen;
             jobject             mJavaObj;
 
             /*!
-             * コンストラクタ／デストラクタ
+             * コンストラクタ
              */
 public:     JavaWebSocketClient(JNIEnv* env, jobject javaObj);
-            virtual ~JavaWebSocketClient();
+
+            /*!
+             * デストラクタ
+             */
+            virtual ~JavaWebSocketClient() override;
 
             /*!
              * ハンドラ
              */
-public:     virtual void onOpen();
-            virtual void onError(const char* message);
-            virtual void onMessage(const ByteBuffer& buffer);
-            virtual void onClose();
+public:     virtual void onOpen() override;
+            virtual void onError(const char* message) override;
+            virtual void onMessage(const ByteBuffer& buffer) override;
+            virtual void onClose() override;
 };
 
 /*!
@@ -250,7 +254,7 @@ JavaWebSocketClient::JavaWebSocketClient(JNIEnv* env, jobject javaObj) : WebSock
     mOnClose =   env->GetMethodID(clazz, "onClose",    "()V");
 
     mJavaObj = env->NewGlobalRef(javaObj);
-    setListener(this);
+    addWebSocketListener(this);
 
     env->SetLongField(mJavaObj, mNativeObj, (jlong)this);
 }

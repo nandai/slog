@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   SequenceLogServiceMain.h
- *  \brief  シーケンスログサービスメインクラス
- *  \author Copyright 2011-2014 printf.jp
+ * \file    SequenceLogServiceMain.h
+ * \brief   シーケンスログサービスメインクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -34,7 +34,7 @@ namespace slog
 class Mutex;
 class WebServerResponse;
 class SequenceLogService;
-class SequenceLogServiceThreadListener;
+class SequenceLogServiceListener;
 class SequenceLogFileManagerList;
 class SequenceLogFileManager;
 class SharedFileContainer;
@@ -43,9 +43,16 @@ class FileInfo;
 /*!
  * \brief   シーケンスログサービスリスナークラス
  */
-class SequenceLogServiceThreadListener : public ThreadListener
+class SequenceLogServiceListener
 {
+            /*!
+             * シーケンスログファイル変更通知
+             */
 public:     virtual void onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId) {}
+
+            /*!
+             * シーケンスログ更新通知
+             */
             virtual void onUpdateLog(const Buffer* text,  int32_t userId) {}
 };
 
@@ -54,7 +61,8 @@ public:     virtual void onLogFileChanged(Thread* thread, const CoreString* file
  */
 class SequenceLogServiceMain :
     public Thread,
-    public SequenceLogServiceThreadListener
+    public ThreadListener,
+    public SequenceLogServiceListener
 {
             /*!
              * シーケンスログフォルダ名
@@ -102,6 +110,11 @@ class SequenceLogServiceMain :
             uint16_t mSequenceLogServerPort;
 
             /*!
+             * リスナーリスト
+             */
+            std::list<SequenceLogServiceListener*> mListeners;
+
+            /*!
              * コンストラクタ
              */
 public:     SequenceLogServiceMain();
@@ -117,7 +130,7 @@ public:     SequenceLogServiceMain();
             static SequenceLogServiceMain* getInstance();
 
             /*!
-             * 
+             * シーケンスログファイルマネージャー取得
              */
 private:    SequenceLogFileManager* getSequenceLogFileManager(int32_t userId) const;
 
@@ -201,8 +214,26 @@ public:     void printLog(const Buffer* text, int32_t len, int32_t userId);
             uint16_t getSequenceLogServerPort() const;
             void     setSequenceLogServerPort(uint16_t port);
 
-private:    virtual void onInitialized(   Thread* thread) override;
-            virtual void onTerminated(    Thread* thread) override;
+            /*!
+             * リスナー追加
+             */
+            void addSequenceLogServiceListener(SequenceLogServiceListener* listener) {mListeners.push_back(listener);}
+
+            /*!
+             * リスナー解除
+             */
+            void removeSequenceLogServiceListener(SequenceLogServiceListener* listener) {mListeners.remove(listener);}
+
+            /*!
+             * スレッド初期化完了通知
+             */
+private:    virtual void onThreadInitialized(Thread* thread) override;
+
+            /*!
+             * スレッド終了通知
+             */
+            virtual void onThreadTerminated(Thread* thread) override;
+
             virtual void onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId) override;
             virtual void onUpdateLog(const Buffer* text,  int32_t userId) override;
 };

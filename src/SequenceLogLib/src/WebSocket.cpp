@@ -25,6 +25,7 @@
 #include "slog/WebSocket.h"
 #include "slog/String.h"
 #include "slog/ByteBuffer.h"
+#include "slog/Thread.h"
 #include "slog/Mutex.h"
 
 namespace slog
@@ -35,7 +36,12 @@ namespace slog
  */
 class WebSocketReceiver : public Thread
 {
-            WebSocket*  mWebSocket;
+            WebSocket* mWebSocket;
+
+            /*!
+             * リスナーリスト
+             */
+            std::list<WebSocketListener*> mListeners;
 
             /*!
              * コンストラクタ／デストラクタ
@@ -44,6 +50,11 @@ public:     WebSocketReceiver(WebSocket* webSocket)
             {
                 mWebSocket = webSocket;
             }
+
+            /*!
+             * リスナー追加
+             */
+            void addWebSocketListener(WebSocketListener* listener) {mListeners.push_back(listener);}
 
             /*!
              * スレッド実行
@@ -113,15 +124,8 @@ void WebSocketReceiver::run()
  */
 void WebSocketReceiver::notifyOpen()
 {
-    ThreadListeners* listeners = getListeners();
-
-    for (auto i = listeners->begin(); i != listeners->end(); i++)
-    {
-        WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
-
-        if (listener)
-            listener->onOpen();
-    }
+    for (auto i = mListeners.begin(); i != mListeners.end(); i++)
+        (*i)->onOpen();
 }
 
 /*!
@@ -129,15 +133,8 @@ void WebSocketReceiver::notifyOpen()
  */
 void WebSocketReceiver::notifyError(const char* message)
 {
-    ThreadListeners* listeners = getListeners();
-
-    for (auto i = listeners->begin(); i != listeners->end(); i++)
-    {
-        WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
-
-        if (listener)
-            listener->onError(message);
-    }
+    for (auto i = mListeners.begin(); i != mListeners.end(); i++)
+        (*i)->onError(message);
 }
 
 /*!
@@ -145,15 +142,8 @@ void WebSocketReceiver::notifyError(const char* message)
  */
 void WebSocketReceiver::notifyMessage(const ByteBuffer& buffer)
 {
-    ThreadListeners* listeners = getListeners();
-
-    for (auto i = listeners->begin(); i != listeners->end(); i++)
-    {
-        WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
-
-        if (listener)
-            listener->onMessage(buffer);
-    }
+    for (auto i = mListeners.begin(); i != mListeners.end(); i++)
+        (*i)->onMessage(buffer);
 }
 
 /*!
@@ -161,15 +151,8 @@ void WebSocketReceiver::notifyMessage(const ByteBuffer& buffer)
  */
 void WebSocketReceiver::notifyClose()
 {
-    ThreadListeners* listeners = getListeners();
-
-    for (auto i = listeners->begin(); i != listeners->end(); i++)
-    {
-        WebSocketListener* listener = dynamic_cast<WebSocketListener*>(*i);
-
-        if (listener)
-            listener->onClose();
-    }
+    for (auto i = mListeners.begin(); i != mListeners.end(); i++)
+        (*i)->onClose();
 }
 
 /*!
@@ -222,11 +205,11 @@ int WebSocket::close()
 }
 
 /*!
- * \brief   リスナー設定
+ * \brief   リスナー追加
  */
-void WebSocket::setListener(WebSocketListener* listener)
+void WebSocket::addWebSocketListener(WebSocketListener* listener)
 {
-    mReceiver->setListener(listener);
+    mReceiver->addWebSocketListener(listener);
 }
 
 /*!

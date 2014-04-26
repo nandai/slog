@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   Thread.cpp
- *  \brief  スレッドクラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    Thread.cpp
+ * \brief   スレッドクラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/Thread.h"
 
@@ -35,26 +35,24 @@ namespace slog
 {
 
 /*!
- *  \brief  コントラクタ
+ * \brief   コントラクタ
  */
 Thread::Thread()
 {
     mHandle = 0/*nullptr*/;
     mInterrupted = false;
     mAlive = false;
-
-    setListener(nullptr);
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 Thread::~Thread()
 {
 }
 
 /*!
- *  \brief  スレッド開始
+ * \brief   スレッド開始
  */
 void Thread::start()
 {
@@ -71,7 +69,7 @@ void Thread::start()
 }
 
 /*!
- *  \brief  スレッド終了待ち
+ * \brief   スレッド終了待ち
  */
 void Thread::join()
 {
@@ -90,7 +88,7 @@ void Thread::join()
 }
 
 /*!
- *  \brief  割り込み
+ * \brief   割り込み
  */
 void Thread::interrupt()
 {
@@ -98,9 +96,9 @@ void Thread::interrupt()
 }
 
 /*!
- *  \brief  リスナー除外
+ * \brief   リスナー除外
  */
-void Thread::removeListener(ThreadListener* listener)
+void Thread::removeThreadListener(ThreadListener* listener)
 {
     ThreadListeners* listeners = getListeners();
 
@@ -115,7 +113,7 @@ void Thread::removeListener(ThreadListener* listener)
 }
 
 /*!
- *  \brief  スレッドエントリーポイント
+ * \brief   スレッドエントリーポイント
  */
 #if defined(_WINDOWS)
 unsigned int __stdcall Thread::main(void* param)
@@ -133,7 +131,7 @@ void* Thread::main(void* param)
         ThreadListeners* listeners = thread->getListeners();
 
         for (auto i = listeners->begin(); i != listeners->end(); i++)
-            (*i)->onInitialized(thread);
+            (*i)->onThreadInitialized(thread);
 
         thread->run();
     }
@@ -142,23 +140,23 @@ void* Thread::main(void* param)
 
     {
         ThreadListeners* listeners = thread->getListeners();
-        ThreadListener* threadIsListener = dynamic_cast<ThreadListener*>(thread);
-        ThreadListener* self = nullptr;
+//      ThreadListener* threadIsListener = dynamic_cast<ThreadListener*>(thread);
+//      ThreadListener* self = nullptr;
 
         for (auto i = listeners->begin(); i != listeners->end(); i++)
         {
-            if (*i ==  threadIsListener)
-                self = threadIsListener;
-
-            else
-                (*i)->onTerminated(thread);
+//          if (*i ==  threadIsListener)
+//              self = threadIsListener;
+//
+//          else
+                (*i)->onThreadTerminated(thread);
         }
 
         thread->mAlive = false;     // 自身のonTerminated()でdeleteする可能性があるので
                                     // mAliveへの値設定はonTerminated()の前に行う
 
-        if (self)
-            self->onTerminated(thread);
+//      if (self)
+//          self->onThreadTerminated(thread);
     }
 
 #if defined(_WINDOWS)
@@ -173,7 +171,7 @@ void* Thread::main(void* param)
 }
 
 /*!
- *  \brief  カレントスレッドID取得
+ * \brief   カレントスレッドID取得
  */
 uint32_t Thread::getCurrentId()
 {
@@ -188,7 +186,7 @@ uint32_t Thread::getCurrentId()
 }
 
 /*!
- *  \brief  スリープ
+ * \brief   スリープ
  */
 void Thread::sleep(uint32_t ms)
 {

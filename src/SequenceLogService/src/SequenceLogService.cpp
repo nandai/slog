@@ -380,13 +380,8 @@ void SequenceLogService::writeMain()
  */
 void SequenceLogService::callLogFileChanged(const CoreString* fileName)
 {
-    ThreadListeners* listeners = getListeners();
-
-    for (ThreadListeners::iterator i = listeners->begin(); i != listeners->end(); i++)
-    {
-        SequenceLogServiceThreadListener* listener = dynamic_cast<SequenceLogServiceThreadListener*>(*i);
-        listener->onLogFileChanged(this, fileName, getUserId());
-    }
+    for (auto i = mListeners.begin(); i != mListeners.end(); i++)
+        (*i)->onLogFileChanged(this, fileName, getUserId());
 }
 
 /*!
