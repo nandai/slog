@@ -273,7 +273,6 @@ public class App extends android.app.Application
                 "LOG_OUTPUT_DIR           %s\n" +
                 "MAX_FILE_SIZE            %d %s\n" +
                 "MAX_FILE_COUNT           %d\n" +
-                "OUTPUT_SCREEN            true\n" +
                 "WEB_SERVER_PORT          %d\n" +
 //              "WEB_SERVER_PORT_SSL      %d\n" +
                 "SEQUENCE_LOG_SERVER_PORT %d\n",

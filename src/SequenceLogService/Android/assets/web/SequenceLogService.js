@@ -18,13 +18,13 @@ $(function()
                 '</tr>';
         });
 
-        $('#logFileList').find('tr:gt(0)').remove();
+        $('#logFileList tr').remove();
         $('#logFileList').append(list);
 
         $('a[href=#]').click(function()
         {
             var tr = $(this).closest('tr');
-            var i = tr.index() - 1;
+            var i = tr.index();
             slog.service.openLog(i, $(this).text());
             return false;
         });

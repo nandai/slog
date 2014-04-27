@@ -121,13 +121,13 @@ static bool isDirectoryPermissionAllow(const CoreString& dirName)
 /*!
  *  \brief  アプリケーションクラス
  */
-class Application : public SequenceLogServiceListener
+class Application : public ThreadListener, public SequenceLogServiceListener
 {
 public:     void main(int argc, char** argv);
 
-            virtual void onInitialized(   Thread* thread) override;
-            virtual void onTerminated(    Thread* thread) override;
-            virtual void onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId) override;
+            virtual void onThreadInitialized(Thread* thread) override;
+            virtual void onThreadTerminated( Thread* thread) override;
+            virtual void onLogFileChanged(   Thread* thread, const CoreString* fileName, int32_t userId) override;
             virtual void onUpdateLog(const Buffer* text, int32_t userId) override;
 };
 
@@ -272,7 +272,7 @@ void Application::main(int argc, char** argv)
 /*!
  *  \brief  シーケンスログサービススレッド初期化完了通知
  */
-void Application::onInitialized(Thread* thread)
+void Application::onThreadInitialized(Thread* thread)
 {
     // SequenceLogService取得
     SequenceLogService*  service = dynamic_cast<SequenceLogService*>(thread);
@@ -298,7 +298,7 @@ void Application::onInitialized(Thread* thread)
 /*!
  *  \brief  シーケンスログサービススレッド終了通知
  */
-void Application::onTerminated(Thread* thread)
+void Application::onThreadTerminated(Thread* thread)
 {
     // SequenceLogService取得
     SequenceLogService* service = dynamic_cast<SequenceLogService*>(thread);
@@ -334,7 +334,7 @@ void Application::onTerminated(Thread* thread)
  */
 void Application::onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId)
 {
-    onInitialized(thread);
+    onThreadInitialized(thread);
 }
 
 /*!
