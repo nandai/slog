@@ -88,7 +88,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
 
         // 最大ファイルサイズ
         value = updateSummary(KEY_MAX_FILE_SIZE, (isRunning == false));
-        app.mMaxFileSize = Integer.parseInt(value);
+        app.mMaxFileSize = parseInt(value);
 
         // 最大ファイルサイズ単位
         value = updateSummary(KEY_MAX_FILE_SIZE_UNIT, (isRunning == false));
@@ -96,7 +96,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
 
         // 最大ファイル数
         value = updateSummary(KEY_MAX_FILE_COUNT, (isRunning == false));
-        app.mMaxFileCount = Integer.parseInt(value);
+        app.mMaxFileCount = parseInt(value);
 
         // スーパーユーザー
         pref = findPreference(KEY_CHANGE_SUPER_USER);
@@ -110,7 +110,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
 
         // Sequence Log Service Web Server ポート
         value = updateSummary(KEY_WEB_SERVER_PORT, (isRunning == false));
-        app.mWebServerPort = Integer.parseInt(value);
+        app.mWebServerPort = parseInt(value);
 
         // Sequence Log Service Web Server ポート (SSL)
 //      value = updateSummary(KEY_WEB_SERVER_PORT_SSL, (isRunning == false));
@@ -118,7 +118,7 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
 
         // Sequence Log Server ポート
         value = updateSummary(KEY_SEQUENCE_LOG_SERVER_PORT, (isRunning == false));
-        app.mSequenceLogServerPort = Integer.parseInt(value);
+        app.mSequenceLogServerPort = parseInt(value);
 
         // Sequence Log Service Web
         LinkPreference linkPref = (LinkPreference)findPreference("serviceWeb");
@@ -154,6 +154,24 @@ public class Settings extends PreferenceFragment implements OnSharedPreferenceCh
         pref.setSummary(value);
         pref.setEnabled(enabled);
         return value;
+    }
+
+    /**
+     * 文字列を数値に変換
+     * 
+     * @param value 変換する文字列
+     * @return      変換結果
+     */
+    private int parseInt(String value)
+    {
+        try
+        {
+            return Integer.parseInt(value);
+        }
+        catch (NumberFormatException e)
+        {
+            return 0;
+        }
     }
 
     /**
