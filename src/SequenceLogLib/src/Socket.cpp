@@ -898,9 +898,12 @@ void Socket::recv(
 
 /*!
  * \brief   受信
+ *
+ * \param[out]  buffer  受信バッファ
+ *
+ * \return  なし
  */
-void Socket::recv(
-    CoreString* buffer) //!< 受信バッファ
+void Socket::recv(CoreString* buffer)
 
     const
     throw(Exception)
@@ -908,7 +911,8 @@ void Socket::recv(
     int32_t size = 1;
     ByteBuffer recvBuffer(size);
 
-    char tmpBuffer[1024 + 1];
+    char* p =buffer->getBuffer();
+    int32_t capacity = buffer->getCapacity();
     int32_t i = 0;
 
     while (true)
@@ -924,19 +928,19 @@ void Socket::recv(
         if (c == '\r')
             break;
 
-        if (sizeof(tmpBuffer) <= i)
+        if (capacity <= i)
         {
-            Exception e;
-            e.setMessage("Socket::recv() text %d bytes over.", sizeof(tmpBuffer) - 1);
-
-            throw e;
+            capacity += 256;
+            buffer->setLength(i);
+            buffer->setCapacity(capacity);
+            p = buffer->getBuffer();
         }
 
-        tmpBuffer[i] = c;
+        p[i] = c;
         i++;
     }
 
-    buffer->copy(tmpBuffer, i);
+    buffer->setLength(i);
 //  noticeLog("%s", buffer->getBuffer());
 
     // '\n'捨て

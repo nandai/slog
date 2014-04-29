@@ -552,7 +552,7 @@ void SequenceLogService::writeSeqLogFileText(File* file, SequenceLogItem* item)
     FixedString<(int32_t)DateTimeFormat::Length::YYYYMMDDHHMISSMS> strDateTime;
     DateTimeFormat::toString(&strDateTime, item->mDateTime, DateTimeFormat::Format::YYYYMMDDHHMISSMS);
 
-    FixedString<768> str;
+    String str;
 
     switch (item->mType)
     {
