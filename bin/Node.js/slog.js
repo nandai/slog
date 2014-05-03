@@ -25,11 +25,19 @@
     var WARN =  2;  // 警告
     var ERROR = 3;  // エラー
 
+    var INIT =      -1;
+    var CONNECTING = 0;
+    var OPEN =       1;
+    var CLOSED =     3;
+
     var SequenceLogClient = function()
     {
+        this.readyState = INIT;
         this.ws;
         this.fileName;
         this.logLevel;
+        this.userName;
+        this.passwd;
         this.seqNo = 0;
 
         this.itemList = []; // 接続が完了する前に出力されたログを貯めておく
@@ -37,9 +45,11 @@
 
     SequenceLogClient.prototype =
     {
-        setConfig: function(serviceAddr, fileName, logLevel)
+        setConfig: function(serviceAddr, fileName, logLevel, userName, passwd)
         {
             this.fileName = fileName;
+            this.userName = userName;
+            this.passwd = passwd;
 
             if (logLevel === 'ALL')   this.logLevel = DEBUG - 1;
             if (logLevel === 'DEBUG') this.logLevel = DEBUG;
@@ -57,17 +67,24 @@
                 return;
 
             var self = this;
-            this.ws = new WebSocket(address + '/outputLog');
-            this.ws.binaryType = 'arraybuffer';
+            var WebSocketClient = require('websocket').client;
+            var client = new WebSocketClient();
+            this.readyState = CONNECTING;
 
-            this.ws.onopen = function()
+            client.connect(address + '/outputLog');
+            client.on('connect', function(connection)
             {
+                self.ws = connection;
+                self.readyState = OPEN;
+
                 var fileNameLen = self.getStringBytes(self.fileName) + 1;
+                var userNameLen = self.getStringBytes(self.userName) + 1;
+                var passwdLen =   self.getStringBytes(self.passwd)   + 1;
 
                 var buffer = new ArrayBuffer(
                     4 +
-                    4 + 1 +
-                    4 + 1 +
+                    4 + userNameLen +
+                    4 + passwdLen +
                     4 + fileNameLen +
                     4);
 
@@ -78,15 +95,19 @@
                 dataView.setUint32(pos, 1);
                 pos += 4;
 
-                // ユーザー名（なし）
-                dataView.setUint32(pos, 1);
+                // ユーザー名
+                dataView.setUint32(pos, userNameLen);
                 pos += 4;
-                pos += 1;
 
-                // パスワード（なし）
-                dataView.setUint32(pos, 1);
+                self.setStringToDataView(dataView, pos, self.userName);
+                pos += userNameLen;
+
+                // パスワード
+                dataView.setUint32(pos, passwdLen);
                 pos += 4;
-                pos += 1;
+
+                self.setStringToDataView(dataView, pos, self.passwd);
+                pos += passwdLen;
 
                 // シーケンスログファイル名
                 dataView.setUint32(pos, fileNameLen);
@@ -100,25 +121,33 @@
                 pos += 4;
 
                 // 送信
-                self.ws.send(dataView.buffer);
+                self.ws.sendBytes(self.toBuffer(dataView.buffer));
                 self.sendAllItems();
-            };
 
-            this.ws.onmessage = function(e)
-            {
-//              var dataView = new DataView(e.data);
-//              var seqNo = dataView.getInt32(0);
-            };
+                self.ws.on('message', function(e)
+                {
+//                  var dataView = new DataView(e.data);
+//                  var seqNo = dataView.getInt32(0);
+                });
 
-            this.ws.onerror = function()
-            {
-                console.error('error slog WebSocket');
-            };
+                self.ws.on('error', function(error)
+                {
+                    self.readyState = CLOSED;
+                    console.error('error slog WebSocket');
+                });
 
-            this.ws.onclose = function()
+                self.ws.on('close', function()
+                {
+                    self.readyState = CLOSED;
+                    console.info('close slog WebSocket');
+                });
+            });
+
+            client.on('connectFailed', function(error)
             {
-                console.info('close slog WebSocket');
-            };
+                self.readyState = CLOSED;
+                console.error('connect failed slog WebSocket');
+            });
         },
 
         getSequenceNo: function()
@@ -212,18 +241,29 @@
             return (pos - offset);
         },
 
+        toBuffer: function(ab)
+        {
+            var buffer = new Buffer(ab.byteLength);
+            var view = new Uint8Array(ab);
+
+            for (var i = 0; i < buffer.length; ++i)
+                buffer[i] = view[i];
+
+            return buffer;
+        },
+
         sendItem: function(item)
         {
             if (this.logLevel === ERROR + 1)
                 return;
 
-            if (this.ws.readyState === WebSocket.CONNECTING)
+            if (this.readyState === CONNECTING)
             {
                 this.itemList[this.itemList.length] = item;
                 return;
             }
 
-            if (this.ws.readyState !== WebSocket.OPEN)
+            if (this.readyState !== OPEN)
                 return;
 
             var dataView = null;
@@ -347,7 +387,7 @@
             }
 
             // 送信
-            this.ws.send(buffer);
+            this.ws.sendBytes(this.toBuffer(dataView.buffer));
         },
 
         sendAllItems: function()
@@ -454,15 +494,12 @@
     // slog登録
     var client = new SequenceLogClient();
 
-    if (exports.slog === undefined)
-        exports.slog = {};
-
-    exports.slog.setConfig = function(serviceAddr, fileName, logLevel)
+    exports.setConfig = function(serviceAddr, fileName, logLevel, userName, passwd)
     {
-        client.setConfig(serviceAddr, fileName, logLevel);
+        client.setConfig(serviceAddr, fileName, logLevel, userName, passwd);
     };
 
-    exports.slog.stepIn = function(className, funcName)
+    exports.stepIn = function(className, funcName)
     {
         return new SequenceLog(className, funcName);
     };
