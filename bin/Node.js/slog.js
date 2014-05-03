@@ -91,8 +91,8 @@
                 var dataView = new DataView(buffer);
                 var pos = 0;
 
-                // プロセスID（1固定）
-                dataView.setUint32(pos, 1);
+                // プロセスID
+                dataView.setUint32(pos, process.pid);
                 pos += 4;
 
                 // ユーザー名
