@@ -217,12 +217,12 @@ public:     void printLog(const Buffer* text, int32_t len, int32_t userId);
             /*!
              * リスナー追加
              */
-            void addSequenceLogServiceListener(SequenceLogServiceListener* listener) {mListeners.push_back(listener);}
+            void addSequenceLogServiceListener(SequenceLogServiceListener* listener);
 
             /*!
              * リスナー解除
              */
-            void removeSequenceLogServiceListener(SequenceLogServiceListener* listener) {mListeners.remove(listener);}
+            void removeSequenceLogServiceListener(SequenceLogServiceListener* listener);
 
             /*!
              * スレッド初期化完了通知

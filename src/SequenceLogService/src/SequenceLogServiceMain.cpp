@@ -312,6 +312,24 @@ void SequenceLogServiceMain::setSequenceLogServerPort(uint16_t port)
 }
 
 /*!
+ * リスナー追加
+ */
+void SequenceLogServiceMain::addSequenceLogServiceListener(SequenceLogServiceListener* listener)
+{
+    ScopedLock lock(getMutex());
+    mListeners.push_back(listener);
+}
+
+/*!
+ * リスナー解除
+ */
+void SequenceLogServiceMain::removeSequenceLogServiceListener(SequenceLogServiceListener* listener)
+{
+    ScopedLock lock(getMutex());
+    mListeners.remove(listener);
+}
+
+/*!
  *  \brief	シーケンスログサービススレッド初期化完了通知
  */
 void SequenceLogServiceMain::onThreadInitialized(Thread* thread)
@@ -354,6 +372,7 @@ void SequenceLogServiceMain::onThreadTerminated(Thread* thread)
 void SequenceLogServiceMain::onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId)
 {
     SLOG(CLS_NAME, "onLogFileChanged");
+    ScopedLock lock(getMutex());
 
     for (auto i = mListeners.begin(); i != mListeners.end(); i++)
         (*i)->onLogFileChanged(thread, fileName, userId);
@@ -365,6 +384,7 @@ void SequenceLogServiceMain::onLogFileChanged(Thread* thread, const CoreString* 
 void SequenceLogServiceMain::onUpdateLog(const Buffer* text, int32_t userId)
 {
 //  SLOG(CLS_NAME, "onUpdateLog");
+    ScopedLock lock(getMutex());
 
     for (auto i = mListeners.begin(); i != mListeners.end(); i++)
         (*i)->onUpdateLog(text, userId);

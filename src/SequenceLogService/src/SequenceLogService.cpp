@@ -889,7 +889,7 @@ void SequenceLogService::receiveMain()
     }
     catch (Exception& e)
     {
-        noticeLog("receiveMain: %s", e.getMessage());
+        noticeLog("receiveMain(a): %s", e.getMessage());
     }
 
     try
@@ -899,7 +899,7 @@ void SequenceLogService::receiveMain()
     }
     catch (Exception& e)
     {
-        noticeLog("receiveMain: %s", e.getMessage());
+        noticeLog("receiveMain(b): %s", e.getMessage());
     }
 }
 
