@@ -1,348 +1,338 @@
 /*
- * Copyright (C) 2011-2014 printf.jp
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-(function(exports)
-{
-    var STEP_IN =  0;
+* Copyright (C) 2011-2014 printf.jp
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/// <reference path="node/node.d.ts" />
+/**
+* @namespace slog
+*/
+var slog;
+(function (slog) {
+    var STEP_IN = 0;
     var STEP_OUT = 1;
-    var MESSAGE =  2;
+    var MESSAGE = 2;
 
-    var DEBUG = 0;  // デバッグ
-    var INFO =  1;  // 情報
-    var WARN =  2;  // 警告
-    var ERROR = 3;  // エラー
+    var DEBUG = 0;
+    var INFO = 1;
+    var WARN = 2;
+    var ERROR = 3;
 
-    var INIT =      -1;
+    var INIT = -1;
     var CONNECTING = 0;
-    var OPEN =       1;
-    var CLOSED =     3;
+    var OPEN = 1;
+    var CLOSED = 3;
 
-    var SequenceLogClient = function()
-    {
-        this.readyState = INIT;
-        this.ws;
-        this.fileName;
-        this.logLevel;
-        this.userName;
-        this.passwd;
-        this.seqNo = 0;
+    /**
+    * シーケンスログクライアント（singleton）
+    *
+    * @class   SequenceLogClient
+    */
+    var SequenceLogClient = (function () {
+        function SequenceLogClient() {
+            /**
+            * WebSocketの状態
+            */
+            this.readyState = INIT;
+            /**
+            * シーケンスNo
+            */
+            this.seqNo = 0;
+            /**
+            * 接続が完了する前に出力されたログを貯めておくリスト
+            */
+            this.itemList = [];
+            /**
+            * itemListの現在位置
+            */
+            this.itemListPos = 0;
+        }
+        /**
+        * ログ出力設定を行います。
+        *
+        * @method  setConfig
+        *
+        * @param   address     Sequence Log Serviceへの接続情報
+        * @param   fileName    ログの出力ファイル名
+        * @param   logLevel    ログレベル
+        * @param   userName    ユーザー名
+        * @param   passwd      パスワード
+        *
+        * @return  なし
+        */
+        SequenceLogClient.prototype.setConfig = function (address, fileName, logLevel, userName, passwd) {
+            if (logLevel === 'ALL')
+                this.logLevel = DEBUG - 1;
+            if (logLevel === 'DEBUG')
+                this.logLevel = DEBUG;
+            if (logLevel === 'INFO')
+                this.logLevel = INFO;
+            if (logLevel === 'WARN')
+                this.logLevel = WARN;
+            if (logLevel === 'ERROR')
+                this.logLevel = ERROR;
+            if (logLevel === 'NONE')
+                this.logLevel = ERROR + 1;
 
-        this.itemList = []; // 接続が完了する前に出力されたログを貯めておく
-    };
-
-    SequenceLogClient.prototype =
-    {
-        setConfig: function(serviceAddr, fileName, logLevel, userName, passwd)
-        {
-            this.fileName = fileName;
-            this.userName = userName;
-            this.passwd = passwd;
-
-            if (logLevel === 'ALL')   this.logLevel = DEBUG - 1;
-            if (logLevel === 'DEBUG') this.logLevel = DEBUG;
-            if (logLevel === 'INFO')  this.logLevel = INFO;
-            if (logLevel === 'WARN')  this.logLevel = WARN;
-            if (logLevel === 'ERROR') this.logLevel = ERROR;
-            if (logLevel === 'NONE')  this.logLevel = ERROR + 1;
-
-            this.setServiceAddress(serviceAddr);
-        },
-
-        setServiceAddress: function(address)
-        {
             if (this.logLevel === ERROR + 1)
                 return;
 
+            // 接続
             var self = this;
             var WebSocketClient = require('websocket').client;
             var client = new WebSocketClient();
             this.readyState = CONNECTING;
 
             client.connect(address + '/outputLog');
-            client.on('connect', function(connection)
-            {
+            client.on('connect', function (connection) {
                 self.ws = connection;
                 self.readyState = OPEN;
 
-                var fileNameLen = self.getStringBytes(self.fileName) + 1;
-                var userNameLen = self.getStringBytes(self.userName) + 1;
-                var passwdLen =   self.getStringBytes(self.passwd)   + 1;
+                var fileNameLen = self.getStringBytes(fileName) + 1;
+                var userNameLen = self.getStringBytes(userName) + 1;
+                var passwdLen = self.getStringBytes(passwd) + 1;
 
-                var buffer = new ArrayBuffer(
-                    4 +
-                    4 + userNameLen +
-                    4 + passwdLen +
-                    4 + fileNameLen +
-                    4);
-
-                var dataView = new DataView(buffer);
+                var array = new Uint8Array(4 + 4 + userNameLen + 4 + passwdLen + 4 + fileNameLen + 4);
                 var pos = 0;
 
                 // プロセスID
-                dataView.setUint32(pos, process.pid);
-                pos += 4;
+                var pid = process.pid;
+                array[pos++] = (pid >> 24) & 0xFF;
+                array[pos++] = (pid >> 16) & 0xFF;
+                array[pos++] = (pid >> 8) & 0xFF;
+                array[pos++] = pid & 0xFF;
 
                 // ユーザー名
-                dataView.setUint32(pos, userNameLen);
-                pos += 4;
+                array[pos++] = (userNameLen >> 24) & 0xFF;
+                array[pos++] = (userNameLen >> 16) & 0xFF;
+                array[pos++] = (userNameLen >> 8) & 0xFF;
+                array[pos++] = userNameLen & 0xFF;
 
-                self.setStringToDataView(dataView, pos, self.userName);
+                self.setStringToUint8Array(array, pos, userName);
                 pos += userNameLen;
 
                 // パスワード
-                dataView.setUint32(pos, passwdLen);
-                pos += 4;
+                array[pos++] = (passwdLen >> 24) & 0xFF;
+                array[pos++] = (passwdLen >> 16) & 0xFF;
+                array[pos++] = (passwdLen >> 8) & 0xFF;
+                array[pos++] = passwdLen & 0xFF;
 
-                self.setStringToDataView(dataView, pos, self.passwd);
+                self.setStringToUint8Array(array, pos, passwd);
                 pos += passwdLen;
 
                 // シーケンスログファイル名
-                dataView.setUint32(pos, fileNameLen);
-                pos += 4;
+                array[pos++] = (fileNameLen >> 24) & 0xFF;
+                array[pos++] = (fileNameLen >> 16) & 0xFF;
+                array[pos++] = (fileNameLen >> 8) & 0xFF;
+                array[pos++] = fileNameLen & 0xFF;
 
-                self.setStringToDataView(dataView, pos, self.fileName);
+                self.setStringToUint8Array(array, pos, fileName);
                 pos += fileNameLen;
 
                 // ログレベル
-                dataView.setUint32(pos, self.logLevel);
-                pos += 4;
+                array[pos++] = (self.logLevel >> 24) & 0xFF;
+                array[pos++] = (self.logLevel >> 16) & 0xFF;
+                array[pos++] = (self.logLevel >> 8) & 0xFF;
+                array[pos++] = self.logLevel & 0xFF;
 
                 // 送信
-                self.ws.sendBytes(self.toBuffer(dataView.buffer));
+                self.ws.sendBytes(self.toBuffer(array));
                 self.sendAllItems();
 
-                self.ws.on('message', function(e)
-                {
-//                  var dataView = new DataView(e.data);
-//                  var seqNo = dataView.getInt32(0);
+                self.ws.on('message', function (e) {
+                    //                  var array = new DataView(e.data);
+                    //                  var seqNo = array.getInt32(0);
                 });
 
-                self.ws.on('error', function(error)
-                {
+                self.ws.on('error', function (error) {
                     self.readyState = CLOSED;
                     console.error('error slog WebSocket');
                 });
 
-                self.ws.on('close', function()
-                {
+                self.ws.on('close', function () {
                     self.readyState = CLOSED;
                     console.info('close slog WebSocket');
                 });
             });
 
-            client.on('connectFailed', function(error)
-            {
+            client.on('connectFailed', function (error) {
                 self.readyState = CLOSED;
                 console.error('connect failed slog WebSocket');
             });
-        },
+        };
 
-        getSequenceNo: function()
-        {
+        /**
+        * シーケンスNoを取得します。
+        *
+        * @method  getSequenceNo
+        *
+        * @return  シーケンスNo
+        */
+        SequenceLogClient.prototype.getSequenceNo = function () {
             this.seqNo++;
             return this.seqNo;
-        },
+        };
 
-        getStringBytes: function(str)
-        {
+        /**
+        * 文字列のバイト数を取得します。
+        *
+        * @method  getStringBytes
+        *
+        * @param   str バイト数を取得する文字列（UTF-8）
+        *
+        * @return  文字列のバイト数
+        */
+        SequenceLogClient.prototype.getStringBytes = function (str) {
             var len = str.length;
             var bytes = 0;
 
-            for (var i = 0; i < len; i++)
-            {
+            for (var i = 0; i < len; i++) {
                 var c = str.charCodeAt(i);
 
-                if (c <= 0x7F)
-                {
+                if (c <= 0x7F) {
                     bytes += 1;
-                }
-                else if (c <= 0x07FF)
-                {
+                } else if (c <= 0x07FF) {
                     bytes += 2;
-                }
-                else if (c <= 0xFFFF)
-                {
+                } else if (c <= 0xFFFF) {
                     bytes += 3;
-                }
-                else
-                {
+                } else {
                     bytes += 4;
                 }
             }
 
             return bytes;
-        },
+        };
 
-        setStringToDataView: function(dataView, offset, str)
-        {
+        /**
+        * 文字列をUint8Arrayに変換します。
+        *
+        * @method  setStringToUint8Array
+        *
+        * @param   array   変換先
+        * @param   offset  arrayへのオフセット
+        * @param   str     Uint8Arrayに変換する文字列（UTF-8）
+        *
+        * @return  文字列のバイト数
+        */
+        SequenceLogClient.prototype.setStringToUint8Array = function (array, offset, str) {
             var len = str.length;
             var pos = offset;
 
-            for (var i = 0; i < len; i++)
-            {
+            for (var i = 0; i < len; i++) {
                 var c = str.charCodeAt(i);
 
-                if (c <= 0x7F)
-                {
-                    if (dataView)
-                    {
-                        dataView.setUint8(pos, c);
-                    }
-                    pos += 1;
-                }
-
-                else if (c <= 0x07FF)
-                {
-                    if (dataView)
-                    {
-                        dataView.setUint8(pos + 0, 0xC0 | (c >>> 6));
-                        dataView.setUint8(pos + 1, 0x80 | (c & 0x3F));
-                    }
-                    pos += 2;
-                }
-
-                else if (c <= 0xFFFF)
-                {
-                    if (dataView)
-                    {
-                        dataView.setUint8(pos + 0, 0xE0 |  (c >>> 12));
-                        dataView.setUint8(pos + 1, 0x80 | ((c >>>  6) & 0x3F));
-                        dataView.setUint8(pos + 2, 0x80 |  (c         & 0x3F));
-                    }
-                    pos += 3;
-                }
-
-                else
-                {
-                    if (dataView)
-                    {
-                        dataView.setUint8(pos + 0, 0xF0 |  (c >>> 18));
-                        dataView.setUint8(pos + 1, 0x80 | ((c >>> 12) & 0x3F));
-                        dataView.setUint8(pos + 2, 0x80 | ((c >>>  6) & 0x3F));
-                        dataView.setUint8(pos + 3, 0x80 |  (c         & 0x3F));
-                    }
-                    pos += 4;
+                if (c <= 0x7F) {
+                    array[pos++] = c;
+                } else if (c <= 0x07FF) {
+                    array[pos++] = 0xC0 | (c >>> 6);
+                    array[pos++] = 0x80 | (c & 0x3F);
+                } else if (c <= 0xFFFF) {
+                    array[pos++] = 0xE0 | (c >>> 12);
+                    array[pos++] = 0x80 | ((c >>> 6) & 0x3F);
+                    array[pos++] = 0x80 | (c & 0x3F);
+                } else {
+                    array[pos++] = 0xF0 | (c >>> 18);
+                    array[pos++] = 0x80 | ((c >>> 12) & 0x3F);
+                    array[pos++] = 0x80 | ((c >>> 6) & 0x3F);
+                    array[pos++] = 0x80 | (c & 0x3F);
                 }
             }
 
             return (pos - offset);
-        },
+        };
 
-        toBuffer: function(ab)
-        {
-            var buffer = new Buffer(ab.byteLength);
-            var view = new Uint8Array(ab);
+        /**
+        * Uint8ArrayをBufferに変換します。
+        *
+        * @method  toBuffer
+        *
+        * @param   array   変換元
+        *
+        * @return  Buffer
+        */
+        SequenceLogClient.prototype.toBuffer = function (array) {
+            var len = array.byteLength;
+            var buffer = new Buffer(len);
 
-            for (var i = 0; i < buffer.length; ++i)
-                buffer[i] = view[i];
+            for (var i = 0; i < len; ++i)
+                buffer[i] = array[i];
 
             return buffer;
-        },
+        };
 
-        sendItem: function(item)
-        {
+        /**
+        * ログ出力可能かどうか調べます。
+        *
+        * @method  canOutput
+        *
+        * @return  ログ出力が可能な場合はtrue
+        */
+        SequenceLogClient.prototype.canOutput = function () {
             if (this.logLevel === ERROR + 1)
-                return;
+                return false;
 
-            if (this.readyState === CONNECTING)
-            {
-                this.itemList[this.itemList.length] = item;
-                return;
+            if (this.readyState !== CONNECTING && this.readyState !== OPEN) {
+                return false;
             }
 
-            if (this.readyState !== OPEN)
-                return;
+            return true;
+        };
 
-            var dataView = null;
+        /**
+        * SequenceLogItemのバイト数を取得します。
+        *
+        * @method  getItemBytes
+        *
+        * @param   item    バイト数を取得するSequenceLogItem
+        *
+        * @return  SequenceLogItemのバイト数
+        */
+        SequenceLogClient.prototype.getItemBytes = function (item) {
+            var pos = 0;
+            var len = 0;
 
-            for (var i = 0; i < 2; i++)
-            {
-                var pos = 0;
-                var posSave = 0;
-                var len = 0;
+            // レコード長
+            pos += 2;
 
-                // レコード長
-                pos += 2;
+            // シーケンス番号
+            pos += 4;
 
-                // シーケンス番号
-                if (dataView) {
-                    dataView.setUint32(pos, item.seqNo);
-                }
-                pos += 4;
+            // 日時
+            pos += 8;
 
-                // 日時
-                if (dataView) {
-                    dataView.setUint8( pos + 0, item.dateTime[7]);
-                    dataView.setUint8( pos + 1, item.dateTime[6]);
-                    dataView.setUint8( pos + 2, item.dateTime[5]);
-                    dataView.setUint8( pos + 3, item.dateTime[4]);
-                    dataView.setUint8( pos + 4, item.dateTime[3]);
-                    dataView.setUint8( pos + 5, item.dateTime[2]);
-                    dataView.setUint8( pos + 6, item.dateTime[1]);
-                    dataView.setUint8( pos + 7, item.dateTime[0]);
-                }
-                pos += 8;
+            // シーケンスログアイテム種別
+            pos += 1;
 
-                // シーケンスログアイテム種別
-                if (dataView) {
-                    dataView.setUint8(pos, item.type);
-                }
-                pos += 1;
+            // スレッド ID（1 固定）
+            pos += 4;
 
-                // スレッド ID（1 固定）
-                if (dataView) {
-                    dataView.setUint32(pos, 1);
-                }
-                pos += 4;
-
-                switch (item.type)
-                {
+            switch (item.type) {
                 case STEP_IN:
                     // クラス名
-                    if (dataView) {
-                        // ID は 0 固定
-                        dataView.setUint32(pos, 0);
-                    }
                     pos += 4;
 
-                    posSave = pos;
-                    pos += 2;       // クラス名の長さを格納する領域２バイト分空けておく）
+                    pos += 2; // クラス名の長さを格納する領域２バイト分空けておく）
 
-                    len = this.setStringToDataView(dataView, pos, item.className);
+                    len = this.getStringBytes(item.className);
                     pos += len;
-
-                    if (dataView)
-                        dataView.setUint16(posSave, len);
 
                     // 関数名
-                    if (dataView) {
-                        // ID は 0 固定
-                        dataView.setUint32(pos, 0);
-                    }
                     pos += 4;
 
-                    posSave = pos;
-                    pos += 2;       // 関数名の長さを格納する領域２バイト分空けておく）
+                    pos += 2; // 関数名の長さを格納する領域２バイト分空けておく）
 
-                    len = this.setStringToDataView(dataView, pos, item.funcName);
+                    len = this.getStringBytes(item.funcName);
                     pos += len;
-
-                    if (dataView)
-                        dataView.setUint16(posSave, len);
-
                     break;
 
                 case STEP_OUT:
@@ -350,139 +340,319 @@
 
                 case MESSAGE:
                     // メッセージ
-                    if (dataView) {
-                        // ログレベル
-                        dataView.setUint8(pos, item.level);
-                    }
                     pos += 1;
 
-                    if (dataView) {
-                        // ID は 0 固定
-                        dataView.setUint32(pos, 0);
-                    }
                     pos += 4;
 
-                    posSave = pos;
-                    pos += 2;       // メッセージの長さを格納する領域２バイト分空けておく）
+                    pos += 2; // メッセージの長さを格納する領域２バイト分空けておく）
 
-                    len = this.setStringToDataView(dataView, pos, item.message);
+                    len = this.getStringBytes(item.message);
                     pos += len;
-
-                    if (dataView)
-                        dataView.setUint16(posSave, len);
-
                     break;
-                }
-
-                // 先頭にレコード長
-                if (dataView) {
-                    dataView.setUint16(0, pos);
-                }
-
-                if (i == 0)
-                {
-                    var buffer = new ArrayBuffer(pos);
-                    dataView = new DataView(buffer);
-                }
             }
 
-            // 送信
-            this.ws.sendBytes(this.toBuffer(dataView.buffer));
-        },
+            return pos;
+        };
 
-        sendAllItems: function()
-        {
-            var count = this.itemList.length;
-            var i;
+        /**
+        * SequenceLogItemをUint8Arrayに変換します。
+        *
+        * @method  setStringToUint8Array
+        *
+        * @param   array   変換先
+        * @param   offset  arrayへのオフセット
+        * @param   item    Uint8Arrayに変換するSequenceLogItem
+        *
+        * @return  文字列のバイト数
+        */
+        SequenceLogClient.prototype.itemToUint8Array = function (array, offset, item) {
+            var pos = offset;
+            var posSave = 0;
+            var len = 0;
 
-            for (i = 0; i < count; i++)
-            {
-                var item = this.itemList[i];
+            // レコード長
+            pos += 2;
+
+            // シーケンス番号
+            array[pos++] = (item.seqNo >> 24) & 0xFF;
+            array[pos++] = (item.seqNo >> 16) & 0xFF;
+            array[pos++] = (item.seqNo >> 8) & 0xFF;
+            array[pos++] = item.seqNo & 0xFF;
+
+            // 日時
+            var dateTime = item.dateTime;
+            array[pos++] = (dateTime.getUTCFullYear() - 1900);
+            array[pos++] = dateTime.getUTCMonth() + 1;
+            array[pos++] = dateTime.getUTCDate();
+            array[pos++] = dateTime.getUTCHours();
+            array[pos++] = dateTime.getUTCMinutes();
+            array[pos++] = dateTime.getUTCSeconds();
+            array[pos++] = (dateTime.getUTCMilliseconds() >> 8) & 0xFF;
+            array[pos++] = dateTime.getUTCMilliseconds() & 0xFF;
+
+            // シーケンスログアイテム種別
+            array[pos++] = item.type;
+
+            // スレッド ID（1 固定）
+            array[pos++] = 0;
+            array[pos++] = 0;
+            array[pos++] = 0;
+            array[pos++] = 1;
+
+            switch (item.type) {
+                case STEP_IN:
+                    // クラス名
+                    // ID は 0 固定
+                    array[pos++] = 0;
+                    array[pos++] = 0;
+                    array[pos++] = 0;
+                    array[pos++] = 0;
+
+                    posSave = pos;
+                    pos += 2; // クラス名の長さを格納する領域２バイト分空けておく）
+
+                    len = this.setStringToUint8Array(array, pos, item.className);
+                    pos += len;
+
+                    array[posSave++] = (len >> 8) & 0xFF;
+                    array[posSave++] = len & 0xFF;
+
+                    // 関数名
+                    // ID は 0 固定
+                    array[pos++] = 0;
+                    array[pos++] = 0;
+                    array[pos++] = 0;
+                    array[pos++] = 0;
+
+                    posSave = pos;
+                    pos += 2; // 関数名の長さを格納する領域２バイト分空けておく）
+
+                    len = this.setStringToUint8Array(array, pos, item.funcName);
+                    pos += len;
+
+                    array[posSave++] = (len >> 8) & 0xFF;
+                    array[posSave++] = len & 0xFF;
+                    break;
+
+                case STEP_OUT:
+                    break;
+
+                case MESSAGE:
+                    // メッセージ
+                    // ログレベル
+                    array[pos++] = item.level;
+
+                    // ID は 0 固定
+                    array[pos++] = 0;
+                    array[pos++] = 0;
+                    array[pos++] = 0;
+                    array[pos++] = 0;
+
+                    posSave = pos;
+                    pos += 2; // メッセージの長さを格納する領域２バイト分空けておく）
+
+                    len = this.setStringToUint8Array(array, pos, item.message);
+                    pos += len;
+
+                    array[posSave++] = (len >> 8) & 0xFF;
+                    array[posSave++] = len & 0xFF;
+                    break;
+            }
+
+            // 先頭にレコード長
+            array[0] = (pos >> 8) & 0xFF;
+            array[1] = pos & 0xFF;
+
+            return pos;
+        };
+
+        /**
+        * SequenceLogItemを送信します。
+        *
+        * @method  sendItem
+        *
+        * @param   item    送信するSequenceLogItem
+        *
+        * @return  なし
+        */
+        SequenceLogClient.prototype.sendItem = function (item) {
+            if (this.readyState === CONNECTING)
+                return;
+
+            var size = this.getItemBytes(item);
+            var array = new Uint8Array(size);
+
+            this.itemToUint8Array(array, 0, item);
+            this.ws.sendBytes(this.toBuffer(array));
+        };
+
+        /**
+        * すべてのSequenceLogItemを送信します。
+        *
+        * @method  sendAllItems
+        *
+        * @return  なし
+        */
+        SequenceLogClient.prototype.sendAllItems = function () {
+            var itemList = this.itemList;
+            var count = itemList.length;
+
+            for (var i = 0; i < count; i++) {
+                var item = itemList[i];
                 this.sendItem(item);
             }
 
-            this.itemList = null;
+            this.itemListPos = 0;
+        };
+
+        /**
+        * SequenceLogItemを取得します。
+        *
+        * @method  getItem
+        *
+        * @return  SequenceLogItem
+        */
+        SequenceLogClient.prototype.getItem = function () {
+            if (this.readyState === OPEN)
+                this.itemListPos = 0;
+
+            var itemList = this.itemList;
+            var count = itemList.length;
+
+            var pos = this.itemListPos++;
+
+            if (pos === count) {
+                var item = new SequenceLogItem();
+                itemList[count] = item;
+            }
+
+            return itemList[pos];
+        };
+        return SequenceLogClient;
+    })();
+
+    /**
+    * シーケンスログアイテム
+    *
+    * @class   SequenceLogItem
+    */
+    var SequenceLogItem = (function () {
+        function SequenceLogItem() {
+            /**
+            * シーケンスNo
+            */
+            this.seqNo = 0;
+            /**
+            * ログ出力日時
+            */
+            this.dateTime = new Date();
+            /**
+            * スレッドID
+            */
+            //      threadId : number;
+            /**
+            * クラスID
+            */
+            //      classId : number;
+            /**
+            * メソッドID
+            */
+            //      funcId : number;
+            /**
+            * ログレベル
+            */
+            this.level = 0;
+            /**
+            * メッセージID
+            */
+            //      messageId : number;
+            /**
+            * クラス名
+            */
+            this.className = '';
+            /**
+            * メソッド名
+            */
+            this.funcName = '';
+            /**
+            * メッセージ
+            */
+            this.message = '';
         }
-    };
+        return SequenceLogItem;
+    })();
 
-    var SequenceLogItem = function()
-    {
-        this.seqNo = 0;         // シーケンス番号                 0: uint32_t
-        this.dateTime;          // ログ出力日時                   4: DateTime (uint64_t)
-        this.type;              // タイプ                        12: uint32_t
-//      this.threadId;          // スレッドID                    16: uint32_t
+    /**
+    * シーケンスログ
+    *
+    * @class   SequenceLog
+    */
+    var SequenceLog = (function () {
+        /**
+        * コンストラクタ
+        *
+        * @constructor
+        */
+        function SequenceLog(className, funcName) {
+            if (client.canOutput() === false)
+                return;
 
-//      this.classId;           // クラスID                      20: uint32_t
-//      this.funcId;            // メソッドID                    24: uint32_t
+            this.seqNo = client.getSequenceNo();
 
-        this.level = 0;         // ログレベル                    32: uint32_t
-//      this.messageId;         // メッセージID                  36: uint32_t
+            var item = client.getItem();
+            item.seqNo = this.seqNo;
+            item.type = STEP_IN;
+            item.className = className;
+            item.funcName = funcName;
 
-        this.className = '';    // クラス名                      40: char[256]
-        this.funcName = '';     // メソッド名                   296: char[256]
-        this.message = '';      // メッセージ                   552: char[256]
-
-        this.setCurrentDateTime();
-    };
-
-    SequenceLogItem.prototype =
-    {
-        setCurrentDateTime: function()
-        {
-            var obj = new Date();
-
-            this.dateTime = new Uint8Array(8);
-            this.dateTime[0] =  obj.getUTCMilliseconds()       & 0xFF;
-            this.dateTime[1] = (obj.getUTCMilliseconds() >> 8) & 0xFF;
-            this.dateTime[2] =  obj.getUTCSeconds();
-            this.dateTime[3] =  obj.getUTCMinutes();
-            this.dateTime[4] =  obj.getUTCHours();
-            this.dateTime[5] =  obj.getUTCDate();
-            this.dateTime[6] =  obj.getUTCMonth() + 1;
-            this.dateTime[7] = (obj.getUTCFullYear() - 1900);
+            client.sendItem(item);
         }
-    };
+        /**
+        * メソッドのリターンログを出力します。
+        *
+        * @method  stepOut
+        *
+        * @return  なし
+        */
+        SequenceLog.prototype.stepOut = function () {
+            if (client.canOutput() === false)
+                return;
 
-    // シーケンスログ
-    var SequenceLog = function(className, funcName)
-    {
-        this.seqNo;
-        stepIn(this, className, funcName);
-    };
-
-    SequenceLog.prototype =
-    {
-        stepOut: function()
-        {
-            var item = new SequenceLogItem();
+            var item = client.getItem();
             item.seqNo = this.seqNo;
             item.type = STEP_OUT;
 
             client.sendItem(item);
-        },
+        };
 
-        d: function(msg) {message(this, DEBUG, msg);},
-        i: function(msg) {message(this, INFO,  msg);},
-        w: function(msg) {message(this, WARN,  msg);},
-        e: function(msg) {message(this, ERROR, msg);}
-    };
+        SequenceLog.prototype.d = function (msg) {
+            message(this, DEBUG, msg);
+        };
+        SequenceLog.prototype.i = function (msg) {
+            message(this, INFO, msg);
+        };
+        SequenceLog.prototype.w = function (msg) {
+            message(this, WARN, msg);
+        };
+        SequenceLog.prototype.e = function (msg) {
+            message(this, ERROR, msg);
+        };
+        return SequenceLog;
+    })();
+    slog.SequenceLog = SequenceLog;
 
-    function stepIn(log, className, funcName)
-    {
-        log.seqNo = client.getSequenceNo();
+    /**
+    * ログメッセージを出力します。
+    *
+    * @method  message
+    *
+    * @return  なし
+    */
+    function message(log, level, msg) {
+        if (client.canOutput() === false)
+            return;
 
-        var item = new SequenceLogItem();
-        item.seqNo = log.seqNo;
-        item.type = STEP_IN;
-        item.className = className;
-        item.funcName = funcName;
-
-        client.sendItem(item);
-    }
-
-    function message(log, level, msg)
-    {
-        var item = new SequenceLogItem();
+        var item = client.getItem();
         item.seqNo = log.seqNo;
         item.type = MESSAGE;
         item.level = level;
@@ -491,16 +661,42 @@
         client.sendItem(item);
     }
 
-    // slog登録
-    var client = new SequenceLogClient();
+    /**
+    * ログ出力設定を行います。
+    *
+    * @method  setConfig
+    *
+    * @param   address     Sequence Log Serviceへの接続情報
+    * @param   fileName    ログの出力ファイル名
+    * @param   logLevel    ログレベル
+    *
+    * @return  なし
+    */
+    function setConfig(address, fileName, logLevel, userName, passwd) {
+        client.setConfig(address, fileName, logLevel, userName, passwd);
+    }
+    slog.setConfig = setConfig;
+    ;
 
-    exports.setConfig = function(serviceAddr, fileName, logLevel, userName, passwd)
-    {
-        client.setConfig(serviceAddr, fileName, logLevel, userName, passwd);
-    };
-
-    exports.stepIn = function(className, funcName)
-    {
+    /**
+    * メソッドのコールログを出力します。
+    *
+    * @method  setConfig
+    *
+    * @param   address     Sequence Log Serviceへの接続情報
+    * @param   fileName    ログの出力ファイル名
+    * @param   logLevel    ログレベル
+    *
+    * @return  なし
+    */
+    function stepIn(className, funcName) {
         return new SequenceLog(className, funcName);
-    };
-})(this);
+    }
+    slog.stepIn = stepIn;
+    ;
+
+    // シーケンスログクライアント生成
+    var client = new SequenceLogClient();
+})(slog || (slog = {}));
+
+module.exports = slog;
