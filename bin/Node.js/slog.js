@@ -39,6 +39,11 @@ var slog;
     * @class   SequenceLogClient
     */
     var SequenceLogClient = (function () {
+        /**
+        * コンストラクタ
+        *
+        * @constructor
+        */
         function SequenceLogClient() {
             /**
             * WebSocketの状態
@@ -49,6 +54,18 @@ var slog;
             */
             this.seqNo = 0;
             /**
+            * 擬似スレッドID
+            */
+            this.tid = process.pid;
+            /**
+            * シーケンスログリスト
+            */
+            this.sequenceLogList = [];
+            /**
+            * sequenceLogListの現在位置
+            */
+            this.sequenceLogListPos = 0;
+            /**
             * 接続が完了する前に出力されたログを貯めておくリスト
             */
             this.itemList = [];
@@ -56,6 +73,14 @@ var slog;
             * itemListの現在位置
             */
             this.itemListPos = 0;
+            /**
+            * 送信バッファ
+            */
+            this.arrayList = [];
+            var i = 11;
+
+            for (; i < 192; i++)
+                this.arrayList[i] = new Uint8Array(i);
         }
         /**
         * ログ出力設定を行います。
@@ -307,13 +332,10 @@ var slog;
             // シーケンス番号
             pos += 4;
 
-            // 日時
-            pos += 8;
-
             // シーケンスログアイテム種別
             pos += 1;
 
-            // スレッド ID（1 固定）
+            // スレッド ID
             pos += 4;
 
             switch (item.type) {
@@ -379,25 +401,15 @@ var slog;
             array[pos++] = (item.seqNo >> 8) & 0xFF;
             array[pos++] = item.seqNo & 0xFF;
 
-            // 日時
-            var dateTime = item.dateTime;
-            array[pos++] = (dateTime.getUTCFullYear() - 1900);
-            array[pos++] = dateTime.getUTCMonth() + 1;
-            array[pos++] = dateTime.getUTCDate();
-            array[pos++] = dateTime.getUTCHours();
-            array[pos++] = dateTime.getUTCMinutes();
-            array[pos++] = dateTime.getUTCSeconds();
-            array[pos++] = (dateTime.getUTCMilliseconds() >> 8) & 0xFF;
-            array[pos++] = dateTime.getUTCMilliseconds() & 0xFF;
-
             // シーケンスログアイテム種別
             array[pos++] = item.type;
 
-            // スレッド ID（1 固定）
-            array[pos++] = 0;
-            array[pos++] = 0;
-            array[pos++] = 0;
-            array[pos++] = 1;
+            // スレッド ID
+            var tid = this.tid;
+            array[pos++] = (tid >> 24) & 0xFF;
+            array[pos++] = (tid >> 16) & 0xFF;
+            array[pos++] = (tid >> 8) & 0xFF;
+            array[pos++] = tid & 0xFF;
 
             switch (item.type) {
                 case STEP_IN:
@@ -480,7 +492,12 @@ var slog;
                 return;
 
             var size = this.getItemBytes(item);
-            var array = new Uint8Array(size);
+            var array;
+
+            if (size < this.arrayList.length)
+                array = this.arrayList[size];
+            else
+                array = new Uint8Array(size);
 
             this.itemToUint8Array(array, 0, item);
             this.ws.sendBytes(this.toBuffer(array));
@@ -528,6 +545,27 @@ var slog;
 
             return itemList[pos];
         };
+
+        /**
+        * SequenceLogを取得します。
+        *
+        * @method  getSequenceLog
+        *
+        * @return  SequenceLog
+        */
+        SequenceLogClient.prototype.getSequenceLog = function () {
+            var sequenceLogList = this.sequenceLogList;
+            var count = sequenceLogList.length;
+
+            var pos = this.sequenceLogListPos++;
+
+            if (pos === count) {
+                var sequenceLog = new SequenceLog();
+                sequenceLogList[count] = sequenceLog;
+            }
+
+            return sequenceLogList[pos];
+        };
         return SequenceLogClient;
     })();
 
@@ -542,10 +580,6 @@ var slog;
             * シーケンスNo
             */
             this.seqNo = 0;
-            /**
-            * ログ出力日時
-            */
-            this.dateTime = new Date();
             /**
             * スレッドID
             */
@@ -588,12 +622,16 @@ var slog;
     * @class   SequenceLog
     */
     var SequenceLog = (function () {
+        function SequenceLog() {
+        }
         /**
-        * コンストラクタ
+        * メソッドのコールログを出力します。
         *
-        * @constructor
+        * @method  stepIn
+        *
+        * @return  なし
         */
-        function SequenceLog(className, funcName) {
+        SequenceLog.prototype.stepIn = function (className, funcName) {
             if (client.canOutput() === false)
                 return;
 
@@ -606,7 +644,8 @@ var slog;
             item.funcName = funcName;
 
             client.sendItem(item);
-        }
+        };
+
         /**
         * メソッドのリターンログを出力します。
         *
@@ -623,6 +662,7 @@ var slog;
             item.type = STEP_OUT;
 
             client.sendItem(item);
+            client.sequenceLogListPos--;
         };
 
         SequenceLog.prototype.d = function (msg) {
@@ -690,7 +730,9 @@ var slog;
     * @return  なし
     */
     function stepIn(className, funcName) {
-        return new SequenceLog(className, funcName);
+        var sequenceLog = client.getSequenceLog();
+        sequenceLog.stepIn(className, funcName);
+        return sequenceLog;
     }
     slog.stepIn = stepIn;
     ;

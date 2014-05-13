@@ -61,6 +61,21 @@ module slog
         seqNo : number = 0;
 
         /**
+         * 擬似スレッドID
+         */
+        tid : number = Math.floor(Math.random () * 0x7FFF);
+
+        /**
+         * シーケンスログリスト
+         */
+        sequenceLogList : SequenceLog[] = [];
+
+        /**
+         * sequenceLogListの現在位置
+         */
+        sequenceLogListPos : number = 0;
+
+        /**
          * 接続が完了する前に出力されたログを貯めておくリスト
          */
         itemList : SequenceLogItem[] = [];
@@ -69,6 +84,24 @@ module slog
          * itemListの現在位置
          */
         itemListPos : number = 0;
+
+        /**
+         * 送信バッファ
+         */
+        arrayList : Uint8Array[] = [];
+
+        /**
+         * コンストラクタ
+         *
+         * @constructor
+         */
+        constructor()
+        {
+            var i = 11; // 最小サイズ（STEP_OUT時のバッファサイズ）
+
+            for (; i < 192; i++)
+                this.arrayList[i] = new Uint8Array(i);
+        }
 
         /**
          * ログ出力設定を行います。
@@ -325,13 +358,10 @@ module slog
             // シーケンス番号
             pos += 4;
 
-            // 日時
-            pos += 8;
-
             // シーケンスログアイテム種別
             pos += 1;
 
-            // スレッド ID（1 固定）
+            // スレッド ID
             pos += 4;
 
             switch (item.type)
@@ -399,25 +429,15 @@ module slog
             array[pos++] = (item.seqNo >>  8) & 0xFF;
             array[pos++] =  item.seqNo        & 0xFF;
 
-            // 日時
-            var dateTime : Date = item.dateTime;
-            array[pos++] = (dateTime.getUTCFullYear() - 1900);
-            array[pos++] =  dateTime.getUTCMonth() + 1;
-            array[pos++] =  dateTime.getUTCDate();
-            array[pos++] =  dateTime.getUTCHours();
-            array[pos++] =  dateTime.getUTCMinutes();
-            array[pos++] =  dateTime.getUTCSeconds();
-            array[pos++] = (dateTime.getUTCMilliseconds() >> 8) & 0xFF;
-            array[pos++] =  dateTime.getUTCMilliseconds()       & 0xFF;
-
             // シーケンスログアイテム種別
             array[pos++] = item.type;
 
-            // スレッド ID（1 固定）
-            array[pos++] = 0;
-            array[pos++] = 0;
-            array[pos++] = 0;
-            array[pos++] = 1;
+            // スレッド ID
+            var tid = this.tid;
+            array[pos++] = (tid >> 24) & 0xFF;
+            array[pos++] = (tid >> 16) & 0xFF;
+            array[pos++] = (tid >>  8) & 0xFF;
+            array[pos++] =  tid        & 0xFF;
 
             switch (item.type)
             {
@@ -502,7 +522,12 @@ module slog
                 return;
 
             var size : number = this.getItemBytes(item);
-            var array : Uint8Array = new Uint8Array(size);
+            var array : Uint8Array;
+
+            if (size < this.arrayList.length)
+                array = this.arrayList[size];
+            else
+                array = new Uint8Array(size);
 
             this.itemToUint8Array(array, 0, item);
             this.ws.send(array.buffer);
@@ -554,6 +579,29 @@ module slog
 
             return itemList[pos];
         }
+
+        /**
+         * SequenceLogを取得します。
+         *
+         * @method  getSequenceLog
+         *
+         * @return  SequenceLog
+         */
+        getSequenceLog() : SequenceLog
+        {
+            var sequenceLogList : SequenceLog[] = this.sequenceLogList;
+            var count : number = sequenceLogList.length;
+
+            var pos : number = this.sequenceLogListPos++;
+
+            if (pos === count)
+            {
+                var sequenceLog : SequenceLog = new SequenceLog();
+                sequenceLogList[count] = sequenceLog;
+            }
+
+            return sequenceLogList[pos];
+        }
     }
 
     /**
@@ -567,11 +615,6 @@ module slog
          * シーケンスNo
          */
         seqNo : number = 0;
-
-        /**
-         * ログ出力日時
-         */
-        dateTime : Date = new Date();
 
         /**
          * タイプ
@@ -632,11 +675,13 @@ module slog
         seqNo : number;
 
         /**
-         * コンストラクタ
+         * メソッドのコールログを出力します。
          *
-         * @constructor
+         * @method  stepIn
+         *
+         * @return  なし
          */
-        constructor(className : string, funcName : string)
+        stepIn(className : string, funcName : string) : void
         {
             if (client.canOutput() === false)
                 return;
@@ -669,6 +714,7 @@ module slog
             item.type = STEP_OUT;
 
             client.sendItem(item);
+            client.sequenceLogListPos--;
         }
 
         d(msg : string) {message(this, DEBUG, msg);}
@@ -727,7 +773,9 @@ module slog
      */
     export function stepIn(className : string, funcName : string) : SequenceLog
     {
-        return new SequenceLog(className, funcName);
+        var sequenceLog = client.getSequenceLog();
+        sequenceLog.stepIn(className, funcName);
+        return sequenceLog;
     };
 
     // シーケンスログクライアント生成
