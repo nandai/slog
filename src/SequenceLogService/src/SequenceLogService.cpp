@@ -191,7 +191,7 @@ public:     ItemList    mList;              //!< シーケンスログアイテ�
  *  \brief  コンストラクタ
  */
 SequenceLogService::SequenceLogService(HttpRequest* httpRequest) : WebServerResponse(httpRequest),
-    mFileOutputBuffer(1024 * 2)
+    mFileOutputBuffer(1024 * 32)
 {
     mSHM = nullptr;
 
@@ -534,7 +534,7 @@ const FileInfo* SequenceLogService::openSeqLogFile(File* file) throw(Exception)
  */
 void SequenceLogService::writeSeqLogFile(File* file, SequenceLogItem* item)
 {
-    uint32_t size = mFileOutputBuffer.putSequenceLogItem(item);
+    uint32_t size = mFileOutputBuffer.putSequenceLogItem(item, true);
     file->write(&mFileOutputBuffer, size);
 
     // シーケンスログプリントにログを送信

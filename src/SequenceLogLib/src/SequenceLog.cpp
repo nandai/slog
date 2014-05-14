@@ -301,7 +301,7 @@ SequenceLogItem* SequenceLogClient::createItem()
     // シーケンスログアイテム生成
     SequenceLogItem* item = new SequenceLogItem;
 
-    item->setCurrentDateTime();
+//  item->setCurrentDateTime();
     item->mThreadId = Thread::getCurrentId();
 
     return item;
@@ -545,8 +545,9 @@ void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item) throw(Exce
     item->mSeqNo = seq;
 
     // 日時
-    uint64_t datetime = getLong();
-    item->mDateTime.setValue(datetime);
+//  uint64_t datetime = getLong();
+//  item->mDateTime.setValue(datetime);
+    item->mDateTime.setCurrent();
 
     // シーケンスログアイテム種別
     SequenceLogItem::Type type = (SequenceLogItem::Type)get();
@@ -625,7 +626,7 @@ void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item) throw(Exce
 /*!
  * \brief   シーケンスログアイテム書き込み
  */
-uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item)
+uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, bool isOutputDateTime)
 {
     unsigned short size;
     int32_t len;
@@ -636,7 +637,8 @@ uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item)
     putInt(item->mSeqNo);
 
     // 日時
-    putLong(item->mDateTime.getValue());
+    if (isOutputDateTime)
+        putLong(item->mDateTime.getValue());
 
     // シーケンスログアイテム種別
     put(item->mType);

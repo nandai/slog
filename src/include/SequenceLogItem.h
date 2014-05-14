@@ -259,7 +259,7 @@ public:     SequenceLogByteBuffer(uint32_t capacity) : ByteBuffer(capacity) {}
              * シーケンスログ読み込み／書き込み
              */
             void     getSequenceLogItem(      SequenceLogItem* item) throw(Exception);
-            uint32_t putSequenceLogItem(const SequenceLogItem* item);
+            uint32_t putSequenceLogItem(const SequenceLogItem* item, bool isOutputDateTime = false);
 };
 
 } // namespace slog
