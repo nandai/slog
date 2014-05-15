@@ -624,7 +624,7 @@ void SequenceLogService::writeSeqLogFileText(File* file, SequenceLogItem* item)
     if (mBinaryLog == false)
         file->write(&str, 1, len - 1);
 
-    ScopedLock lock(serviceMain->getMutex());
+    ScopedLock lock(serviceMain->getMutex());   // TODO Linuxでデッドロックしてしまう不具合が発生したので一旦復活
     serviceMain->printLog(&str, str.getCapacity(), getUserId());
 }
 

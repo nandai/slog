@@ -95,7 +95,7 @@ static bool changeGroupAndUser(const CoreString& aGroup, const CoreString& user)
 #include "slog/DateTimeFormat.h"
 #include "slog/FileInfo.h"
 
-#define VERSION "ver.1.2.6"
+#define VERSION "ver.1.2.7"
 
 /*!
  *  \brief  アクセス可能なディレクトリかどうか
