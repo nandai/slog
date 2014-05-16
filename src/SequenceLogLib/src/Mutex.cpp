@@ -48,7 +48,12 @@ Mutex::Mutex() throw(Exception)
 #else
     mHandle = &mPrivate;
     mCreate = true;
-    pthread_mutex_init(mHandle, nullptr);
+
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+
+    pthread_mutex_init(mHandle, &attr);
 #endif
 }
 
@@ -95,6 +100,7 @@ Mutex::Mutex(
         pthread_mutexattr_t attr;
         pthread_mutexattr_init(&attr);
         pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
 
         pthread_mutex_init(mHandle, &attr);
     }

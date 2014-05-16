@@ -64,6 +64,7 @@ do
     cp /tmp/libslog.a  $ANDROID_NDK_ROOT/$LIB_DIR/
 done
 
+cp /tmp/libslog.so ../../SequenceLogService/Android/libs/armeabi/
 cp /tmp/libslog.so ../../../bin/Android/
 cp /tmp/libslog.a  ../../../bin/Android/
 

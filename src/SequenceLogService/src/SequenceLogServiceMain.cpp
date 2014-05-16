@@ -372,7 +372,7 @@ void SequenceLogServiceMain::onThreadTerminated(Thread* thread)
 void SequenceLogServiceMain::onLogFileChanged(Thread* thread, const CoreString* fileName, int32_t userId)
 {
     SLOG(CLS_NAME, "onLogFileChanged");
-//  ScopedLock lock(getMutex());    // TODO Linuxでデッドロックしてしまう不具合が発生したので一旦コメント化
+    ScopedLock lock(getMutex());
 
     for (auto i = mListeners.begin(); i != mListeners.end(); i++)
         (*i)->onLogFileChanged(thread, fileName, userId);
@@ -384,7 +384,7 @@ void SequenceLogServiceMain::onLogFileChanged(Thread* thread, const CoreString* 
 void SequenceLogServiceMain::onUpdateLog(const Buffer* text, int32_t userId)
 {
 //  SLOG(CLS_NAME, "onUpdateLog");
-//  ScopedLock lock(getMutex());    // TODO Linuxでデッドロックしてしまう不具合が発生したので一旦コメント化
+    ScopedLock lock(getMutex());
 
     for (auto i = mListeners.begin(); i != mListeners.end(); i++)
         (*i)->onUpdateLog(text, userId);
