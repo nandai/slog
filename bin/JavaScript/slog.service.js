@@ -42,15 +42,16 @@
         },
 
         // シーケンスログをSequenceLog.exeで開く
-        openLog: function(fileName)
+        openLog: function(i, fileName)
         {
             var len = exports.slog.utils.getStringBytes(fileName) + 1;
-            var buffer = new ArrayBuffer(4 + 4 + len);
+            var buffer = new ArrayBuffer(4 + 4 + 4 + len);
             var dataView = new DataView(buffer);
 
             dataView.setUint32(0, 1);       // コマンドNo
-            dataView.setUint32(4, len);     // ファイル名の長さ
-            exports.slog.utils.setStringToDataView(dataView, 8, fileName);
+            dataView.setUint32(4, i);       // インデックス
+            dataView.setUint32(8, len);     // ファイル名の長さ
+            exports.slog.utils.setStringToDataView(dataView, 12, fileName);
 
             this.ws.send(dataView.buffer);
         }
