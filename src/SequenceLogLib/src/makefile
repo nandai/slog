@@ -66,9 +66,9 @@ libslog.so: $(objs)
 install:
 #	mkdir -p      ../../../bin/linux/x64/
 #	cp libslog.so ../../../bin/linux/x64/
-	cp libslog.so $(INSTALLDIR)/libslog.so.1.2.7
-	chmod 644     $(INSTALLDIR)/libslog.so.1.2.7
-	ln -sf        $(INSTALLDIR)/libslog.so.1.2.7 $(INSTALLDIR)/libslog.so.1
+	cp libslog.so $(INSTALLDIR)/libslog.so.1.2.8
+	chmod 644     $(INSTALLDIR)/libslog.so.1.2.8
+	ln -sf        $(INSTALLDIR)/libslog.so.1.2.8 $(INSTALLDIR)/libslog.so.1
 	ln -sf        $(INSTALLDIR)/libslog.so.1     $(INSTALLDIR)/libslog.so
 
 	cp -rf ../../../include/slog /usr/include/

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="service_settings">Sequence Log Service 設定</string>
+    <string name="service_settings">Sequence Log Service 設定 (ver.1.2.8)</string>
     <string name="log_output_dir">ログ出力ディレクトリ</string>
     <string name="max_file_size">最大ファイルサイズ</string>
     <string name="max_file_size_unit">ファイルサイズ単位</string>

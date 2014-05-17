@@ -19,8 +19,8 @@ This is Sequence Log Library.
   <channel>pecl.php.net</channel>
 
   <release>
-    <version>1.2.7</version>
-    <date>2014-04-06</date>
+    <version>1.2.8</version>
+    <date>2014-05-17</date>
     <state>stable</state>
     <notes><?data
 - Initial release.

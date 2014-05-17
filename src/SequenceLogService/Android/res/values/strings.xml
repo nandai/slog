@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Sequence Log Service</string>
 
-    <string name="service_settings">Sequence Log Service 設定</string>
+    <string name="service_settings">Sequence Log Service Settings (ver.1.2.8)</string>
     <string name="log_output_dir">log output dir</string>
     <string name="max_file_size">max file size</string>
     <string name="max_file_size_unit">file size unit</string>
