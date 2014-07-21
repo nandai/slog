@@ -32,3 +32,4 @@ src/SequenceLogLib/ModernUI/x64/
 src/SequenceLogLib/ModernUI/ARM/
 src/SequenceLogLib/slog/
 bin/ModernUI/
+Release/
