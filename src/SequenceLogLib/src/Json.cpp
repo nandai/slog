@@ -239,17 +239,17 @@ void Json::serializeChild(CoreString* content) const
     }
 
     String tmp;
-    char sep = ' ';
+    const char* sep = "";
 
     for (auto i = mList.begin(); i != mList.end(); i++)
     {
         tmp.setLength(0);
         (*i)->serializeChild(&tmp);
 
-        work.append(&sep, 1);
+        work.append(sep);
         work.append(&tmp);
 
-        sep = ',';
+        sep = ",";
     }
 
     work.append(&mBracket[1], 1);

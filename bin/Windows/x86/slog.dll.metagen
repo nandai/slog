@@ -13,3 +13,4 @@ Class Slog.Log: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     I(Int64, String): PrivateScope, Public, Static, HideBySig
     W(Int64, String): PrivateScope, Public, Static, HideBySig
     E(Int64, String): PrivateScope, Public, Static, HideBySig
+    Assert(Int64, String, Boolean(HasFieldMarshal)): PrivateScope, Public, Static, HideBySig

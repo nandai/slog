@@ -45,7 +45,7 @@
 extern "C"
 {
     /*!
-     *  \brief  ステップイン時のログ出力
+     * \brief   ステップイン時のログ出力
      */
     void* _slog_stepIn(const char* className, const char* funcName)
     {
@@ -54,7 +54,7 @@ extern "C"
     }
 
     /*!
-     *  \brief  ステップイン時のログ出力
+     * \brief   ステップイン時のログ出力
      */
 //  void* _slog_stepIn2(uint32_t classID, const char* funcName)
 //  {
@@ -63,7 +63,7 @@ extern "C"
 //  }
 
     /*!
-     *  \brief  ステップイン時のログ出力
+     * \brief   ステップイン時のログ出力
      */
 //  void* _slog_stepIn3(uint32_t classID, uint32_t funcID)
 //  {
@@ -81,10 +81,10 @@ extern "C"
     }
 
     /*!
-     *  \brief  メッセージ出力
+     * \brief   メッセージ出力
      */
-//  void  _slog_message(void* p, SequenceLogLevel level, const char* format, ...)
-    void  _slog_message(void* p, int32_t          level, const char* format, ...)
+//  void _slog_message(void* p, SequenceLogLevel level, const char* format, ...)
+    void _slog_message(void* p, int32_t          level, const char* format, ...)
     {
         slog::SequenceLog* slog = (slog::SequenceLog*)p;
 
@@ -95,13 +95,22 @@ extern "C"
     }
 
     /*!
-     *  \brief  メッセージ出力
+     * \brief   メッセージ出力
      */
-//  void  _slog_message2(void* p, int32_t level, uint32_t messageID)
+//  void _slog_message2(void* p, int32_t level, uint32_t messageID)
 //  {
 //      slog::SequenceLog* slog = (slog::SequenceLog*)p;
 //      slog->message((slog::SequenceLogLevel)level, messageID);
 //  }
+
+    /*!
+     * \brief   アサート
+     */
+    void _slog_assert(void* p, const char* assertName, bool result)
+    {
+        slog::SequenceLog* slog = (slog::SequenceLog*)p;
+        slog->assert(assertName, result);
+    }
 }
 
 /*-----------------------------------------------------------------------------
@@ -511,6 +520,17 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
 
         sClient->sendItem(item);
     }
+}
+
+/*!
+ * \brief   アサート
+ */
+void SequenceLog::assert(const char* assertName, bool result)
+{
+    if (result)
+        message(DEBUG, "%s:PASSED", assertName);
+    else
+        message(ERROR, "%s:FAILED", assertName);
 }
 
 /*!

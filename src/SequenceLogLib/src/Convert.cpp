@@ -32,7 +32,14 @@ template <class T>
 inline const char* decToValue(T* value, const char* dec, int32_t len)
 {
     int32_t i = 0;
+    T sign = 1;
     *value = 0;
+
+    if (dec[0] == '-')
+    {
+        sign = -1;
+        i++;
+    }
 
     while (true)
     {
@@ -54,6 +61,7 @@ inline const char* decToValue(T* value, const char* dec, int32_t len)
         i++;
     }
 
+    *value *= sign;
     return (dec + i);
 }
 

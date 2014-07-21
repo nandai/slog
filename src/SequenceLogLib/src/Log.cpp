@@ -126,4 +126,18 @@ void Log::Message(int32_t level, String^ aMessage, int64_t slog)
 //    slogObj->message((slog::SequenceLogLevel)level, messageID);
 //}
 
+void Log::Assert(int64_t slog, String^ aAssertName, Boolean result)
+{
+    slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
+
+#if !defined(MODERN_UI)
+    slog::CSharpString assertName = aAssertName;
+#else
+    slog::String assertName;
+    assertName.conv(aAssertName->Data());
+#endif
+
+    slogObj->assert(assertName.getBuffer(), result.Equals(true));
+}
+
 } // namespace Slog

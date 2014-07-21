@@ -40,19 +40,22 @@
     #if defined(__cplusplus)
         #define SLOG     slog::SequenceLog _slog
         #define SMSG    _slog.message
+        #define SASSERT _slog.assert
     #endif
 
     #define SLOG_STEPIN( className, funcName)               void* _slog = _slog_stepIn( className, funcName)
 //  #define SLOG_STEPIN2(classID,   funcName)               void* _slog = _slog_stepIn2(classID,   funcName)
 //  #define SLOG_STEPIN3(classID,   funcID)                 void* _slog = _slog_stepIn3(classID,   funcID)
-    #define SLOG_STEPOUT                _slog_stepOut( _slog)
-    #define SMSGC( level, format, ...)  _slog_message( _slog, level, format, ##__VA_ARGS__)
-//  #define SMSGC2(level, messageID)    _slog_message2(_slog, level, messageID)
+    #define SLOG_STEPOUT                 _slog_stepOut( _slog)
+    #define SMSGC( level, format, ...)   _slog_message( _slog, level, format, ##__VA_ARGS__)
+//  #define SMSGC2(level, messageID)     _slog_message2(_slog, level, messageID)
+    #define SASSERTC(assertName, result) _slog_assert(  _slog, assertName, result)
 
 #else  // defined(__SLOG__) || defined(PHP_SLOG_H)
     #if defined(__cplusplus)
         #define SLOG
         #define SMSG
+        #define SASSERT
     #endif
 
     #define SLOG_STEPIN( className, funcName)               void* _slog = 0
@@ -61,6 +64,7 @@
     #define SLOG_STEPOUT
     #define SMSGC( level, format, ...)
 //  #define SMSGC2(level, messageID)
+    #define SASSERTC(assertName, result)
 #endif // defined(__SLOG__) || defined(PHP_SLOG_H)
 
 /******************************************************************************
@@ -102,10 +106,11 @@ typedef int32_t bool;
 
 SLOG_API void* _slog_stepIn( const char* className, const char* funcName);
 //OG_API void* _slog_stepIn3(uint32_t    classID,   uint32_t    funcID);
-SLOG_API void  _slog_stepOut(void* p);
+SLOG_API void  _slog_stepOut( void* p);
 //OG_API void  _slog_message( void* p, SequenceLogLevel level, const char* format, ...);
 SLOG_API void  _slog_message( void* p, int32_t          level, const char* format, ...);
 //OG_API void  _slog_message2(void* p, int32_t          level, uint32_t messageID);
+SLOG_API void  _slog_assert(  void* p, const char* assertName, bool result);
 
 SLOG_API void loadSequenceLogConfig(const char* fileName);
 
@@ -153,6 +158,8 @@ private:    void init();
 public:     void message( SequenceLogLevel level, const char* format, ...);
             void messageV(SequenceLogLevel level, const char* format, va_list arg);
 //          void message( SequenceLogLevel level, uint32_t messageID);
+
+            void assert(const char* assertName, bool result);
 };
 
 } // namespace slog

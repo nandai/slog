@@ -208,6 +208,19 @@ static void JNICALL message3(JNIEnv* env, jclass, jint level, jstring aMessage, 
 #endif
 }
 
+/*
+ * Class:     jp_printf_slog_Log
+ * Method:    assert
+ * Signature: (Ljava/lang/String;ZJ)V
+ */
+static void JNICALL assert(JNIEnv* env, jclass, jstring aAssertName, jboolean result, jlong slog)
+{
+    SequenceLog* slogObj = (SequenceLog*)slog;
+    JavaString assertName(env, aAssertName);
+
+    slogObj->assert(assertName.getBuffer(), (result == JNI_TRUE));
+}
+
 /*!
  * Java用WebSocketClientクラス
  */
@@ -397,6 +410,7 @@ static JNINativeMethodEx sSlogMethods[] =
     {"message",           "(ILjava/lang/String;J)V",                  (void*)message1         },
 //  {"message",           "(IIJ)V",                                   (void*)message2         },
     {"message",           "(ILjava/lang/String;Ljava/lang/String;)V", (void*)message3         },
+    {"assert",            "(Ljava/lang/String;ZJ)V",                  (void*)assert           },
 };
 
 // JNIメソッド配列

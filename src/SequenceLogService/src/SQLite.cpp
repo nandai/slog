@@ -217,7 +217,8 @@ void SQLiteStatement::setStringParam(int32_t index, const CoreString* value)
     if (index < 0 || mParamCount <= index)
         return;
 
-    sqlite3_bind_text(mStmt, 1 + index, value->getBuffer(), -1, SQLITE_STATIC);
+    if (sqlite3_bind_text(mStmt, 1 + index, value->getBuffer(), -1, SQLITE_STATIC) != SQLITE_OK)
+        throwException();
 }
 
 /*!
@@ -312,6 +313,9 @@ void SQLiteStatement::execute() throw(Exception)
 
     if (sqlite3_step(mStmt) != SQLITE_DONE)
         throwException();
+
+//  sqlite3_clear_bindings(mStmt);  必要？
+    sqlite3_reset(mStmt);
 }
 
 /*!
@@ -413,8 +417,11 @@ void SQLite::query(const char* sql) const throw (Exception)
 {
     if (sqlite3_exec(mConn, sql, nullptr, nullptr, nullptr) != SQLITE_OK)
     {
+        String message;
+        getErrorMessage(&message);
+
         Exception e;
-        e.setMessage("クエリー実行に失敗しました。");
+        e.setMessage("クエリー実行に失敗しました（%s）。", message.getBuffer());
 
         throw e;
     }

@@ -63,6 +63,8 @@ public:     static void V(int64_t slog, String^ message)   {Message(slog::DEBUG,
 //          static void I(int64_t slog, int32_t messageID) {Message(slog::INFO,  messageID, slog);}
 //          static void W(int64_t slog, int32_t messageID) {Message(slog::WARN,  messageID, slog);}
 //          static void E(int64_t slog, int32_t messageID) {Message(slog::ERROR, messageID, slog);}
+
+            static void Assert(int64_t slog, String^ aAssertName, Boolean result);
 };
 
 } // namespace Slog
