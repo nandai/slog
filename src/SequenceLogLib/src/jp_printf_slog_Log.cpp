@@ -210,10 +210,10 @@ static void JNICALL message3(JNIEnv* env, jclass, jint level, jstring aMessage, 
 
 /*
  * Class:     jp_printf_slog_Log
- * Method:    assert
- * Signature: (Ljava/lang/String;ZJ)V
+ * Method:    assertThat
+ * Signature: (JLjava/lang/String;Z)V
  */
-static void JNICALL assert(JNIEnv* env, jclass, jstring aAssertName, jboolean result, jlong slog)
+static void JNICALL assertThat(JNIEnv* env, jclass, jlong slog, jstring aAssertName, jboolean result)
 {
     SequenceLog* slogObj = (SequenceLog*)slog;
     JavaString assertName(env, aAssertName);
@@ -410,7 +410,7 @@ static JNINativeMethodEx sSlogMethods[] =
     {"message",           "(ILjava/lang/String;J)V",                  (void*)message1         },
 //  {"message",           "(IIJ)V",                                   (void*)message2         },
     {"message",           "(ILjava/lang/String;Ljava/lang/String;)V", (void*)message3         },
-    {"assert",            "(Ljava/lang/String;ZJ)V",                  (void*)assert           },
+    {"assertThat",        "(JLjava/lang/String;Z)V",                  (void*)assertThat       },
 };
 
 // JNIメソッド配列

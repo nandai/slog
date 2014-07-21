@@ -74,5 +74,5 @@ public final class Log
     public static void w(String tag,       String message, Throwable e) {message(WARN,  message,   tag);}
     public static void e(String tag,       String message, Throwable e) {message(ERROR, message,   tag);}
 
-    public native static void assert(long slog/*tag*/, String assertName, boolean result);
+    public native static void assertThat(long slog/*tag*/, String assertName, boolean result);
 }

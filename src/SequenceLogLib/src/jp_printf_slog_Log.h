@@ -55,6 +55,14 @@ JNIEXPORT void JNICALL Java_jp_printf_slog_Log_message__ILjava_lang_String_2J
 JNIEXPORT void JNICALL Java_jp_printf_slog_Log_message__ILjava_lang_String_2Ljava_lang_String_2
   (JNIEnv *, jclass, jint, jstring, jstring);
 
+/*
+ * Class:     jp_printf_slog_Log
+ * Method:    assertThat
+ * Signature: (JLjava/lang/String;Z)V
+ */
+JNIEXPORT void JNICALL Java_jp_printf_slog_Log_assertThat
+  (JNIEnv *, jclass, jlong, jstring, jboolean);
+
 #ifdef __cplusplus
 }
 #endif

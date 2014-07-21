@@ -29,6 +29,7 @@
     #undef INFO
     #undef WARN
     #undef ERROR
+    #undef assert
 #endif
 
 /******************************************************************************

@@ -97,7 +97,7 @@ This is Sequence Log Library.
     </function>
 
     <function name="slogAssert">
-      <proto>void slogAssert(string assertName, boolean result)</proto>
+      <proto>void slogAssert(int slog, string assertName, boolean result)</proto>
       <code>
         slog::SequenceLog* slogObj = (slog::SequenceLog*)slog;
         slogObj->assert(assertName, result);
