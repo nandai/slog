@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>Sequence Log Sample</title>
+<script src="/socket.io/socket.io.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//www.printf.jp/js/slog-1.2.9/slog.js"></script>
+<script>
+$(function() {
+//  slog.setConfig('ws://127.0.0.1:8080',   'sample.js.log', 'ALL');
+    slog.setConfig('ws://192.168.0.5:8080', 'sample.js.log', 'ALL');
+    var log = slog.stepIn('sample.html', 'main');
+    var socket = io_connect();
+
+    $('form').submit(function() {
+        var log = slog.stepIn('form', 'submit');
+        var data = $('input').val();
+        $('input').val('');
+        socket_emit('message', data);
+        log.stepOut();
+        return false;
+    });
+
+    socket.on('connect', function() {
+        var log = slog.stepIn('socket', 'connect');
+        log.d('サーバーに接続しました。');
+        log.stepOut();
+    });
+
+    socket.on('message', function(data) {
+        var log = slog.stepIn('socket', 'message');
+        log.d('サーバーから「' + data + '」を受信しました。');
+        $('div').prepend(data + '<br>');
+        log.stepOut();
+    });
+
+    function io_connect() {
+        var log = slog.stepIn('io', 'connect');
+        var socket = io.connect();
+        log.stepOut();
+        return socket;
+    }
+
+    function socket_emit(event, data) {
+        var log = slog.stepIn('socket', 'emit');
+        log.d('サーバーに「' + data + '」' + 'を送信します。');
+        socket.emit(event, data);
+        log.stepOut();
+    }
+
+    log.stepOut();
+});
+</script>
+<form><input></form>
+<div></div>

@@ -650,6 +650,20 @@ var slog;
         SequenceLog.prototype.e = function (msg) {
             message(this, ERROR, msg);
         };
+
+        /**
+        * アサート
+        *
+        * @method  assert
+        *
+        * @return  なし
+        */
+        SequenceLog.prototype.assert = function (assertName, result) {
+            if (result === true)
+                this.d(assertName + ':PASSED');
+            else
+                this.e(assertName + ':FAILED');
+        };
         return SequenceLog;
     })();
     slog.SequenceLog = SequenceLog;

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-/// <reference path="node/node.d.ts" />
+// wget https://github.com/borisyankov/DefinitelyTyped/archive/master.zip
+
+/// <reference path="../../../../../d.ts/node/node.d.ts" />
 
 /**
  * @namespace slog
@@ -751,6 +753,21 @@ module slog
         i(msg : string) {message(this, INFO,  msg);}
         w(msg : string) {message(this, WARN,  msg);}
         e(msg : string) {message(this, ERROR, msg);}
+
+        /**
+         * アサート
+         *
+         * @method  assert
+         *
+         * @return  なし
+         */
+        assert(assertName : string, result : boolean) : void
+        {
+            if (result === true)
+                this.d(assertName + ':PASSED');
+            else
+                this.e(assertName + ':FAILED');
+        }
     }
 
     /**

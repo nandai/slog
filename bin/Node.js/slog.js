@@ -13,7 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-/// <reference path="node/node.d.ts" />
+// wget https://github.com/borisyankov/DefinitelyTyped/archive/master.zip
+/// <reference path="../../../../../d.ts/node/node.d.ts" />
 /**
 * @namespace slog
 */
@@ -676,6 +677,20 @@ var slog;
         };
         SequenceLog.prototype.e = function (msg) {
             message(this, ERROR, msg);
+        };
+
+        /**
+        * アサート
+        *
+        * @method  assert
+        *
+        * @return  なし
+        */
+        SequenceLog.prototype.assert = function (assertName, result) {
+            if (result === true)
+                this.d(assertName + ':PASSED');
+            else
+                this.e(assertName + ':FAILED');
         };
         return SequenceLog;
     })();
