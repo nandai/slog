@@ -511,7 +511,12 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
         try
         {
             CoreString* message = item->getMessage();
-            message->formatV(format, arg);
+
+            if (format)
+                message->formatV(format, arg);
+
+            else
+                message->copy("(null)");
         }
         catch (Exception /*e*/)
         {
