@@ -55,12 +55,12 @@ public:     String name;
             String expires;
 
             /*!
-             * 
+             * secure
              */
             bool secure;
 
             /*!
-             * 
+             * httpOnly
              */
             bool httpOnly;
 

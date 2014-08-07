@@ -20,7 +20,6 @@
  *  \author Copyright 2014 printf.jp
  */
 #include "slog/Cookie.h"
-#include "slog/Util.h"
 
 namespace slog
 {
