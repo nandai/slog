@@ -33,3 +33,4 @@ src/SequenceLogLib/ModernUI/ARM/
 src/SequenceLogLib/slog/
 bin/ModernUI/
 Release/
+html/

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   Variable.h
- *  \brief  •Ï”ƒNƒ‰ƒX
+ *  \brief  å¤‰æ•°ã‚¯ãƒ©ã‚¹
  *  \author Copyright 2014 printf.jp
  */
 #pragma once
@@ -30,75 +30,75 @@ namespace slog
 {
 
 /*!
- * \brief  •Ï”ƒNƒ‰ƒX
+ * \brief  å¤‰æ•°ã‚¯ãƒ©ã‚¹
  */
 class SLOG_API Variable
 {
             /*!
-             * •Ï”–¼
+             * å¤‰æ•°å
              */
 public:     String name;
 
             /*!
-             * ’l
+             * å€¤
              */
             String value;
 
             /*!
-             * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+             * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
              */
 public:     Variable(const char* name, const char* value);
 
             /*!
-             * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+             * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
              */
             Variable(const char* name, int32_t value);
 };
 
 /*!
- * \brief  •Ï”ƒŠƒXƒgƒNƒ‰ƒX
+ * \brief  å¤‰æ•°ãƒªã‚¹ãƒˆã‚¯ãƒ©ã‚¹
  */
 class SLOG_API VariableList
 {
             std::list<Variable*> mList;
 
             /*!
-             * ƒfƒXƒgƒ‰ƒNƒ^
+             * ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
              */
 public:     ~VariableList();
 
             /*!
-             * •Ï”‚Ì”‚ğæ“¾‚·‚é
+             * å¤‰æ•°ã®æ•°ã‚’å–å¾—ã™ã‚‹
              */
             int32_t getCount() const {return (int32_t)mList.size();}
 
             /*!
-             * •Ï”‚ğæ“¾‚·‚é
+             * å¤‰æ•°ã‚’å–å¾—ã™ã‚‹
              */
             const Variable* get(int32_t index) const;
 
             /*!
-             * •Ï”‚ğŒŸõ‚·‚é
+             * å¤‰æ•°ã‚’æ¤œç´¢ã™ã‚‹
              */
             const CoreString* find(const CoreString* name) const;
 
             /*!
-             * •Ï”‚ğ’Ç‰Á‚·‚é
+             * å¤‰æ•°ã‚’è¿½åŠ ã™ã‚‹
              */
             void add(const CoreString* name, const CoreString* value);
 
             /*!
-             * •Ï”‚ğ’Ç‰Á‚·‚é
+             * å¤‰æ•°ã‚’è¿½åŠ ã™ã‚‹
              */
             void add(const char* name, const CoreString* value);
 
             /*!
-             * •Ï”‚ğ’Ç‰Á‚·‚é
+             * å¤‰æ•°ã‚’è¿½åŠ ã™ã‚‹
              */
             void add(const char* name, const char* value);
 
             /*!
-             * •Ï”‚ğ’Ç‰Á‚·‚é
+             * å¤‰æ•°ã‚’è¿½åŠ ã™ã‚‹
              */
             void add(const char* name, int32_t value);
 };

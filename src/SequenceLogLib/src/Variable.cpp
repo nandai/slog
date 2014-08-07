@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   Variable.cpp
- *  \brief  •Ï”ƒŠƒXƒgƒNƒ‰ƒX
+ *  \brief  å¤‰æ•°ãƒªã‚¹ãƒˆã‚¯ãƒ©ã‚¹
  *  \author Copyright 2014 printf.jp
  */
 #include "slog/Variable.h"
@@ -25,7 +25,7 @@ namespace slog
 {
 
 /*!
- * \brief   ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+ * \brief   ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 Variable::Variable(const char* name, const char* value)
 {
@@ -34,7 +34,7 @@ Variable::Variable(const char* name, const char* value)
 }
 
 /*!
- * \brief   ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+ * \brief   ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 Variable::Variable(const char* name, int32_t value)
 {
@@ -43,7 +43,7 @@ Variable::Variable(const char* name, int32_t value)
 }
 
 /*!
- * \brief   ƒfƒXƒgƒ‰ƒNƒ^
+ * \brief   ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 VariableList::~VariableList()
 {
@@ -52,7 +52,7 @@ VariableList::~VariableList()
 }
 
 /*!
- * \brief   •Ï”‚ğæ“¾‚·‚é
+ * \brief   å¤‰æ•°ã‚’å–å¾—ã™ã‚‹
  */
 const Variable* VariableList::get(int32_t index) const
 {
@@ -65,11 +65,11 @@ const Variable* VariableList::get(int32_t index) const
 }
 
 /*!
- * \brief   •Ï”‚ğŒŸõ‚·‚é
+ * \brief   å¤‰æ•°ã‚’æ¤œç´¢ã™ã‚‹
  *
- * \param[in]   name    •Ï”–¼
+ * \param[in]   name    å¤‰æ•°å
  *
- * \return  ’l
+ * \return  å€¤
  */
 const CoreString* VariableList::find(const CoreString* name) const
 {
@@ -85,12 +85,12 @@ const CoreString* VariableList::find(const CoreString* name) const
 }
 
 /*!
- * \brief   •Ï”‚ğ’Ç‰Á‚·‚é
+ * \brief   å¤‰æ•°ã‚’è¿½åŠ ã™ã‚‹
  *
- * \param[in]   name    •Ï”–¼
- * \param[in]   value   ’l
+ * \param[in]   name    å¤‰æ•°å
+ * \param[in]   value   å€¤
  *
- * \return  ‚È‚µ
+ * \return  ãªã—
  */
 void VariableList::add(const CoreString* name, const CoreString* value)
 {
@@ -98,12 +98,12 @@ void VariableList::add(const CoreString* name, const CoreString* value)
 }
 
 /*!
- * \brief   •Ï”‚ğ’Ç‰Á‚·‚é
+ * \brief   å¤‰æ•°ã‚’è¿½åŠ ã™ã‚‹
  *
- * \param[in]   name    •Ï”–¼
- * \param[in]   value   ’l
+ * \param[in]   name    å¤‰æ•°å
+ * \param[in]   value   å€¤
  *
- * \return  ‚È‚µ
+ * \return  ãªã—
  */
 void VariableList::add(const char* name, const CoreString* value)
 {
@@ -111,12 +111,12 @@ void VariableList::add(const char* name, const CoreString* value)
 }
 
 /*!
- * \brief   •Ï”‚ğ’Ç‰Á‚·‚é
+ * \brief   å¤‰æ•°ã‚’è¿½åŠ ã™ã‚‹
  *
- * \param[in]   name    •Ï”–¼
- * \param[in]   value   ’l
+ * \param[in]   name    å¤‰æ•°å
+ * \param[in]   value   å€¤
  *
- * \return  ‚È‚µ
+ * \return  ãªã—
  */
 void VariableList::add(const char* name, const char* value)
 {
@@ -124,12 +124,12 @@ void VariableList::add(const char* name, const char* value)
 }
 
 /*!
- * \brief   •Ï”‚ğ’Ç‰Á‚·‚é
+ * \brief   å¤‰æ•°ã‚’è¿½åŠ ã™ã‚‹
  *
- * \param[in]   name    •Ï”–¼
- * \param[in]   value   ’l
+ * \param[in]   name    å¤‰æ•°å
+ * \param[in]   value   å€¤
  *
- * \return  ‚È‚µ
+ * \return  ãªã—
  */
 void VariableList::add(const char* name, int32_t value)
 {

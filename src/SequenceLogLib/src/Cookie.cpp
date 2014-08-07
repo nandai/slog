@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 /*!
  *  \file   Cookie.cpp
- *  \brief  CookieƒNƒ‰ƒX
+ *  \brief  Cookieã‚¯ãƒ©ã‚¹
  *  \author Copyright 2014 printf.jp
  */
 #include "slog/Cookie.h"
@@ -26,7 +26,7 @@ namespace slog
 {
 
 /*!
- * \brief   ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+ * \brief   ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 Cookie::Cookie(const char* name, const char* value, const char* path, const char* expires, bool secure, bool httpOnly)
 {
@@ -44,7 +44,7 @@ Cookie::Cookie(const char* name, const char* value, const char* path, const char
 }
 
 /*!
- * \brief   ƒfƒXƒgƒ‰ƒNƒ^
+ * \brief   ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  */
 CookieList::~CookieList()
 {
@@ -53,7 +53,7 @@ CookieList::~CookieList()
 }
 
 /*!
- * \brief   Cookie‚ğæ“¾‚·‚é
+ * \brief   Cookieã‚’å–å¾—ã™ã‚‹
  */
 const Cookie* CookieList::get(int32_t index) const
 {
@@ -66,11 +66,11 @@ const Cookie* CookieList::get(int32_t index) const
 }
 
 /*!
- * \brief   Cookie‚ğŒŸõ‚·‚é
+ * \brief   Cookieã‚’æ¤œç´¢ã™ã‚‹
  *
- * \param[in]   name    Cookie–¼
+ * \param[in]   name    Cookieå
  *
- * \return  ’l
+ * \return  å€¤
  */
 const CoreString* CookieList::find(const CoreString* name) const
 {
@@ -86,13 +86,13 @@ const CoreString* CookieList::find(const CoreString* name) const
 }
 
 /*!
- * \brief   Cookie‚ğ’Ç‰Á‚·‚é
+ * \brief   Cookieã‚’è¿½åŠ ã™ã‚‹
  *
- * \param[in]   name    Cookie–¼
- * \param[in]   value   ’l
- * \param[in]   path    ƒpƒX
+ * \param[in]   name    Cookieå
+ * \param[in]   value   å€¤
+ * \param[in]   path    ãƒ‘ã‚¹
  *
- * \return  ‚È‚µ
+ * \return  ãªã—
  */
 void CookieList::add(const char* name, const CoreString* value, const char* path, const char* expires, bool secure, bool httpOnly)
 {
@@ -100,12 +100,12 @@ void CookieList::add(const char* name, const CoreString* value, const char* path
 }
 
 /*!
- * \brief   Cookie‚ğíœ‚·‚é
+ * \brief   Cookieã‚’å‰Šé™¤ã™ã‚‹
  *
- * \param[in]   name    Cookie–¼
- * \param[in]   path    ƒpƒX
+ * \param[in]   name    Cookieå
+ * \param[in]   path    ãƒ‘ã‚¹
  *
- * \return  ‚È‚µ
+ * \return  ãªã—
  */
 void CookieList::remove(const char* name, const char* path, bool secure, bool httpOnly)
 {

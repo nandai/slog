@@ -141,9 +141,9 @@ inline void SequenceLogItem::init(uint32_t seq, const char* className, const cha
     mType =       STEP_IN;
 //  mThreadId =   Thread::getCurrentId();
     mClassId =    0;
-    mClassName.copy(className);
+    mClassName.copy(className ? className : "(null)");
     mFuncId =     0;
-    mFuncName. copy(funcName);
+    mFuncName. copy(funcName  ? funcName  : "(null)");
 }
 
 /*!
