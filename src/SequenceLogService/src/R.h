@@ -20,15 +20,16 @@
  * \author  Copyright 2014 printf.jp
  */
 #pragma once
-#include "slog/slog.h"
+#include "slog/Resource.h"
 
 namespace slog
 {
-class CoreString;
-
-class R
+/*!
+ * \brief   リソースクラス
+ */
+class R : public Resource
 {
-            const char** mStrings;
+            static const LanguageStringList mLanguageStringList[];
 
 public:     static const int32_t login =          0;
             static const int32_t logout =         1;
@@ -59,12 +60,7 @@ public:     static const int32_t login =          0;
             /*!
              * コンストラクタ
              */
-public:     R(const CoreString* aLang);
-
-            /*!
-             * 文字列取得
-             */
-            const char* string(int32_t id) const;
+public:     R(const CoreString* language);
 };
 
 } // namespace slog

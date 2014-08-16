@@ -229,6 +229,7 @@
     <ClCompile Include="src\Mutex.cpp" />
     <ClCompile Include="src\PointerString.cpp" />
     <ClCompile Include="src\Process.cpp" />
+    <ClCompile Include="src\Resource.cpp" />
     <ClCompile Include="src\SequenceLog.cpp" />
     <ClCompile Include="src\Session.cpp" />
     <ClCompile Include="src\SHA1.cpp" />
@@ -269,6 +270,7 @@
     <ClInclude Include="..\..\include\slog\HttpResponse.h" />
     <ClInclude Include="..\..\include\slog\JavaString.h" />
     <ClInclude Include="..\..\include\slog\Json.h" />
+    <ClInclude Include="..\..\include\slog\Resource.h" />
     <ClInclude Include="..\..\include\slog\Session.h" />
     <ClInclude Include="..\..\include\slog\SHA256.h" />
     <ClInclude Include="..\..\include\slog\Validate.h" />

@@ -3,6 +3,8 @@
 #include "slog/Convert.h"
 #include "slog/DateTime.h"
 #include "slog/Json.h"
+#include "slog/Resource.h"
+#include "slog/PointerString.h"
 #include "slog/SequenceLog.h"
 
 #include <vector>
@@ -305,6 +307,102 @@ void JsonTest::test02()
 }
 
 /*!
+ * Resourceテスト
+ */
+namespace slog
+{
+class R : public Resource
+{
+            static const LanguageStringList mLanguageStringList[];
+
+public:     static const int32_t greetings = 0;
+
+public:     R(const CoreString* language);
+};
+
+static const char* en[] =    {"How do you do"};
+static const char* ja[] =    {"はじめまして"};
+static const char* zh_TW[] = {"你好嗎"};
+
+const Resource::LanguageStringList R::mLanguageStringList[] =
+{
+    {"en",    en   },
+    {"ja",    ja   },
+    {"zh-TW", zh_TW},
+};
+
+R::R(const CoreString* language) : Resource(language, mLanguageStringList, sizeof(mLanguageStringList) / sizeof(mLanguageStringList[0]))
+{
+}
+class ResourceTest : public Test
+{
+            static const char* CLS_NAME;
+
+public:     virtual void run() override;
+
+private:    void test01();
+            void test02();
+            void test03();
+            void test04();
+};
+
+const char* ResourceTest::CLS_NAME = "ResourceTest";
+
+void ResourceTest::run()
+{
+    test01();
+    test02();
+    test03();
+    test04();
+}
+
+void ResourceTest::test01()
+{
+    SLOG(CLS_NAME, "test01");
+
+    PointerString language = "en";
+    R r(&language);
+
+    PointerString str = r.string(R::greetings);
+    SASSERT("01", str.equals("How do you do"));
+}
+
+void ResourceTest::test02()
+{
+    SLOG(CLS_NAME, "test02");
+
+    PointerString language = "ja";
+    R r(&language);
+
+    PointerString str = r.string(R::greetings);
+    SASSERT("01", str.equals("はじめまして"));
+}
+
+void ResourceTest::test03()
+{
+    SLOG(CLS_NAME, "test03");
+
+    PointerString language = "zh-TW";
+    R r(&language);
+
+    PointerString str = r.string(R::greetings);
+    SASSERT("01", str.equals("你好嗎"));
+}
+
+void ResourceTest::test04()
+{
+    SLOG(CLS_NAME, "test04");
+
+    PointerString language = "fr";
+    R r(&language);
+
+    PointerString str = r.string(R::greetings);
+    SASSERT("01", str.equals("How do you do"));
+}
+
+}
+
+/*!
  * \brief   メイン
  */
 int main()
@@ -318,9 +416,10 @@ int main()
 //  SLOG("test.cpp", "main");
 
     TestManager testManager;
-    testManager.add(new ConvertTest);
-    testManager.add(new DateTimeTest);
-    testManager.add(new JsonTest);
+//  testManager.add(new ConvertTest);
+//  testManager.add(new DateTimeTest);
+//  testManager.add(new JsonTest);
+    testManager.add(new ResourceTest);
     testManager.run();
 
     return 0;
