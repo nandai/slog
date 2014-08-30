@@ -70,7 +70,7 @@ public:     WebServerResponse(HttpRequest* httpRequest);
             /*!
              * デストラクタ
              */
-            virtual ~WebServerResponse();
+            virtual ~WebServerResponse() override;
 
             /*!
              * Cookieリスト取得

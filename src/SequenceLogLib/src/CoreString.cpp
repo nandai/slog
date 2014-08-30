@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2012 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   CoreString.cpp
- *  \brief  コア文字列クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    CoreString.cpp
+ * \brief   コア文字列クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/CoreString.h"
 #include "slog/Util.h"
@@ -29,44 +29,44 @@ namespace slog
 {
 
 /*!
- *  \brief  次の文字へのバイト数を取得する
- *  \note   参考：http://ja.wikipedia.org/wiki/UTF-8
+ * \brief   次の文字へのバイト数を取得する
+ * \note    参考：http://ja.wikipedia.org/wiki/UTF-8
  */
 int32_t getNextCharBytes(const char* text)
 {
     uint8_t c = *text;
-	int32_t bytes;
+    int32_t bytes;
 
-	     if (c < 0xC0) bytes = 1;
-	else if (c < 0xE0) bytes = 2;
-	else if (c < 0xF0) bytes = 3;
-	else if (c < 0xF8) bytes = 4;
-	else if (c < 0xFC) bytes = 5;
-	else               bytes = 6;
+         if (c < 0xC0) bytes = 1;
+    else if (c < 0xE0) bytes = 2;
+    else if (c < 0xF0) bytes = 3;
+    else if (c < 0xF8) bytes = 4;
+    else if (c < 0xFC) bytes = 5;
+    else               bytes = 6;
 
-	return bytes;
+    return bytes;
 }
 
 /*!
- *  \brief  前の文字へのバイト数を取得する
+ * \brief   前の文字へのバイト数を取得する
  */
 int32_t getPrevCharBytes(const char* text)
 {
-	const uint8_t* p = (uint8_t*)text;
-	uint8_t c;
+    const uint8_t* p = (uint8_t*)text;
+    uint8_t c;
 
-	do
-	{
-		p--;
-		c = *p;
-	}
-	while (0x80 <= c && c < 0xC0);
+    do
+    {
+        p--;
+        c = *p;
+    }
+    while (0x80 <= c && c < 0xC0);
 
-	return (int32_t)((uint8_t*)text - p);
+    return (int32_t)((uint8_t*)text - p);
 }
 
 /*!
- *  \brief  文字列をコピーする
+ * \brief   文字列をコピーする
  */
 void CoreString::copy(const char* text, int32_t len) throw(Exception)
 {
@@ -90,7 +90,7 @@ void CoreString::copy(const char* text, int32_t len) throw(Exception)
 }
 
 /*!
- *  \brief  文字列を追加する
+ * \brief   文字列を追加する
  */
 void CoreString::append(const char* text, int32_t len) throw(Exception)
 {
@@ -115,7 +115,7 @@ void CoreString::append(const char* text, int32_t len) throw(Exception)
 }
 
 /*!
- *  \brief  文字列を挿入する
+ * \brief   文字列を挿入する
  */
 void CoreString::insert(int32_t pos, const char* text, int32_t len) throw(Exception)
 {
@@ -151,7 +151,7 @@ void CoreString::insert(int32_t pos, const char* text, int32_t len) throw(Except
 }
 
 /*!
- * 最後の１文字を削除
+ * \brief   最後の１文字を削除
  */
 void CoreString::deleteLast()
 {
@@ -168,7 +168,7 @@ void CoreString::deleteLast()
 }
 
 /*!
- *  \brief  フォーマット
+ * \brief   フォーマット
  */
 void CoreString::format(const char* format, ...) throw(Exception)
 {
@@ -180,7 +180,7 @@ void CoreString::format(const char* format, ...) throw(Exception)
 }
 
 /*!
- *  \brief  フォーマット
+ * \brief   フォーマット
  */
 void CoreString::formatV(const char* format, va_list arg) throw(Exception)
 {
@@ -237,7 +237,7 @@ bool CoreString::equals(const char* text) const
 }
 
 /*!
- *  \brief  検索
+ * \brief   検索
  */
 int32_t CoreString::find(char c) const
 {
@@ -251,7 +251,7 @@ int32_t CoreString::find(char c) const
 }
 
 /*!
- *  \brief  前方検索
+ * \brief   前方検索
  */
 int32_t CoreString::indexOf(const char* find, int32_t index, int32_t count) const
 {
@@ -284,7 +284,7 @@ int32_t CoreString::indexOf(const char* find, int32_t index, int32_t count) cons
 }
 
 /*!
- *  \brief  後方検索
+ * \brief   後方検索
  */
 int32_t CoreString::lastIndexOf(const char* find, int32_t index) const
 {
@@ -308,7 +308,7 @@ int32_t CoreString::lastIndexOf(const char* find, int32_t index) const
 }
 
 /*!
- *  \brief  文字数を取得する
+ * \brief   文字数を取得する
  */
 int32_t CoreString::getCharacters() const
 {
@@ -325,7 +325,7 @@ int32_t CoreString::getCharacters() const
 }
 
 /*!
- * 次の文字へのバイト数を取得する
+ * \brief   次の文字へのバイト数を取得する
  */
 int32_t CoreString::getNextCharBytes(int32_t pos) const
 {
@@ -335,7 +335,7 @@ int32_t CoreString::getNextCharBytes(int32_t pos) const
 
 #if defined(_WINDOWS)
 /*!
- *  \brief  UTF-16LEをUTF-8に変換する
+ * \brief   UTF-16LEをUTF-8に変換する
  */
 void CoreString::conv(const wchar_t* text)
 {
@@ -357,7 +357,7 @@ UTF16LE::UTF16LE()
 }
 
 /*!
- *  \brief  UTF-8をUTF-16LEに変換する
+ * \brief   UTF-8をUTF-16LEに変換する
  */
 void UTF16LE::conv(const char* text)
 {
@@ -368,7 +368,7 @@ void UTF16LE::conv(const char* text)
 }
 
 /*!
- *  \brief  バッファを再確保する
+ * \brief   バッファを再確保する
  */
 void UTF16LE::realloc(int32_t chars)
 {
@@ -382,7 +382,7 @@ void UTF16LE::realloc(int32_t chars)
 #endif
 
 /*!
- *  \brief  文字列比較
+ * \brief   文字列比較
  */
 bool operator==(const CoreString& str1, const char* str2)
 {

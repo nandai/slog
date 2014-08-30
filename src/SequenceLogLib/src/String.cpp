@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   String.cpp
- *  \brief  可変長文字列クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    String.cpp
+ * \brief   可変長文字列クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #include "slog/String.h"
 #include <string.h>
@@ -26,7 +26,7 @@ namespace slog
 {
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 String::String(const char* text)
 {
@@ -34,7 +34,7 @@ String::String(const char* text)
 }
 
 /*!
- *  \brief  初期化
+ * \brief   初期化
  */
 void String::init(const char* text, int16_t len)
 {
@@ -46,7 +46,7 @@ void String::init(const char* text, int16_t len)
 }
 
 /*!
- *  \brief  バッファサイズ設定
+ * \brief   バッファサイズ設定
  */
 void String::setCapacity(int32_t capacity) throw(Exception)
 {
@@ -64,7 +64,7 @@ void String::setCapacity(int32_t capacity) throw(Exception)
 }
 
 /*!
- *  \brief  文字列比較
+ * \brief   文字列比較
  */
 bool operator<(const String& str1, const String& str2)
 {

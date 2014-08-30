@@ -51,7 +51,7 @@ public:     CreateResponseThread(WebServer* webServer, HttpRequest* httpRequest)
             /*!
              * デストラクタ
              */
-            virtual ~CreateResponseThread();
+            virtual ~CreateResponseThread() override;
 
             /*!
              * スレッド実行

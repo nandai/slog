@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   CoreString.h
- *  \brief  コア文字列クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    CoreString.h
+ * \brief   コア文字列クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -30,14 +30,23 @@ int32_t SLOG_API getNextCharBytes(const char* text);
 int32_t SLOG_API getPrevCharBytes(const char* text);
 
 /*!
- *  \brief  コア文字列クラス
+ * \brief   コア文字列クラス
  */
 class SLOG_API CoreString : public Buffer
 {
+            /*!
+             * コンストラクタ
+             */
 public:     CoreString() {}
 
-            // 代入
+            /*!
+             * 代入
+             */
 private:    const CoreString& operator=(const char*);
+
+            /*!
+             * 代入
+             */
 protected:  const CoreString& operator=(const CoreString& str)
             {
                 if (this != &str)
@@ -46,55 +55,109 @@ protected:  const CoreString& operator=(const CoreString& str)
                 return *this;
             }
 
-            // コピー
+            /*!
+             * コピー
+             */
 public:     void copy(const char* text, int32_t len = -1) throw(Exception);
+
+            /*!
+             * コピー
+             */
             void copy(const CoreString* str) throw(Exception)
             {
                 copy(str->getBuffer(), str->getLength());
             }
 
-            // 連結
+            /*!
+             * 連結
+             */
             void append(const char* text, int32_t len = -1) throw(Exception);
+
+            /*!
+             * 連結
+             */
             void append(const CoreString* str) throw(Exception) {append(str->getBuffer(), str->getLength());}
 
-            // 挿入
+            /*!
+             * 挿入
+             */
             void insert(int32_t pos, const char* text, int32_t len = -1) throw(Exception);
 
-            // 最後の１文字を削除
+            /*!
+             * 最後の１文字を削除
+             */
             void deleteLast();
 
-            // １文字取得
+            /*!
+             * １文字取得
+             */
             char at(int32_t index) const;
+
+            /*!
+             * １文字取得
+             */
             char operator[](int32_t index) const {return at(index);}
 
-            // 文字列長（バイト数）設定
-            virtual void setLength(int32_t len) throw(Exception);
+            /*!
+             * 文字列長（バイト数）設定
+             */
+            virtual void setLength(int32_t len) throw(Exception) override;
 
-            // フォーマット
+            /*!
+             * フォーマット
+             */
             void format( const char* format, ...) throw(Exception);
+
+            /*!
+             * フォーマット
+             */
             void formatV(const char* format, va_list arg) throw(Exception);
 
-            // 比較
+            /*!
+             * 比較
+             */
             bool equals(const CoreString* str) const;
+
+            /*!
+             * 比較
+             */
             bool equals(const char* text) const;
 
-            // 検索
+            /*!
+             * 検索
+             */
             int32_t find(char c) const;
-            int32_t indexOf(    const char* find, int32_t index = 0, int32_t count = -1) const;
+
+            /*!
+             * 検索
+             */
+            int32_t indexOf(const char* find, int32_t index = 0, int32_t count = -1) const;
+
+            /*!
+             * 検索
+             */
             int32_t lastIndexOf(const char* find, int32_t index = -1) const;
 
-            // 文字数取得
+            /*!
+             * 文字数取得
+             */
             int32_t getCharacters() const;
+
+            /*!
+             * 次の文字へのバイト数を取得する
+             */
             int32_t getNextCharBytes(int32_t pos) const;
 
 #if defined(_WINDOWS)
-            // UTF-16LEをUTF-8に変換する
+            /*!
+             * UTF-16LEをUTF-8に変換する
+             */
             void conv(const wchar_t* text);
 #endif
 };
 
 /*!
- *  \brief  指定位置の文字取得
+ * \brief   指定位置の文字取得
  */
 inline char CoreString::at(int index) const
 {
@@ -103,7 +166,7 @@ inline char CoreString::at(int index) const
 }
 
 /*!
- *  \brief  バッファ使用サイズ取得
+ * \brief   バッファ使用サイズ取得
  */
 inline void CoreString::setLength(int32_t len) throw(Exception)
 {
@@ -114,7 +177,7 @@ inline void CoreString::setLength(int32_t len) throw(Exception)
 }
 
 /*!
- *  \brief  文字列比較
+ * \brief   文字列比較
  */
 bool SLOG_API operator==(const CoreString& str1, const char* str2);
 
@@ -125,9 +188,13 @@ class SLOG_API UTF16LE
             int32_t     mChars;
 
             /*!
-             * コンストラクタ／デストラクタ
+             * コンストラクタ
              */
 public:      UTF16LE();
+
+             /*!
+             * デストラクタ
+             */
             ~UTF16LE()
             {
                 delete [] mBuffer;

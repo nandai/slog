@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   FixedString.h
- *  \brief  固定長文字列クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    FixedString.h
+ * \brief   固定長文字列クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 #include "slog/CoreString.h"
@@ -26,26 +26,54 @@ namespace slog
 {
 
 /*!
- *  \brief  固定長文字列クラス
+ * \brief   固定長文字列クラス
  */
 template <int i>
 class FixedString : public CoreString
 {
-            static const int CAPACITY = i;      //!< バッファサイズ
-            char    mBuffer[ CAPACITY + 1];     //!< バッファ
+            /*!
+             * バッファサイズ
+             */
+            static const int CAPACITY = i;
 
-private:    const FixedString& operator=(const char*);
-            const FixedString& operator=(const FixedString&);
+            /*!
+             * バッファ
+             */
+            char mBuffer[CAPACITY + 1];
 
+            /*!
+             * コンストラクタ
+             */
 public:     FixedString();
+
+            /*!
+             * コンストラクタ
+             */
             FixedString(const char* text);
 
-            virtual char*   getBuffer() const;
-            virtual int32_t getCapacity() const;
+            /*!
+             * 代入
+             */
+private:    const FixedString& operator=(const char*);
+
+            /*!
+             * 代入
+             */
+            const FixedString& operator=(const FixedString&);
+
+            /*!
+             * バッファアドレス取得
+             */
+public:     virtual char* getBuffer() const override;
+
+            /*!
+             * バッファサイズ取得
+             */
+            virtual int32_t getCapacity() const override;
 };
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 template <int i>
 inline FixedString<i>::FixedString()
@@ -54,7 +82,7 @@ inline FixedString<i>::FixedString()
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 template <int i>
 inline FixedString<i>::FixedString(const char* text)
@@ -63,7 +91,7 @@ inline FixedString<i>::FixedString(const char* text)
 }
 
 /*!
- *  \brief  バッファアドレス取得
+ * \brief   バッファアドレス取得
  */
 template <int i>
 char* FixedString<i>::getBuffer() const
@@ -72,7 +100,7 @@ char* FixedString<i>::getBuffer() const
 }
 
 /*!
- *  \brief  バッファサイズ取得
+ * \brief   バッファサイズ取得
  */
 template <int i>
 int32_t FixedString<i>::getCapacity() const

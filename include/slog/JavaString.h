@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   JavaString.h
  *  \brief  Java文字列クラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -28,19 +28,26 @@ namespace slog
 {
 
 /*!
- *  \brief  Java文字列クラス
+ * \brief   Java文字列クラス
  */
 class JavaString : public PointerString
 {
             JNIEnv* mEnv;
             jstring mStr;
 
+            /*!
+             * コンストラクタ
+             */
 public:     JavaString(JNIEnv* env, jstring str);
-            virtual ~JavaString();
+
+            /*!
+             * デストラクタ
+             */
+            virtual ~JavaString() override;
 };
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 inline JavaString::JavaString(JNIEnv* env, jstring str)
 {
@@ -52,7 +59,7 @@ inline JavaString::JavaString(JNIEnv* env, jstring str)
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 inline JavaString::~JavaString()
 {

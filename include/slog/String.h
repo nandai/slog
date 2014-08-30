@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   String.h
- *  \brief  可変長文字列クラス
- *  \author Copyright 2011-2013 printf.jp
+ * \file    String.h
+ * \brief   可変長文字列クラス
+ * \author  Copyright 2011-2014 printf.jp
  */
 #pragma once
 #include "slog/CoreString.h"
@@ -26,39 +26,80 @@ namespace slog
 {
 
 /*!
- *  \brief  可変長文字列クラス
+ * \brief   可変長文字列クラス
  */
 class SLOG_API String : public CoreString
 {
-            char*   mBuffer;    //!< バッファ
-            int32_t mCapacity;  //!< バッファ容量
+            /*!
+             * \brief   バッファ
+             */
+            char* mBuffer;
 
-private:    const String& operator=(const char*);
-//          const String& operator=(const String&);
+            /*!
+             * \brief   バッファ容量
+             */
+            int32_t mCapacity;
+
+            /*!
+             * 代入
+             */
+private:    const String& operator=(const char*) = delete;
+
+            /*!
+             * 代入
+             */
 public:     const String& operator=(const String&);
 
             /*!
-             * コンストラクタ／デストラクタ
+             * コンストラクタ
              */
 public:     String();
+
+            /*!
+             * コンストラクタ
+             */
             String(const String& str);
+
+            /*!
+             * コンストラクタ
+             */
             String(const char* text);
+
+            /*!
+             * コンストラクタ
+             */
             String(const char* text, int16_t len);
 
-            virtual ~String();
+            /*!
+             * デストラクタ
+             */
+            virtual ~String() override;
 
+            /*!
+             * 初期化
+             */
 private:    void init(const char* text, int16_t len);
 
-public:     virtual char* getBuffer() const;
+            /*!
+             * バッファアドレス取得
+             */
+public:     virtual char* getBuffer() const override;
 
-            virtual int32_t getCapacity() const;
-            virtual void setCapacity(int32_t capacity) throw(Exception);
+            /*!
+             * バッファサイズ取得
+             */
+            virtual int32_t getCapacity() const override;
+
+            /*!
+             * バッファサイズ設定
+             */
+            virtual void setCapacity(int32_t capacity) throw(Exception) override;
 };
 
 /*!
- *  \brief  代入
+ * \brief   代入
  *
- *  \note   std::map等で必要とされる場面があるためpublicで定義してある。基本的にはCoreString::copy()を使用すること。
+ * \note    std::map等で必要とされる場面があるためpublicで定義してある。基本的にはCoreString::copy()を使用すること。
  */
 inline const String& String::operator=(const String& str)
 {
@@ -75,7 +116,7 @@ inline const String& String::operator=(const String& str)
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 inline String::String()
 {
@@ -83,7 +124,7 @@ inline String::String()
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 inline String::String(const String& str) : CoreString(str)
 {
@@ -92,7 +133,7 @@ inline String::String(const String& str) : CoreString(str)
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 inline String::String(const char* text, int16_t len)
 {
@@ -109,7 +150,7 @@ inline String::String(const char* text, int16_t len)
 }
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 inline String::~String()
 {
@@ -117,7 +158,7 @@ inline String::~String()
 }
 
 /*!
- *  \brief  バッファ取得
+ * \brief   バッファ取得
  */
 inline char* String::getBuffer() const
 {
@@ -125,7 +166,7 @@ inline char* String::getBuffer() const
 }
 
 /*!
- *  \brief  バッファサイズ取得
+ * \brief   バッファサイズ取得
  */
 inline int32_t String::getCapacity() const
 {
@@ -133,7 +174,7 @@ inline int32_t String::getCapacity() const
 }
 
 /*!
- *  \brief  文字列比較
+ * \brief   文字列比較
  */
 bool operator<(const String& str1, const String& str2);
 

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2014 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   CSharpString.h
  *  \brief  C#文字列クラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2014 printf.jp
  */
 #pragma once
 
@@ -31,16 +31,23 @@ namespace slog
 {
 
 /*!
- *  \brief  C#文字列クラス
+ * \brief   C#文字列クラス
  */
 class CSharpString : public slog::String
 {
+            /*!
+             * コンストラクタ
+             */
 public:     CSharpString(System::String^ str);
-            virtual ~CSharpString();
+
+            /*!
+             * デストラクタ
+             */
+            virtual ~CSharpString() override;
 };
 
 /*!
- *  \brief  コンストラクタ
+ * \brief   コンストラクタ
  */
 inline CSharpString::CSharpString(System::String^ str)
 {
@@ -52,7 +59,7 @@ inline CSharpString::CSharpString(System::String^ str)
 }
 
 /*!
- *  \brief  デストラクタ
+ * \brief   デストラクタ
  */
 inline CSharpString::~CSharpString()
 {
