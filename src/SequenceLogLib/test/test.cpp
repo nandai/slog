@@ -334,6 +334,7 @@ const Resource::LanguageStringList R::mLanguageStringList[] =
 R::R(const CoreString* language) : Resource(language, mLanguageStringList, sizeof(mLanguageStringList) / sizeof(mLanguageStringList[0]))
 {
 }
+
 class ResourceTest : public Test
 {
             static const char* CLS_NAME;
@@ -403,6 +404,33 @@ void ResourceTest::test04()
 }
 
 /*!
+ * Stringテスト
+ */
+namespace slog
+{
+class StringTest : public Test
+{
+            static const char* CLS_NAME;
+
+public:     virtual void run() override;
+
+private:    void test01();
+};
+
+const char* StringTest::CLS_NAME = "StringTest";
+
+void StringTest::run()
+{
+    test01();
+}
+
+void StringTest::test01()
+{
+    SLOG(CLS_NAME, "test01");
+}
+}
+
+/*!
  * \brief   メイン
  */
 int main()
@@ -419,7 +447,8 @@ int main()
 //  testManager.add(new ConvertTest);
 //  testManager.add(new DateTimeTest);
 //  testManager.add(new JsonTest);
-    testManager.add(new ResourceTest);
+//  testManager.add(new ResourceTest);
+    testManager.add(new StringTest);
     testManager.run();
 
     return 0;

@@ -56,6 +56,20 @@ extern "C"
     /*!
      * \brief   ステップイン時のログ出力
      */
+    void* slog_stepIn(const wchar_t* className, const wchar_t* funcName)
+    {
+        slog::String _className;
+        slog::String _funcName;
+
+        _className.conv(className);
+        _funcName. conv(funcName);
+
+        return _slog_stepIn(_className.getBuffer(), _funcName.getBuffer());
+    }
+
+    /*!
+     * \brief   ステップイン時のログ出力
+     */
 //  void* _slog_stepIn2(uint32_t classID, const char* funcName)
 //  {
 //      slog::SequenceLog* slog = new slog::SequenceLog(classID, funcName);
@@ -72,12 +86,20 @@ extern "C"
 //  }
 
     /*!
-     *  \brief  ステップアウト時のログ出力
+     * \brief   ステップアウト時のログ出力
      */
     void _slog_stepOut(void* p)
     {
         slog::SequenceLog* slog = (slog::SequenceLog*)p;
         delete slog;
+    }
+
+    /*!
+     * \brief   ステップアウト時のログ出力
+     */
+    void slog_stepOut(void* p)
+    {
+        _slog_stepOut(p);
     }
 
     /*!
@@ -97,6 +119,16 @@ extern "C"
     /*!
      * \brief   メッセージ出力
      */
+    void slog_message(void* p, int32_t level, const wchar_t* message)
+    {
+        slog::String _message;
+        _message.conv(message);
+        _slog_message(p, level, _message.getBuffer());
+    }
+
+    /*!
+     * \brief   メッセージ出力
+     */
 //  void _slog_message2(void* p, int32_t level, uint32_t messageID)
 //  {
 //      slog::SequenceLog* slog = (slog::SequenceLog*)p;
@@ -110,6 +142,16 @@ extern "C"
     {
         slog::SequenceLog* slog = (slog::SequenceLog*)p;
         slog->assert(assertName, result);
+    }
+
+    /*!
+     * \brief   アサート
+     */
+    void  slog_assert(void* p, const wchar_t* assertName, bool result)
+    {
+        slog::String _assertName;
+        _assertName.conv(assertName);
+        _slog_assert(p, _assertName.getBuffer(), result);
     }
 }
 
@@ -837,4 +879,14 @@ extern "C" void loadSequenceLogConfig(const char* fileName)
     {
         noticeLog("%s", e.getMessage());
     }
+}
+
+/*!
+ * \brief   シーケンスログコンフィグを読み込む
+ */
+extern "C" void slog_loadConfig(const wchar_t* fileName)
+{
+    slog::String _fileName;
+    _fileName.conv(fileName);
+    loadSequenceLogConfig(_fileName.getBuffer());
 }

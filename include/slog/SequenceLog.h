@@ -105,15 +105,20 @@ extern "C" {
 typedef int32_t bool;
 #endif
 
-SLOG_API void* _slog_stepIn( const char* className, const char* funcName);
-//OG_API void* _slog_stepIn3(uint32_t    classID,   uint32_t    funcID);
+SLOG_API void* _slog_stepIn( const char*   className, const char*    funcName);
+SLOG_API void*  slog_stepIn(const wchar_t* className, const wchar_t* funcName);
+//OG_API void* _slog_stepIn3(uint32_t      classID,   uint32_t       funcID);
 SLOG_API void  _slog_stepOut( void* p);
+SLOG_API void   slog_stepOut( void* p);
 //OG_API void  _slog_message( void* p, SequenceLogLevel level, const char* format, ...);
 SLOG_API void  _slog_message( void* p, int32_t          level, const char* format, ...);
+SLOG_API void   slog_message( void* p, int32_t          level, const wchar_t* message);
 //OG_API void  _slog_message2(void* p, int32_t          level, uint32_t messageID);
-SLOG_API void  _slog_assert(  void* p, const char* assertName, bool result);
+SLOG_API void  _slog_assert(  void* p, const char*    assertName, bool result);
+SLOG_API void   slog_assert(  void* p, const wchar_t* assertName, bool result);
 
-SLOG_API void loadSequenceLogConfig(const char* fileName);
+SLOG_API void loadSequenceLogConfig(const char*    fileName);
+SLOG_API void slog_loadConfig(      const wchar_t* fileName);
 
 #if defined(JNI_TRUE)
 jint slog_JNI_OnLoad(JavaVM* vm, void* reserved);
