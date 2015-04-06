@@ -76,7 +76,7 @@ public:     File();
             int64_t read(Buffer* buffer, int64_t count) const throw(Exception);
             int64_t read(Buffer* buffer, int64_t position, int64_t count) const throw(Exception);
 
-//          void flush();
+            void flush();
 
             bool isEOF() const;
 

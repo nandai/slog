@@ -183,6 +183,11 @@ public:     virtual bool isOpen() const = 0;
             virtual void write(const char* buffer, int64_t count) = 0;
 
             /*!
+             * フラッシュ
+             */
+            virtual void flush() = 0;
+
+            /*!
              * ファイルポインタの現在位置設定
              */
             virtual void setPosition(int64_t pos) = 0;
@@ -238,6 +243,11 @@ public:     FileIO();
              * 書き込み
              */
             virtual void write(const char* buffer, int64_t count);
+
+            /*!
+             * フラッシュ
+             */
+            virtual void flush();
 
             /*!
              * ファイルポインタの現在位置設定
@@ -354,6 +364,21 @@ void File::FileIO::write(const char* buffer, int64_t count)
 }
 
 /*!
+ * \brief   フラッシュ
+ */
+void File::FileIO::flush()
+{
+    if (mHandle != nullptr)
+    {
+#if defined(_WINDOWS)
+        ::FlushFileBuffers(mHandle);
+#else
+        fflush(mHandle);
+#endif
+    }
+}
+
+/*!
  * \brief   ファイルポインタの現在位置設定
  */
 void File::FileIO::setPosition(int64_t pos)
@@ -446,6 +471,11 @@ public:     CacheIO(const ByteBuffer* buffer);
             virtual void write(const char* buffer, int64_t count);
 
             /*!
+             * フラッシュ
+             */
+            virtual void flush();
+
+            /*!
              * ファイルポインタの現在位置設定
              */
             virtual void setPosition(int64_t pos);
@@ -515,6 +545,13 @@ int64_t File::CacheIO::read(char* buffer, int64_t count)
 void File::CacheIO::write(const char* buffer, int64_t count)
 {
     noticeLog("*** File::CacheIO::write() not implement.");
+}
+
+/*!
+ * \brief   フラッシュ
+ */
+void File::CacheIO::flush()
+{
 }
 
 /*!
@@ -784,17 +821,13 @@ void File::unlink(const CoreString* fileName) throw(Exception)
     }
 }
 
-//void File::flush()
-//{
-//  if (mHandle != nullptr)
-//  {
-//#if defined(_WINDOWS)
-//      ::FlushFileBuffers(mHandle);
-//#else
-//      fflush(mHandle);
-//#endif
-//  }
-//}
+/*!
+ * \brief   フラッシュ
+ */
+void File::flush()
+{
+    mIO->flush();
+}
 
 /*!
  * \brief   
