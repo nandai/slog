@@ -58,6 +58,7 @@ extern "C"
      */
     void* slog_stepIn(const wchar_t* className, const wchar_t* funcName)
     {
+#if defined(_WINDOWS)
         slog::String _className;
         slog::String _funcName;
 
@@ -65,6 +66,9 @@ extern "C"
         _funcName. conv(funcName);
 
         return _slog_stepIn(_className.getBuffer(), _funcName.getBuffer());
+#else
+        return nullptr;
+#endif
     }
 
     /*!
@@ -121,9 +125,11 @@ extern "C"
      */
     void slog_message(void* p, int32_t level, const wchar_t* message)
     {
+#if defined(_WINDOWS)
         slog::String _message;
         _message.conv(message);
         _slog_message(p, level, _message.getBuffer());
+#endif
     }
 
     /*!
@@ -149,9 +155,11 @@ extern "C"
      */
     void  slog_assert(void* p, const wchar_t* assertName, bool result)
     {
+#if defined(_WINDOWS)
         slog::String _assertName;
         _assertName.conv(assertName);
         _slog_assert(p, _assertName.getBuffer(), result);
+#endif
     }
 }
 
@@ -886,7 +894,9 @@ extern "C" void loadSequenceLogConfig(const char* fileName)
  */
 extern "C" void slog_loadConfig(const wchar_t* fileName)
 {
+#if defined(_WINDOWS)
     slog::String _fileName;
     _fileName.conv(fileName);
     loadSequenceLogConfig(_fileName.getBuffer());
+#endif
 }
