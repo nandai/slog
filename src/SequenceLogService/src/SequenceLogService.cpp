@@ -246,6 +246,8 @@ bool SequenceLogService::init()
         // バッファ削除
         delete buffer;
 
+//      noticeLog("%s:%s", userName.getBuffer(), passwd.getBuffer());
+
         // アカウント存在チェック
         if (userName.getLength() == 0 && passwd.getLength() == 0)
         {

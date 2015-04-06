@@ -144,6 +144,11 @@ private:    Socket* mSocket;
             String mUserAgent;
 
             /*!
+             * Content-Type
+             */
+            String mContentType;
+
+            /*!
              * デフォルトリスナー
              */
             HttpRequestListener mDefaultListener;
@@ -262,6 +267,11 @@ public:     Socket* getSocket() const;
              * User-Agent取得
              */
             const CoreString* getUserAgent() const;
+
+            /*
+             * Content-Type取得
+             */
+            const CoreString* getContentType() const;
 
             /*!
              * リセット

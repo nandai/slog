@@ -273,6 +273,15 @@ bool HttpRequest::analizeRequest()
                 {
                     mUserAgent.copy(request + compareLen);
                 }
+
+                // Content-Type
+                compare = "Content-Type";
+                compareLen = (int32_t)strlen(compare);
+
+                if (strncmp(request, compare, compareLen) == 0)
+                {
+                    mContentType.copy(request + compareLen);
+                }
             }
         }
 
@@ -499,6 +508,14 @@ const CoreString* HttpRequest::getUserAgent() const
     return &mUserAgent;
 }
 
+/*
+ * Content-Type取得
+ */
+const CoreString* HttpRequest::getContentType() const
+{
+    return &mContentType;
+}
+
 /*!
  * \brief   リセット
  */
@@ -514,6 +531,7 @@ void HttpRequest::reset()
     mPassword.      setLength(0);
     mAcceptLanguage.setLength(0);
     mUserAgent.     setLength(0);
+    mContentType.   setLength(0);
 }
 
 } // namespace slog
