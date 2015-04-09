@@ -73,9 +73,9 @@ class SLOG_API Json : public JsonAbstract
             /*!
              * Jsonオブジェクト作成
              */
-public:     static Json* getNewObject()
+public:     static Json* getNewObject(const char* name = "")
             {
-                return new Json;
+                return new Json(name);
             }
 
             /*!

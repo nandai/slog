@@ -37,6 +37,7 @@ objs = \
 	Mutex.o \
 	PointerString.o \
 	Process.o \
+	Resource.o \
 	Session.o \
 	Socket.o \
 	String.o \
