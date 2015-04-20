@@ -457,7 +457,7 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
     if (payloadLen == 126)
     {
         socket->recv(&buffer, 2);
-        payloadLen = buffer.getShort();
+        payloadLen = (uint16_t)buffer.getShort();
     }
     else if (payloadLen == 127)
     {
