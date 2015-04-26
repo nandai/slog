@@ -95,7 +95,7 @@ static bool changeGroupAndUser(const CoreString& aGroup, const CoreString& user)
 #include "slog/DateTimeFormat.h"
 #include "slog/FileInfo.h"
 
-#define VERSION "ver.1.2.9"
+#define VERSION "ver.1.3.0"
 
 /*!
  *  \brief  アクセス可能なディレクトリかどうか
@@ -387,6 +387,11 @@ static void onSignal(int sig)
  */
 int main(int argc, char** argv)
 {
+#if !defined(_WINDOWS)
+    if (daemon(0, 0) != 0)
+        return 0;
+#endif
+
     noticeLog("SequenceLogService " VERSION " is starting");
 
     loadSequenceLogConfig("~/SequenceLogService.log.config");
