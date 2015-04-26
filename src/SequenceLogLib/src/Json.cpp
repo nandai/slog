@@ -211,8 +211,11 @@ void Json::serialize(CoreString* content) const
     content->setLength(0);
     serializeChild(content);
 
-    if (content->getLength() == 0)
+//  if (content->getLength() == 0)
+    if (content->equals("[]"))
+    {
         content->copy("{}");
+    }
 }
 
 /*!
@@ -224,8 +227,8 @@ void Json::serialize(CoreString* content) const
  */
 void Json::serializeChild(CoreString* content) const
 {
-    if (mList.size() == 0)
-        return;
+//  if (mList.size() == 0)
+//      return;
 
     String work;
 

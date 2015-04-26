@@ -255,6 +255,7 @@ public:     virtual void run() override;
 
 private:    void test01();
             void test02();
+            void test03();
 };
 
 const char* JsonTest::CLS_NAME = "JsonTest";
@@ -263,6 +264,7 @@ void JsonTest::run()
 {
     test01();
     test02();
+    test03();
 }
 
 void JsonTest::test01()
@@ -274,10 +276,12 @@ void JsonTest::test01()
 
     json1->serialize(&str);
     SMSG(slog::DEBUG, "%s", str.getBuffer());
+    SASSERT("01", str.equals("{}"));
 
     json1->add("name", "printf");
     json1->serialize(&str);
     SMSG(slog::DEBUG, "%s", str.getBuffer());
+    SASSERT("02", str.equals("{\"name\":\"printf\"}"));
 
     delete json1;
 }
@@ -301,6 +305,29 @@ void JsonTest::test02()
 
     json1->serialize(&str);
     SMSG(slog::DEBUG, "%s", str.getBuffer());
+    SASSERT("01", str.equals(
+        "["
+            "{\"addr\":\"Tokyo\",\"tel\":\"03\"},"
+            "{\"addr\":\"Osaka\",\"tel\":\"06\"}"
+        "]"));
+
+    delete json1;
+}
+
+void JsonTest::test03()
+{
+    SLOG(CLS_NAME, "test03");
+    String str;
+
+    Json* json1 = Json::getNewObject();
+    Json* json2 = Json::getNewObject("messages");
+
+    json1->add(json2);
+    json1->add("kind", "0003");
+
+    json1->serialize(&str);
+    SMSG(slog::DEBUG, "%s", str.getBuffer());
+    SASSERT("01", str.equals("{\"messages\":[],\"kind\":\"0003\"}"));
 
     delete json1;
 }
@@ -400,7 +427,6 @@ void ResourceTest::test04()
     PointerString str = r.string(R::greetings);
     SASSERT("01", str.equals("How do you do"));
 }
-
 }
 
 /*!
@@ -446,9 +472,9 @@ int main()
     TestManager testManager;
 //  testManager.add(new ConvertTest);
 //  testManager.add(new DateTimeTest);
-//  testManager.add(new JsonTest);
+    testManager.add(new JsonTest);
 //  testManager.add(new ResourceTest);
-    testManager.add(new StringTest);
+//  testManager.add(new StringTest);
     testManager.run();
 
     return 0;
