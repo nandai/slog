@@ -269,6 +269,9 @@ void GetLogResponse::onUpdateLog(const Buffer* text, int32_t userId)
  */
 void GetLogResponse::send(const char* commandNo, const Buffer* payloadData)
 {
+    SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+    ScopedLock lock(serviceMain->getMutex());
+
     uint32_t payloadDataLen = payloadData->getLength();
     uint32_t commandNoLen = (uint32_t)strlen(commandNo);
     int32_t totalLen = commandNoLen + payloadDataLen;
