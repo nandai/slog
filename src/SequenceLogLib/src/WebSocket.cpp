@@ -529,6 +529,9 @@ ByteBuffer* WebSocket::recv(Socket* socket, ByteBuffer* dataBuffer) throw(Except
         dataBuffer = nullptr;
     }
 
+    if (opcode == OPE_CLOSE)
+        socket->close();
+
     return dataBuffer;
 }
 
