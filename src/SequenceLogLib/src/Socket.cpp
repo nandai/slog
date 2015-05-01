@@ -156,6 +156,9 @@ void Socket::open(bool inet, int type) throw(Exception)
  */
 int Socket::close()
 {
+    if (mSocket == -1)
+        return 0;
+
     if (mData->mSSL)
     {
         SSL_shutdown(mData->mSSL);
@@ -166,18 +169,6 @@ int Socket::close()
         mData->mSSL = nullptr;
     }
 
-#if defined(MODERN_UI)
-    if (mSocket == nullptr)
-        return 0;
-
-    int result = 0;
-
-    delete mSocket;
-    mSocket = nullptr;
-#else
-    if (mSocket == -1)
-        return 0;
-
 //  Thread::sleep(1000);
 
 #if defined(_WINDOWS)
@@ -187,9 +178,8 @@ int Socket::close()
 #endif
 
     mSocket = -1;
-#endif
-
     mConnect = false;
+
     return result;
 }
 
@@ -881,14 +871,31 @@ void Socket::recv(
     }
 #endif
 
-    if (result <= 0)
+    if (result == 0)
     {
+        // 接続先から切断された
         Exception e;
+        e.setMessage("Socket::recv(%d) retval 0", len);
 
-        e.setMessage(result == -1
-            ? "Socket::recv(%d)"                // エラー発生
-            : "Socket::recv(%d) retval 0",      // 接続先から切断された
-            len);
+        throw e;
+    }
+
+    if (result < 0)
+    {
+        // エラー発生
+#if defined(_WINDOWS)
+        if (GetLastError() == WSAETIMEDOUT)
+#else
+        if (errno == ETIMEDOUT)
+#endif
+        {
+            // タイムアウト後にclose()すると落ちるので、その対応
+            ((Socket*)this)->mSocket = -1;
+            ((Socket*)this)->mConnect = false;
+        }
+
+        Exception e;
+        e.setMessage("Socket::recv(%d)", len);
 
         throw e;
     }
@@ -959,6 +966,14 @@ bool Socket::isReceiveData(int32_t timeoutMS)
     const
     throw(Exception)
 {
+    Exception e;
+
+    if (mSocket == -1)
+    {
+        e.setMessage("Socket::isReceiveData()");
+        throw e;
+    }
+
     timeval timeout =
     {
          timeoutMS / 1000,
@@ -977,9 +992,7 @@ bool Socket::isReceiveData(int32_t timeoutMS)
 
     if (n < 0)
     {
-        Exception e;
         e.setMessage("Socket::isReceiveData()");
-
         throw e;
     }
 
