@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Process.h
  *  \brief  プロセスクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2015 printf.jp
  */
 #pragma once
 #include "slog/slog.h"
@@ -31,21 +31,46 @@ namespace slog
 class SLOG_API Process
 {
 #if defined(_WINDOWS)
-            int64_t     mHandle;                                //!< プロセスハンドル
+            /*!
+             * \brief   プロセスハンドル
+             */
+            int64_t mHandle;
 #else
-            char        mHandle[sizeof("/proc/-2147483648")];   //!< プロセスハンドル
+            /*!
+             * \brief   プロセスハンドル
+             */
+            char mHandle[sizeof("/proc/-2147483648")];
 #endif
-            uint32_t    mId;                                    //!< プロセスID
 
+            /*!
+             * \brief   プロセスID
+             */
+            uint32_t mId;
+
+            /*!
+             * コンストラクタ
+             */
 public:      Process();
+
+            /*!
+             * デストラクタ
+             */
             ~Process();
 
+            /*!
+             * プロセスID取得
+             */
             uint32_t getId() const;
 
-#if !defined(MODERN_UI)
+            /*!
+             * プロセスID設定
+             */
             void setId(uint32_t id);
+
+            /*!
+             * 生存確認
+             */
             bool isAlive() const;
-#endif
 };
 
 } // namespace slog

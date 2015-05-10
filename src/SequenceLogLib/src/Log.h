@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,12 @@
 /*!
  * \file    Log.h
  * \brief   シーケンスログ（C#）
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #pragma once
 
-#if !defined(MODERN_UI)
 using namespace System;
 #define sealed
-#else
-using namespace Platform;
-#endif
 
 /*!
  * \brief   Sequence Log (C#)

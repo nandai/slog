@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    HttpRequest.cpp
  * \brief   httpリクエストクラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #include "slog/HttpRequest.h"
 #include "slog/Socket.h"
@@ -237,7 +237,7 @@ bool HttpRequest::analizeRequest()
                     String basicAuth;
                     Util::decodeBase64(&basicAuth, request + compareLen);
 
-                    int32_t pos =   basicAuth.find(':');
+                    int32_t pos =   basicAuth.indexOf(':');
                     const char* p = basicAuth.getBuffer();
 
                     if (pos != -1)

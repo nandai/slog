@@ -24,9 +24,7 @@
 #include "slog/Exception.h"
 
 #if defined(_WINDOWS)
-    #if !defined(MODERN_UI)
-        #pragma comment(lib, "ws2_32.lib")
-    #endif
+    #pragma comment(lib, "ws2_32.lib")
 #endif
 
 namespace slog
@@ -44,46 +42,39 @@ public:     static const int STREAM;
 private:    struct Data;
 
 #if defined(_WINDOWS)
-    #if defined(MODERN_UI)
-            #define SOCK_STREAM 1
-            Windows::Networking::Sockets::StreamSocket^     mSocket;
-            Windows::Storage::Streams::DataWriter^          mWriter;
-            Windows::Storage::Streams::DataReader^          mReader;
-    #else
             /*!
-             * ソケット
+             * \brief   ソケット
              */
             int64_t mSocket;
-    #endif
 #else
             /*!
-             * ソケット
+             * \brief   ソケット
              */
             int mSocket;
 #endif
 
             /*!
-             * 内部データ
+             * \brief   内部データ
              */
             Data* mData;
 
             /*!
-             * true:AF_INET、false:AF_UNIX
+             * \brief   true:AF_INET、false:AF_UNIX
              */
             bool mInet;
 
             /*!
-             * true:SOCK_STREAM, false:SOCK_DGRAM
+             * \brief   true:SOCK_STREAM, false:SOCK_DGRAM
              */
             bool mStream;
 
             /*!
-             * 数値用送受信バッファ
+             * \brief   数値用送受信バッファ
              */
             ByteBuffer* mBuffer;
 
             /*!
-             * 接続しているかどうか
+             * \brief   接続しているかどうか
              */
             bool mConnect;
 

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    CoreString.h
  * \brief   コア文字列クラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #pragma once
 
@@ -124,14 +124,19 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             bool equals(const char* text) const;
 
             /*!
-             * 検索
+             * 比較
              */
-            int32_t find(char c) const;
+            int32_t compareTo(const CoreString* str) const;
 
             /*!
              * 検索
              */
-            int32_t indexOf(const char* find, int32_t index = 0, int32_t count = -1) const;
+            int32_t indexOf(char c) const;
+
+            /*!
+             * 検索
+             */
+            int32_t indexOf(const char* find, int32_t startIndex = 0, int32_t count = -1) const;
 
             /*!
              * 検索
@@ -157,7 +162,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
 };
 
 /*!
- * \brief   指定位置の文字取得
+ * \brief   １文字取得
  */
 inline char CoreString::at(int index) const
 {
@@ -166,7 +171,7 @@ inline char CoreString::at(int index) const
 }
 
 /*!
- * \brief   バッファ使用サイズ取得
+ * \brief   文字列長（バイト数）設定
  */
 inline void CoreString::setLength(int32_t len) throw(Exception)
 {

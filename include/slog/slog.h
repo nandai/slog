@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   slog.h
  *  \brief  シーケンスログネームスペース
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2015 printf.jp
  */
 #pragma once
 
@@ -31,10 +31,6 @@
     #undef  _WINDOWS
     #define _WINDOWS
 
-    #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == 0x00000002/*WINAPI_PARTITION_APP*/)
-        #define MODERN_UI
-    #endif
-
     #if defined(SLOG_EXPORTS)
         #define SLOG_API __declspec(dllexport)
     #else
@@ -43,13 +39,11 @@
 
 //  #if !defined(_WINDLL)
     #if !defined(SLOG_EXPORTS)
-        #if defined(MODERN_UI)
-            #pragma comment(lib, "Slog.lib")
 //      #elif defined(_DEBUG)
 //          #pragma comment(lib, "slogd.lib")
-        #else
+//      #else
             #pragma comment(lib, "slog.lib")
-        #endif
+//      #endif
     #endif
 
 //  #pragma comment(lib, "winmm.lib")

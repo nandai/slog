@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    Thread.cpp
  * \brief   スレッドクラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #include "slog/Thread.h"
 
@@ -57,9 +57,7 @@ Thread::~Thread()
 void Thread::start()
 {
 #if defined(_WINDOWS)
-    #if !defined(MODERN_UI)
     mHandle = (int64_t)_beginthreadex(nullptr, 0, main, this, 0, nullptr);
-    #endif
 #else
     pthread_create(&mHandle, 0/*nullptr*/, main, this);
 #endif
@@ -74,12 +72,10 @@ void Thread::start()
 void Thread::join()
 {
 #if defined(_WINDOWS)
-    #if !defined(MODERN_UI)
     HANDLE handle = (HANDLE)mHandle;
 
     WaitForSingleObject(handle, INFINITE);
     CloseHandle(handle);
-    #endif
 #else
     pthread_join(mHandle, 0/*nullptr*/);
 #endif
@@ -160,9 +156,7 @@ void* Thread::main(void* param)
     }
 
 #if defined(_WINDOWS)
-    #if !defined(MODERN_UI)
     _endthreadex(0);
-    #endif
 #else
     pthread_exit(0);
 #endif

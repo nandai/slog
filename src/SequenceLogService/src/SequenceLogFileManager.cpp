@@ -57,9 +57,7 @@ struct CompareFileInfo
         if (value1 > value2)
             return false;
 
-        int32_t result = strcmp(
-            info1->getCanonicalPath()->getBuffer(),
-            info2->getCanonicalPath()->getBuffer());
+        int32_t result = info1->getCanonicalPath()->compareTo(info2->getCanonicalPath());
 
         if (result < 0)
             return true;

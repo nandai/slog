@@ -36,31 +36,6 @@
     #include <netdb.h>
 #endif
 
-#if defined(MODERN_UI)
-    #include <ppltasks.h>
-    using namespace Concurrency;
-    using namespace Windows::Foundation;
-    using namespace Windows::Storage::Streams;
-    using namespace Windows::Networking;
-    using namespace Windows::Networking::Sockets;
-
-    inline int waitForSocket(IAsyncInfo^ asyncInfo)
-    {
-        int result = 0;
-
-        while (
-            asyncInfo->Status != AsyncStatus::Completed &&
-            asyncInfo->Status != AsyncStatus::Error)
-        {
-        }
-
-        if (asyncInfo->Status != AsyncStatus::Completed)
-            result = -1;
-
-        return result;
-    }
-#endif
-
 namespace slog
 {
 const int Socket::STREAM = SOCK_STREAM;
@@ -85,12 +60,7 @@ Socket::Socket()
 
     mData->mCTX = nullptr;
     mData->mSSL = nullptr;
-
-#if defined(MODERN_UI)
-    mSocket = nullptr;
-#else
     mSocket = -1;
-#endif
 
     mInet = true;
     mStream = true;
@@ -119,10 +89,6 @@ Socket::~Socket()
  */
 void Socket::open(bool inet, int type) throw(Exception)
 {
-#if defined(MODERN_UI)
-    mStream = (type == SOCK_STREAM);
-    mSocket = ref new Windows::Networking::Sockets::StreamSocket();
-#else
     int af = AF_INET;
 
 #if defined(__ANDROID__)
@@ -143,7 +109,6 @@ void Socket::open(bool inet, int type) throw(Exception)
 
         throw e;
     }
-#endif
 }
 
 /*!
@@ -192,8 +157,6 @@ int Socket::close()
  */
 void Socket::bind(unsigned short port) throw(Exception)
 {
-#if defined(MODERN_UI)
-#else
     sockaddr_in* addr = &mData->mAddr;
 
     addr->sin_family = AF_INET;
@@ -214,7 +177,6 @@ void Socket::bind(unsigned short port) throw(Exception)
 
         throw e;
     }
-#endif
 }
 
 #if defined(__ANDROID__)
@@ -254,8 +216,6 @@ void Socket::bind(const CoreString& path)
  */
 void Socket::listen(int backlog) const throw(Exception)
 {
-#if defined(MODERN_UI)
-#else
 #if defined(_WINDOWS)
     int result = ::listen((SOCKET)mSocket, backlog);
 #else
@@ -269,7 +229,6 @@ void Socket::listen(int backlog) const throw(Exception)
 
         throw e;
     }
-#endif
 }
 
 /*!
@@ -281,8 +240,6 @@ void Socket::listen(int backlog) const throw(Exception)
  */
 void Socket::accept(const Socket* servSocket) throw(Exception)
 {
-#if defined(MODERN_UI)
-#else
     if (mInet)
     {
         sockaddr_in* addr = &mData->mAddr;
@@ -306,7 +263,6 @@ void Socket::accept(const Socket* servSocket) throw(Exception)
 
     if (mSocket == -1)
         throw Exception();
-#endif
 }
 
 /*!
@@ -323,18 +279,6 @@ void Socket::connect(const CoreString* ipAddress, unsigned short port)
 {
     int result = 0;
 
-#if defined(MODERN_UI)
-    UTF16LE utf16le;
-    utf16le.conv(ipAddress);
-
-    Platform::String^ strIp = ref new Platform::String(utf16le.getBuffer());
-    HostName^ hostName = ref new HostName(strIp);
-
-    IAsyncAction^ action =
-        mSocket->ConnectAsync(hostName, port.ToString(), Windows::Networking::Sockets::SocketProtectionLevel::PlainSocket);
-
-    result = waitForSocket(action);
-#else
     hostent* host = gethostbyname(ipAddress->getBuffer());
     sockaddr_in* addr = &mData->mAddr;
 
@@ -364,7 +308,6 @@ void Socket::connect(const CoreString* ipAddress, unsigned short port)
         result = ::connect(        mSocket, (sockaddr*)addr, sizeof(*addr));
 #endif
     }
-#endif
 
     if (result != 0)
     {
@@ -520,11 +463,7 @@ void Socket::useSSL()
  */
 bool Socket::isOpen() const
 {
-#if defined(MODERN_UI)
-    return (mSocket != nullptr);
-#else
     return (mSocket != -1);
-#endif
 }
 
 /*!
@@ -546,9 +485,6 @@ bool Socket::isConnect() const
  */
 int Socket::setReUseAddress(bool reUse)
 {
-#if defined(MODERN_UI)
-    return 0;
-#else
     int on = (reUse ? 1 : 0);   // アドレス再利用有効化（bind()のtime waitによるEADDRINUSE回避のため）
 
 #if defined(_WINDOWS)
@@ -558,7 +494,6 @@ int Socket::setReUseAddress(bool reUse)
 #endif
 
     return result;
-#endif
 }
 
 /*!
@@ -570,9 +505,6 @@ int Socket::setReUseAddress(bool reUse)
  */
 int Socket::setRecvTimeOut(int32_t msec)
 {
-#if defined(MODERN_UI)
-    return 0;
-#else
     timeval tm;
     tm.tv_sec = msec;
     tm.tv_usec = 0;
@@ -584,7 +516,6 @@ int Socket::setRecvTimeOut(int32_t msec)
 #endif
 
     return result;
-#endif
 }
 
 /*!
@@ -596,9 +527,6 @@ int Socket::setRecvTimeOut(int32_t msec)
  */
 int Socket::setNoDelay(bool noDelay)
 {
-#if defined(MODERN_UI)
-    return 0;
-#else
     int on = (noDelay ? 1 : 0);
 
 #if defined(_WINDOWS)
@@ -608,7 +536,6 @@ int Socket::setNoDelay(bool noDelay)
 #endif
 
     return result;
-#endif
 }
 
 /*!
@@ -638,13 +565,10 @@ const CoreString* Socket::getInetAddress() const
 {
     CoreString* inetAddress = &mData->mInetAddress;
 
-#if defined(MODERN_UI)
-#else
     if (isOpen() == false)
         inetAddress->setLength(0);
     else
         inetAddress->copy(inet_ntoa(mData->mAddr.sin_addr));
-#endif
 
     return inetAddress;
 }
@@ -723,19 +647,6 @@ void Socket::send(
     int32_t loopCount = 0;  // デバッグ用（条件付きブレークポイントで使用）
     int32_t result = 0;
 
-#if defined(MODERN_UI)
-    if (mWriter == nullptr)
-    {
-        ((Windows::Storage::Streams::DataWriter^)mWriter) =
-            ref new Windows::Storage::Streams::DataWriter(mSocket->OutputStream);
-    }
-
-    Platform::Array<unsigned char>^ arr = ref new Platform::Array<unsigned char>((unsigned char*)p, remains);
-    mWriter->WriteBytes(arr);
-
-    DataWriterStoreOperation^ ope = mWriter->StoreAsync();
-    result = waitForSocket(ope);
-#else
     while (remains)
     {
     #if defined(_WINDOWS)
@@ -771,7 +682,6 @@ void Socket::send(
 
         loopCount++;
     }
-#endif // MODERN_UI
 
     if (result == -1)
     {
@@ -826,26 +736,6 @@ void Socket::recv(
     int32_t loopCount = 0;  // デバッグ用（条件付きブレークポイントで使用）
     int32_t result = 0;
 
-#if defined(MODERN_UI)
-    if (mReader == nullptr)
-    {
-        ((Windows::Storage::Streams::DataReader^)mReader) =
-            ref new Windows::Storage::Streams::DataReader(mSocket->InputStream);
-    }
-
-    Platform::Array<unsigned char>^ arr = ref new Platform::Array<unsigned char>(remains);
-    DataReaderLoadOperation^ ope = mReader->LoadAsync(len);
-
-    if (waitForSocket(ope) == 0)
-    {
-        mReader->ReadBytes(arr);
-        result = len;
-
-        char* src = (char*)arr->begin();
-        for (int i = 0; i < len; i++)
-            p[i] = src[i];
-    }
-#else
     while (remains > 0)
     {
         if (mData->mSSL)
@@ -869,7 +759,6 @@ void Socket::recv(
 
         loopCount++;
     }
-#endif
 
     if (result == 0)
     {
@@ -1004,7 +893,7 @@ bool Socket::isReceiveData(int32_t timeoutMS)
  */
 void Socket::startup()
 {
-#if defined(_WINDOWS) && !defined(MODERN_UI)
+#if defined(_WINDOWS)
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2,0), &wsaData);
 #endif
@@ -1019,7 +908,7 @@ void Socket::startup()
  */
 void Socket::cleanup()
 {
-#if defined(_WINDOWS) && !defined(MODERN_UI)
+#if defined(_WINDOWS)
     WSACleanup();
 #endif
 }

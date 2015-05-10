@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    CoreString.cpp
  * \brief   コア文字列クラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #include "slog/CoreString.h"
 #include "slog/Util.h"
@@ -237,9 +237,17 @@ bool CoreString::equals(const char* text) const
 }
 
 /*!
+ * \brief   比較
+ */
+int32_t CoreString::compareTo(const CoreString* str) const
+{
+    return strcmp(getBuffer(), str->getBuffer());
+}
+
+/*!
  * \brief   検索
  */
-int32_t CoreString::find(char c) const
+int32_t CoreString::indexOf(char c) const
 {
     const char* buffer = getBuffer();
     const char* p = strchr(buffer, c);
@@ -252,23 +260,32 @@ int32_t CoreString::find(char c) const
 
 /*!
  * \brief   前方検索
+ *
+ * \param[in]   find        検索文字列
+ * \param[in]   startIndex  検索開始位置
+ * \param[in]   count       検索開始位置から何バイト目まで検索するか
+ *
+ * \return  見つかった場合は先頭からのインデックス（バイト数単位）、見つからなかった場合は-1を返す
  */
-int32_t CoreString::indexOf(const char* find, int32_t index, int32_t count) const
+int32_t CoreString::indexOf(const char* find, int32_t startIndex, int32_t count) const
 {
     int32_t findLen = (int32_t)strlen(find);
     int32_t len = getLength();
 
     if (count == -1)
-        count = len - index;
+        count = len - startIndex;
 
     if (count < findLen)
+    {
+        // 検索文字列のほうが長い場合は一致しない
         return -1;
+    }
 
-    if (index < 0 || len < index + count)
+    if (startIndex < 0 || len < startIndex + count)
         return -1;
 
     const char* buffer = getBuffer();
-    const char* p1 = buffer + index;
+    const char* p1 = buffer + startIndex;
     const char* p2 = p1 + (count - findLen);
 
     do
@@ -285,6 +302,11 @@ int32_t CoreString::indexOf(const char* find, int32_t index, int32_t count) cons
 
 /*!
  * \brief   後方検索
+ *
+ * \param[in]   find    検索文字列
+ * \param[in]   index   検索開始位置
+ *
+ * \return  見つかった場合は先頭からのインデックス（バイト数単位）、見つからなかった場合は-1を返す
  */
 int32_t CoreString::lastIndexOf(const char* find, int32_t index) const
 {
@@ -386,7 +408,7 @@ void UTF16LE::realloc(int32_t chars)
  */
 bool operator==(const CoreString& str1, const char* str2)
 {
-    return (strcmp(str1.getBuffer(), str2) == 0);
+    return str1.equals(str2);
 }
 
 } // namespace slog

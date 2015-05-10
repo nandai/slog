@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Process.cpp
  *  \brief  プロセスクラス
- *  \author Copyright 2011-2013 printf.jp
+ *  \author Copyright 2011-2015 printf.jp
  */
 #include "slog/Process.h"
 
@@ -70,7 +70,6 @@ uint32_t Process::getId() const
     return mId;
 }
 
-#if !defined(MODERN_UI)
 /*!
  *  \brief  プロセスID設定
  */
@@ -100,6 +99,5 @@ bool Process::isAlive() const
     return (stat(mHandle, &buf) == 0);
 #endif
 }
-#endif // !defined(MODERN_UI)
 
 } // namespace slog

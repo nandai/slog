@@ -68,7 +68,7 @@ void String::setCapacity(int32_t capacity) throw(Exception)
  */
 bool operator<(const String& str1, const String& str2)
 {
-    return (strcmp(str1.getBuffer(), str2.getBuffer()) < 0);
+    return (str1.compareTo(&str2) < 0);
 }
 
 } // namespace slog

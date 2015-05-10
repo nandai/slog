@@ -5,6 +5,7 @@
 #include "slog/Json.h"
 #include "slog/Resource.h"
 #include "slog/PointerString.h"
+#include "slog/FixedString.h"
 #include "slog/SequenceLog.h"
 
 #include <vector>
@@ -441,6 +442,7 @@ class StringTest : public Test
 public:     virtual void run() override;
 
 private:    void test01();
+            void test02();
 };
 
 const char* StringTest::CLS_NAME = "StringTest";
@@ -448,11 +450,48 @@ const char* StringTest::CLS_NAME = "StringTest";
 void StringTest::run()
 {
     test01();
+    test02();
 }
 
 void StringTest::test01()
 {
     SLOG(CLS_NAME, "test01");
+
+    String str = "aabc";
+    int32_t res;
+
+    res = str.indexOf("b");
+    SASSERT("01", (res == 2));
+
+    res = str.indexOf("abc");
+    SASSERT("02", (res == 1));
+}
+
+void StringTest::test02()
+{
+    SLOG(CLS_NAME, "test02");
+
+    String str1 = "12345";
+    SASSERT("01", (str1.getCapacity() == 5));
+
+    str1.copy("1234567890");
+    SASSERT("02", (str1.getCapacity() == 10));
+
+    FixedString<10> str2 = "12345";
+    SASSERT("03", (str1.getCapacity() == 10));
+
+    str2.copy("1234567890");
+    SASSERT("04", (str1.getCapacity() == 10));
+
+    try
+    {
+        str2.copy("1234567890a");
+        SASSERT("05", false);
+    }
+    catch (Exception e)
+    {
+        SASSERT("05", true);
+    }
 }
 }
 
@@ -472,9 +511,9 @@ int main()
     TestManager testManager;
 //  testManager.add(new ConvertTest);
 //  testManager.add(new DateTimeTest);
-    testManager.add(new JsonTest);
+//  testManager.add(new JsonTest);
 //  testManager.add(new ResourceTest);
-//  testManager.add(new StringTest);
+    testManager.add(new StringTest);
     testManager.run();
 
     return 0;
