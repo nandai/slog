@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    Socket.cpp
  * \brief   ソケットクラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
@@ -884,9 +884,9 @@ void Socket::recv(
     {
         // エラー発生
 #if defined(_WINDOWS)
-        if (GetLastError() == WSAETIMEDOUT)
+        if (GetLastError() == WSAETIMEDOUT || GetLastError() == WSAECONNRESET)
 #else
-        if (errno == ETIMEDOUT)
+        if (errno == ETIMEDOUT || errno == ECONNRESET)
 #endif
         {
             // タイムアウト後にclose()すると落ちるので、その対応
