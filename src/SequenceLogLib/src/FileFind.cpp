@@ -116,7 +116,7 @@ void FileFind::exec(const CoreString* fileName) const
     searchFileName++;
 
     // 拡張子取得
-    char* ext = String::Find(searchFileName, '.');
+    char* ext = (char*)String::Find(searchFileName, '.');
 
     if (ext == nullptr)
         return;
@@ -139,7 +139,7 @@ void FileFind::exec(const CoreString* fileName) const
 
         if (any == false)
         {
-            char* entExt = String::Find(ent->d_name, '.');
+            char* entExt = (char*)String::Find(ent->d_name, '.');
 
             if (entExt == nullptr)
                 continue;
