@@ -359,20 +359,6 @@ int32_t CoreString::getNextCharBytes(int32_t pos) const
     return slog::getNextCharBytes(text + pos);
 }
 
-#if defined(_WINDOWS)
-/*!
- * \brief   UTF-16LEをUTF-8に変換する
- */
-void CoreString::conv(const wchar_t* text)
-{
-    int32_t len = Util::toUTF8(nullptr, 0, text);
-
-    setCapacity(len);
-    Util::toUTF8(getBuffer(), len + 1, text);
-
-    setLength(len);
-}
-
 /*!
  * \brief   文字列長取得
  */
@@ -400,6 +386,20 @@ int32_t CoreString::CompareTo(const char* cmp1, const char* cmp2, int32_t count)
 const char* CoreString::Find(const char* text, char c)
 {
     return strchr(text, c);
+}
+
+#if defined(_WINDOWS)
+/*!
+ * \brief   UTF-16LEをUTF-8に変換する
+ */
+void CoreString::conv(const wchar_t* text)
+{
+    int32_t len = Util::toUTF8(nullptr, 0, text);
+
+    setCapacity(len);
+    Util::toUTF8(getBuffer(), len + 1, text);
+
+    setLength(len);
 }
 
 /*!

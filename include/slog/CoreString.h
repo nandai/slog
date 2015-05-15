@@ -153,13 +153,6 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
              */
             int32_t getNextCharBytes(int32_t pos) const;
 
-#if defined(_WINDOWS)
-            /*!
-             * UTF-16LEをUTF-8に変換する
-             */
-            void conv(const wchar_t* text);
-#endif
-
             /*!
              * 文字列長取得
              */
@@ -174,6 +167,13 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
              * 検索
              */
             static const char* Find(const char* text, char c);
+
+#if defined(_WINDOWS)
+            /*!
+             * UTF-16LEをUTF-8に変換する
+             */
+            void conv(const wchar_t* text);
+#endif
 };
 
 /*!
