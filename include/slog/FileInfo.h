@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    FileInfo.h
  * \brief   ファイル情報クラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #pragma once
 
@@ -36,27 +36,27 @@ class SLOG_API FileInfo
             Data* mData;
 
             /*!
-             * 作成日時
+             * \brief   作成日時
              */
             DateTime mCreationTime;
 
             /*!
-             * 最終書込日時
+             * \brief   最終書込日時
              */
             DateTime mLastWriteTime;
 
             /*!
-             * ファイルモード
+             * \brief   ファイルモード
              */
             uint32_t mMode;
 
             /*!
-             * ファイルサイズ
+             * \brief   ファイルサイズ
              */
             uint64_t mSize;
 
             /*!
-             * 使用中かどうか
+             * \brief   使用中かどうか
              */
             bool mUsing;
 

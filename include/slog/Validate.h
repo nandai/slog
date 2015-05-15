@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 printf.jp
+ * Copyright (C) 2014-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    Validate.h
  * \brief   検証クラス
- * \author  Copyright 2014 printf.jp
+ * \author  Copyright 2014-2015 printf.jp
  */
 #pragma once
 
@@ -76,24 +76,29 @@ public:     Validate() {}
 class SLOG_API StringValidate : public Validate
 {
             /*!
-             * 値
+             * \brief   値
              */
             const CoreString* mValue;
 
             /*!
-             * 最小文字数
+             * \brief   最小文字数
              */
             int32_t mMinLen;
 
             /*!
-             * 最大文字数
+             * \brief   最大文字数
              */
             int32_t mMaxLen;
 
             /*!
+             * \brief   有効文字リスト
+             */
+            const char* mValidChars;
+
+            /*!
              * コンストラクタ
              */
-public:     StringValidate(const CoreString* value, int32_t minLen, int32_t maxLen);
+public:     StringValidate(const CoreString* value, int32_t minLen, int32_t maxLen, const char* validChars = nullptr);
 
             /*!
              * 検証実行
@@ -112,7 +117,7 @@ public:     StringValidate(const CoreString* value, int32_t minLen, int32_t maxL
 class SLOG_API MailAddresValidate : public Validate
 {
             /*!
-             * 値
+             * \brief   値
              */
             const CoreString* mValue;
 

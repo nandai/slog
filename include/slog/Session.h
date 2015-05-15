@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 printf.jp
+ * Copyright (C) 2014-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    Session.h
  * \brief   セッションクラス
- * \author  Copyright 2014 printf.jp
+ * \author  Copyright 2014-2015 printf.jp
  */
 #pragma once
 
@@ -36,32 +36,32 @@ namespace slog
 class Session
 {
             /*!
-             * セッション名
+             * \brief   セッション名
              */
 public:     static const char* NAME;
 
             /*!
-             * セッションID
+             * \brief   セッションID
              */
 private:    String mId;
 
             /*!
-             * ユーザーID
+             * \brief   ユーザーID
              */
             int32_t mUserId;
 
             /*!
-             * IPアドレス
+             * \brief   IPアドレス
              */
             String mIP;
 
             /*!
-             * User-Agent
+             * \brief   User-Agent
              */
             String mUserAgent;
 
             /*!
-             * セキュアフラグ
+             * \brief   セキュアフラグ
              */
             bool mSecure;
 

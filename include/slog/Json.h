@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Json.h
  *  \brief  JSONクラス
- *  \author Copyright 2011-2014 printf.jp
+ *  \author Copyright 2011-2015 printf.jp
  */
 #pragma once
 
@@ -35,7 +35,7 @@ namespace slog
 class SLOG_API JsonAbstract
 {
             /*!
-             * キーの名前
+             * \brief   キーの名前
              */
 protected:  String mName;
 
@@ -61,12 +61,12 @@ public:     virtual ~JsonAbstract() {}
 class SLOG_API Json : public JsonAbstract
 {
             /*!
-             * 括弧：[]、または{}
+             * \brief   括弧：[]、または{}
              */
             char mBracket[2];
 
             /*!
-             * JSONオブジェクトリスト
+             * \brief   JSONオブジェクトリスト
              */
             std::list<JsonAbstract*> mList;
 

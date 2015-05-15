@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    String.h
  * \brief   可変長文字列クラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #pragma once
 #include "slog/CoreString.h"
@@ -98,8 +98,6 @@ public:     virtual char* getBuffer() const override;
 
 /*!
  * \brief   代入
- *
- * \note    std::map等で必要とされる場面があるためpublicで定義してある。基本的にはCoreString::copy()を使用すること。
  */
 inline const String& String::operator=(const String& str)
 {

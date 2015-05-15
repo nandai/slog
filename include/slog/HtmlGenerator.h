@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013-2014 printf.jp
+ * Copyright (C) 2013-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   HtmlGenerator.h
  *  \brief  html生成クラス
- *  \author Copyright 2013-2014 printf.jp
+ *  \author Copyright 2013-2015 printf.jp
  */
 #pragma once
 
@@ -38,27 +38,27 @@ class SLOG_API HtmlGenerator
             static const char* CLS_NAME;
 
             /*!
-             * 生成したhtml
+             * \brief   生成したhtml
              */
             String mHtml;
 
             /*!
-             * 変数リスト
+             * \brief   変数リスト
              */
             const VariableList* mVariableList;
 
             /*!
-             * 読み込んだ変数のリスト
+             * \brief   読み込んだ変数のリスト
              */
             VariableList mReadVariableList;
 
             /*!
-             * ルートディレクトリ
+             * \brief   ルートディレクトリ
              */
             String mRootDir;
 
             /*!
-             * 最終書込日時
+             * \brief   最終書込日時
              */
             DateTime* mLastWriteTime;
 

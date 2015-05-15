@@ -63,7 +63,7 @@ int32_t PointerString::getCapacity() const
  */
 void PointerString::init(const char* buffer, int32_t capacity)
 {
-    int32_t len = (int32_t)strlen(buffer);
+    int32_t len = GetLength(buffer);
 
     mCapacity = (capacity != -1 ? capacity : len);
     mBuffer = (char*)buffer;

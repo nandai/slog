@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Util.cpp
  *  \brief  ユーティリティクラス
- *  \author Copyright 2011-2014 printf.jp
+ *  \author Copyright 2011-2015 printf.jp
  */
 #include "slog/Util.h"
 #include "slog/String.h"
@@ -153,7 +153,7 @@ void Util::decodeBase64(CoreString* dest, const char* src)
 {
     static const char* table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
     char b64[128];
-    int32_t len = (int32_t)strlen(src);
+    int32_t len = String::GetLength(src);
     int32_t i;
 
     if (len % 4)
@@ -200,7 +200,7 @@ void Util::decodePercent(CoreString* str)
 {
     char* p = str->getBuffer();
     decodePercent(nullptr, p, p + str->getLength());
-    str->setLength((int32_t)strlen(p));
+    str->setLength(String::GetLength(p));
 }
 
 /*!
@@ -308,7 +308,14 @@ void Util::encodeHtml(CoreString* str)
 }
 
 /*!
- * 日時を文字列で取得する
+ * \brief   日時を文字列で取得する
+ *
+ * 例：2015/05/15 11:46:00 → "Fri, 15 May 2015 11:46:00 GMT"
+ *
+ * \param[out]  str         結果を受け取るバッファ
+ * \param[in]   dateTime    日時
+ *
+ * \return  なし
  */
 void Util::getDateString(CoreString* str, const DateTime* dateTime)
 {
@@ -339,7 +346,7 @@ bool Util::validateMailAddress(const CoreString* mailAddress)
         return false;
 
     // 宛先ユーザー名の長さをチェック
-    int32_t domainPos = mailAddress->indexOf("@");
+    int32_t domainPos = mailAddress->indexOf('@');
 
     if (domainPos <= 0)
         return false;
@@ -378,7 +385,7 @@ void Util::shiftJIStoUTF8(CoreString* str, const char* sjis)
     str->conv(unicode);
     delete [] unicode;
 #else
-    size_t srcLen = strlen(sjis) + 1;
+    size_t srcLen = String::GetLength(sjis) + 1;
     size_t dstLen = srcLen * 6;
 
     str->setCapacity(dstLen);
@@ -397,7 +404,7 @@ void Util::UTF8toShiftJIS(CoreString* str, const char* utf8)
 {
 #if defined(_WINDOWS)
 #else
-    size_t srcLen = strlen(utf8) + 1;
+    size_t srcLen = String::GetLength(utf8) + 1;
     size_t dstLen = srcLen;
 
     str->setCapacity(dstLen);

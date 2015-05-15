@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 printf.jp
+ * Copyright (C) 2014-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    Validate.cpp
  * \brief   検証クラス
- * \author  Copyright 2014 printf.jp
+ * \author  Copyright 2014-2015 printf.jp
  */
 #include "slog/Validate.h"
 #include "slog/CoreString.h"
@@ -40,11 +40,12 @@ const  Validate::TooLong*  Validate::TOO_LONG =  &sTooLong;
 /*!
  * \brief   コンストラクタ
  */
-StringValidate::StringValidate(const CoreString* value, int32_t minLen, int32_t maxLen) : Validate()
+StringValidate::StringValidate(const CoreString* value, int32_t minLen, int32_t maxLen, const char* validChars) : Validate()
 {
     mValue = value;
     mMinLen = minLen;
     mMaxLen = maxLen;
+    mValidChars = validChars;
 }
 
 /*!
@@ -52,18 +53,37 @@ StringValidate::StringValidate(const CoreString* value, int32_t minLen, int32_t 
  */
 const Validate::Result* StringValidate::execute() const
 {
-    int32_t len = mValue->getCharacters();
+    int32_t chars = mValue->getCharacters();
 
-    if (len < mMinLen)
+    if (chars < mMinLen)
     {
-        if (len == 0)
+        if (chars == 0)
             return Validate::EMPTY;
         else
             return Validate::TOO_SHORT;
     }
 
-    if (mMaxLen < len)
+    if (mMaxLen < chars)
         return Validate::TOO_LONG;
+
+    if (mValidChars)
+    {
+        int32_t len = mValue->getLength();
+        int32_t pos = 0;
+
+        while (pos < len)
+        {
+            int32_t bytes = mValue->getNextCharBytes(pos);
+
+            if (bytes != 1)
+                return Validate::INVALID;
+
+            if (CoreString::Find(mValidChars, mValue->at(pos)) == nullptr)
+                return Validate::INVALID;
+
+            pos += bytes;
+        }
+    }
 
     return Validate::SUCCESS;
 }

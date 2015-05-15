@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    String.cpp
  * \brief   可変長文字列クラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #include "slog/String.h"
 #include <string.h>
@@ -30,7 +30,7 @@ namespace slog
  */
 String::String(const char* text)
 {
-    init(text, (int32_t)strlen(text));
+    init(text, GetLength(text));
 }
 
 /*!

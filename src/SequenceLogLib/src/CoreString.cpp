@@ -74,7 +74,7 @@ void CoreString::copy(const char* text, int32_t len) throw(Exception)
         return;
 
     if (len == -1)
-        len = (int32_t)strlen(text);
+        len = GetLength(text);
 
     // バッファ容量が足りなければ拡張する
     int32_t capacity = getCapacity();
@@ -98,7 +98,7 @@ void CoreString::append(const char* text, int32_t len) throw(Exception)
         return;
 
     if (len == -1)
-        len = (int32_t)strlen(text);
+        len = GetLength(text);
 
     // バッファ容量が足りなければ拡張する
     int32_t capacity = getCapacity();
@@ -123,7 +123,7 @@ void CoreString::insert(int32_t pos, const char* text, int32_t len) throw(Except
         return;
 
     if (len == -1)
-        len = (int32_t)strlen(text);
+        len = GetLength(text);
 
     // バッファ容量が足りなければ拡張する
     int32_t capacity = getCapacity();
@@ -246,6 +246,10 @@ int32_t CoreString::compareTo(const CoreString* str) const
 
 /*!
  * \brief   検索
+ *
+ * \param[in]   c       検索文字
+ *
+ * \return  見つかった場合は先頭からのインデックス（バイト数単位）、見つからなかった場合は-1を返す
  */
 int32_t CoreString::indexOf(char c) const
 {
@@ -269,7 +273,7 @@ int32_t CoreString::indexOf(char c) const
  */
 int32_t CoreString::indexOf(const char* find, int32_t startIndex, int32_t count) const
 {
-    int32_t findLen = (int32_t)strlen(find);
+    int32_t findLen = GetLength(find);
     int32_t len = getLength();
 
     if (count == -1)
@@ -367,6 +371,35 @@ void CoreString::conv(const wchar_t* text)
     Util::toUTF8(getBuffer(), len + 1, text);
 
     setLength(len);
+}
+
+/*!
+ * \brief   文字列長取得
+ */
+int32_t CoreString::GetLength(const char* text)
+{
+    return (int32_t)strlen(text);
+}
+
+/*!
+ * \brief   比較
+ */
+int32_t CoreString::CompareTo(const char* cmp1, const char* cmp2, int32_t count)
+{
+    return strncmp(cmp1, cmp2, count);
+}
+
+/*!
+ * \brief   検索
+ *
+ * \param[in]   text    テキスト
+ * \param[in]   c       検索文字
+ *
+ * \return  strchr参照
+ */
+const char* CoreString::Find(const char* text, char c)
+{
+    return strchr(text, c);
 }
 
 /*!

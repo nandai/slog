@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 printf.jp
+ * Copyright (C) 2014-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   Session.cpp
  *  \brief  セッションクラス
- *  \author Copyright 2014 printf.jp
+ *  \author Copyright 2014-2015 printf.jp
  */
 #include "slog/Session.h"
 #include "slog/DateTime.h"

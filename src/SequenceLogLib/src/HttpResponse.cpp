@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,13 @@
 /*!
  *  \file   HttpResponse.cpp
  *  \brief  httpレスポンスクラス
- *  \author Copyright 2011-2014 printf.jp
+ *  \author Copyright 2011-2015 printf.jp
  */
 #include "slog/HttpResponse.h"
 #include "slog/Socket.h"
 #include "slog/ByteBuffer.h"
 #include "slog/Convert.h"
-
-#include <string.h>
-#include <stdlib.h>
+#include "slog/Integer.h"
 
 namespace slog
 {
@@ -64,21 +62,21 @@ bool HttpResponse::analizeResponse()
 
         // Content-Length
         compare = "Content-Length: ";
-        compareLen = (int32_t)strlen(compare);
+        compareLen = String::GetLength(compare);
 
-        if (strncmp(request, compare, compareLen) == 0)
+        if (String::CompareTo(request, compare, compareLen) == 0)
         {
             if (contentLen != 0)
                 return false;
 
-            contentLen = atoi(request + compareLen);
+            contentLen = Integer::parse(request + compareLen);
         }
 
         // Transfer-Encoding
         compare = "Transfer-Encoding: chunked";
-        compareLen = (int32_t)strlen(compare);
+        compareLen = String::GetLength(compare);
 
-        if (strncmp(request, compare, compareLen) == 0)
+        if (String::CompareTo(request, compare, compareLen) == 0)
         {
             if (contentLen != 0)
                 return false;

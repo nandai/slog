@@ -144,7 +144,7 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             int32_t lastIndexOf(const char* find, int32_t index = -1) const;
 
             /*!
-             * 文字数取得
+             * 文字数を取得する
              */
             int32_t getCharacters() const;
 
@@ -159,6 +159,21 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
              */
             void conv(const wchar_t* text);
 #endif
+
+            /*!
+             * 文字列長取得
+             */
+            static int32_t GetLength(const char* text);
+
+            /*!
+             * 比較
+             */
+            static int32_t CompareTo(const char* cmp1, const char* cmp2, int32_t count);
+
+            /*!
+             * 検索
+             */
+            static const char* Find(const char* text, char c);
 };
 
 /*!

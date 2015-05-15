@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    FixedString.h
  * \brief   固定長文字列クラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #pragma once
 #include "slog/CoreString.h"
@@ -32,12 +32,12 @@ template <int i>
 class FixedString : public CoreString
 {
             /*!
-             * バッファサイズ
+             * \brief   バッファサイズ
              */
             static const int CAPACITY = i;
 
             /*!
-             * バッファ
+             * \brief   バッファ
              */
             char mBuffer[CAPACITY + 1];
 
@@ -59,12 +59,12 @@ private:    const FixedString& operator=(const char*);
             /*!
              * 代入
              */
-            const FixedString& operator=(const FixedString&);
+public:     const FixedString& operator=(const FixedString&);
 
             /*!
              * バッファアドレス取得
              */
-public:     virtual char* getBuffer() const override;
+            virtual char* getBuffer() const override;
 
             /*!
              * バッファサイズ取得
@@ -88,6 +88,16 @@ template <int i>
 inline FixedString<i>::FixedString(const char* text)
 {
     copy(text);
+}
+
+/*!
+ * \brief   代入
+ */
+template <int i>
+inline const FixedString<i>& FixedString<i>::operator=(const FixedString& str)
+{
+    copy(&str);
+    return *this;
 }
 
 /*!

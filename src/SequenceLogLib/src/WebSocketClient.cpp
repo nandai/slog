@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013-2014 printf.jp
+ * Copyright (C) 2013-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,14 @@
 /*!
  * \file    WebSocketClient.cpp
  * \brief   Web Socket クライアントクラス
- * \author  Copyright 2013 printf.jp
+ * \author  Copyright 2013-2015 printf.jp
  */
 #pragma execution_character_set("utf-8")
 
 #include "slog/WebSocketClient.h"
 #include "slog/HttpResponse.h"
 #include "slog/String.h"
-
-#include <string.h>
-#include <stdlib.h>
+#include "slog/Integer.h"
 
 namespace slog
 {
@@ -61,7 +59,7 @@ void WebSocketClient::open(const CoreString* url) throw(Exception)
 
         if (index == 0)
         {
-            int32_t domainIndex = (int32_t)strlen(candidate[i].protocol);
+            int32_t domainIndex = String::GetLength(candidate[i].protocol);
             int32_t portIndex = url->indexOf(":", domainIndex);
             int32_t pathIndex = url->indexOf("/", domainIndex);
 
@@ -84,7 +82,7 @@ void WebSocketClient::open(const CoreString* url) throw(Exception)
             // ポート番号
             if (0 < portIndex)
             {
-                port = atoi( p + portIndex + 1);
+                port = Integer::parse(p + portIndex + 1);
             }
             else
             {

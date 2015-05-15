@@ -6,7 +6,9 @@
 #include "slog/Resource.h"
 #include "slog/PointerString.h"
 #include "slog/FixedString.h"
+#include "slog/Validate.h"
 #include "slog/SequenceLog.h"
+#include "slog/Thread.h"
 
 #include <vector>
 
@@ -443,6 +445,7 @@ public:     virtual void run() override;
 
 private:    void test01();
             void test02();
+            void test03();
 };
 
 const char* StringTest::CLS_NAME = "StringTest";
@@ -451,6 +454,7 @@ void StringTest::run()
 {
     test01();
     test02();
+    test03();
 }
 
 void StringTest::test01()
@@ -460,11 +464,14 @@ void StringTest::test01()
     String str = "aabc";
     int32_t res;
 
-    res = str.indexOf("b");
+    res = str.indexOf('b');
     SASSERT("01", (res == 2));
 
+    res = str.indexOf("b");
+    SASSERT("02", (res == 2));
+
     res = str.indexOf("abc");
-    SASSERT("02", (res == 1));
+    SASSERT("03", (res == 1));
 }
 
 void StringTest::test02()
@@ -482,15 +489,123 @@ void StringTest::test02()
 
     str2.copy("1234567890");
     SASSERT("04", (str1.getCapacity() == 10));
+}
+
+void StringTest::test03()
+{
+    SLOG(CLS_NAME, "test03");
+    FixedString<10> str = "1234567890";
 
     try
     {
-        str2.copy("1234567890a");
-        SASSERT("05", false);
+        str.copy("1234567890a");
+        SASSERT("01", false);
     }
     catch (Exception e)
     {
-        SASSERT("05", true);
+        SMSG(slog::INFO, e.getMessage());
+        SASSERT("01", true);
+    }
+
+    try
+    {
+        FixedString<10> str2 = "1234567890a";
+        SASSERT("02", false);
+    }
+    catch (Exception e)
+    {
+        SMSG(slog::INFO, e.getMessage());
+        SASSERT("02", true);
+    }
+}
+}
+
+/*!
+ * Validateテスト
+ */
+namespace slog
+{
+class ValidateTest : public Test
+{
+            static const char* CLS_NAME;
+
+public:     virtual void run() override;
+
+private:    void test01();
+};
+
+const char* ValidateTest::CLS_NAME = "ValidateTest";
+
+void ValidateTest::run()
+{
+    test01();
+}
+
+void ValidateTest::test01()
+{
+    SLOG(CLS_NAME, "test01");
+
+    {
+        String str;
+        StringValidate validate(&str, 0, 10);
+
+        SASSERT("01", validate.execute() == Validate::SUCCESS);
+    }
+
+    {
+        String str = "01234";
+        StringValidate validate(&str, 0, 10);
+
+        SASSERT("02", validate.execute() == Validate::SUCCESS);
+    }
+
+    {
+        String str;
+        StringValidate validate(&str, 2, 10);
+
+        SASSERT("03", validate.execute() == Validate::EMPTY);
+    }
+
+    {
+        String str = "0";
+        StringValidate validate(&str, 2, 10);
+
+        SASSERT("04", validate.execute() == Validate::TOO_SHORT);
+    }
+
+    {
+        String str = "0123456789a";
+        StringValidate validate(&str, 2, 10);
+
+        SASSERT("05", validate.execute() == Validate::TOO_LONG);
+    }
+
+    {
+        String str = "01234";
+        StringValidate validate(&str, 2, 10, "0123456789");
+
+        SASSERT("06", validate.execute() == Validate::SUCCESS);
+    }
+
+    {
+        String str = "012a4";
+        StringValidate validate(&str, 2, 10, "0123456789");
+
+        SASSERT("07", validate.execute() == Validate::INVALID);
+    }
+
+    {
+        String str = "abC";
+        StringValidate validate(&str, 2, 10, "abcdef");
+
+        SASSERT("08", validate.execute() == Validate::INVALID);
+    }
+
+    {
+        String str = "ａbc";
+        StringValidate validate(&str, 2, 10, "abcdef");
+
+        SASSERT("09", validate.execute() == Validate::INVALID);
     }
 }
 }
@@ -513,8 +628,10 @@ int main()
 //  testManager.add(new DateTimeTest);
 //  testManager.add(new JsonTest);
 //  testManager.add(new ResourceTest);
-    testManager.add(new StringTest);
+//  testManager.add(new StringTest);
+    testManager.add(new ValidateTest);
     testManager.run();
 
+    Thread::sleep(2000);
     return 0;
 }

@@ -24,13 +24,9 @@
 #include "slog/ByteBuffer.h"
 #include "slog/FileInfo.h"
 #include "slog/Util.h"
+#include "slog/Integer.h"
 
-#include <ctype.h>
-
-#if defined(__linux__)
-    #include <string.h>
-    #include <stdlib.h>
-#endif
+#include <string.h>
 
 using namespace std;
 
@@ -40,7 +36,7 @@ namespace slog
 /*!
  * \brief   文字列のペアを取得する
  *
- * \param[in]   maps        マップ
+ * \param[out]  maps        結果を受け取るマップ
  * \param[in]   buffer      解析対象文字列
  * \param[in]   len         解析対象文字列の長さ
  * \param[in]   separator   セパレータ
@@ -51,7 +47,7 @@ static void getStringPairs(map<String, String>* maps, const char* buffer, int32_
 {
     const char* p1 = buffer;
     bool end = false;
-    int32_t sepLen = (int32_t)strlen(separator);
+    int32_t sepLen = String::GetLength(separator);
 
     while (end == false)
     {
@@ -80,7 +76,7 @@ static void getStringPairs(map<String, String>* maps, const char* buffer, int32_
 //      noticeLog("getStringPairs: %.*s(%d)", (p2 - p1), p1, (p2 - p1));
 
         // パラメータ名と値に分ける
-        const char* p3 = strchr(p1, '=');
+        const char* p3 = String::Find(p1, '=');
 
         if (p3 == nullptr)
             break;
@@ -189,20 +185,20 @@ bool HttpRequest::analizeRequest()
             {
                 // Content-Length
                 const char* compare = "Content-Length: ";
-                int32_t compareLen = (int32_t)strlen(compare);
+                int32_t compareLen = String::GetLength(compare);
 
-                if (strncmp(request, compare, compareLen) == 0)
+                if (String::CompareTo(request, compare, compareLen) == 0)
                 {
-                    contentLen = atoi(request + compareLen);
+                    contentLen = Integer::parse(request + compareLen);
                 }
 
                 // Accept
                 compare = "Accept: ";
-                compareLen = (int32_t)strlen(compare);
+                compareLen = String::GetLength(compare);
 
-                if (strncmp(request, compare, compareLen) == 0)
+                if (String::CompareTo(request, compare, compareLen) == 0)
                 {
-                    char* p = strchr((char*)request, ',');
+                    char* p = (char*)String::Find((char*)request, ',');
 
                     if (p)
                         p[0] = '\0';
@@ -212,27 +208,27 @@ bool HttpRequest::analizeRequest()
 
                 // X-Requested-With
                 compare = "X-Requested-With: XMLHttpRequest";
-                compareLen = (int32_t)strlen(compare);
+                compareLen = String::GetLength(compare);
 
-                if (strncmp(request, compare, compareLen) == 0)
+                if (String::CompareTo(request, compare, compareLen) == 0)
                 {
                     mAjax = true;
                 }
 
                 // Sec-WebSocket-Key
                 compare = "Sec-WebSocket-Key: ";
-                compareLen = (int32_t)strlen(compare);
+                compareLen = String::GetLength(compare);
 
-                if (strncmp(request, compare, compareLen) == 0)
+                if (String::CompareTo(request, compare, compareLen) == 0)
                 {
                     mWebSocketKey.copy(request + compareLen);
                 }
 
                 // Authorization
                 compare = "Authorization: Basic ";
-                compareLen = (int32_t)strlen(compare);
+                compareLen = String::GetLength(compare);
 
-                if (strncmp(request, compare, compareLen) == 0)
+                if (String::CompareTo(request, compare, compareLen) == 0)
                 {
                     String basicAuth;
                     Util::decodeBase64(&basicAuth, request + compareLen);
@@ -249,36 +245,36 @@ bool HttpRequest::analizeRequest()
 
                 // Cookie
                 compare = "Cookie: ";
-                compareLen = (int32_t)strlen(compare);
+                compareLen = String::GetLength(compare);
 
-                if (strncmp(request, compare, compareLen) == 0)
+                if (String::CompareTo(request, compare, compareLen) == 0)
                 {
                     getStringPairs(&mCookies, request + compareLen, i - compareLen, "; ");
                 }
 
                 // Accept-Language
                 compare = "Accept-Language: ";
-                compareLen = (int32_t)strlen(compare);
+                compareLen = String::GetLength(compare);
 
-                if (strncmp(request, compare, compareLen) == 0)
+                if (String::CompareTo(request, compare, compareLen) == 0)
                 {
                     mAcceptLanguage.copy(request + compareLen);
                 }
 
                 // User-Agent
                 compare = "User-Agent: ";
-                compareLen = (int32_t)strlen(compare);
+                compareLen = String::GetLength(compare);
 
-                if (strncmp(request, compare, compareLen) == 0)
+                if (String::CompareTo(request, compare, compareLen) == 0)
                 {
                     mUserAgent.copy(request + compareLen);
                 }
 
                 // Content-Type
                 compare = "Content-Type";
-                compareLen = (int32_t)strlen(compare);
+                compareLen = String::GetLength(compare);
 
-                if (strncmp(request, compare, compareLen) == 0)
+                if (String::CompareTo(request, compare, compareLen) == 0)
                 {
                     mContentType.copy(request + compareLen);
                 }
@@ -320,19 +316,19 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
         return -1;
     }
 
-    int32_t compareLen = (int32_t)strlen(compare);
+    int32_t compareLen = String::GetLength(compare);
 
-    if (compareLen <= len && strncmp(request, compare, compareLen) == 0)
+    if (compareLen <= len && String::CompareTo(request, compare, compareLen) == 0)
     {
         const char* p1 = request + compareLen;
-        const char* p2 = strchr(p1, ' ');
+        const char* p2 = String::Find(p1, ' ');
 
         if (p2 == nullptr)
             return -1;
 
 //      if (method == GET)
         {
-            const char* p3 = strchr(p1, '?');
+            const char* p3 = String::Find(p1, '?');
 
             if (p3)
             {

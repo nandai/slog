@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    Tokenizer.h
  * \brief   文字列分割クラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #pragma once
 #include "slog/String.h"
@@ -50,12 +50,12 @@ class SLOG_API Tokenizer
             Data* mData;
 
             /*!
-             * 空要素
+             * \brief   空要素
              */
             Variant mEmpty;
 
             /*!
-             * デリミタ
+             * \brief   デリミタ
              */
             char mDelimiter;
 

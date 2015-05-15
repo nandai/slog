@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2013-2014 printf.jp
+ * Copyright (C) 2013-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   HtmlGenerator.cpp
  *  \brief  html生成クラス
- *  \author Copyright 2013-2014 printf.jp
+ *  \author Copyright 2013-2015 printf.jp
  */
 #include "slog/HtmlGenerator.h"
 
@@ -29,10 +29,6 @@
 
 #undef __SLOG__
 #include "slog/SequenceLog.h"
-
-#if defined(__unix__)
-    #include <string.h>
-#endif
 
 namespace slog
 {
@@ -548,7 +544,7 @@ void HtmlGenerator::expand(Param* param)
             param->endPosition = endPos;
 
 //          if (param->readBuffer.indexOf("include ", pos + 1) == pos + 1)
-            if (strncmp(param->readBuffer.getBuffer() + pos + 1, "include ", 8) == 0)
+            if (String::CompareTo(param->readBuffer.getBuffer() + pos + 1, "include ", 8) == 0)
             {
                 // 他のファイルをインクルードする
                 int32_t startPos = pos + 1 + sizeof("include ") - 1;

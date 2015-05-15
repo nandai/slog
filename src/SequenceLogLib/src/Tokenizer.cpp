@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,16 @@
 /*!
  * \file    Tokenizer.cpp
  * \brief   文字列分割クラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #include "slog/Tokenizer.h"
 #include "slog/PointerString.h"
+#include "slog/Integer.h"
 
-#include <stdlib.h>
+#include <string.h>
+
 #include <vector>
 #include <map>
-
-#if defined(__linux__)
-    #include <string.h>
-#endif
 
 namespace slog
 {
@@ -74,7 +72,7 @@ static const char* tokenize(
     }
     else
     {
-        len = (int32_t)strlen(p1);
+        len = String::GetLength(p1);
         p1 = nullptr;
     }
 
@@ -102,7 +100,7 @@ struct Tokenizer::Data
  */
 Variant::operator int32_t() const
 {
-    return atol(mStr.getBuffer());
+    return Integer::parse(mStr.getBuffer());
 }
 
 /*!
@@ -165,8 +163,8 @@ void Tokenizer::init(const CoreString* format)
 
     while (true)
     {
-        const char* p2 = strchr(p1, '[');
-        const char* p3 = strchr(p1, ']');
+        const char* p2 = String::Find(p1, '[');
+        const char* p3 = String::Find(p1, ']');
 
         if (p2 == nullptr || p3 == nullptr)
             break;

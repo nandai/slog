@@ -1,5 +1,5 @@
-Ôªø/*
- * Copyright (C) 2013-2015 printf.jp
+/*
+ * Copyright (C) 2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,30 @@
  */
 
 /*!
- * \file    WebSocketClient.h
- * \brief   Web Socket „ÇØ„É©„Ç§„Ç¢„É≥„Éà„ÇØ„É©„Çπ
- * \author  Copyright 2013-2015 printf.jp
+ *  \file   Integer.h
+ *  \brief  IntegerÉNÉâÉX
+ *  \author Copyright 2015 printf.jp
  */
 #pragma once
-#include "slog/WebSocket.h"
+
+#include "slog/slog.h"
+#include <stdlib.h>
 
 namespace slog
 {
 
-/*!
- *  \brief  Web Socket „ÇØ„É©„Ç§„Ç¢„É≥„Éà„ÇØ„É©„Çπ
+    /*!
+ *  \brief  IntegerÉNÉâÉX
  */
-class SLOG_API WebSocketClient : public WebSocket
+class SLOG_API Integer
 {
             /*!
-             * „Ç≥„É≥„Çπ„Éà„É©„ÇØ„Çø
+             * \brief   ï∂éöóÒÇêîílÇ…ïœä∑
              */
-public:     WebSocketClient() : WebSocket(false) {}
-
-            /*!
-             * Êé•Á∂ö
-             */
-            void open(const CoreString* url) throw(Exception);
+public:     static int32_t parse(const char* text)
+            {
+                return atoi(text);
+            }
 };
 
 } // namespace slog

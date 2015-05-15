@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,9 @@
 /*!
  *  \file   Json.cpp
  *  \brief  JSONクラス
- *  \author Copyright 2011-2014 printf.jp
+ *  \author Copyright 2011-2015 printf.jp
  */
 #include "slog/Json.h"
-
-#if defined(__linux__)
-    #include <string.h>
-#endif
 
 using namespace std;
 
@@ -42,7 +38,7 @@ static void encodeEscape(String* dest, const char* p)
 {
     static const char targets[] = {'\\', '"'};
 
-    int32_t len = (int32_t)strlen(p) * 2;   // 全ての文字をエスケープするとしても２倍のバッファがあれば足りる
+    int32_t len = String::GetLength(p) * 2;   // 全ての文字をエスケープするとしても２倍のバッファがあれば足りる
 
     char* buffer = new char[len + 1];
     int32_t pos = 0;

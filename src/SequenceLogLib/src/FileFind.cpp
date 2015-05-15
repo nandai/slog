@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  *  \file   FileFind.cpp
  *  \brief  ファイル検索クラス
- *  \author Copyright 2011-2014 printf.jp
+ *  \author Copyright 2011-2015 printf.jp
  */
 #include "slog/FileFind.h"
 #include "slog/FileInfo.h"
@@ -116,7 +116,7 @@ void FileFind::exec(const CoreString* fileName) const
     searchFileName++;
 
     // 拡張子取得
-    char* ext = strchr(searchFileName, '.');
+    char* ext = String::Find(searchFileName, '.');
 
     if (ext == nullptr)
         return;
@@ -139,7 +139,7 @@ void FileFind::exec(const CoreString* fileName) const
 
         if (any == false)
         {
-            char* entExt = strchr(ent->d_name, '.');
+            char* entExt = String::Find(ent->d_name, '.');
 
             if (entExt == nullptr)
                 continue;
