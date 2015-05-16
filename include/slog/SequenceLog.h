@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 /*!
- *  \file   SequenceLog.h
- *  \brief  シーケンスログクラス
- *  \author Copyright 2011-2014 printf.jp
+ * \file    SequenceLog.h
+ * \brief   シーケンスログクラス
+ * \author  Copyright 2011-2015 printf.jp
  */
 #pragma once
 
@@ -140,31 +140,41 @@ namespace slog
 {
 
 /*!
- *  \brief  シーケンスログクラス
+ * \brief   シーケンスログクラス
  */
 class SLOG_API SequenceLog
 {
             /*!
-             * シーケンス番号
+             * \brief   シーケンス番号
              */
             uint32_t mSeqNo;
 
-            //
-            // コンストラクタ / デストラクタ
-            //
+            /*!
+             * コンストラクタ
+             */
 public:      SequenceLog(const char* className, const char* funcName);
 //           SequenceLog(uint32_t    classID,   uint32_t    funcID);
+
+            /*!
+             * デストラクタ
+             */
             ~SequenceLog();
 
+            /*!
+             * 初期化
+             */
 private:    void init();
 
-            //
-            // メッセージ出力
-            //
+            /*!
+             * メッセージ出力
+             */
 public:     void message( SequenceLogLevel level, const char* format, ...);
             void messageV(SequenceLogLevel level, const char* format, va_list arg);
 //          void message( SequenceLogLevel level, uint32_t messageID);
 
+            /*!
+             * アサート
+             */
             void assert(const char* assertName, bool result);
 };
 

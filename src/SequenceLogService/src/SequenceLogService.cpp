@@ -549,7 +549,7 @@ void SequenceLogService::writeSeqLogFile(File* file, SequenceLogItem* item)
 void SequenceLogService::writeSeqLogFileText(File* file, SequenceLogItem* item)
 {
     char levelChars[] = "diwe"; // Debug, Info, Warn, Error
-    char lc = levelChars[1];
+    char lc = 'n';              // Normal（メッセージ以外）
 
     FixedString<(int32_t)DateTimeFormat::Length::YYYYMMDDHHMISSMS> strDateTime;
     DateTimeFormat::toString(&strDateTime, item->mDateTime, DateTimeFormat::Format::YYYYMMDDHHMISSMS);

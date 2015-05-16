@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2014 printf.jp
+ * Copyright (C) 2011-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    SequenceLog.cpp
  * \brief   シーケンスログクラス
- * \author  Copyright 2011-2014 printf.jp
+ * \author  Copyright 2011-2015 printf.jp
  */
 #pragma execution_character_set("utf-8")
 
@@ -199,12 +199,12 @@ static bool sClientInitialized = false;
 class SequenceLogClient : public WebSocketListener
 {
             /*!
-             * Web Socket
+             * \brief   Web Socket
              */
             WebSocketClient mSocket;
 
             /*!
-             * シーケンス番号
+             * \brief   シーケンス番号
              */
             uint32_t mSeqNo;
 
@@ -579,11 +579,16 @@ void SequenceLog::messageV(SequenceLogLevel level, const char* format, va_list a
 
 /*!
  * \brief   アサート
+ *
+ * \param[in]   assertName  アサート名（任意）
+ * \param[in]   result      成否フラグ
+ *
+ * \return  なし
  */
 void SequenceLog::assert(const char* assertName, bool result)
 {
     if (result)
-        message(DEBUG, "%s:PASSED", assertName);
+        message(INFO, "%s:PASSED", assertName);
     else
         message(ERROR, "%s:FAILED", assertName);
 }
@@ -606,6 +611,10 @@ void SequenceLog::assert(const char* assertName, bool result)
 
 /*!
  * \brief   シーケンスログアイテム取得
+ *
+ * \param[out]  item    結果を受け取るシーケンスログアイテム
+ *
+ * \return  なし
  */
 void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item) throw(Exception)
 {
@@ -700,6 +709,11 @@ void SequenceLogByteBuffer::getSequenceLogItem(SequenceLogItem* item) throw(Exce
 
 /*!
  * \brief   シーケンスログアイテム書き込み
+ *
+ * \param[in]   item                シーケンスログアイテム
+ * \param[in]   isOutputDateTime    日時を書き込むかどうか
+ *
+ * \return  レコード長
  */
 uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, bool isOutputDateTime)
 {
@@ -774,7 +788,7 @@ uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, 
         break;
     }
 
-    // 先頭にレコード長
+    // 先頭にレコード長を設定
     size = getPosition();
 
     setPosition(0);
@@ -787,6 +801,10 @@ uint32_t SequenceLogByteBuffer::putSequenceLogItem(const SequenceLogItem* item, 
 
 /*!
  * \brief   シーケンスログファイル名を設定する
+ *
+ * \param[in]   fileName    シーケンスログファイル名
+ *
+ * \return  なし
  */
 static void setSequenceLogFileName(const slog::CoreString* fileName)
 {
@@ -796,6 +814,10 @@ static void setSequenceLogFileName(const slog::CoreString* fileName)
 
 /*!
  * \brief   シーケンスログサービスのアドレスを設定する
+ *
+ * \param[in]   url     URL
+ *
+ * \return  なし
  */
 static void setSequenceLogServiceAddress(const slog::CoreString* url)
 {
@@ -805,6 +827,10 @@ static void setSequenceLogServiceAddress(const slog::CoreString* url)
 
 /*!
  * \brief   ユーザー名を設定する
+ *
+ * \param[in]   userName    ユーザー名
+ *
+ * \return  なし
  */
 static void setSequenceLogUserName(const slog::CoreString* userName)
 {
@@ -814,6 +840,10 @@ static void setSequenceLogUserName(const slog::CoreString* userName)
 
 /*!
  * \brief   パスワードを設定する
+ *
+ * \param[in]   passwd  パスワード
+ *
+ * \return  なし
  */
 static void setSequenceLogPassword(const slog::CoreString* passwd)
 {
@@ -823,6 +853,10 @@ static void setSequenceLogPassword(const slog::CoreString* passwd)
 
 /*!
  * \brief   ログレベルを設定する
+ *
+ * \param[in]   logLevel    ログレベル
+ *
+ * \return  なし
  */
 static void setLogLevel(const slog::CoreString* logLevel)
 {
@@ -836,6 +870,10 @@ static void setLogLevel(const slog::CoreString* logLevel)
 
 /*!
  * \brief   シーケンスログコンフィグを読み込む
+ *
+ * \param[in]   fileName    コンフィグファイル名
+ *
+ * \return  なし
  */
 extern "C" void loadSequenceLogConfig(const char* fileName)
 {
@@ -891,6 +929,10 @@ extern "C" void loadSequenceLogConfig(const char* fileName)
 
 /*!
  * \brief   シーケンスログコンフィグを読み込む
+ *
+ * \param[in]   fileName    コンフィグファイル名
+ *
+ * \return  なし
  */
 extern "C" void slog_loadConfig(const wchar_t* fileName)
 {
@@ -898,5 +940,7 @@ extern "C" void slog_loadConfig(const wchar_t* fileName)
     slog::String _fileName;
     _fileName.conv(fileName);
     loadSequenceLogConfig(_fileName.getBuffer());
+#else
+    noticeLog("slog_loadConfig / unsupported");
 #endif
 }
