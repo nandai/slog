@@ -274,6 +274,7 @@
     <ClInclude Include="..\..\include\slog\Resource.h" />
     <ClInclude Include="..\..\include\slog\Session.h" />
     <ClInclude Include="..\..\include\slog\SHA256.h" />
+    <ClInclude Include="..\..\include\slog\ExtraString.h" />
     <ClInclude Include="..\..\include\slog\Validate.h" />
     <CustomBuild Include="src\Log.h" />
     <ClInclude Include="..\..\include\slog\MimeType.h" />

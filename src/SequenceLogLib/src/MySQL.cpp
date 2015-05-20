@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 printf.jp
+ * Copyright (C) 2014-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /*!
  * \file    DB_MySQL.cpp
  * \brief   MySQL
- * \author  Copyright 2014 printf.jp
+ * \author  Copyright 2014-2015 printf.jp
  */
 #pragma execution_character_set("utf-8")
 
@@ -50,34 +50,35 @@ class MySQLStatement : public Statement
             };
 
             /*!
-             * ステートメント
+             * \brief   ステートメント
              */
             MYSQL_STMT* mStmt;
 
             /*!
-             * パラメータ数
+             * \brief   パラメータ数
              */
             int32_t mParamCount;
 
             /*!
-             * パラメータ
+             * \brief   パラメータ
              */
             MYSQL_BIND* mParam;
 
             /*!
-             * パラメータリスト
+             * \brief   パラメータリスト
              */
             NumberValue* mParamList;
 
             /*!
-             * 結果数
+             * \brief   結果数
              */
             int32_t mResultCount;
 
             /*!
-             * 結果
+             * \brief   結果
              */
             MYSQL_BIND* mResult;
+            CoreString** mStringResult;
 
             /*!
              * コンストラクタ
@@ -160,6 +161,7 @@ MySQLStatement::MySQLStatement(const DB* db, MYSQL_STMT* stmt) : Statement(db)
 
     mResultCount = 0;
     mResult = nullptr;
+    mStringResult = nullptr;
 }
 
 /*!
@@ -176,6 +178,7 @@ MySQLStatement::~MySQLStatement()
     delete [] mParam;
     delete [] mParamList;
     delete [] mResult;
+    delete [] mStringResult;
 }
 
 /*!
@@ -209,10 +212,14 @@ void MySQLStatement::prepare(const char* sql) throw(Exception)
     {
         mResultCount = mysql_num_fields(res);
         mResult = new MYSQL_BIND[mResultCount];
+        mStringResult = new CoreString*[mResultCount];
         SMSG(slog::DEBUG, "mResultCount: %d", mResultCount);
 
         for (int32_t i = 0; i < mResultCount; i++)
+        {
             memset(&mResult[i], 0, sizeof(MYSQL_BIND));
+            mStringResult[i] = nullptr;
+        }
 
         mysql_free_result(res);
     }
@@ -273,7 +280,7 @@ void MySQLStatement::setIntParam(int32_t index, int32_t value)
     if (index < 0 || mParamCount <= index)
         return;
 
-    mParamList[index].value16 = value;
+    mParamList[index].value32 = value;
 
     MYSQL_BIND* bind = &mParam[index];
     bind->buffer_type = MYSQL_TYPE_LONG;
@@ -308,8 +315,26 @@ void MySQLStatement::setLongParam(int32_t index, int64_t value)
  */
 void MySQLStatement::setStringResult(int32_t index, CoreString* result, int32_t size) const
 {
+    SLOG(CLS_NAME, "setStringResult");
+
     if (index < 0 || mResultCount <= index)
         return;
+
+    for (int32_t i = 0; i < mParamCount; i++)
+    {
+        if (result->getBuffer() == mParam[i].buffer)
+        {
+            String str;
+            str.format("結果バッファ(%d/%d)とパラメータ(%d/%d)のアドレスが同じです。", index + 1, mResultCount, i + 1, mParamCount);
+
+            SMSG(slog::WARN, str.getBuffer());
+
+//          Exception e;
+//          e.setMessage(str.getBuffer());
+//
+//          throw e;
+        }
+    }
 
     size *= 3;  // 文字数をUTF-8（日本語）が収まるバイト数に変換
 
@@ -321,6 +346,8 @@ void MySQLStatement::setStringResult(int32_t index, CoreString* result, int32_t 
     bind->buffer =        result->getBuffer();
     bind->buffer_length = size;
     bind->is_null = 0;
+
+    mStringResult[index] = result;
 }
 
 /*!
@@ -371,8 +398,22 @@ void MySQLStatement::execute() throw(Exception)
  */
 bool MySQLStatement::fetch() const
 {
+    SLOG(CLS_NAME, "fetch");
+
     if (mysql_stmt_fetch(mStmt) != 0)
         return false;
+
+    for (int32_t i = 0; i < mResultCount; i++)
+    {
+        MYSQL_BIND* bind = &mResult[i];
+
+        if (bind->buffer_type == MYSQL_TYPE_VAR_STRING)
+        {
+            // 文字列の長さを設定する
+            int32_t len = String::GetLength(mStringResult[i]->getBuffer());
+            mStringResult[i]->setLength(len);
+        }
+    }
 
     return true;
 }
@@ -467,8 +508,11 @@ void MySQL::query(const char* sql) const throw (Exception)
 {
     if (mysql_query(mData->conn, sql) != 0)
     {
+        String message;
+        getErrorMessage(&message);
+
         Exception e;
-        e.setMessage("クエリー実行に失敗しました。");
+        e.setMessage("クエリー実行に失敗しました（%s）。", message.getBuffer());
 
         throw e;
     }

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 printf.jp
+ * Copyright (C) 2014-2015 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@
 /*!
  * \file    DB.h
  * \brief   データベースクラス
- * \author  Copyright 2014 printf.jp
+ * \author  Copyright 2014-2015 printf.jp
  */
 #pragma once
+
 #include "slog/Exception.h"
+#include "slog/ExtraString.h"
 
 namespace slog
 {
@@ -61,6 +63,29 @@ public:     virtual ~DB() {}
              * クエリー実行
              */
             virtual void query(const char* sql) const throw(Exception) = 0;
+
+            /*!
+             * クエリー実行
+             */
+            void query(const CoreString* sql) const throw(Exception)
+            {
+                query(sql->getBuffer());
+            }
+
+            /*!
+             * トランザクション監視
+             */
+            void beginTransaction() const {query("BEGIN");}
+
+            /*!
+             * コミット
+             */
+            void commit() const {query("COMMIT");}
+
+            /*!
+             * ロールバック
+             */
+            void rollback() const {query("ROLLBACK");}
 };
 
 /*!
@@ -76,12 +101,12 @@ protected:  const DB* mDB;
             /*!
              * コンストラクタ
              */
-protected:  Statement(const DB* db) : mDB(db) {}
+protected:  Statement(const DB* db);
 
             /*!
              * デストラクタ
              */
-public:    virtual ~Statement() {}
+public:     virtual ~Statement() {}
 
             /*!
              * 実行準備
@@ -117,6 +142,14 @@ public:    virtual ~Statement() {}
              * 結果設定
              */
             virtual void setStringResult(int32_t index, CoreString* result, int32_t size) const = 0;
+
+            /*!
+             * 結果設定
+             */
+            void setStringResult(int32_t index, ExtraString* result)
+            {
+                setStringResult(index, result, result->max);
+            }
 
             /*!
              * 結果設定

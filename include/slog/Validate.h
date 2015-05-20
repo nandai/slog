@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "slog/slog.h"
+#include "slog/ExtraString.h"
 #include <list>
 
 #pragma warning(disable:4251)
@@ -99,6 +99,11 @@ class SLOG_API StringValidate : public Validate
              * コンストラクタ
              */
 public:     StringValidate(const CoreString* value, int32_t minLen, int32_t maxLen, const char* validChars = nullptr);
+
+            /*!
+             * コンストラクタ
+             */
+            StringValidate(const ExtraString* value, const char* validChars = nullptr);
 
             /*!
              * 検証実行

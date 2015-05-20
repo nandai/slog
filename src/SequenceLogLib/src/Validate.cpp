@@ -49,6 +49,17 @@ StringValidate::StringValidate(const CoreString* value, int32_t minLen, int32_t 
 }
 
 /*!
+ * \brief   コンストラクタ
+ */
+StringValidate::StringValidate(const ExtraString* value, const char* validChars) : Validate()
+{
+    mValue =  value;
+    mMinLen = value->min;
+    mMaxLen = value->max;
+    mValidChars = validChars;
+}
+
+/*!
  * \brief   検証実行
  */
 const Validate::Result* StringValidate::execute() const

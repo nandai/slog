@@ -23,6 +23,7 @@
 
 #include "slog/Buffer.h"
 #include <stdarg.h>
+#include <string>
 
 namespace slog
 {
@@ -66,6 +67,14 @@ public:     void copy(const char* text, int32_t len = -1) throw(Exception);
             void copy(const CoreString* str) throw(Exception)
             {
                 copy(str->getBuffer(), str->getLength());
+            }
+
+            /*!
+             * コピー
+             */
+            void copy(const std::string* str) throw(Exception)
+            {
+                copy(str->c_str(), (int32_t)str->length());
             }
 
             /*!
