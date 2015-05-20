@@ -229,7 +229,8 @@ void WebServerResponse::sendHttpHeader(const DateTime* lastModified, int32_t con
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: %s%s\r\n"
         "Date: %s\r\n"
-        "Last-Modified: %s\r\n",
+        "Last-Modified: %s\r\n"
+        "Access-Control-Allow-Origin: *\r\n",
          mimeType->text.getBuffer(),
         (mimeType->binary == false ? "; charset=UTF-8" : ""),
         dateString.getBuffer(),
