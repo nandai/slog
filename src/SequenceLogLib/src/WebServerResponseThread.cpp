@@ -97,6 +97,8 @@ void WebServerResponse::removeSession(int32_t userId)
     {
         SessionManager::remove(session);
         delete session;
+
+        setUserId(-1);
     }
 
     bool secure = (mHttpRequest->getScheme() == HttpRequest::SCHEME::HTTPS);

@@ -315,7 +315,7 @@ void MySQLStatement::setLongParam(int32_t index, int64_t value)
  */
 void MySQLStatement::setStringResult(int32_t index, CoreString* result, int32_t size) const
 {
-    SLOG(CLS_NAME, "setStringResult");
+//  SLOG(CLS_NAME, "setStringResult");
 
     if (index < 0 || mResultCount <= index)
         return;
@@ -327,7 +327,7 @@ void MySQLStatement::setStringResult(int32_t index, CoreString* result, int32_t 
             String str;
             str.format("結果バッファ(%d/%d)とパラメータ(%d/%d)のアドレスが同じです。", index + 1, mResultCount, i + 1, mParamCount);
 
-            SMSG(slog::WARN, str.getBuffer());
+//          SMSG(slog::WARN, str.getBuffer());
 
 //          Exception e;
 //          e.setMessage(str.getBuffer());
@@ -336,7 +336,7 @@ void MySQLStatement::setStringResult(int32_t index, CoreString* result, int32_t 
         }
     }
 
-    size *= 3;  // 文字数をUTF-8（日本語）が収まるバイト数に変換
+    size *= 4;  // 文字数をUTF-8（日本語）が収まるバイト数に変換
 
     if (result->getCapacity() < size)
         result->setCapacity(    size);
@@ -398,7 +398,7 @@ void MySQLStatement::execute() throw(Exception)
  */
 bool MySQLStatement::fetch() const
 {
-    SLOG(CLS_NAME, "fetch");
+//  SLOG(CLS_NAME, "fetch");
 
     if (mysql_stmt_fetch(mStmt) != 0)
         return false;
