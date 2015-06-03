@@ -266,10 +266,11 @@ void Util::encodeHtml(CoreString* str)
     }
     list[] =
     {
-        {'"', "&quot;", 6},
-        {'&', "&amp;",  5},
-        {'<', "&lt;",   4},
-        {'>', "&gt;",   4},
+        {'"',  "&quot;", 6},
+        {'&',  "&amp;",  5},
+        {'<',  "&lt;",   4},
+        {'>',  "&gt;",   4},
+        {'\n', "<br />", 6},
     };
 
     int32_t len = str->getLength();
