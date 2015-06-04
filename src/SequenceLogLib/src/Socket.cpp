@@ -356,7 +356,7 @@ void Socket::connect(const CoreString& path)
  *
  * \param[in]   certificate         証明書
  * \param[in]   privateKey          秘密鍵
- * \param[in]   certificateChain    中間証明書（null可）※未対応
+ * \param[in]   certificateChain    中間証明書（null可）
  *
  * \return  なし
  */
@@ -373,8 +373,8 @@ void Socket::useSSL(const CoreString* certificate, const CoreString* privateKey,
 
     do
     {
-//      if (certificateChain == nullptr || certificateChain->getLength() == 0)
-        if (true)
+        if (certificateChain == nullptr || certificateChain->getLength() == 0)
+//      if (true)
         {
             // 証明書
 //          res =     SSL_use_certificate_file(mData->mSSL, certificate->getBuffer(), SSL_FILETYPE_PEM);
@@ -387,6 +387,9 @@ void Socket::useSSL(const CoreString* certificate, const CoreString* privateKey,
         else
         {
             // 中間証明書
+            //
+            // 証明書と中間証明書を結合しないと（素の中間証明書のままだと）
+            // SSL_CTX_use_PrivateKey_file()のところで「x509 certificate routines:X509_check_private_key:key values mismatch」のエラーが発生する。
             res = SSL_CTX_use_certificate_chain_file(mData->mCTX, certificateChain->getBuffer());
             phase = 2;
 

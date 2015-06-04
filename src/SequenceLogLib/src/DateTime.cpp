@@ -98,7 +98,11 @@ void DateTime::toLocal()
     tm.tm_wday =
     tm.tm_isdst = 0;
 
+#if defined(_WINDOWS)
     time_t time = mktime(&tm);
+#else
+    time_t time = timegm(&tm);
+#endif
     struct tm* tmLocal = localtime(&time);
 
     toValue(tmLocal, getMilliSecond());

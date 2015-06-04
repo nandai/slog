@@ -13,7 +13,8 @@ CFLAGS = \
 
 LDFLAGS = -lrt -lssl -lstdc++ -shared
 
-INSTALLDIR = /usr/lib
+#NSTALLDIR = /usr/lib
+INSTALLDIR = /usr/lib64
 
 objs = \
 	slog.o \
