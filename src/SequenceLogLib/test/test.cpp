@@ -259,6 +259,7 @@ public:     virtual void run() override;
 private:    void test01();
             void test02();
             void test03();
+            void test04();
 };
 
 const char* JsonTest::CLS_NAME = "JsonTest";
@@ -268,6 +269,7 @@ void JsonTest::run()
     test01();
     test02();
     test03();
+    test04();
 }
 
 void JsonTest::test01()
@@ -333,6 +335,19 @@ void JsonTest::test03()
     SASSERT("01", str.equals("{\"messages\":[],\"kind\":\"0003\"}"));
 
     delete json1;
+}
+
+void JsonTest::test04()
+{
+    SLOG(CLS_NAME, "test04");
+
+    String str;
+    Json* json1 = Json::getNewObject();
+
+    json1->add("id", 1);
+    json1->serialize(&str);
+    SMSG(slog::DEBUG, "%s", str.getBuffer());
+    SASSERT("01", str.equals("{\"id\":1}"));
 }
 }
 
@@ -626,10 +641,10 @@ int main()
     TestManager testManager;
 //  testManager.add(new ConvertTest);
 //  testManager.add(new DateTimeTest);
-//  testManager.add(new JsonTest);
+    testManager.add(new JsonTest);
 //  testManager.add(new ResourceTest);
 //  testManager.add(new StringTest);
-    testManager.add(new ValidateTest);
+//  testManager.add(new ValidateTest);
     testManager.run();
 
     Thread::sleep(2000);

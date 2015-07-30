@@ -101,6 +101,11 @@ public:     virtual ~Json() override;
             /*!
              * JSONオブジェクト追加
              */
+            void add(const char* name, int32_t value);
+
+            /*!
+             * JSONオブジェクト追加
+             */
             void add(Json* json);
 
             /*!

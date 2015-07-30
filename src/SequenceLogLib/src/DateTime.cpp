@@ -101,7 +101,8 @@ void DateTime::toLocal()
 #if defined(_WINDOWS)
     time_t time = mktime(&tm);
 #else
-    time_t time = timegm(&tm);
+    time_t time = mktime(&tm);
+//  time_t time = timegm(&tm);
 #endif
     struct tm* tmLocal = localtime(&time);
 

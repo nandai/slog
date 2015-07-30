@@ -96,14 +96,38 @@ JsonAbstract::JsonAbstract(const char* name)
 class JsonValue : public JsonAbstract
 {
             /*!
-             * 値
+             * \brief   タイプ
              */
-            String mValue;
+public:     enum class Type : int32_t
+            {
+                STRING,
+                NUMBER,
+            };
+
+            /*!
+             * \brief   タイプ
+             */
+            Type mType;
+
+            /*!
+             * \brief   値（文字列）
+             */
+            String mString;
+
+            /*!
+             * \brief   値（数値）
+             */
+            int32_t mNumber;
 
             /*!
              * コンストラクタ
              */
 public:     JsonValue(const char* name, const char* value);
+
+            /*!
+             * コンストラクタ
+             */
+            JsonValue(const char* name, int32_t value);
 
             /*!
              * シリアライズ
@@ -119,7 +143,20 @@ private:    virtual void serializeChild(CoreString* content) const override;
  */
 JsonValue::JsonValue(const char* name, const char* value) : JsonAbstract(name)
 {
-    encodeEscape(&mValue, value);
+    mType = Type::STRING;
+    encodeEscape(&mString, value);
+}
+
+/*!
+ * \brief   コンストラクタ
+ *
+ * \param[in]   name    キーの名前
+ * \param[in]   value   値
+ */
+JsonValue::JsonValue(const char* name, int32_t value) : JsonAbstract(name)
+{
+    mType = Type::NUMBER;
+    mNumber = value;
 }
 
 /*!
@@ -131,7 +168,8 @@ JsonValue::JsonValue(const char* name, const char* value) : JsonAbstract(name)
  */
 void JsonValue::serializeChild(CoreString* content) const
 {
-    content->format("\"%s\":\"%s\"", mName.getBuffer(), mValue.getBuffer());
+         if (mType == Type::STRING) content->format("\"%s\":\"%s\"", mName.getBuffer(), mString.getBuffer());
+    else if (mType == Type::NUMBER) content->format("\"%s\":%d",     mName.getBuffer(), mNumber);
 }
 
 /*!
@@ -176,6 +214,22 @@ void Json::add(const char* name, const CoreString* value)
  * \return  なし
  */
 void Json::add(const char* name, const char* value)
+{
+    mName.setLength(0);
+    mBracket[0] = '{';
+    mBracket[1] = '}';
+    mList.push_back(new JsonValue(name, value));
+}
+
+/*!
+ * \brief   JSONデータ追加
+ *
+ * \param[in]   name    キーの名前
+ * \param[in]   value   値
+ *
+ * \return  なし
+ */
+void Json::add(const char* name, int32_t value)
 {
     mName.setLength(0);
     mBracket[0] = '{';
