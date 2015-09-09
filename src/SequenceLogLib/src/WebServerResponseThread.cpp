@@ -277,7 +277,11 @@ void WebServerResponse::sendContent(const Buffer* content) const
     if (mChunked == false)
     {
         socket->send(content, content->getLength());
-//      socket->close();
+
+        const CoreString* connection = mHttpRequest->getConnection();
+
+        if (connection->getLength() == 0 || connection->equals("close"))
+            socket->close();
     }
     else
     {

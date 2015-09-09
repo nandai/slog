@@ -278,6 +278,15 @@ bool HttpRequest::analizeRequest()
                 {
                     mContentType.copy(request + compareLen);
                 }
+
+                // Connection
+                compare = "Connection";
+                compareLen = String::GetLength(compare);
+
+                if (String::CompareTo(request, compare, compareLen) == 0)
+                {
+                    mConnection.copy(request + compareLen);
+                }
             }
         }
 
@@ -340,7 +349,7 @@ int32_t HttpRequest::analizeUrl(const char* request, int32_t len, METHOD method)
         p1++;   // "/www.printf.jp"等の先頭の'/'をスキップ
 
         Util::decodePercent(&mUrl, (char*)p1, p2);
-        setUrl( mUrl.getBuffer());
+        setUrl(mUrl.getBuffer());
 
         mMethod = method;
         return 0;
@@ -512,6 +521,14 @@ const CoreString* HttpRequest::getContentType() const
     return &mContentType;
 }
 
+/*
+ * Connection取得
+ */
+const CoreString* HttpRequest::getConnection() const
+{
+    return &mConnection;
+}
+
 /*!
  * \brief   リセット
  */
@@ -528,6 +545,7 @@ void HttpRequest::reset()
     mAcceptLanguage.setLength(0);
     mUserAgent.     setLength(0);
     mContentType.   setLength(0);
+    mConnection.    setLength(0);
 }
 
 } // namespace slog

@@ -149,6 +149,11 @@ private:    Socket* mSocket;
             String mContentType;
 
             /*!
+             * Connection
+             */
+            String mConnection;
+
+            /*!
              * デフォルトリスナー
              */
             HttpRequestListener mDefaultListener;
@@ -272,6 +277,11 @@ public:     Socket* getSocket() const;
              * Content-Type取得
              */
             const CoreString* getContentType() const;
+
+            /*
+             * Connection取得
+             */
+            const CoreString* getConnection() const;
 
             /*!
              * リセット
