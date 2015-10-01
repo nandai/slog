@@ -465,7 +465,8 @@ void MySQL::connect(const char* host, const char* user, const char* password, co
         throw e;
     }
 
-    mysql_set_character_set(mData->conn, "utf8");
+//  mysql_set_character_set(mData->conn, "utf8");
+    mysql_set_character_set(mData->conn, "utf8mb4");
 }
 
 /*!
