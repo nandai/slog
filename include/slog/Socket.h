@@ -149,6 +149,11 @@ public:     Socket();
             int setReUseAddress(bool reUse);
 
             /*!
+             * 送信タイムアウト設定
+             */
+            int setSendTimeOut(int32_t msec);
+
+            /*!
              * 受信タイムアウト設定
              */
             int setRecvTimeOut(int32_t msec);

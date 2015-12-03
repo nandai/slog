@@ -500,6 +500,28 @@ int Socket::setReUseAddress(bool reUse)
 }
 
 /*!
+ * \brief   送信タイムアウト設定
+ *
+ * \param[in]   msec    送信タイムアウト値
+ *
+ * \return  
+ */
+int Socket::setSendTimeOut(int32_t msec)
+{
+    timeval tm;
+    tm.tv_sec = msec;
+    tm.tv_usec = 0;
+
+#if defined(_WINDOWS)
+    int result = setsockopt((SOCKET)mSocket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tm, sizeof(timeval));
+#else
+    int result = setsockopt(        mSocket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tm, sizeof(timeval));
+#endif
+
+    return result;
+}
+
+/*!
  * \brief   受信タイムアウト設定
  *
  * \param[in]   msec    受信タイムアウト値
