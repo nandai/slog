@@ -73,7 +73,7 @@ public:     virtual ~DB() {}
             }
 
             /*!
-             * トランザクション監視
+             * トランザクション開始
              */
             void beginTransaction() const {query("BEGIN");}
 
