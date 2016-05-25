@@ -28,7 +28,7 @@
     #include <windows.h>
 #endif
 
-#if defined(__linux__)
+#if defined(__unix__) || defined(__APPLE__)
     #include <string.h>
     #include <limits.h>
     #include <unistd.h>
@@ -36,6 +36,10 @@
 
     #if !defined(__ANDROID__)
         #include <iconv.h>
+    #endif
+
+    #if defined(__APPLE__)
+        #include <libproc.h>
     #endif
 #endif
 
@@ -59,13 +63,18 @@ void Util::getProcessPath(CoreString* path)
     str.conv(fullName);
 
     char* buffer = str.getBuffer();
-#else
+
+#elif defined(__unix__)
     String linkPath;
     linkPath.format("/proc/%d/exe", getpid());
 
     char buffer[MAX_PATH];
     int32_t len = readlink(linkPath.getBuffer(), buffer, sizeof(buffer));
     buffer[len] = '\0';
+
+#elif defined(__APPLE__)
+    char buffer[PROC_PIDPATHINFO_MAXSIZE];
+    proc_pidpath(getpid(), buffer, sizeof(buffer));
 #endif
 
     char* fileName = strrchr(buffer, PATH_DELIMITER);

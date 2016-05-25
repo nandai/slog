@@ -31,7 +31,7 @@
     #define snprintf _snprintf
 #endif
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     #include <errno.h>
 #endif
 

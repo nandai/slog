@@ -26,7 +26,7 @@
 
 #pragma warning(disable:4251)
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     #include <pthread.h>
 #endif
 

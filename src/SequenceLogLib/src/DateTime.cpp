@@ -26,6 +26,11 @@
     #include <windows.h>
 #endif
 
+#if defined(__APPLE__)
+    #include <mach/clock.h>
+    #include <mach/mach.h>
+#endif
+
 namespace slog
 {
 
@@ -61,13 +66,24 @@ void DateTime::setCurrent()
 
     gettimeofday(&tv, nullptr);
     setTime_t(tv.tv_sec, (uint64_t)tv.tv_usec / 1000);
-#else   
+#else
     timespec tv;
 
-    clock_gettime(CLOCK_REALTIME, &tv);
+    #if (__APPLE__)
+        clock_serv_t cs;
+        mach_timespec_t mts;
+        host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cs);
+        clock_get_time(cs, &mts);
+        mach_port_deallocate(mach_task_self(), cs);
+        tv.tv_sec =  mts.tv_sec;
+        tv.tv_nsec = mts.tv_nsec;
+    #else
+        clock_gettime(CLOCK_REALTIME, &tv);
+    #endif
+
     setTime_t(tv.tv_sec, (uint64_t)tv.tv_nsec / (1000 * 1000));
 #endif
-#endif
+#endif // defined(_WINDOWS)
 }
 
 /*!
@@ -202,7 +218,7 @@ int64_t DateTime::toMilliSeconds() const
 
     result =
         (result * 24 * 60 * 60 * 1000) +
-        (getHour()   * 60 * 60 * 1000) + 
+        (getHour()   * 60 * 60 * 1000) +
         (getMinute()      * 60 * 1000) +
         (getSecond()           * 1000) +
          getMilliSecond();

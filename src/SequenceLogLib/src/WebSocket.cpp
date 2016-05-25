@@ -306,7 +306,7 @@ void WebSocket::check(uint64_t len, bool isText) throw(Exception)
 
     mPayloadLen -= len;
 
-    if (mPayloadLen < 0)
+    if ((int64_t)mPayloadLen < 0)
     {
         Exception e;
 

@@ -27,13 +27,17 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     #include <arpa/inet.h>
     #include <sys/socket.h>
     #include <sys/un.h>
     #include <netinet/tcp.h>
     #include <unistd.h>
     #include <netdb.h>
+
+    #if defined(__APPLE__)
+        #define MSG_NOSIGNAL 0x2000
+    #endif
 #endif
 
 namespace slog
@@ -484,7 +488,7 @@ bool Socket::isConnect() const
  *
  * \param[in]   reUse   即座にアドレスを再利用する場合はtrue
  *
- * \return  
+ * \return
  */
 int Socket::setReUseAddress(bool reUse)
 {
@@ -504,7 +508,7 @@ int Socket::setReUseAddress(bool reUse)
  *
  * \param[in]   msec    送信タイムアウト値
  *
- * \return  
+ * \return
  */
 int Socket::setSendTimeOut(int32_t msec)
 {
@@ -526,7 +530,7 @@ int Socket::setSendTimeOut(int32_t msec)
  *
  * \param[in]   msec    受信タイムアウト値
  *
- * \return  
+ * \return
  */
 int Socket::setRecvTimeOut(int32_t msec)
 {
@@ -548,7 +552,7 @@ int Socket::setRecvTimeOut(int32_t msec)
  *
  * \param[in]   noDelay 遅延させない場合はtrue
  *
- * \return  
+ * \return
  */
 int Socket::setNoDelay(bool noDelay)
 {

@@ -22,7 +22,7 @@
 #pragma once
 #include "slog/Exception.h"
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     #include <pthread.h>
 #endif
 

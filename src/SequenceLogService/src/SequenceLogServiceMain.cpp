@@ -80,7 +80,7 @@ SequenceLogServiceMain::~SequenceLogServiceMain()
 }
 
 /*!
- * \brief   
+ * \brief
  */
 SequenceLogFileManager* SequenceLogServiceMain::getSequenceLogFileManager(int32_t userId) const
 {

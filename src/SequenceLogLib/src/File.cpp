@@ -30,7 +30,7 @@
     #include <windows.h>
 #endif
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     #include <stdio.h>
     #include <string.h>
     #include <unistd.h>
@@ -157,10 +157,12 @@ FileCacheList fileCacheList;  // 動作確認用
 
 class File::IO
 {
+public:     virtual ~IO() {};
+
             /*!
              * オープンしているか調べる
              */
-public:     virtual bool isOpen() const = 0;
+            virtual bool isOpen() const = 0;
 
             /*!
              * オープン
@@ -830,7 +832,7 @@ void File::flush()
 }
 
 /*!
- * \brief   
+ * \brief
  */
 bool File::isEOF() const
 {
@@ -908,6 +910,7 @@ bool File::copy(const CoreString* aSrc, const CoreString* aDst)
     return (CopyFileW(src.getBuffer(), dst.getBuffer(), FALSE) == TRUE);
 #else
     noticeLog("*** File::copy() no implement.");
+    return true;
 #endif
 }
 
@@ -926,6 +929,7 @@ bool File::move(const CoreString* aSrc, const CoreString* aDst)
     return (MoveFileExW(src.getBuffer(), dst.getBuffer(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED) == TRUE);
 #else
     noticeLog("*** File::move() no implement.");
+    return true;
 #endif
 }
 

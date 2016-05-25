@@ -24,13 +24,11 @@
 
 #if defined(_WINDOWS)
     #include <windows.h>
-#endif
 
-#if defined(__ANDROID__)
+#elif defined(__ANDROID__)
     #include <android/log.h>
-#endif
 
-#if defined(__unix__)
+#else
     #include <syslog.h>
 #endif
 
@@ -66,6 +64,7 @@ extern "C" void noticeLog(const char* format, ...)
 
 #elif defined(__ANDROID__)
     __android_log_write(ANDROID_LOG_INFO, "slog", str.getBuffer());
+
 #else
     syslog(LOG_NOTICE, "%s", str.getBuffer());
 #endif

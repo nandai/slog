@@ -51,7 +51,7 @@ static WebServerResponse* createGetLogResponse(                     HttpRequest*
 static WebServerResponse* createSequenceLogService(                 HttpRequest* httpRequest) {return new SequenceLogService(                 httpRequest);}
 
 /*!
- * 
+ *
  */
 const WebServer::CREATE* SequenceLogServiceWebServer::getCreateList() const
 {

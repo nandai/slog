@@ -26,7 +26,7 @@
 #include "slog/Util.h"
 #include "slog/PointerString.h"
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     #include <stdio.h>
     #include <string.h>
     #include <errno.h>
@@ -366,7 +366,7 @@ void Application::onUpdateLog(const Buffer* text, int32_t userId)
     printf("%s", p + 1);
 }
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
 #include <signal.h>
 
 /*!
@@ -387,7 +387,7 @@ static void onSignal(int sig)
  */
 int main(int argc, char** argv)
 {
-#if !defined(_WINDOWS)
+#if !defined(_WINDOWS) && !defined(__APPLE__)
     if (daemon(0, 0) != 0)
         return 0;
 #endif
@@ -397,7 +397,7 @@ int main(int argc, char** argv)
     loadSequenceLogConfig("~/SequenceLogService.log.config");
 //  SLOG("main.cpp", "main");
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     signal(SIGINT,  onSignal);
 //  signal(SIGTERM, onSignal);
 #endif

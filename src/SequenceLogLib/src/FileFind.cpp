@@ -27,6 +27,7 @@
 
 #if defined(_WINDOWS)
     #include <windows.h>
+
 #elif defined(__linux__)
     #include <stddef.h>
     #if !defined(__ANDROID__)
@@ -35,6 +36,9 @@
         #include <string.h>
         #include <dirent.h>
     #endif
+
+#elif defined(__APPLE__)
+    #include <dirent.h>
 #endif
 
 namespace slog

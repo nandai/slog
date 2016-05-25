@@ -58,6 +58,7 @@ public:     class Result {};
              * コンストラクタ
              */
 public:     Validate() {}
+            virtual ~Validate() {}
 
             /*!
              * 検証実行

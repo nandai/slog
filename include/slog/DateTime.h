@@ -24,7 +24,7 @@
 #include "slog/slog.h"
 struct tm;
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     #include <sys/time.h>
 #endif
 

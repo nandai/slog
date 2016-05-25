@@ -455,7 +455,8 @@ const char* SequenceLogService::initBinaryOrText(CoreString* fileName)
         ext = defaultExt;
     }
 
-    mBinaryLog = (stricmp(ext, "slog") == 0);
+//  mBinaryLog = (stricmp(ext, "slog") == 0);
+    mBinaryLog = (strcmp( ext, "slog") == 0);
     return ext;
 }
 

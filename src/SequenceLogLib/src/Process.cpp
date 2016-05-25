@@ -25,7 +25,7 @@
     #include <windows.h>
 #endif
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     #include <stdio.h>
     #include <unistd.h>
     #include <sys/stat.h>

@@ -186,7 +186,7 @@ void CoreString::formatV(const char* format, va_list arg) throw(Exception)
 {
     int32_t len;
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
     va_list argCopy;
     va_copy(argCopy, arg);
 #endif

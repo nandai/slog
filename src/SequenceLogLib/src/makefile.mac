@@ -1,0 +1,86 @@
+CC = gcc
+
+CFLAGS = \
+	-D__SLOG__ \
+	-I../../../include \
+	-I../../include \
+	-I$(JAVA_HOME)/include \
+	-I$(JAVA_HOME)/include/linux \
+	-I$(JAVA_HOME)/include/darwin \
+	-I/usr/local/opt/openssl/include \
+	-fPIC \
+	-std=c++0x
+
+#CFLAGS += -D_DEBUG
+
+LDFLAGS = -lcrypto -liconv -lssl -lstdc++ -shared
+
+INSTALLDIR = /usr/local/lib
+
+objs = \
+	slog.o \
+	Buffer.o \
+	ByteBuffer.o \
+	Convert.o \
+	Cookie.o \
+	CoreString.o \
+	DateTime.o \
+	DB.o \
+	Dir.o \
+	Exception.o \
+	File.o \
+	FileFind.o \
+	FileInfo.o \
+	HtmlGenerator.o \
+	HttpRequest.o \
+	HttpResponse.o \
+	Json.o \
+	MimeType.o \
+	Mutex.o \
+	PointerString.o \
+	Process.o \
+	Resource.o \
+	Session.o \
+	Socket.o \
+	String.o \
+	Thread.o \
+	Tokenizer.o \
+	Util.o \
+	Validate.o \
+	Variable.o \
+	WebServerManager.o \
+	WebServerThread.o \
+	WebServerResponseThread.o \
+	WebSocket.o \
+	WebSocketClient.o \
+	SequenceLog.o \
+	SHA1.o \
+	SHA256.o
+#	jp_printf_slog_Log.o \
+
+#all: depend libslog.dylib
+
+libslog.dylib: $(objs)
+	$(CC) -o libslog.dylib $^ $(LDFLAGS)
+
+.cpp.o:
+	$(CC) $(CFLAGS) -c $<
+
+install:
+	cp libslog.dylib $(INSTALLDIR)/libslog.dylib.1.3.0
+	chmod 644        $(INSTALLDIR)/libslog.dylib.1.3.0
+	ln -sf           $(INSTALLDIR)/libslog.dylib.1.3.0 $(INSTALLDIR)/libslog.dylib.1
+	ln -sf           $(INSTALLDIR)/libslog.dylib.1     $(INSTALLDIR)/libslog.dylib
+
+	cp -rf ../../../include/slog /usr/local/include/
+
+clean:
+	$(RM) libslog.dylib $(objs) depend.inc
+
+depend: $(objs:.o=.cpp)
+	-@ $(RM) depend.inc
+	-@ for i in $^; do \
+		cpp $(CFLAGS) -MM $$i | sed "s/\ [_a-zA-Z0-9][_a-zA-Z0-9]*\.cpp//g" >> depend.inc;\
+	done
+
+-include depend.inc
