@@ -5,7 +5,7 @@
     // シーケンスログサービス
     var SequenceLogService = function()
     {
-        this.version = '1.2.9';
+        this.version = '1.3.0';
         this.ws = null;
         this.logFileListUpdateCallback = null;
         this.logViews = [];                     // シーケンスログビューの配列

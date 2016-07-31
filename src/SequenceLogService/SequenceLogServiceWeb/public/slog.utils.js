@@ -138,8 +138,9 @@
         var colors =
         {
             s: 'lightgreen',
+            n: 'white',
             d: 'yellowgreen',
-            i: 'white',
+            i: 'lightblue',
             w: 'yellow',
             e: 'red'
         };
