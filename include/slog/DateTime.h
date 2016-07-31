@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2011-2013 printf.jp
+ * Copyright (C) 2011-2016 printf.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #pragma once
 
 #include "slog/slog.h"
-struct tm;
+#include <time.h>
 
 #if defined(__unix__) || defined(__APPLE__)
     #include <sys/time.h>

@@ -20,10 +20,14 @@
  *  \author Copyright 2013-2014 printf.jp
  */
 #include "SequenceLogServiceWebServerResponse.h"
+#include "SequenceLogServiceMain.h"
 #include "R.h"
 
 #include "slog/HttpRequest.h"
 #include "slog/Json.h"
+#include "slog/Mutex.h"
+#include "slog/FileInfo.h"
+#include "slog/File.h"
 #include "slog/SequenceLog.h"
 
 namespace slog
@@ -62,11 +66,36 @@ void SequenceLogServiceWebServerResponse::run()
         mAccountLogic.getById(&mAccount);
         mVariables.add("userNameValue", &mAccount.name);
 
-//      if (mHttpRequest->getUrl()->equals("logout"))
-        if (mHttpRequest->getUrl()->equals("logoff"))
+        const CoreString* url = mHttpRequest->getUrl();
+//      if (url->equals("logout"))
+        if (url->equals("logoff"))
         {
             logout();
             return;
+        }
+
+        String logsPath = "logs/";
+        if (url->indexOf(logsPath.getBuffer()) == 0)
+        {
+            SequenceLogServiceMain* serviceMain = SequenceLogServiceMain::getInstance();
+            ScopedLock lock(serviceMain->getMutex());
+
+            auto sum = serviceMain->getFileInfoArray(getUserId());
+
+            for (auto i = sum->begin(); i != sum->end(); i++)
+            {
+                const FileInfo* fileInfo = *i;
+                const CoreString* canonicalPath = fileInfo->getCanonicalPath();
+
+                if (canonicalPath->lastIndexOf(url->getBuffer() + logsPath.getLength()) > 0)
+                {
+                    MimeType* mimeType = (MimeType*)mHttpRequest->getMimeType();
+                    String ext = ".exe";
+                    mimeType->analize(&ext);
+                    sendBinary(nullptr, canonicalPath);
+                    return;
+                }
+            }
         }
     }
 
@@ -90,6 +119,7 @@ void SequenceLogServiceWebServerResponse::initVariables()
     mVariables.add("startTime",     r.string(R::start_time));
     mVariables.add("endTime",       r.string(R::end_time));
     mVariables.add("logFileName",   r.string(R::log_file_name));
+    mVariables.add("fileTransfer",  r.string(R::file_transfer));
     mVariables.add("logFileSize",   r.string(R::log_file_size));
 }
 

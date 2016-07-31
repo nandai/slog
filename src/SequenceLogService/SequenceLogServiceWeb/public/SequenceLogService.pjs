@@ -9,11 +9,13 @@ $(function()
 
         $.each(data, function(i, obj)
         {
+            var link = 'logs/' + obj.canonicalPath;
             list = list +
                 '<tr>' +
                     '<td align="center">' + obj.creationTime  + '</td>' +
                     '<td align="center">' + obj.lastWriteTime + '</td>' +
-                    '<td><a href="#">'    + obj.canonicalPath + '</a></td>' +
+                    '<td><a href="' + link + '">' + obj.canonicalPath + '</a></td>' +
+                    '<td><a href="#">@fileTransfer;</a></td>' +
                     '<td align="right">'  + obj.size          + '</td>' +
                 '</tr>';
         });

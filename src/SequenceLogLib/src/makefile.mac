@@ -56,7 +56,7 @@ objs = \
 	SequenceLog.o \
 	SHA1.o \
 	SHA256.o
-#	jp_printf_slog_Log.o \
+#	jp_printf_slog_Log.o
 
 #all: depend libslog.dylib
 

@@ -22,6 +22,7 @@
     <ProjectGuid>{603EC08B-A59A-49F9-93C1-ABE2A82A9B3B}</ProjectGuid>
     <RootNamespace>SequenceLogLib</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-dll|Win32'" Label="Configuration">

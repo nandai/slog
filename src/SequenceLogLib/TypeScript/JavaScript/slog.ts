@@ -732,7 +732,7 @@ module slog
         assert(assertName : string, result : boolean) : void
         {
             if (result === true)
-                this.d(assertName + ':PASSED');
+                this.i(assertName + ':PASSED');
             else
                 this.e(assertName + ':FAILED');
         }

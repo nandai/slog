@@ -660,7 +660,7 @@ var slog;
         */
         SequenceLog.prototype.assert = function (assertName, result) {
             if (result === true)
-                this.d(assertName + ':PASSED');
+                this.i(assertName + ':PASSED');
             else
                 this.e(assertName + ':FAILED');
         };
