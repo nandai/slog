@@ -11,7 +11,7 @@
     "Start time",
     "End time",
     "Log file name",
-	"Transfer",
+    "Transfer",
     "Size",
     "Administrator",
     "The username or password you entered is incorrect.",

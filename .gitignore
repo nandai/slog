@@ -11,6 +11,7 @@ GTAGS
 *.exp
 *.sdf
 *.opensdf
+*.db
 SequenceLog.exe
 SequenceLogd.exe
 depend.inc
